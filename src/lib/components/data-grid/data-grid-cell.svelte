@@ -1,0 +1,152 @@
+<script lang="ts" generics="TData">
+	import type { Cell, Table } from '@tanstack/table-core';
+
+	// Cell variant imports
+	import ShortTextCell from './cells/short-text-cell.svelte';
+	import NumberCell from './cells/number-cell.svelte';
+	import CheckboxCell from './cells/checkbox-cell.svelte';
+	import LongTextCell from './cells/long-text-cell.svelte';
+	import SelectCell from './cells/select-cell.svelte';
+	import MultiSelectCell from './cells/multi-select-cell.svelte';
+	import DateCell from './cells/date-cell.svelte';
+	import UrlCell from './cells/url-cell.svelte';
+	import FileCell from './cells/file-cell.svelte';
+
+	interface Props {
+		cell: Cell<TData, unknown>;
+		table: Table<TData>;
+	}
+
+	let { cell, table }: Props = $props();
+
+	const meta = $derived(table.options.meta);
+	const originalRowIndex = $derived(cell.row.index);
+
+	// Get the display row index (for filtered/sorted tables)
+	const displayRowIndex = $derived.by(() => {
+		const rows = table.getRowModel().rows;
+		const idx = rows.findIndex((row) => row.original === cell.row.original);
+		return idx >= 0 ? idx : originalRowIndex;
+	});
+
+	const rowIndex = $derived(displayRowIndex);
+	const columnId = $derived(cell.column.id);
+
+	// Derive cell state from table meta
+	const isFocused = $derived(
+		meta?.focusedCell?.rowIndex === rowIndex && meta?.focusedCell?.columnId === columnId
+	);
+	const isEditing = $derived(
+		meta?.editingCell?.rowIndex === rowIndex && meta?.editingCell?.columnId === columnId
+	);
+	const isSelected = $derived(meta?.getIsCellSelected?.(rowIndex, columnId) ?? false);
+	const readOnly = $derived(meta?.readOnly ?? false);
+
+	// Get cell variant from column def
+	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
+	const variant = $derived(cellOpts?.variant ?? 'short-text');
+</script>
+
+{#if variant === 'short-text'}
+	<ShortTextCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+	/>
+{:else if variant === 'number'}
+	<NumberCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+	/>
+{:else if variant === 'checkbox'}
+	<CheckboxCell {cell} {table} {rowIndex} {columnId} {isFocused} {isSelected} {readOnly} />
+{:else if variant === 'long-text'}
+	<LongTextCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+	/>
+{:else if variant === 'select'}
+	<SelectCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+	/>
+{:else if variant === 'multi-select'}
+	<MultiSelectCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+	/>
+{:else if variant === 'date'}
+	<DateCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+	/>
+{:else if variant === 'url'}
+	<UrlCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+	/>
+{:else if variant === 'file'}
+	<FileCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+	/>
+{:else}
+	<!-- Default to short-text -->
+	<ShortTextCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+	/>
+{/if}
