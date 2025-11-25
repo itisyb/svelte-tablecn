@@ -291,12 +291,7 @@ export function useDataGrid<TData extends RowData>(
 	function focusCell(rowIndex: number, columnId: string) {
 		focusedCell = { rowIndex, columnId };
 
-		// Scroll cell into view
 		const cellKey = getCellKey(rowIndex, columnId);
-		const cellElement = cellMapRef.get(cellKey);
-		if (cellElement) {
-			cellElement.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-		}
 
 		// Clear selection when focusing new cell (unless holding shift)
 		if (!selectionState.isSelecting) {
@@ -306,6 +301,20 @@ export function useDataGrid<TData extends RowData>(
 				isSelecting: false
 			};
 		}
+
+		// Scroll to row if needed (for virtualization)
+		if (virtualizer) {
+			virtualizer.scrollToIndex(rowIndex, { align: 'auto' });
+		}
+
+		// Focus the cell element after a frame to allow for virtualization to render
+		requestAnimationFrame(() => {
+			const cellElement = cellMapRef.get(cellKey);
+			if (cellElement) {
+				cellElement.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+				cellElement.focus();
+			}
+		});
 	}
 
 	function blurCell() {
@@ -611,18 +620,17 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		if (updates.length > 0) {
-			onPaste?.(updates);
-
-			// Clear cut cells if we had any
+			// Clear cut cells first if we had any (to merge all updates together)
 			if (cutCells.size > 0) {
-				const clearUpdates: UpdateCell[] = [];
 				for (const cellKey of cutCells) {
 					const { rowIndex, columnId } = parseCellKey(cellKey);
-					clearUpdates.push({ rowIndex, columnId, value: null });
+					updates.push({ rowIndex, columnId, value: null });
 				}
-				onPaste?.(clearUpdates);
 				cutCells = new Set();
 			}
+
+			handleDataUpdate(updates);
+			onPaste?.(updates);
 		}
 	}
 
@@ -669,7 +677,7 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		if (updates.length > 0) {
-			onPaste?.(updates);
+			handleDataUpdate(updates);
 		}
 	}
 
@@ -974,6 +982,58 @@ export function useDataGrid<TData extends RowData>(
 	}
 
 	// ========================================
+	// Data Update Handler
+	// ========================================
+
+	function handleDataUpdate(updates: UpdateCell | UpdateCell[]) {
+		if (readOnly) return;
+
+		const updateArray = Array.isArray(updates) ? updates : [updates];
+		if (updateArray.length === 0) return;
+
+		const rows = table.getRowModel().rows;
+
+		// Group updates by row
+		const rowUpdatesMap = new Map<number, Array<{ columnId: string; value: unknown }>>();
+
+		for (const update of updateArray) {
+			const row = rows[update.rowIndex];
+			if (!row) continue;
+
+			const originalData = row.original;
+			const originalRowIndex = data.indexOf(originalData);
+			const targetIndex = originalRowIndex !== -1 ? originalRowIndex : update.rowIndex;
+
+			const existingUpdates = rowUpdatesMap.get(targetIndex) ?? [];
+			existingUpdates.push({ columnId: update.columnId, value: update.value });
+			rowUpdatesMap.set(targetIndex, existingUpdates);
+		}
+
+		// Build new data array
+		const tableRowCount = rows?.length ?? data.length;
+		const newData: TData[] = [];
+
+		for (let i = 0; i < tableRowCount; i++) {
+			const rowUpdates = rowUpdatesMap.get(i);
+			const existingRow = data[i];
+			const tableRow = rows?.[i];
+
+			if (rowUpdates) {
+				const baseRow = (existingRow ?? tableRow?.original ?? {}) as Record<string, unknown>;
+				const updatedRow = { ...baseRow };
+				for (const { columnId, value } of rowUpdates) {
+					updatedRow[columnId] = value;
+				}
+				newData.push(updatedRow as TData);
+			} else {
+				newData.push(existingRow ?? tableRow?.original ?? ({} as TData));
+			}
+		}
+
+		onDataChange?.(newData);
+	}
+
+	// ========================================
 	// Create TanStack Table
 	// ========================================
 
@@ -991,6 +1051,88 @@ export function useDataGrid<TData extends RowData>(
 			}
 		}
 	});
+
+	// Create a reactive meta object using getters so that components always get fresh values
+	// This is critical - without getters, the meta values are captured at creation time and never update
+	const meta = {
+		get dataGridRef() {
+			return dataGridRef;
+		},
+		get cellMapRef() {
+			return cellMapRef;
+		},
+		get focusedCell() {
+			return focusedCell;
+		},
+		get editingCell() {
+			return editingCell;
+		},
+		get selectionState() {
+			return selectionState;
+		},
+		get searchOpen() {
+			return searchOpen;
+		},
+		get readOnly() {
+			return readOnly;
+		},
+		get rowHeight() {
+			return rowHeight;
+		},
+		get contextMenu() {
+			return contextMenu;
+		},
+		get pasteDialog() {
+			return pasteDialog;
+		},
+		getIsCellSelected,
+		getIsSearchMatch,
+		getIsActiveSearchMatch,
+		onRowHeightChange: (value: RowHeightValue) => {
+			rowHeight = value;
+		},
+		onCellClick: selectCell,
+		onCellDoubleClick: (ri: number, colId: string) => startEditing(ri, colId),
+		onCellMouseDown,
+		onCellMouseEnter,
+		onCellMouseUp,
+		onCellContextMenu,
+		onCellEditingStart: startEditing,
+		onCellEditingStop: stopEditing,
+		onDataUpdate: handleDataUpdate,
+		onRowsDelete: (rowIndices: number[]) => {
+			const rows = table.getRowModel().rows;
+			const rowsToDelete = rowIndices.map((idx) => rows[idx]?.original).filter(Boolean) as TData[];
+			onRowsDeleteProp?.(rowsToDelete, rowIndices);
+		},
+		onCellsCopy: copySelectedCells,
+		onCellsCut: cutSelectedCells,
+		onFilesUpload,
+		onFilesDelete,
+		onContextMenuOpenChange: (open: boolean) => {
+			contextMenu = { ...contextMenu, open };
+		},
+		onPasteDialogOpenChange: (open: boolean) => {
+			pasteDialog = { ...pasteDialog, open };
+		},
+		onPasteWithExpansion: async () => {
+			if (onRowsAdd) {
+				await onRowsAdd(pasteDialog.rowsNeeded);
+				const cols = getNavigableColumns();
+				const startPos = focusedCell || { rowIndex: 0, columnId: cols[0]?.id || '' };
+				const startColIndex = cols.findIndex((c) => c.id === startPos.columnId);
+				performPaste(pasteDialog.clipboardText, startPos, startColIndex);
+			}
+			pasteDialog = { ...pasteDialog, open: false };
+		},
+		onPasteWithoutExpansion: () => {
+			const cols = getNavigableColumns();
+			const startPos = focusedCell || { rowIndex: 0, columnId: cols[0]?.id || '' };
+			const startColIndex = cols.findIndex((c) => c.id === startPos.columnId);
+			performPaste(pasteDialog.clipboardText, startPos, startColIndex);
+			pasteDialog = { ...pasteDialog, open: false };
+		}
+	};
 
 	const tableOptions: TableOptionsResolved<TData> = {
 		data,
@@ -1032,68 +1174,7 @@ export function useDataGrid<TData extends RowData>(
 		mergeOptions: (defaultOptions: TableOptions<TData>, newOptions: Partial<TableOptions<TData>>) => {
 			return { ...defaultOptions, ...newOptions };
 		},
-		meta: {
-			dataGridRef,
-			cellMapRef,
-			focusedCell,
-			editingCell,
-			selectionState,
-			searchOpen,
-			readOnly,
-			rowHeight,
-			contextMenu,
-			pasteDialog,
-			getIsCellSelected,
-			getIsSearchMatch,
-			getIsActiveSearchMatch,
-			onRowHeightChange: (value) => {
-				rowHeight = value;
-			},
-			onCellClick: selectCell,
-			onCellDoubleClick: (rowIndex, columnId) => startEditing(rowIndex, columnId),
-			onCellMouseDown,
-			onCellMouseEnter,
-			onCellMouseUp,
-			onCellContextMenu,
-			onCellEditingStart: startEditing,
-			onCellEditingStop: stopEditing,
-			onDataUpdate: (update) => {
-				const updates = Array.isArray(update) ? update : [update];
-				onPaste?.(updates);
-			},
-			onRowsDelete: (rowIndices) => {
-				const rows = table.getRowModel().rows;
-				const rowsToDelete = rowIndices.map((idx) => rows[idx]?.original).filter(Boolean) as TData[];
-				onRowsDeleteProp?.(rowsToDelete, rowIndices);
-			},
-			onCellsCopy: copySelectedCells,
-			onCellsCut: cutSelectedCells,
-			onFilesUpload,
-			onFilesDelete,
-			onContextMenuOpenChange: (open) => {
-				contextMenu = { ...contextMenu, open };
-			},
-			onPasteDialogOpenChange: (open) => {
-				pasteDialog = { ...pasteDialog, open };
-			},
-			onPasteWithExpansion: async () => {
-				if (onRowsAdd) {
-					await onRowsAdd(pasteDialog.rowsNeeded);
-					const cols = getNavigableColumns();
-					const startPos = focusedCell || { rowIndex: 0, columnId: cols[0]?.id || '' };
-					const startColIndex = cols.findIndex((c) => c.id === startPos.columnId);
-					performPaste(pasteDialog.clipboardText, startPos, startColIndex);
-				}
-				pasteDialog = { ...pasteDialog, open: false };
-			},
-			onPasteWithoutExpansion: () => {
-				const cols = getNavigableColumns();
-				const startPos = focusedCell || { rowIndex: 0, columnId: cols[0]?.id || '' };
-				const startColIndex = cols.findIndex((c) => c.id === startPos.columnId);
-				performPaste(pasteDialog.clipboardText, startPos, startColIndex);
-				pasteDialog = { ...pasteDialog, open: false };
-			}
-		}
+		meta
 	};
 
 	const table = createTable(tableOptions);
