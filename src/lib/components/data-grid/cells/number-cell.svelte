@@ -16,7 +16,6 @@
 	const initialValue = $derived(cell.getValue() as number);
 	let value = $state('');
 	let inputRef = $state<HTMLInputElement | null>(null);
-	const meta = $derived(table.options.meta);
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const min = $derived(cellOpts?.variant === 'number' ? cellOpts.min : undefined);
 	const max = $derived(cellOpts?.variant === 'number' ? cellOpts.max : undefined);
@@ -41,6 +40,7 @@
 
 	function handleBlur() {
 		const numValue = value === '' ? null : Number(value);
+		const meta = table.options.meta;
 		if (!readOnly && numValue !== initialValue) {
 			meta?.onDataUpdate?.({ rowIndex, columnId, value: numValue });
 		}
@@ -53,6 +53,7 @@
 	}
 
 	function handleWrapperKeyDown(event: KeyboardEvent) {
+		const meta = table.options.meta;
 		if (isEditing) {
 			if (event.key === 'Enter') {
 				event.preventDefault();

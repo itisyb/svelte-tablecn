@@ -30,10 +30,11 @@
 
 	interface Props {
 		table: Table<TData>;
+		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, class: className }: Props = $props();
+	let { table, align = 'start', class: className }: Props = $props();
 
 	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
 	const onRowHeightChange = $derived(table.options.meta?.onRowHeightChange);
@@ -59,7 +60,7 @@
 			{/if}
 		</span>
 	</SelectTrigger>
-	<SelectContent>
+	<SelectContent {align}>
 		{#each rowHeights as option (option.value)}
 			{@const OptionIcon = option.icon}
 			<SelectItem value={option.value}>

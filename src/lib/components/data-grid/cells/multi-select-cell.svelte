@@ -37,7 +37,6 @@
 	let searchValue = $state('');
 	let containerRef = $state<HTMLDivElement | null>(null);
 	let inputRef = $state<HTMLInputElement | null>(null);
-	const meta = $derived(table.options.meta);
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const options = $derived(cellOpts?.variant === 'multi-select' ? cellOpts.options : []);
 	const sideOffset = $derived(-(containerRef?.clientHeight ?? 0));
@@ -68,7 +67,7 @@
 			: [...selectedValues, value];
 
 		selectedValues = newValues;
-		meta?.onDataUpdate?.({ rowIndex, columnId, value: newValues });
+		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValues });
 		searchValue = '';
 		queueMicrotask(() => inputRef?.focus());
 	}
@@ -79,18 +78,19 @@
 		event?.preventDefault();
 		const newValues = selectedValues.filter((v) => v !== valueToRemove);
 		selectedValues = newValues;
-		meta?.onDataUpdate?.({ rowIndex, columnId, value: newValues });
+		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValues });
 		setTimeout(() => inputRef?.focus(), 0);
 	}
 
 	function clearAll() {
 		if (readOnly) return;
 		selectedValues = [];
-		meta?.onDataUpdate?.({ rowIndex, columnId, value: [] });
+		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: [] });
 		queueMicrotask(() => inputRef?.focus());
 	}
 
 	function handleOpenChange(isOpen: boolean) {
+		const meta = table.options.meta;
 		if (isOpen && !readOnly) {
 			meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
@@ -105,6 +105,7 @@
 	}
 
 	function handleWrapperKeyDown(event: KeyboardEvent) {
+		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
 			selectedValues = [...cellValue];
@@ -140,7 +141,7 @@
 			.filter(Boolean)
 	);
 
-	const rowHeight = $derived(meta?.rowHeight ?? 'short');
+	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
 	const lineCount = $derived(getLineCount(rowHeight));
 
 	// Simple visible badge calculation (can be enhanced with useBadgeOverflow hook)

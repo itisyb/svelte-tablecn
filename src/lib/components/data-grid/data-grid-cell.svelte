@@ -11,6 +11,7 @@
 	import DateCell from './cells/date-cell.svelte';
 	import UrlCell from './cells/url-cell.svelte';
 	import FileCell from './cells/file-cell.svelte';
+	import RowSelectCell from './cells/row-select-cell.svelte';
 
 	interface Props {
 		cell: Cell<TData, unknown>;
@@ -19,7 +20,7 @@
 
 	let { cell, table }: Props = $props();
 
-	const meta = $derived(table.options.meta);
+	// Access meta directly each time - don't cache the reference
 	const originalRowIndex = $derived(cell.row.index);
 
 	// Get the display row index (for filtered/sorted tables)
@@ -32,15 +33,25 @@
 	const rowIndex = $derived(displayRowIndex);
 	const columnId = $derived(cell.column.id);
 
-	// Derive cell state from table meta
-	const isFocused = $derived(
-		meta?.focusedCell?.rowIndex === rowIndex && meta?.focusedCell?.columnId === columnId
-	);
-	const isEditing = $derived(
-		meta?.editingCell?.rowIndex === rowIndex && meta?.editingCell?.columnId === columnId
-	);
-	const isSelected = $derived(meta?.getIsCellSelected?.(rowIndex, columnId) ?? false);
-	const readOnly = $derived(meta?.readOnly ?? false);
+	// Derive cell state from table meta - access meta fresh each time via getter
+	const isFocused = $derived.by(() => {
+		const meta = table.options.meta;
+		const fc = meta?.focusedCell;
+		return fc?.rowIndex === rowIndex && fc?.columnId === columnId;
+	});
+	const isEditing = $derived.by(() => {
+		const meta = table.options.meta;
+		const ec = meta?.editingCell;
+		return ec?.rowIndex === rowIndex && ec?.columnId === columnId;
+	});
+	const isSelected = $derived.by(() => {
+		const meta = table.options.meta;
+		return meta?.getIsCellSelected?.(rowIndex, columnId) ?? false;
+	});
+	const readOnly = $derived.by(() => {
+		const meta = table.options.meta;
+		return meta?.readOnly ?? false;
+	});
 
 	// Get cell variant from column def
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
@@ -137,6 +148,8 @@
 		{isSelected}
 		{readOnly}
 	/>
+{:else if variant === 'row-select'}
+	<RowSelectCell row={cell.row} {table} {rowIndex} />
 {:else}
 	<!-- Default to short-text -->
 	<ShortTextCell

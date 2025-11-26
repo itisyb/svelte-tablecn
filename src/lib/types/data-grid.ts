@@ -42,6 +42,7 @@ export type CellOpts =
 	| { variant: 'checkbox' }
 	| { variant: 'date' }
 	| { variant: 'url' }
+	| { variant: 'row-select' }
 	| {
 			variant: 'file';
 			maxFileSize?: number;

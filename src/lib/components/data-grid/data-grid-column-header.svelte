@@ -25,6 +25,8 @@
 	import FileIcon from '@lucide/svelte/icons/file';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
+	import ArrowDown from '@lucide/svelte/icons/arrow-down';
+	import ArrowUp from '@lucide/svelte/icons/arrow-up';
 	import EyeOff from '@lucide/svelte/icons/eye-off';
 	import Pin from '@lucide/svelte/icons/pin';
 	import PinOff from '@lucide/svelte/icons/pin-off';
@@ -57,6 +59,20 @@
 	const pinnedPosition = $derived(column.getIsPinned());
 	const isPinnedLeft = $derived(pinnedPosition === 'left');
 	const isPinnedRight = $derived(pinnedPosition === 'right');
+
+	// Get current sort state for this column
+	const currentSort = $derived.by(() => {
+		const sortState = table.getState().sorting;
+		return sortState.find((sort) => sort.id === column.id);
+	});
+	const isSorted = $derived(!!currentSort);
+	const sortDirection = $derived(currentSort ? (currentSort.desc ? 'desc' : 'asc') : null);
+
+	// Check if this column has an active filter
+	const hasActiveFilter = $derived.by(() => {
+		const filters = table.getState().columnFilters;
+		return filters.some((f) => f.id === column.id);
+	});
 
 	// Safe getter for column size that handles SSR edge cases
 	const columnSize = $derived.by(() => {
@@ -173,6 +189,7 @@
 		)}
 		onpointerdown={onTriggerPointerDown}
 	>
+		<!-- Left side: icon + label -->
 		<div class="flex min-w-0 flex-1 items-center gap-1.5">
 			{#if columnVariant}
 				{@const Icon = columnVariant.icon}
@@ -190,7 +207,18 @@
 				</Tooltip>
 			{/if}
 			<span class="truncate">{label}</span>
+			{#if hasActiveFilter}
+				<span class="ml-1 size-1.5 shrink-0 rounded-full bg-primary" aria-label="Filtered"></span>
+			{/if}
+			{#if isSorted}
+				{#if sortDirection === 'asc'}
+					<ArrowUp class="size-3.5 shrink-0 text-foreground" />
+				{:else}
+					<ArrowDown class="size-3.5 shrink-0 text-foreground" />
+				{/if}
+			{/if}
 		</div>
+		<!-- Right side: chevron -->
 		<ChevronDown class="shrink-0 text-muted-foreground" />
 	</DropdownMenuTrigger>
 	<DropdownMenuContent align="start" sideOffset={0} class="w-60">
@@ -261,6 +289,8 @@
 </DropdownMenu>
 
 {#if canResize}
+	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+	<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 	<div
 		role="separator"
 		aria-orientation="vertical"
@@ -270,8 +300,8 @@
 		aria-valuemax={defaultColumnDef.maxSize}
 		tabindex={0}
 		class={cn(
-			'after:-translate-x-1/2 -right-px absolute top-0 z-50 h-full w-0.5 cursor-ew-resize touch-none select-none bg-border transition-opacity after:absolute after:inset-y-0 after:left-1/2 after:h-full after:w-[18px] after:content-[\'\'] hover:bg-primary focus:bg-primary focus:outline-none',
-			isColumnResizing ? 'bg-primary' : 'opacity-0 hover:opacity-100'
+			'group-hover:opacity-100 -right-px absolute top-0 z-50 h-full w-1 cursor-col-resize touch-none select-none bg-border transition-opacity after:absolute after:inset-y-0 after:-left-1 after:h-full after:w-3 after:content-[\'\'] hover:bg-primary focus:bg-primary focus:outline-none',
+			isColumnResizing ? 'bg-primary opacity-100' : 'opacity-0 hover:opacity-100'
 		)}
 		ondblclick={onResizerDoubleClick}
 		onmousedown={header.getResizeHandler()}

@@ -21,7 +21,6 @@
 
 	const initialValue = $derived(cell.getValue() as string);
 	let value = $state('');
-	const meta = $derived(table.options.meta);
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const options = $derived(cellOpts?.variant === 'select' ? cellOpts.options : []);
 
@@ -36,11 +35,13 @@
 	function handleValueChange(newValue: string | undefined) {
 		if (readOnly || !newValue) return;
 		value = newValue;
+		const meta = table.options.meta;
 		meta?.onDataUpdate?.({ rowIndex, columnId, value: newValue });
 		meta?.onCellEditingStop?.();
 	}
 
 	function handleOpenChange(isOpen: boolean) {
+		const meta = table.options.meta;
 		if (isOpen && !readOnly) {
 			meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
@@ -49,6 +50,7 @@
 	}
 
 	function handleWrapperKeyDown(event: KeyboardEvent) {
+		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
 			value = initialValue;

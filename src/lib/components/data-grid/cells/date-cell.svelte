@@ -20,7 +20,6 @@
 	const initialValue = $derived(cell.getValue() as string);
 	let value = $state('');
 	let containerRef = $state<HTMLDivElement | null>(null);
-	const meta = $derived(table.options.meta);
 
 	// Initialize and sync value
 	$effect(() => {
@@ -58,11 +57,13 @@
 
 		const formattedDate = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
 		value = formattedDate;
+		const meta = table.options.meta;
 		meta?.onDataUpdate?.({ rowIndex, columnId, value: formattedDate });
 		meta?.onCellEditingStop?.();
 	}
 
 	function handleOpenChange(isOpen: boolean) {
+		const meta = table.options.meta;
 		if (isOpen && !readOnly) {
 			meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
@@ -71,6 +72,7 @@
 	}
 
 	function handleWrapperKeyDown(event: KeyboardEvent) {
+		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
 			value = initialValue;

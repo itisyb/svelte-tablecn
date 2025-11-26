@@ -25,7 +25,6 @@
 
 	const initialValue = $derived(cell.getValue() as boolean);
 	let value = $state(false);
-	const meta = $derived(table.options.meta);
 
 	// Initialize and sync value
 	$effect(() => {
@@ -38,7 +37,7 @@
 	function handleCheckedChange(checked: boolean) {
 		if (readOnly) return;
 		value = checked;
-		meta?.onDataUpdate?.({ rowIndex, columnId, value: checked });
+		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: checked });
 	}
 
 	function handleCheckboxChange(event: Event) {
@@ -53,7 +52,7 @@
 			handleCheckedChange(!value);
 		} else if (isFocused && event.key === 'Tab') {
 			event.preventDefault();
-			meta?.onCellEditingStop?.({
+			table.options.meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});
 		}

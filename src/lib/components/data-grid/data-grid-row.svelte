@@ -3,7 +3,6 @@
 	import type { CellPosition, RowHeightValue } from '$lib/types/data-grid.js';
 	import { getRowHeightValue, getCommonPinningStyles } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
-	import { FlexRender } from '$lib/table';
 	import DataGridCell from './data-grid-cell.svelte';
 
 	// Use 'any' for VirtualizerReturn to avoid type conflicts between different definitions
@@ -81,15 +80,8 @@
 			})}
 			style="position: {pinningStyles.position}; left: {pinningStyles.left}; right: {pinningStyles.right}; background: {pinningStyles.background}; z-index: {pinningStyles.zIndex}; width: calc(var(--col-{cell.column.id}-size) * 1px);"
 		>
-			{#if typeof cell.column.columnDef.header === 'function' && rowTable}
-				<div
-					class={cn('size-full px-3 py-1.5', {
-						'bg-primary/10': isRowSelected
-					})}
-				>
-					<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
-				</div>
-			{:else if rowTable}
+			{#if rowTable}
+				<!-- Use DataGridCell for variant-based rendering (handles all cell types via meta.cell.variant) -->
 				<DataGridCell {cell} table={rowTable} />
 			{/if}
 		</div>

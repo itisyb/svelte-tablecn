@@ -22,10 +22,11 @@
 
 	interface Props {
 		table: Table<TData>;
+		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, class: className }: Props = $props();
+	let { table, align = 'start', class: className }: Props = $props();
 
 	const columns = $derived(
 		table
@@ -50,7 +51,7 @@
 			</Button>
 		{/snippet}
 	</PopoverTrigger>
-	<PopoverContent class="w-44 p-0">
+	<PopoverContent {align} class="w-44 p-0">
 		<Command>
 			<CommandInput placeholder="Search columns..." />
 			<CommandList>

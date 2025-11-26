@@ -44,10 +44,11 @@
 
 	interface Props {
 		table: Table<TData>;
+		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, class: className }: Props = $props();
+	let { table, align = 'start', class: className }: Props = $props();
 
 	let open = $state(false);
 
@@ -226,6 +227,7 @@
 		{/snippet}
 	</PopoverTrigger>
 	<PopoverContent
+		{align}
 		class="flex w-full max-w-[var(--radix-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]"
 	>
 		<div class="flex flex-col gap-1">

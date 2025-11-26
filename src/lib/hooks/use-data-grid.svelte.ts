@@ -49,6 +49,7 @@ import type {
 	FileCellData
 } from '$lib/types/data-grid.js';
 import { getCellKey, parseCellKey, getRowHeightValue } from '$lib/types/data-grid.js';
+import { toast } from 'svelte-sonner';
 
 // ============================================
 // Types
@@ -156,9 +157,10 @@ const NON_NAVIGABLE_COLUMNS = new Set(['select', 'actions']);
 export function useDataGrid<TData extends RowData>(
 	options: UseDataGridOptions<TData>
 ): UseDataGridReturn<TData> {
+	// Note: We access options.data directly in effects rather than destructuring
+	// because destructuring captures the initial value and doesn't update reactively
 	const {
 		columns,
-		data,
 		rowHeight: initialRowHeight = 'short',
 		autoFocus = false,
 		enableColumnSelection = false,
@@ -206,6 +208,8 @@ export function useDataGrid<TData extends RowData>(
 		isSelecting: false
 	});
 	let cutCells = $state<Set<string>>(new Set());
+	// Track the anchor cell for shift+arrow range selection
+	let selectionAnchor = $state<CellPosition | null>(null);
 
 	// Context menu state
 	let contextMenu = $state<ContextMenuState>({
@@ -288,18 +292,20 @@ export function useDataGrid<TData extends RowData>(
 	// Cell Focus & Navigation
 	// ========================================
 
-	function focusCell(rowIndex: number, columnId: string) {
+	function focusCell(rowIndex: number, columnId: string, opts?: { keepAnchor?: boolean }) {
 		focusedCell = { rowIndex, columnId };
 
 		const cellKey = getCellKey(rowIndex, columnId);
 
-		// Clear selection when focusing new cell (unless holding shift)
-		if (!selectionState.isSelecting) {
+		// Clear selection when focusing new cell (unless holding shift or explicitly keeping anchor)
+		if (!selectionState.isSelecting && !opts?.keepAnchor) {
 			selectionState = {
 				selectedCells: new Set([cellKey]),
 				selectionRange: null,
 				isSelecting: false
 			};
+			// Set anchor to the newly focused cell
+			selectionAnchor = { rowIndex, columnId };
 		}
 
 		// Scroll to row if needed (for virtualization)
@@ -307,14 +313,20 @@ export function useDataGrid<TData extends RowData>(
 			virtualizer.scrollToIndex(rowIndex, { align: 'auto' });
 		}
 
-		// Focus the cell element after a frame to allow for virtualization to render
-		requestAnimationFrame(() => {
+		// Focus the cell element - use multiple attempts to handle virtualization
+		const attemptFocus = (attempts = 0) => {
 			const cellElement = cellMapRef.get(cellKey);
 			if (cellElement) {
 				cellElement.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 				cellElement.focus();
+			} else if (attempts < 3) {
+				// Retry if cell not in DOM yet (virtualization)
+				requestAnimationFrame(() => attemptFocus(attempts + 1));
 			}
-		});
+		};
+
+		// Start first attempt immediately, then use RAF for subsequent attempts
+		requestAnimationFrame(() => attemptFocus());
 	}
 
 	function blurCell() {
@@ -338,12 +350,28 @@ export function useDataGrid<TData extends RowData>(
 			case 'down':
 				newRowIndex = Math.min(rows.length - 1, rowIndex + 1);
 				break;
-			case 'left':
-				newColumnId = getNextNavigableColumnId(columnId, 'left');
+			case 'left': {
+				const prevCol = getNextNavigableColumnId(columnId, 'left');
+				if (prevCol) {
+					newColumnId = prevCol;
+				} else if (rowIndex > 0) {
+					// Wrap to end of previous row
+					newRowIndex = rowIndex - 1;
+					newColumnId = getLastNavigableColumnId();
+				}
 				break;
-			case 'right':
-				newColumnId = getNextNavigableColumnId(columnId, 'right');
+			}
+			case 'right': {
+				const nextCol = getNextNavigableColumnId(columnId, 'right');
+				if (nextCol) {
+					newColumnId = nextCol;
+				} else if (rowIndex < rows.length - 1) {
+					// Wrap to beginning of next row
+					newRowIndex = rowIndex + 1;
+					newColumnId = getFirstNavigableColumnId();
+				}
 				break;
+			}
 			case 'home':
 				newColumnId = getFirstNavigableColumnId();
 				break;
@@ -549,14 +577,21 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		const text = lines.join('\n');
-		navigator.clipboard.writeText(text);
+		navigator.clipboard.writeText(text).then(() => {
+			const cellCount = selectionState.selectedCells.size;
+			toast.success(`${cellCount} cell${cellCount !== 1 ? 's' : ''} copied`);
+		}).catch((error) => {
+			toast.error(error instanceof Error ? error.message : 'Failed to copy to clipboard');
+		});
 	}
 
 	function cutSelectedCells() {
 		if (readOnly) return;
 
+		const cellCount = selectionState.selectedCells.size;
 		copySelectedCells();
 		cutCells = new Set(selectionState.selectedCells);
+		// Note: Toast for cut is handled separately since copy already shows success
 	}
 
 	async function pasteFromClipboard() {
@@ -631,6 +666,8 @@ export function useDataGrid<TData extends RowData>(
 
 			handleDataUpdate(updates);
 			onPaste?.(updates);
+			
+			toast.success(`${updates.length} cell${updates.length !== 1 ? 's' : ''} pasted`);
 		}
 	}
 
@@ -791,6 +828,7 @@ export function useDataGrid<TData extends RowData>(
 		// Search shortcut
 		if ((event.ctrlKey || event.metaKey) && event.key === 'f' && enableSearch) {
 			event.preventDefault();
+			event.stopPropagation();
 			searchOpen = !searchOpen;
 			return;
 		}
@@ -798,6 +836,7 @@ export function useDataGrid<TData extends RowData>(
 		// Copy
 		if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
 			event.preventDefault();
+			event.stopPropagation();
 			copySelectedCells();
 			return;
 		}
@@ -805,6 +844,7 @@ export function useDataGrid<TData extends RowData>(
 		// Cut
 		if ((event.ctrlKey || event.metaKey) && event.key === 'x') {
 			event.preventDefault();
+			event.stopPropagation();
 			cutSelectedCells();
 			return;
 		}
@@ -812,6 +852,7 @@ export function useDataGrid<TData extends RowData>(
 		// Paste
 		if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
 			event.preventDefault();
+			event.stopPropagation();
 			pasteFromClipboard();
 			return;
 		}
@@ -819,6 +860,7 @@ export function useDataGrid<TData extends RowData>(
 		// Select all
 		if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
 			event.preventDefault();
+			event.stopPropagation();
 			selectAll();
 			return;
 		}
@@ -827,6 +869,7 @@ export function useDataGrid<TData extends RowData>(
 		if (event.key === 'Delete' || event.key === 'Backspace') {
 			if (!editingCell) {
 				event.preventDefault();
+				event.stopPropagation();
 				clearSelectedCells();
 				return;
 			}
@@ -835,6 +878,7 @@ export function useDataGrid<TData extends RowData>(
 		// Escape
 		if (event.key === 'Escape') {
 			event.preventDefault();
+			event.stopPropagation();
 			if (editingCell) {
 				stopEditing();
 			} else if (searchOpen) {
@@ -863,12 +907,32 @@ export function useDataGrid<TData extends RowData>(
 		const direction = navigationMap[event.key];
 		if (direction) {
 			event.preventDefault();
+			event.stopPropagation();
 
 			if (event.shiftKey && focusedCell) {
-				// Extend selection
+				// Extend selection from anchor
+				const anchor = selectionAnchor || focusedCell;
 				const newPos = getNavigationTarget(direction);
 				if (newPos) {
-					selectRange(focusedCell, newPos);
+					// Select range from anchor to new position
+					selectRange(anchor, newPos);
+					// Update focused cell position to the new position for continued shift-selection
+					focusedCell = newPos;
+
+					// Scroll to the new position
+					if (virtualizer) {
+						virtualizer.scrollToIndex(newPos.rowIndex, { align: 'auto' });
+					}
+
+					// Focus the cell element
+					requestAnimationFrame(() => {
+						const cellKey = getCellKey(newPos.rowIndex, newPos.columnId);
+						const cellElement = cellMapRef.get(cellKey);
+						if (cellElement) {
+							cellElement.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+							cellElement.focus();
+						}
+					});
 				}
 			} else {
 				navigateCell(direction);
@@ -879,6 +943,7 @@ export function useDataGrid<TData extends RowData>(
 		// Tab navigation
 		if (event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			navigateCell(event.shiftKey ? 'left' : 'right');
 			return;
 		}
@@ -886,6 +951,7 @@ export function useDataGrid<TData extends RowData>(
 		// Enter to start editing or move down
 		if (event.key === 'Enter' && focusedCell) {
 			event.preventDefault();
+			event.stopPropagation();
 			startEditing(focusedCell.rowIndex, focusedCell.columnId);
 			return;
 		}
@@ -893,6 +959,7 @@ export function useDataGrid<TData extends RowData>(
 		// F2 to start editing
 		if (event.key === 'F2' && focusedCell) {
 			event.preventDefault();
+			event.stopPropagation();
 			startEditing(focusedCell.rowIndex, focusedCell.columnId);
 			return;
 		}
@@ -1001,7 +1068,7 @@ export function useDataGrid<TData extends RowData>(
 			if (!row) continue;
 
 			const originalData = row.original;
-			const originalRowIndex = data.indexOf(originalData);
+			const originalRowIndex = options.data.indexOf(originalData);
 			const targetIndex = originalRowIndex !== -1 ? originalRowIndex : update.rowIndex;
 
 			const existingUpdates = rowUpdatesMap.get(targetIndex) ?? [];
@@ -1010,12 +1077,12 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		// Build new data array
-		const tableRowCount = rows?.length ?? data.length;
+		const tableRowCount = rows?.length ?? options.data.length;
 		const newData: TData[] = [];
 
 		for (let i = 0; i < tableRowCount; i++) {
 			const rowUpdates = rowUpdatesMap.get(i);
-			const existingRow = data[i];
+			const existingRow = options.data[i];
 			const tableRow = rows?.[i];
 
 			if (rowUpdates) {
@@ -1109,6 +1176,34 @@ export function useDataGrid<TData extends RowData>(
 		onCellsCut: cutSelectedCells,
 		onFilesUpload,
 		onFilesDelete,
+		onRowSelect: (rowIndex: number, selected: boolean, shiftKey: boolean) => {
+			const rows = table.getRowModel().rows;
+			const currentRow = rows[rowIndex];
+			if (!currentRow) return;
+
+			if (shiftKey && lastClickedRowIndex !== null) {
+				// Shift-click range selection
+				const startIndex = Math.min(lastClickedRowIndex, rowIndex);
+				const endIndex = Math.max(lastClickedRowIndex, rowIndex);
+
+				const newRowSelection = { ...rowSelection };
+				for (let i = startIndex; i <= endIndex; i++) {
+					const row = rows[i];
+					if (row) {
+						newRowSelection[row.id] = selected;
+					}
+				}
+				rowSelection = newRowSelection;
+			} else {
+				// Regular click
+				rowSelection = {
+					...rowSelection,
+					[currentRow.id]: selected
+				};
+			}
+
+			lastClickedRowIndex = rowIndex;
+		},
 		onContextMenuOpenChange: (open: boolean) => {
 			contextMenu = { ...contextMenu, open };
 		},
@@ -1134,8 +1229,9 @@ export function useDataGrid<TData extends RowData>(
 		}
 	};
 
-	const tableOptions: TableOptionsResolved<TData> = {
-		data,
+	// Create the base table options
+	const baseTableOptions: TableOptionsResolved<TData> = {
+		data: options.data,
 		columns,
 		...(getRowId ? { getRowId } : {}),
 		state: {
@@ -1168,7 +1264,15 @@ export function useDataGrid<TData extends RowData>(
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		columnResizeMode: 'onChange',
+		enableColumnResizing: true,
+		defaultColumn: {
+			minSize: 60,
+			maxSize: 1000,
+			size: 150
+		},
 		enableRowSelection: true,
+		enableColumnFilters: true,
+		enableFilters: true,
 		renderFallbackValue: null,
 		onStateChange: () => {},
 		mergeOptions: (defaultOptions: TableOptions<TData>, newOptions: Partial<TableOptions<TData>>) => {
@@ -1177,7 +1281,33 @@ export function useDataGrid<TData extends RowData>(
 		meta
 	};
 
-	const table = createTable(tableOptions);
+	const table = createTable(baseTableOptions);
+
+	// This is the key to reactivity: update table options in $effect.pre
+	// whenever any of the state values change
+	$effect.pre(() => {
+		// Read all reactive state to create dependencies
+		const currentState = {
+			sorting,
+			columnFilters,
+			rowSelection,
+			columnPinning,
+			columnVisibility,
+			columnSizing
+		};
+		const currentData = options.data;
+
+		// Update table with current state
+		table.setOptions((prev) => ({
+			...prev,
+			data: currentData,
+			state: {
+				...prev.state,
+				...currentState
+			},
+			meta
+		}));
+	});
 
 	// ========================================
 	// Compute columnSizeVars (now that table exists)
@@ -1189,7 +1319,7 @@ export function useDataGrid<TData extends RowData>(
 		try {
 			const headers = table.getFlatHeaders();
 			for (const header of headers) {
-				const size = columnSizing[header.column.id] ?? header.column.columnDef.size ?? 150;
+				const size = header.getSize();
 				vars[`--header-${header.id}-size`] = size;
 				vars[`--col-${header.column.id}-size`] = size;
 			}
@@ -1220,7 +1350,8 @@ export function useDataGrid<TData extends RowData>(
 		// Only create virtualizer once
 		if (virtualizer) return;
 
-		const rowCount = untrack(() => data.length);
+		// Use filtered row count, not raw data length
+		const rowCount = untrack(() => table.getRowModel().rows.length);
 
 		virtualizer = new Virtualizer<HTMLDivElement, Element>({
 			count: rowCount,
@@ -1237,10 +1368,16 @@ export function useDataGrid<TData extends RowData>(
 		handleVirtualizerChange(virtualizer);
 	});
 
-	// Separate effect to update virtualizer count when data changes
-	// Only track data.length - use untrack for everything else
+	// Separate effect to update virtualizer count when filtered rows change
+	// Track columnFilters, sorting, and data to trigger updates
 	$effect(() => {
-		const rowCount = data.length;
+		// Read these to create dependencies - when filters/sorting change, row count changes
+		const _ = columnFilters;
+		const __ = sorting;
+		const ___ = options.data;
+		
+		// Get the filtered/sorted row count from the table
+		const rowCount = table.getRowModel().rows.length;
 
 		untrack(() => {
 			const ref = dataGridRef;
@@ -1338,12 +1475,106 @@ export function useDataGrid<TData extends RowData>(
 	// Return
 	// ========================================
 
+	// Create a reactive table wrapper that exposes state-dependent getters
+	// This is key to making the table reactive in Svelte 5
+	const reactiveTable = {
+		// Expose all original table methods and properties
+		...table,
+		// Override methods that depend on state to create reactive dependencies
+		getRowModel: () => {
+			// Read state to create Svelte dependencies
+			const _ = sorting;
+			const __ = columnFilters;
+			const ___ = options.data;
+			return table.getRowModel();
+		},
+		getHeaderGroups: () => {
+			// Read state to create Svelte dependencies
+			const _ = columnVisibility;
+			const __ = columnPinning;
+			const ___ = columnSizing;
+			return table.getHeaderGroups();
+		},
+		getAllColumns: () => {
+			// Read state to create Svelte dependencies  
+			const _ = columnVisibility;
+			const __ = columnPinning;
+			return table.getAllColumns();
+		},
+		getVisibleLeafColumns: () => {
+			const _ = columnVisibility;
+			return table.getVisibleLeafColumns();
+		},
+		getState: () => {
+			// Read all state to create dependencies
+			const _ = sorting;
+			const __ = columnFilters;
+			const ___ = rowSelection;
+			const ____ = columnPinning;
+			const _____ = columnVisibility;
+			const ______ = columnSizing;
+			return table.getState();
+		},
+		getColumn: (columnId: string) => table.getColumn(columnId),
+		// Forward all other methods to the original table
+		setColumnFilters: table.setColumnFilters.bind(table),
+		setSorting: table.setSorting.bind(table),
+		setColumnPinning: table.setColumnPinning.bind(table),
+		setColumnVisibility: table.setColumnVisibility.bind(table),
+		setRowSelection: table.setRowSelection.bind(table),
+		setColumnSizing: table.setColumnSizing.bind(table),
+		setOptions: table.setOptions.bind(table),
+		getFlatHeaders: () => {
+			const _ = columnSizing;
+			const __ = columnVisibility;
+			return table.getFlatHeaders();
+		},
+		getTotalSize: () => {
+			const _ = columnSizing;
+			return table.getTotalSize();
+		},
+		getLeftLeafColumns: () => {
+			const _ = columnPinning;
+			return table.getLeftLeafColumns();
+		},
+		getRightLeafColumns: () => {
+			const _ = columnPinning;
+			return table.getRightLeafColumns();
+		},
+		getCenterLeafColumns: () => {
+			const _ = columnPinning;
+			return table.getCenterLeafColumns();
+		},
+		getIsAllRowsSelected: () => {
+			const _ = rowSelection;
+			return table.getIsAllRowsSelected();
+		},
+		getIsSomeRowsSelected: () => {
+			const _ = rowSelection;
+			return table.getIsSomeRowsSelected();
+		},
+		getIsAllPageRowsSelected: () => {
+			const _ = rowSelection;
+			return table.getIsAllPageRowsSelected();
+		},
+		getIsSomePageRowsSelected: () => {
+			const _ = rowSelection;
+			return table.getIsSomePageRowsSelected();
+		},
+		toggleAllRowsSelected: table.toggleAllRowsSelected.bind(table),
+		toggleAllPageRowsSelected: table.toggleAllPageRowsSelected.bind(table),
+		// Keep table reference for any other property access
+		_getDefaultColumnDef: table._getDefaultColumnDef.bind(table),
+		options: table.options,
+		initialState: table.initialState
+	} as unknown as Table<TData>;
+
 	return {
 		dataGridRef,
 		headerRef,
 		rowMapRef,
 		footerRef,
-		table,
+		table: reactiveTable,
 		rowVirtualizer,
 		searchState: searchStateReturn,
 		get columnSizeVars() {
