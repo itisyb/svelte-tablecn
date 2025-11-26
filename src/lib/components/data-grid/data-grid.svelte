@@ -1,8 +1,7 @@
 <script lang="ts" generics="TData">
-	import type { Table } from '@tanstack/table-core';
+	import type { Table, Column } from '@tanstack/table-core';
 	import type { UseDataGridReturn } from '$lib/hooks/use-data-grid.svelte.js';
 	import type { RowHeightValue, CellPosition, SearchState } from '$lib/types/data-grid.js';
-	import { getCommonPinningStyles } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import { FlexRender } from '$lib/table';
 	import DataGridRow from './data-grid-row.svelte';
@@ -27,7 +26,7 @@
 		rowVirtualizer,
 		height = 600,
 		searchState,
-		columnSizeVars,
+		columnSizeVars: _, // We compute this ourselves for reactivity
 		onRowAdd,
 		setDataGridRef,
 		setHeaderRef,
@@ -68,6 +67,48 @@
 	const rowHeight = $derived<RowHeightValue>(meta?.rowHeight ?? 'short');
 	const focusedCell = $derived<CellPosition | null>(meta?.focusedCell ?? null);
 
+	// Get table state reactively for pinning/visibility/sizing
+	const tableState = $derived(table.getState());
+	const columnPinning = $derived(tableState.columnPinning);
+	const columnVisibility = $derived(tableState.columnVisibility);
+	const columnSizing = $derived(tableState.columnSizing);
+	const columnSizingInfo = $derived(tableState.columnSizingInfo);
+
+	// Get visible headers reactively
+	const visibleLeafColumns = $derived(table.getVisibleLeafColumns());
+
+	// Compute pinning styles reactively based on state
+	function getPinningStyles(column: Column<TData, unknown>): Record<string, string | number | undefined> {
+		// Read pinning state to create reactive dependency
+		const _ = columnPinning;
+		
+		try {
+			const isPinned = column.getIsPinned();
+			const isLastLeftPinnedColumn = isPinned === 'left' && column.getIsLastColumn('left');
+			const isFirstRightPinnedColumn = isPinned === 'right' && column.getIsFirstColumn('right');
+
+			return {
+				boxShadow: isLastLeftPinnedColumn
+					? '-4px 0 4px -4px var(--border) inset'
+					: isFirstRightPinnedColumn
+						? '4px 0 4px -4px var(--border) inset'
+						: undefined,
+				left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
+				right: isPinned === 'right' ? `${column.getAfter('right')}px` : undefined,
+				opacity: isPinned ? 0.97 : 1,
+				position: isPinned ? 'sticky' : 'relative',
+				background: 'var(--background)',
+				zIndex: isPinned ? 1 : undefined
+			};
+		} catch {
+			return {
+				position: 'relative',
+				background: 'var(--background)',
+				zIndex: undefined
+			};
+		}
+	}
+
 	function onGridContextMenu(event: MouseEvent) {
 		event.preventDefault();
 	}
@@ -81,16 +122,48 @@
 		}
 	}
 
-	// Convert columnSizeVars to style string
+	// Handle mouseup anywhere to end drag selection
+	function handleGridMouseUp() {
+		meta?.onCellMouseUp?.();
+	}
+
+	// Compute column size CSS variables reactively from table state
+	// We read both columnSizing and columnSizingInfo to create reactive dependencies
+	// columnSizingInfo updates during resize drag, columnSizing updates on release
 	const columnSizeStyle = $derived.by(() => {
-		return Object.entries(columnSizeVars)
-			.map(([key, value]) => `${key}: ${value}`)
-			.join('; ');
+		// Read both states to ensure reactivity when columns are resized
+		const _ = columnSizing;
+		const __ = columnSizingInfo;
+		
+		const vars: string[] = [];
+		try {
+			const headers = table.getFlatHeaders();
+			for (const header of headers) {
+				const size = header.getSize();
+				vars.push(`--header-${header.id}-size: ${size}`);
+				vars.push(`--col-${header.column.id}-size: ${size}`);
+			}
+		} catch {
+			// Table not ready yet
+		}
+		return vars.join('; ');
 	});
 
 	// Get virtual items - use getters for reactive access
 	const virtualItems = $derived(rowVirtualizer.virtualItems);
 	const totalSize = $derived(rowVirtualizer.totalSize);
+
+	// Global mouseup listener to end drag selection even when mouse leaves grid
+	$effect(() => {
+		function handleWindowMouseUp() {
+			meta?.onCellMouseUp?.();
+		}
+		
+		window.addEventListener('mouseup', handleWindowMouseUp);
+		return () => {
+			window.removeEventListener('mouseup', handleWindowMouseUp);
+		};
+	});
 </script>
 
 <TooltipProvider>
@@ -117,6 +190,7 @@
 		class="relative grid select-none overflow-auto rounded-md border focus:outline-none"
 		style="{columnSizeStyle}; max-height: {height}px;"
 		oncontextmenu={onGridContextMenu}
+		onmouseup={handleGridMouseUp}
 	>
 		<!-- Header -->
 		<div
@@ -133,11 +207,11 @@
 					tabindex={-1}
 					class="flex w-full"
 				>
-					{#each headerGroup.headers as header, colIndex (header.id)}
-						{@const sorting = table.getState().sorting}
+					{#each headerGroup.headers.filter(h => columnVisibility[h.column.id] !== false) as header, colIndex (header.id)}
+						{@const sorting = tableState.sorting}
 						{@const currentSort = sorting.find((sort) => sort.id === header.column.id)}
 						{@const isSortable = header.column.getCanSort()}
-						{@const pinningStyles = getCommonPinningStyles({ column: header.column })}
+						{@const pinningStyles = getPinningStyles(header.column)}
 
 						<div
 							role="columnheader"
@@ -151,7 +225,7 @@
 										: undefined}
 							data-slot="grid-header-cell"
 							tabindex={-1}
-							class={cn('relative', {
+							class={cn('group relative', {
 								'border-r': header.column.id !== 'select'
 							})}
 							style="position: {pinningStyles.position}; left: {pinningStyles.left}; right: {pinningStyles.right}; background: {pinningStyles.background}; z-index: {pinningStyles.zIndex}; width: calc(var(--header-{header.id}-size) * 1px);"
@@ -187,6 +261,9 @@
 				{#if row}
 					<DataGridRow
 						{row}
+						{table}
+						{columnPinning}
+						{columnVisibility}
 						{rowMapRef}
 						{virtualRowIndex}
 						{rowVirtualizer}

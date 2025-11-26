@@ -86,10 +86,9 @@
 			onClickProp?.(event);
 			const meta = table.options.meta;
 			// Only start editing if cell was ALREADY focused before this mousedown/click
+			// Selection is handled by mousedown, so we only handle editing here
 			if (wasFocusedOnMouseDown) {
 				meta?.onCellEditingStart?.(rowIndex, columnId);
-			} else {
-				meta?.onCellClick?.(rowIndex, columnId, event);
 			}
 		}
 	}

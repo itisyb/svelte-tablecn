@@ -28,11 +28,21 @@
 
 	let { table, align = 'start', class: className }: Props = $props();
 
+	// Get columns - table.getAllColumns() is reactive via our wrapper
 	const columns = $derived(
 		table
 			.getAllColumns()
 			.filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide())
 	);
+
+	// Get visibility state reactively
+	const columnVisibility = $derived(table.getState().columnVisibility);
+
+	// Helper to check if column is visible - reads from reactive state
+	function isColumnVisible(columnId: string): boolean {
+		// If not in visibility state, default to visible (true)
+		return columnVisibility[columnId] !== false;
+	}
 </script>
 
 <Popover>
@@ -58,9 +68,10 @@
 				<CommandEmpty>No columns found.</CommandEmpty>
 				<CommandGroup>
 					{#each columns as column (column.id)}
+						{@const isVisible = isColumnVisible(column.id)}
 						<CommandItem
 							value={column.id}
-							onSelect={() => column.toggleVisibility(!column.getIsVisible())}
+							onSelect={() => column.toggleVisibility(!isVisible)}
 						>
 							<span class="truncate">
 								{column.columnDef.meta?.label ?? column.id}
@@ -68,7 +79,7 @@
 							<Check
 								class={cn(
 									'ml-auto size-4 shrink-0',
-									column.getIsVisible() ? 'opacity-100' : 'opacity-0'
+									isVisible ? 'opacity-100' : 'opacity-0'
 								)}
 							/>
 						</CommandItem>

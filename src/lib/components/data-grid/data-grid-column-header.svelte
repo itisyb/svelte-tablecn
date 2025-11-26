@@ -56,7 +56,13 @@
 	const cellVariant = $derived(column.columnDef.meta?.cell);
 	const columnVariant = $derived.by(() => getColumnVariant(cellVariant?.variant));
 
-	const pinnedPosition = $derived(column.getIsPinned());
+	// Get pinning state reactively from table state
+	const columnPinning = $derived(table.getState().columnPinning);
+	const pinnedPosition = $derived.by(() => {
+		// Read columnPinning to create dependency, then call column method
+		const _ = columnPinning;
+		return column.getIsPinned();
+	});
 	const isPinnedLeft = $derived(pinnedPosition === 'left');
 	const isPinnedRight = $derived(pinnedPosition === 'right');
 
@@ -300,7 +306,7 @@
 		aria-valuemax={defaultColumnDef.maxSize}
 		tabindex={0}
 		class={cn(
-			'group-hover:opacity-100 -right-px absolute top-0 z-50 h-full w-1 cursor-col-resize touch-none select-none bg-border transition-opacity after:absolute after:inset-y-0 after:-left-1 after:h-full after:w-3 after:content-[\'\'] hover:bg-primary focus:bg-primary focus:outline-none',
+			'-right-px absolute top-0 z-50 h-full w-1 cursor-col-resize touch-none select-none bg-border transition-opacity after:absolute after:inset-y-0 after:-left-1 after:h-full after:w-3 after:content-[\'\'] hover:bg-primary focus:bg-primary focus:outline-none',
 			isColumnResizing ? 'bg-primary opacity-100' : 'opacity-0 hover:opacity-100'
 		)}
 		ondblclick={onResizerDoubleClick}
