@@ -18,7 +18,6 @@
 	const initialValue = $derived(cell.getValue() as string);
 	let value = $state('');
 	let cellRef = $state<HTMLDivElement | null>(null);
-	const meta = $derived(table.options.meta);
 
 	// Initialize and sync value
 	$effect(() => {
@@ -72,6 +71,7 @@
 
 	function handleBlur() {
 		const currentValue = cellRef?.textContent?.trim() ?? '';
+		const meta = table.options.meta;
 
 		if (!readOnly && currentValue !== initialValue) {
 			meta?.onDataUpdate?.({
@@ -89,6 +89,7 @@
 	}
 
 	function handleWrapperKeyDown(event: KeyboardEvent) {
+		const meta = table.options.meta;
 		if (isEditing) {
 			if (event.key === 'Enter') {
 				event.preventDefault();

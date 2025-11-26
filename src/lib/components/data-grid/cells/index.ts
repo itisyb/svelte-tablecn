@@ -8,3 +8,7 @@ export { default as MultiSelectCell } from './multi-select-cell.svelte';
 export { default as DateCell } from './date-cell.svelte';
 export { default as UrlCell } from './url-cell.svelte';
 export { default as FileCell } from './file-cell.svelte';
+
+// Row selection components
+export { default as RowSelectCell } from './row-select-cell.svelte';
+export { default as RowSelectHeader } from './row-select-header.svelte';

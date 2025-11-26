@@ -9,9 +9,13 @@
 		DataGridViewMenu,
 		DataGridKeyboardShortcuts,
 		useDataGrid,
+		useWindowSize,
 		getFilterFn,
 		type FileCellData
 	} from '$lib';
+	import { RowSelectHeader } from '$lib/components/data-grid/cells';
+	import { renderComponent } from '$lib/table';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	interface Person {
 		id: string;
@@ -134,21 +138,25 @@
 
 	let data = $state<Person[]>(initialData);
 
+	// Dynamic height based on window size
+	const windowSize = useWindowSize({ defaultHeight: 760 });
+	const gridHeight = $derived(Math.max(400, windowSize.height - 150));
+
 	const filterFn = getFilterFn<Person>();
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const columns: ColumnDef<Person, any>[] = [
 		{
 			id: 'select',
-			header: 'Select',
 			size: 40,
 			enableSorting: false,
 			enableHiding: false,
 			enableResizing: false,
+			header: ({ table }) => renderComponent(RowSelectHeader, { table }),
 			meta: {
 				label: 'Select',
 				cell: {
-					variant: 'checkbox'
+					variant: 'row-select'
 				}
 			}
 		},
@@ -411,5 +419,7 @@
 		<DataGridViewMenu {table} />
 	</div>
 	<DataGridKeyboardShortcuts enableSearch={!!dataGridProps.searchState} />
-	<DataGrid {...dataGridProps} {table} height={600} />
+	<DataGrid {...dataGridProps} {table} height={gridHeight} />
 </div>
+
+<Toaster />

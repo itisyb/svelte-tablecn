@@ -43,6 +43,8 @@
 	}: Props = $props();
 
 	let internalRef = $state<HTMLDivElement | null>(null);
+	// Track if cell was focused BEFORE mousedown (to prevent single-click opening edit)
+	let wasFocusedOnMouseDown = $state(false);
 
 	// Sync internal ref to bindable prop
 	$effect(() => {
@@ -51,30 +53,40 @@
 		}
 	});
 
-	const meta = $derived(table.options.meta);
-
 	// Register/unregister cell in cellMapRef
 	$effect(() => {
+		const meta = table.options.meta;
 		if (internalRef && meta?.cellMapRef) {
 			const cellKey = getCellKey(rowIndex, columnId);
 			meta.cellMapRef.set(cellKey, internalRef);
 
 			return () => {
-				meta.cellMapRef?.delete(cellKey);
+				table.options.meta?.cellMapRef?.delete(cellKey);
 			};
 		}
 	});
 
-	// Derived state
-	const isSearchMatch = $derived(meta?.getIsSearchMatch?.(rowIndex, columnId) ?? false);
-	const isActiveSearchMatch = $derived(meta?.getIsActiveSearchMatch?.(rowIndex, columnId) ?? false);
-	const rowHeight = $derived<RowHeightValue>(meta?.rowHeight ?? 'short');
+	// Derived state - access meta fresh each time via $derived.by
+	const isSearchMatch = $derived.by(() => {
+		const meta = table.options.meta;
+		return meta?.getIsSearchMatch?.(rowIndex, columnId) ?? false;
+	});
+	const isActiveSearchMatch = $derived.by(() => {
+		const meta = table.options.meta;
+		return meta?.getIsActiveSearchMatch?.(rowIndex, columnId) ?? false;
+	});
+	const rowHeight = $derived.by<RowHeightValue>(() => {
+		const meta = table.options.meta;
+		return meta?.rowHeight ?? 'short';
+	});
 
 	function handleClick(event: MouseEvent) {
 		if (!isEditing) {
 			event.preventDefault();
 			onClickProp?.(event);
-			if (isFocused) {
+			const meta = table.options.meta;
+			// Only start editing if cell was ALREADY focused before this mousedown/click
+			if (wasFocusedOnMouseDown) {
 				meta?.onCellEditingStart?.(rowIndex, columnId);
 			} else {
 				meta?.onCellClick?.(rowIndex, columnId, event);
@@ -84,32 +96,34 @@
 
 	function handleContextMenu(event: MouseEvent) {
 		if (!isEditing) {
-			meta?.onCellContextMenu?.(rowIndex, columnId, event);
+			table.options.meta?.onCellContextMenu?.(rowIndex, columnId, event);
 		}
 	}
 
 	function handleMouseDown(event: MouseEvent) {
 		if (!isEditing) {
-			meta?.onCellMouseDown?.(rowIndex, columnId, event);
+			// Capture focus state BEFORE mousedown changes it
+			wasFocusedOnMouseDown = isFocused;
+			table.options.meta?.onCellMouseDown?.(rowIndex, columnId, event);
 		}
 	}
 
 	function handleMouseEnter(event: MouseEvent) {
 		if (!isEditing) {
-			meta?.onCellMouseEnter?.(rowIndex, columnId, event);
+			table.options.meta?.onCellMouseEnter?.(rowIndex, columnId, event);
 		}
 	}
 
 	function handleMouseUp() {
 		if (!isEditing) {
-			meta?.onCellMouseUp?.();
+			table.options.meta?.onCellMouseUp?.();
 		}
 	}
 
 	function handleDoubleClick(event: MouseEvent) {
 		if (!isEditing) {
 			event.preventDefault();
-			meta?.onCellDoubleClick?.(rowIndex, columnId);
+			table.options.meta?.onCellDoubleClick?.(rowIndex, columnId);
 		}
 	}
 
@@ -118,7 +132,12 @@
 
 		if (event.defaultPrevented) return;
 
-		// Let navigation keys bubble up to grid handler
+		// When editing, don't interfere with navigation keys in the input
+		if (isEditing) {
+			return;
+		}
+
+		// Let navigation keys bubble up to grid handler when not editing
 		if (
 			event.key === 'ArrowUp' ||
 			event.key === 'ArrowDown' ||
@@ -128,12 +147,16 @@
 			event.key === 'End' ||
 			event.key === 'PageUp' ||
 			event.key === 'PageDown' ||
-			event.key === 'Tab'
+			event.key === 'Tab' ||
+			event.key === 'Escape'
 		) {
+			// Don't prevent default - let the grid handler deal with it
 			return;
 		}
 
+		// Handle editing keys when focused
 		if (isFocused && !isEditing) {
+			const meta = table.options.meta;
 			if (event.key === 'F2' || event.key === 'Enter') {
 				event.preventDefault();
 				event.stopPropagation();
@@ -148,6 +171,7 @@
 				return;
 			}
 
+			// Printable character starts editing
 			if (event.key.length === 1 && !event.ctrlKey && !event.metaKey) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -171,7 +195,7 @@
 			'ring-1 ring-ring ring-inset': isFocused,
 			'bg-yellow-100 dark:bg-yellow-900/30': isSearchMatch && !isActiveSearchMatch,
 			'bg-orange-200 dark:bg-orange-900/50': isActiveSearchMatch,
-			'bg-primary/10': isSelected && !isEditing,
+			'bg-primary/10': isSelected && !isFocused && !isEditing,
 			'cursor-default': !isEditing,
 			'**:data-[slot=grid-cell-content]:line-clamp-1': !isEditing && rowHeight === 'short',
 			'**:data-[slot=grid-cell-content]:line-clamp-2': !isEditing && rowHeight === 'medium',

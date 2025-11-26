@@ -44,7 +44,6 @@
 	let containerRef = $state<HTMLDivElement | null>(null);
 	let fileInputRef = $state<HTMLInputElement | null>(null);
 	let dropzoneRef = $state<HTMLDivElement | null>(null);
-	const meta = $derived(table.options.meta);
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const sideOffset = $derived(-(containerRef?.clientHeight ?? 0));
 
@@ -191,9 +190,9 @@
 				let uploadedFiles: FileCellData[] = [];
 				const rowData = table.options.data[rowIndex];
 
-				if (meta?.onFilesUpload && rowData) {
+				if (table.options.meta?.onFilesUpload && rowData) {
 					try {
-						uploadedFiles = await meta.onFilesUpload({
+						uploadedFiles = await table.options.meta.onFilesUpload({
 							files: filesToValidate,
 							rowIndex,
 							columnId,
@@ -231,7 +230,7 @@
 
 				files = finalFiles;
 				uploadingFiles = new Set();
-				meta?.onDataUpdate?.({ rowIndex, columnId, value: finalFiles });
+				table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: finalFiles });
 			} else {
 				const newFilesData: FileCellData[] = filesToValidate.map((f) => ({
 					id: crypto.randomUUID(),
@@ -242,7 +241,7 @@
 				}));
 				const updatedFiles = [...files, ...newFilesData];
 				files = updatedFiles;
-				meta?.onDataUpdate?.({ rowIndex, columnId, value: updatedFiles });
+				table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: updatedFiles });
 			}
 		}
 	}
@@ -255,9 +254,9 @@
 		if (!fileToRemove) return;
 
 		const rowData = table.options.data[rowIndex];
-		if (meta?.onFilesDelete && rowData) {
+		if (table.options.meta?.onFilesDelete && rowData) {
 			try {
-				await meta.onFilesDelete({
+				await table.options.meta.onFilesDelete({
 					fileIds: [fileId],
 					rowIndex,
 					columnId,
@@ -275,7 +274,7 @@
 
 		const updatedFiles = files.filter((f) => f.id !== fileId);
 		files = updatedFiles;
-		meta?.onDataUpdate?.({ rowIndex, columnId, value: updatedFiles });
+		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: updatedFiles });
 	}
 
 	async function clearAll() {
@@ -283,9 +282,9 @@
 		error = null;
 
 		const rowData = table.options.data[rowIndex];
-		if (meta?.onFilesDelete && rowData && files.length > 0) {
+		if (table.options.meta?.onFilesDelete && rowData && files.length > 0) {
 			try {
-				await meta.onFilesDelete({
+				await table.options.meta.onFilesDelete({
 					fileIds: files.map((f) => f.id),
 					rowIndex,
 					columnId,
@@ -303,7 +302,7 @@
 			}
 		}
 		files = [];
-		meta?.onDataUpdate?.({ rowIndex, columnId, value: [] });
+		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: [] });
 	}
 
 	function handleCellDragEnter(event: DragEvent) {
@@ -395,10 +394,10 @@
 	function handleOpenChange(isOpen: boolean) {
 		if (isOpen && !readOnly) {
 			error = null;
-			meta?.onCellEditingStart?.(rowIndex, columnId);
+			table.options.meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
 			error = null;
-			meta?.onCellEditingStop?.();
+			table.options.meta?.onCellEditingStop?.();
 		}
 	}
 
@@ -419,23 +418,23 @@
 				event.preventDefault();
 				files = [...cellValue];
 				error = null;
-				meta?.onCellEditingStop?.();
+				table.options.meta?.onCellEditingStop?.();
 			} else if (event.key === ' ') {
 				event.preventDefault();
 				handleDropzoneClick();
 			}
 		} else if (isFocused && event.key === 'Enter') {
 			event.preventDefault();
-			meta?.onCellEditingStart?.(rowIndex, columnId);
+			table.options.meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else if (!isEditing && isFocused && event.key === 'Tab') {
 			event.preventDefault();
-			meta?.onCellEditingStop?.({
+			table.options.meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});
 		}
 	}
 
-	const rowHeight = $derived(meta?.rowHeight ?? 'short');
+	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
 	const lineCount = $derived(getLineCount(rowHeight));
 
 	// Simple visible file calculation

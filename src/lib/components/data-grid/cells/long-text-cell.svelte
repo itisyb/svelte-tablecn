@@ -20,7 +20,6 @@
 	let value = $state('');
 	let textareaRef = $state<HTMLTextAreaElement | null>(null);
 	let containerRef = $state<HTMLDivElement | null>(null);
-	const meta = $derived(table.options.meta);
 	const sideOffset = $derived(-(containerRef?.clientHeight ?? 0));
 
 	// Track timeout for debounced save
@@ -41,7 +40,7 @@
 		}
 		saveTimeoutId = setTimeout(() => {
 			if (!readOnly) {
-				meta?.onDataUpdate?.({ rowIndex, columnId, value: newValue });
+				table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValue });
 			}
 		}, 300);
 	}
@@ -51,6 +50,7 @@
 			clearTimeout(saveTimeoutId);
 			saveTimeoutId = null;
 		}
+		const meta = table.options.meta;
 		if (!readOnly && value !== initialValue) {
 			meta?.onDataUpdate?.({ rowIndex, columnId, value });
 		}
@@ -63,6 +63,7 @@
 			saveTimeoutId = null;
 		}
 		value = initialValue ?? '';
+		const meta = table.options.meta;
 		if (!readOnly) {
 			meta?.onDataUpdate?.({ rowIndex, columnId, value: initialValue });
 		}
@@ -70,6 +71,7 @@
 	}
 
 	function handleOpenChange(isOpen: boolean) {
+		const meta = table.options.meta;
 		if (isOpen && !readOnly) {
 			meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
@@ -90,6 +92,7 @@
 	}
 
 	function handleBlur() {
+		const meta = table.options.meta;
 		if (!readOnly && value !== initialValue) {
 			meta?.onDataUpdate?.({ rowIndex, columnId, value });
 		}
@@ -112,6 +115,7 @@
 			handleSave();
 		} else if (event.key === 'Tab') {
 			event.preventDefault();
+			const meta = table.options.meta;
 			if (value !== initialValue) {
 				meta?.onDataUpdate?.({ rowIndex, columnId, value });
 			}
