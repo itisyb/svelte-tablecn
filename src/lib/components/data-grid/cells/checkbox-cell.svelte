@@ -26,23 +26,16 @@
 	const initialValue = $derived(cell.getValue() as boolean);
 	let value = $state(false);
 
-	// Initialize and sync value
+	// Initialize and sync value from cell data
 	$effect(() => {
 		const iv = Boolean(initialValue);
-		if (iv !== value) {
-			value = iv;
-		}
+		value = iv;
 	});
 
-	function handleCheckedChange(checked: boolean) {
+	function handleCheckedChange(newValue: boolean) {
 		if (readOnly) return;
-		value = checked;
-		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: checked });
-	}
-
-	function handleCheckboxChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		handleCheckedChange(target.checked);
+		value = newValue;
+		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValue });
 	}
 
 	function handleWrapperKeyDown(event: KeyboardEvent) {
@@ -58,23 +51,14 @@
 		}
 	}
 
-	function handleWrapperClick(event: MouseEvent) {
-		if (isFocused && !readOnly) {
-			event.preventDefault();
-			event.stopPropagation();
+	function handleCheckboxClick(event: MouseEvent) {
+		event.stopPropagation();
+		if (!readOnly) {
 			handleCheckedChange(!value);
 		}
 	}
 
-	function handleCheckboxClick(event: MouseEvent) {
-		event.stopPropagation();
-	}
-
 	function handleCheckboxMouseDown(event: MouseEvent) {
-		event.stopPropagation();
-	}
-
-	function handleCheckboxDoubleClick(event: MouseEvent) {
 		event.stopPropagation();
 	}
 </script>
@@ -88,16 +72,13 @@
 	{isFocused}
 	{isSelected}
 	class="flex size-full justify-center"
-	onclick={handleWrapperClick}
 	onkeydown={handleWrapperKeyDown}
 >
 	<Checkbox
-		bind:checked={value}
+		checked={value}
 		disabled={readOnly}
 		class="border-primary"
 		onclick={handleCheckboxClick}
 		onmousedown={handleCheckboxMouseDown}
-		ondblclick={handleCheckboxDoubleClick}
-		onchange={handleCheckboxChange}
 	/>
 </DataGridCellWrapper>

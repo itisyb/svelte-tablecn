@@ -13,6 +13,7 @@
 	import Scissors from '@lucide/svelte/icons/scissors';
 	import Eraser from '@lucide/svelte/icons/eraser';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		table: Table<TData>;
@@ -77,6 +78,8 @@
 		}
 
 		onDataUpdate?.(updates);
+		const cellCount = updates.length;
+		toast.success(`${cellCount} cell${cellCount !== 1 ? 's' : ''} cleared`);
 	}
 
 	async function onDelete() {
@@ -90,6 +93,8 @@
 
 		const rowIndicesArray = Array.from(rowIndices).sort((a, b) => a - b);
 		await onRowsDelete?.(rowIndicesArray);
+		const rowCount = rowIndicesArray.length;
+		toast.success(`${rowCount} row${rowCount !== 1 ? 's' : ''} deleted`);
 	}
 </script>
 

@@ -16,6 +16,7 @@
 	import { RowSelectHeader } from '$lib/components/data-grid/cells';
 	import { renderComponent } from '$lib/table';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import ModeToggle from '$lib/components/mode-toggle.svelte';
 
 	interface Person {
 		id: string;
@@ -417,6 +418,7 @@
 		<DataGridSortMenu {table} />
 		<DataGridRowHeightMenu {table} />
 		<DataGridViewMenu {table} />
+		<ModeToggle />
 	</div>
 	<DataGridKeyboardShortcuts enableSearch={!!dataGridProps.searchState} />
 	<DataGrid {...dataGridProps} {table} height={gridHeight} />

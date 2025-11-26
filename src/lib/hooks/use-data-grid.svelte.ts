@@ -28,7 +28,8 @@ import {
 	type TableState,
 	type ColumnPinningState,
 	type VisibilityState,
-	type ColumnSizingState
+	type ColumnSizingState,
+	type ColumnSizingInfoState
 } from '@tanstack/table-core';
 import {
 	Virtualizer,
@@ -157,8 +158,11 @@ const NON_NAVIGABLE_COLUMNS = new Set(['select', 'actions']);
 export function useDataGrid<TData extends RowData>(
 	options: UseDataGridOptions<TData>
 ): UseDataGridReturn<TData> {
-	// Note: We access options.data directly in effects rather than destructuring
-	// because destructuring captures the initial value and doesn't update reactively
+	// IMPORTANT: We use a getter function for data to maintain reactivity
+	// The caller passes data as a property, and we need to read it fresh each time
+	// This allows the hook to react to data changes from onDataChange callbacks
+	const getData = () => options.data;
+	
 	const {
 		columns,
 		rowHeight: initialRowHeight = 'short',
@@ -197,6 +201,14 @@ export function useDataGrid<TData extends RowData>(
 	let columnPinning = $state<ColumnPinningState>(initialState?.columnPinning ?? {});
 	let columnVisibility = $state<VisibilityState>(initialState?.columnVisibility ?? {});
 	let columnSizing = $state<ColumnSizingState>(initialState?.columnSizing ?? {});
+	let columnSizingInfo = $state<ColumnSizingInfoState>({
+		startOffset: null,
+		startSize: null,
+		deltaOffset: null,
+		deltaPercentage: null,
+		isResizingColumn: false,
+		columnSizingStart: []
+	});
 	let rowHeight = $state<RowHeightValue>(initialRowHeight);
 
 	// Cell state
@@ -452,7 +464,7 @@ export function useDataGrid<TData extends RowData>(
 		focusCell(rowIndex, columnId);
 	}
 
-	function selectRange(start: CellPosition, end: CellPosition) {
+	function selectRange(start: CellPosition, end: CellPosition, keepSelecting = false) {
 		const cols = getNavigableColumns();
 		const startColIndex = cols.findIndex((c) => c.id === start.columnId);
 		const endColIndex = cols.findIndex((c) => c.id === end.columnId);
@@ -475,7 +487,7 @@ export function useDataGrid<TData extends RowData>(
 		selectionState = {
 			selectedCells: newSelected,
 			selectionRange: { start, end },
-			isSelecting: false
+			isSelecting: keepSelecting ? selectionState.isSelecting : false
 		};
 	}
 
@@ -513,14 +525,69 @@ export function useDataGrid<TData extends RowData>(
 	function onCellMouseDown(rowIndex: number, columnId: string, event: MouseEvent) {
 		if (event.button !== 0) return; // Only left click
 
-		selectionState = { ...selectionState, isSelecting: true };
-		selectCell(rowIndex, columnId, event);
+		// Set selection anchor for drag selection
+		const cellKey = getCellKey(rowIndex, columnId);
+		
+		if (event.ctrlKey || event.metaKey) {
+			// Toggle selection - don't start drag, keep anchor
+			const newSelected = new Set(selectionState.selectedCells);
+			if (newSelected.has(cellKey)) {
+				newSelected.delete(cellKey);
+			} else {
+				newSelected.add(cellKey);
+			}
+			selectionState = {
+				...selectionState,
+				selectedCells: newSelected,
+				isSelecting: false
+			};
+			// Update focused cell but keep anchor for future shift-clicks
+			focusedCell = { rowIndex, columnId };
+			scrollAndFocusCell(rowIndex, columnId);
+		} else if (event.shiftKey && (selectionAnchor || focusedCell)) {
+			// Range selection from anchor (or focused cell if no anchor) to this cell
+			const anchor = selectionAnchor || focusedCell!;
+			selectRange(anchor, { rowIndex, columnId });
+			selectionState = { ...selectionState, isSelecting: false };
+			// Update focused cell but keep anchor for future shift-clicks
+			focusedCell = { rowIndex, columnId };
+			scrollAndFocusCell(rowIndex, columnId);
+		} else {
+			// Start drag selection - set this cell as anchor
+			selectionState = {
+				selectedCells: new Set([cellKey]),
+				selectionRange: null,
+				isSelecting: true
+			};
+			selectionAnchor = { rowIndex, columnId };
+			focusCell(rowIndex, columnId);
+		}
+	}
+	
+	// Helper to scroll to cell and focus it without changing selection anchor
+	function scrollAndFocusCell(rowIndex: number, columnId: string) {
+		const cellKey = getCellKey(rowIndex, columnId);
+		
+		// Scroll to row if needed (for virtualization)
+		if (virtualizer) {
+			virtualizer.scrollToIndex(rowIndex, { align: 'auto' });
+		}
+
+		// Focus the cell element
+		requestAnimationFrame(() => {
+			const cellElement = cellMapRef.get(cellKey);
+			if (cellElement) {
+				cellElement.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+				cellElement.focus();
+			}
+		});
 	}
 
 	function onCellMouseEnter(rowIndex: number, columnId: string, event: MouseEvent) {
-		if (!selectionState.isSelecting || !focusedCell) return;
+		if (!selectionState.isSelecting || !selectionAnchor) return;
 
-		selectRange(focusedCell, { rowIndex, columnId });
+		// Extend selection from anchor to current cell, keeping isSelecting true
+		selectRange(selectionAnchor, { rowIndex, columnId }, true);
 	}
 
 	function onCellMouseUp() {
@@ -1068,7 +1135,7 @@ export function useDataGrid<TData extends RowData>(
 			if (!row) continue;
 
 			const originalData = row.original;
-			const originalRowIndex = options.data.indexOf(originalData);
+			const originalRowIndex = getData().indexOf(originalData);
 			const targetIndex = originalRowIndex !== -1 ? originalRowIndex : update.rowIndex;
 
 			const existingUpdates = rowUpdatesMap.get(targetIndex) ?? [];
@@ -1077,12 +1144,12 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		// Build new data array
-		const tableRowCount = rows?.length ?? options.data.length;
+		const tableRowCount = rows?.length ?? getData().length;
 		const newData: TData[] = [];
 
 		for (let i = 0; i < tableRowCount; i++) {
 			const rowUpdates = rowUpdatesMap.get(i);
-			const existingRow = options.data[i];
+			const existingRow = getData()[i];
 			const tableRow = rows?.[i];
 
 			if (rowUpdates) {
@@ -1231,7 +1298,7 @@ export function useDataGrid<TData extends RowData>(
 
 	// Create the base table options
 	const baseTableOptions: TableOptionsResolved<TData> = {
-		data: options.data,
+		data: getData(),
 		columns,
 		...(getRowId ? { getRowId } : {}),
 		state: {
@@ -1240,10 +1307,14 @@ export function useDataGrid<TData extends RowData>(
 			rowSelection,
 			columnPinning,
 			columnVisibility,
-			columnSizing
+			columnSizing,
+			columnSizingInfo
 		},
 		onColumnSizingChange: (updater) => {
 			columnSizing = typeof updater === 'function' ? updater(columnSizing) : updater;
+		},
+		onColumnSizingInfoChange: (updater) => {
+			columnSizingInfo = typeof updater === 'function' ? updater(columnSizingInfo) : updater;
 		},
 		onColumnPinningChange: (updater) => {
 			columnPinning = typeof updater === 'function' ? updater(columnPinning) : updater;
@@ -1293,9 +1364,10 @@ export function useDataGrid<TData extends RowData>(
 			rowSelection,
 			columnPinning,
 			columnVisibility,
-			columnSizing
+			columnSizing,
+			columnSizingInfo
 		};
-		const currentData = options.data;
+		const currentData = getData();
 
 		// Update table with current state
 		table.setOptions((prev) => ({
@@ -1313,8 +1385,13 @@ export function useDataGrid<TData extends RowData>(
 	// Compute columnSizeVars (now that table exists)
 	// ========================================
 
-	// Compute column sizes based on columnSizing state
+	// Compute column sizes based on columnSizing and columnSizingInfo state
 	function getColumnSizeVars(): Record<string, number> {
+		// Read both columnSizing and columnSizingInfo to create reactive dependencies
+		// columnSizingInfo updates during resize drag, columnSizing updates on release
+		const _ = columnSizing;
+		const __ = columnSizingInfo;
+		
 		const vars: Record<string, number> = {};
 		try {
 			const headers = table.getFlatHeaders();
@@ -1374,7 +1451,7 @@ export function useDataGrid<TData extends RowData>(
 		// Read these to create dependencies - when filters/sorting change, row count changes
 		const _ = columnFilters;
 		const __ = sorting;
-		const ___ = options.data;
+		const ___ = getData();
 		
 		// Get the filtered/sorted row count from the table
 		const rowCount = table.getRowModel().rows.length;
@@ -1485,7 +1562,7 @@ export function useDataGrid<TData extends RowData>(
 			// Read state to create Svelte dependencies
 			const _ = sorting;
 			const __ = columnFilters;
-			const ___ = options.data;
+			const ___ = getData();
 			return table.getRowModel();
 		},
 		getHeaderGroups: () => {
@@ -1513,6 +1590,7 @@ export function useDataGrid<TData extends RowData>(
 			const ____ = columnPinning;
 			const _____ = columnVisibility;
 			const ______ = columnSizing;
+			const _______ = columnSizingInfo;
 			return table.getState();
 		},
 		getColumn: (columnId: string) => table.getColumn(columnId),
@@ -1527,6 +1605,7 @@ export function useDataGrid<TData extends RowData>(
 		getFlatHeaders: () => {
 			const _ = columnSizing;
 			const __ = columnVisibility;
+			const ___ = columnSizingInfo;
 			return table.getFlatHeaders();
 		},
 		getTotalSize: () => {
