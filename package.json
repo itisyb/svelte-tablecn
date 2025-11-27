@@ -1,8 +1,26 @@
 {
-	"name": "svelte",
-	"private": true,
-	"version": "0.0.1",
+	"name": "svelte-tablecn",
+	"private": false,
+	"version": "0.1.0",
 	"type": "module",
+	"description": "A powerful, feature-rich data grid component for Svelte 5. Port of tablecn.com",
+	"author": "itisyb",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/itisyb/svelte-tablecn"
+	},
+	"keywords": [
+		"svelte",
+		"svelte5",
+		"data-grid",
+		"table",
+		"datagrid",
+		"spreadsheet",
+		"tablecn",
+		"shadcn",
+		"tanstack-table"
+	],
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
@@ -13,7 +31,8 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run",
 		"format": "prettier --write .",
-		"lint": "prettier --check ."
+		"lint": "prettier --check .",
+		"registry:build": "shadcn-svelte registry build"
 	},
 	"devDependencies": {
 		"@internationalized/date": "^3.8.1",
@@ -28,6 +47,7 @@
 		"playwright": "^1.56.1",
 		"prettier": "^3.6.2",
 		"prettier-plugin-svelte": "^3.4.0",
+		"shadcn-svelte": "^1.0.12",
 		"svelte": "^5.43.8",
 		"svelte-check": "^4.3.4",
 		"tailwind-merge": "^3.3.1",
