@@ -412,15 +412,42 @@
 	});
 </script>
 
-<div class="container flex flex-col gap-4 py-4">
-	<div role="toolbar" aria-orientation="horizontal" class="flex items-center gap-2 self-end">
-		<DataGridFilterMenu {table} />
-		<DataGridSortMenu {table} />
-		<DataGridRowHeightMenu {table} />
-		<DataGridViewMenu {table} />
-		<ModeToggle />
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6">
+	<!-- Header -->
+	<div class="flex flex-col gap-2">
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-2xl font-bold tracking-tight">svelte-tablecn</h1>
+				<p class="text-sm text-muted-foreground">
+					A powerful data grid for Svelte 5. Port of <a href="https://tablecn.com" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 hover:text-foreground">tablecn.com</a>
+				</p>
+			</div>
+			<div class="flex items-center gap-2">
+				<a
+					href="https://github.com/itisyb/svelte-tablecn"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+				>
+					GitHub
+				</a>
+				<ModeToggle />
+			</div>
+		</div>
 	</div>
-	<DataGridKeyboardShortcuts enableSearch={!!dataGridProps.searchState} />
+
+	<!-- Toolbar -->
+	<div role="toolbar" aria-orientation="horizontal" class="flex items-center justify-between">
+		<DataGridKeyboardShortcuts enableSearch={!!dataGridProps.searchState} />
+		<div class="flex items-center gap-2">
+			<DataGridFilterMenu {table} />
+			<DataGridSortMenu {table} />
+			<DataGridRowHeightMenu {table} />
+			<DataGridViewMenu {table} />
+		</div>
+	</div>
+
+	<!-- Data Grid -->
 	<DataGrid {...dataGridProps} {table} height={gridHeight} />
 </div>
 
