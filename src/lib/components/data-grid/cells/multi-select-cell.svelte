@@ -144,10 +144,26 @@
 	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
 	const lineCount = $derived(getLineCount(rowHeight));
 
-	// Simple visible badge calculation (can be enhanced with useBadgeOverflow hook)
-	const maxVisibleBadges = $derived(lineCount * 2);
-	const visibleLabels = $derived(displayLabels.slice(0, maxVisibleBadges));
-	const hiddenBadgeCount = $derived(Math.max(0, displayLabels.length - maxVisibleBadges));
+	// Calculate visible badges based on container width and estimated badge widths
+	const containerWidth = $derived(containerRef?.clientWidth ?? 200);
+	const estimatedBadgeWidth = 70; // Average badge width for labels
+	const badgeGap = 4; // gap-1 = 4px
+	const containerPadding = 16; // px-2 = 8px * 2
+	
+	const availableWidth = $derived(containerWidth - containerPadding);
+	const badgesPerLine = $derived(Math.max(1, Math.floor(availableWidth / (estimatedBadgeWidth + badgeGap))));
+	const maxVisibleBadges = $derived(Math.max(1, badgesPerLine * lineCount));
+	
+	// Reserve space for overflow badge if we have more items than can fit
+	const needsOverflowBadge = $derived(displayLabels.length > maxVisibleBadges);
+	const adjustedMaxBadges = $derived(
+		needsOverflowBadge && maxVisibleBadges > 1 
+			? maxVisibleBadges - 1 
+			: maxVisibleBadges
+	);
+	
+	const visibleLabels = $derived(displayLabels.slice(0, adjustedMaxBadges));
+	const hiddenBadgeCount = $derived(Math.max(0, displayLabels.length - adjustedMaxBadges));
 </script>
 
 <DataGridCellWrapper

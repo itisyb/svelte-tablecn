@@ -13,9 +13,9 @@
 	const isAllSelected = $derived(table.getIsAllPageRowsSelected());
 	const isSomeSelected = $derived(table.getIsSomePageRowsSelected());
 
-	function handleChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		table.toggleAllPageRowsSelected(target.checked);
+	function handleClick() {
+		// Toggle: if all selected -> deselect all, otherwise select all
+		table.toggleAllPageRowsSelected(!isAllSelected);
 	}
 </script>
 
@@ -25,6 +25,6 @@
 		class="after:-inset-2.5 relative transition-[shadow,border] after:absolute after:content-[''] hover:border-primary/40"
 		checked={isAllSelected}
 		indeterminate={!isAllSelected && isSomeSelected}
-		onchange={handleChange}
+		onclick={handleClick}
 	/>
 </div>

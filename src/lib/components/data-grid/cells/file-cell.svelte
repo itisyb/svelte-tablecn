@@ -437,10 +437,28 @@
 	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
 	const lineCount = $derived(getLineCount(rowHeight));
 
-	// Simple visible file calculation
-	const maxVisibleFiles = $derived(lineCount * 2);
-	const visibleFiles = $derived(files.slice(0, maxVisibleFiles));
-	const hiddenFileCount = $derived(Math.max(0, files.length - maxVisibleFiles));
+	// Calculate visible files based on container width and estimated badge widths
+	// Each file badge is roughly 80-120px wide (icon + truncated name)
+	const containerWidth = $derived(containerRef?.clientWidth ?? 200);
+	const estimatedBadgeWidth = 100; // Average badge width
+	const badgeGap = 4; // gap-1 = 4px
+	const containerPadding = 16; // px-2 = 8px * 2
+	const overflowBadgeWidth = 32; // "+N" badge width
+	
+	const availableWidth = $derived(containerWidth - containerPadding);
+	const badgesPerLine = $derived(Math.max(1, Math.floor(availableWidth / (estimatedBadgeWidth + badgeGap))));
+	const maxVisibleFiles = $derived(Math.max(1, badgesPerLine * lineCount));
+	
+	// Reserve space for overflow badge if we have more files than can fit
+	const needsOverflowBadge = $derived(files.length > maxVisibleFiles);
+	const adjustedMaxFiles = $derived(
+		needsOverflowBadge && maxVisibleFiles > 1 
+			? maxVisibleFiles - 1 
+			: maxVisibleFiles
+	);
+	
+	const visibleFiles = $derived(files.slice(0, adjustedMaxFiles));
+	const hiddenFileCount = $derived(Math.max(0, files.length - adjustedMaxFiles));
 </script>
 
 <DataGridCellWrapper
