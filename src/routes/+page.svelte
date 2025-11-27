@@ -392,7 +392,7 @@
 
 	const { table, ...dataGridProps } = useDataGrid({
 		columns,
-		data,
+		data: () => data, // Pass as getter for Svelte 5 reactivity
 		onDataChange: (newData) => {
 			data = newData;
 		},
