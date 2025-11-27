@@ -190,23 +190,21 @@ export function useDataGrid<TData extends RowData>(
 	// Only the specific cell that changed will re-render
 	const cellValueMap = new SvelteMap<string, unknown>();
 	
-	// Helper to get cell value with fine-grained reactivity
-	function getCellValue(rowIndex: number, columnId: string): unknown {
-		const key = getCellKey(rowIndex, columnId);
-		// If we have a cached value in the map, use it (fine-grained reactive)
-		if (cellValueMap.has(key)) {
-			return cellValueMap.get(key);
-		}
-		// Otherwise get from data array
-		const data = getData();
-		const row = data[rowIndex] as Record<string, unknown> | undefined;
-		return row?.[columnId];
+	// Expose the map directly so cells can access it in $derived for proper reactivity
+	// When a cell calls cellValueMap.get(key) inside $derived, Svelte tracks that specific key
+	function getCellValueMap(): SvelteMap<string, unknown> {
+		return cellValueMap;
 	}
 	
 	// Helper to set cell value with fine-grained reactivity
 	function setCellValue(rowIndex: number, columnId: string, value: unknown): void {
 		const key = getCellKey(rowIndex, columnId);
 		cellValueMap.set(key, value);
+	}
+	
+	// Helper to clear cell value cache (called when table state changes)
+	function clearCellValueCache(): void {
+		cellValueMap.clear();
 	}
 
 	// ========================================
@@ -1163,39 +1161,43 @@ export function useDataGrid<TData extends RowData>(
 		const rows = table.getRowModel().rows;
 		const currentData = getData();
 
-		// Group updates by row index
-		const rowUpdatesMap = new Map<number, Array<{ columnId: string; value: unknown }>>();
+		// Group updates by original data index (for updating the data array)
+		const dataUpdatesMap = new Map<number, Array<{ columnId: string; value: unknown }>>();
 
 		for (const update of updateArray) {
 			const row = rows[update.rowIndex];
 			if (!row) continue;
 
+			// Find the original data index for updating the data array
 			const originalData = row.original;
 			const originalRowIndex = currentData.indexOf(originalData);
-			const targetIndex = originalRowIndex !== -1 ? originalRowIndex : update.rowIndex;
+			const dataIndex = originalRowIndex !== -1 ? originalRowIndex : update.rowIndex;
 
-			const existingUpdates = rowUpdatesMap.get(targetIndex) ?? [];
+			const existingUpdates = dataUpdatesMap.get(dataIndex) ?? [];
 			existingUpdates.push({ columnId: update.columnId, value: update.value });
-			rowUpdatesMap.set(targetIndex, existingUpdates);
+			dataUpdatesMap.set(dataIndex, existingUpdates);
 			
-			// Update cellValueMap for fine-grained reactivity - ONLY THIS CELL re-renders
-			setCellValue(targetIndex, update.columnId, update.value);
+			// Update cellValueMap using DISPLAY row index (update.rowIndex)
+			// This matches what the cell components use when rendering
+			setCellValue(update.rowIndex, update.columnId, update.value);
 		}
 
-		// Update the underlying data array directly WITHOUT triggering parent re-render
-		// We mutate in place to avoid creating a new array reference
-		for (const [rowIndex, rowUpdates] of rowUpdatesMap) {
-			const existingRow = currentData[rowIndex] as Record<string, unknown> | undefined;
+		// Build updated data array for parent notification
+		const newData = [...currentData];
+
+		for (const [dataIndex, rowUpdates] of dataUpdatesMap) {
+			const existingRow = currentData[dataIndex];
 			if (existingRow) {
+				const updatedRow = { ...existingRow } as Record<string, unknown>;
 				for (const { columnId, value } of rowUpdates) {
-					existingRow[columnId] = value;
+					updatedRow[columnId] = value;
 				}
+				newData[dataIndex] = updatedRow as TData;
 			}
 		}
 
-		// DO NOT call onDataChange here - it triggers full re-render
-		// The cellValueMap already provides fine-grained reactivity for display
-		// Parent can access the mutated data array when needed (e.g., on save)
+		// Notify parent so sorting/filtering/search work correctly
+		onDataChange?.(newData);
 	}
 
 	// ========================================
@@ -1251,9 +1253,11 @@ export function useDataGrid<TData extends RowData>(
 			return pasteDialog;
 		},
 		getIsCellSelected,
-		// Expose getCellValue for fine-grained cell-level reactivity
-		// Cells call this instead of cell.getValue() to only re-render when THEIR value changes
-		getCellValue,
+		// Expose cellValueMap directly for fine-grained cell-level reactivity
+		// Cells access map.get(key) inside $derived for proper Svelte tracking
+		get cellValueMap() {
+			return getCellValueMap();
+		},
 		// Expose SvelteSet directly for fine-grained reactivity
 		// Cells can call searchMatchSet.has(key) directly in template
 		searchMatchSet,
@@ -1451,6 +1455,11 @@ export function useDataGrid<TData extends RowData>(
 
 	const table = createTable(baseTableOptions);
 
+	// Track previous state to detect changes that require cache clearing
+	let prevSorting = $state<SortingState>([]);
+	let prevColumnFilters = $state<ColumnFiltersState>([]);
+	let prevDataLength = $state<number>(0);
+	
 	// This is the key to reactivity: update table options in $effect.pre
 	// whenever any of the state values change
 	$effect.pre(() => {
@@ -1465,6 +1474,19 @@ export function useDataGrid<TData extends RowData>(
 			columnSizingInfo
 		};
 		const currentData = getData();
+
+		// Clear cell value cache when sorting, filtering, or row count changes
+		// This ensures cells show correct values after re-ordering or add/delete
+		const sortingChanged = JSON.stringify(sorting) !== JSON.stringify(prevSorting);
+		const filtersChanged = JSON.stringify(columnFilters) !== JSON.stringify(prevColumnFilters);
+		const dataLengthChanged = currentData.length !== prevDataLength;
+		
+		if (sortingChanged || filtersChanged || dataLengthChanged) {
+			clearCellValueCache();
+			prevSorting = [...sorting];
+			prevColumnFilters = [...columnFilters];
+			prevDataLength = currentData.length;
+		}
 
 		// Update table with current state
 		table.setOptions((prev) => ({
@@ -1548,7 +1570,7 @@ export function useDataGrid<TData extends RowData>(
 		// Read these to create dependencies - when filters/sorting change, row count changes
 		const _ = columnFilters;
 		const __ = sorting;
-		const ___ = getData();
+		const currentData = getData();
 		
 		// Get the filtered/sorted row count from the table
 		const rowCount = table.getRowModel().rows.length;
@@ -1556,6 +1578,8 @@ export function useDataGrid<TData extends RowData>(
 		untrack(() => {
 			const ref = dataGridRef;
 			if (virtualizer && ref) {
+				const prevCount = virtualizer.options.count;
+				
 				virtualizer.setOptions({
 					count: rowCount,
 					getScrollElement: () => ref,
@@ -1566,7 +1590,24 @@ export function useDataGrid<TData extends RowData>(
 					scrollToFn: elementScroll,
 					onChange: handleVirtualizerChange
 				});
+				
+				// Force virtualizer to recalculate
 				virtualizer._willUpdate();
+				virtualizer.measure();
+				
+				// If rows were deleted and we're scrolled past the new content,
+				// scroll to the last row to avoid gaps
+				if (rowCount < prevCount && rowCount > 0) {
+					const scrollEl = ref;
+					const newTotalSize = virtualizer.getTotalSize();
+					if (scrollEl.scrollTop > newTotalSize - scrollEl.clientHeight) {
+						// Scroll to show the last rows
+						virtualizer.scrollToIndex(rowCount - 1, { align: 'end' });
+					}
+				}
+				
+				// Update virtual items immediately
+				handleVirtualizerChange(virtualizer);
 			}
 		});
 	});

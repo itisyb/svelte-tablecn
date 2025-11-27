@@ -37,10 +37,15 @@
 	// CENTRALIZED: Fine-grained cell value using SvelteMap
 	// This is computed ONCE here and passed to all cell variants
 	// Only re-renders when THIS specific cell's value changes in the SvelteMap
+	// We access the map directly inside $derived so Svelte tracks this specific key
 	const cellValue = $derived.by(() => {
 		const meta = table.options.meta;
-		const val = meta?.getCellValue?.(rowIndex, columnId);
-		if (val !== undefined) return val;
+		const map = meta?.cellValueMap;
+		const key = getCellKey(rowIndex, columnId);
+		
+		if (map && map.has(key)) {
+			return map.get(key);
+		}
 		// Fallback to cell.getValue() for initial render or if SvelteMap not available
 		return cell.getValue();
 	});
