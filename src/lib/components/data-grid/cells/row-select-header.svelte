@@ -10,13 +10,16 @@
 
 	let { table }: Props = $props();
 
-	const isAllSelected = $derived(table.getIsAllPageRowsSelected());
-	const isSomeSelected = $derived(table.getIsSomePageRowsSelected());
-
-	function handleClick() {
-		// Toggle: if all selected -> deselect all, otherwise select all
-		table.toggleAllPageRowsSelected(!isAllSelected);
-	}
+	// Read rowSelection from table state to create reactive dependency
+	const rowSelection = $derived(table.getState().rowSelection);
+	const isAllSelected = $derived.by(() => {
+		const _ = rowSelection;
+		return table.getIsAllPageRowsSelected();
+	});
+	const isSomeSelected = $derived.by(() => {
+		const _ = rowSelection;
+		return table.getIsSomePageRowsSelected();
+	});
 </script>
 
 <div class="flex size-full items-center justify-center px-3 py-1.5">
@@ -25,6 +28,6 @@
 		class="after:-inset-2.5 relative transition-[shadow,border] after:absolute after:content-[''] hover:border-primary/40"
 		checked={isAllSelected}
 		indeterminate={!isAllSelected && isSomeSelected}
-		onclick={handleClick}
+		onCheckedChange={(checked) => table.toggleAllPageRowsSelected(!!checked)}
 	/>
 </div>

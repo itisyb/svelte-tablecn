@@ -1,5 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Cell, Table } from '@tanstack/table-core';
+	import { getCellKey } from '$lib/types/data-grid.js';
 
 	// Cell variant imports
 	import ShortTextCell from './cells/short-text-cell.svelte';
@@ -44,9 +45,12 @@
 		const ec = meta?.editingCell;
 		return ec?.rowIndex === rowIndex && ec?.columnId === columnId;
 	});
+	// Access selectionState directly to create proper reactive dependency
 	const isSelected = $derived.by(() => {
 		const meta = table.options.meta;
-		return meta?.getIsCellSelected?.(rowIndex, columnId) ?? false;
+		const selectedCells = meta?.selectionState?.selectedCells;
+		if (!selectedCells) return false;
+		return selectedCells.has(getCellKey(rowIndex, columnId));
 	});
 	const readOnly = $derived.by(() => {
 		const meta = table.options.meta;
