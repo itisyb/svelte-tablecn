@@ -59,7 +59,8 @@ import { toast } from 'svelte-sonner';
 
 export interface UseDataGridOptions<TData extends RowData> {
 	columns: ColumnDef<TData, unknown>[];
-	data: TData[];
+	/** Pass data as a getter function for reactivity: () => data */
+	data: TData[] | (() => TData[]);
 	rowHeight?: RowHeightValue;
 	autoFocus?: boolean | { rowIndex?: number; columnId?: string };
 	enableColumnSelection?: boolean;
@@ -159,13 +160,9 @@ const NON_NAVIGABLE_COLUMNS = new Set(['select', 'actions']);
 export function useDataGrid<TData extends RowData>(
 	options: UseDataGridOptions<TData>
 ): UseDataGridReturn<TData> {
-	// IMPORTANT: We use a getter function for data to maintain reactivity
-	// The caller passes data as a property, and we need to read it fresh each time
-	// This allows the hook to react to data changes from onDataChange callbacks
-	const getData = () => options.data;
-	
 	const {
 		columns,
+		data: dataProp,
 		rowHeight: initialRowHeight = 'short',
 		autoFocus = false,
 		enableColumnSelection = false,
@@ -183,6 +180,14 @@ export function useDataGrid<TData extends RowData>(
 		onFilesUpload,
 		onFilesDelete
 	} = options;
+	
+	// Support both direct data array and getter function for reactivity
+	// Using a getter function () => data allows Svelte 5 to track changes
+	const getDataFn = typeof dataProp === 'function' ? dataProp : () => dataProp;
+	
+	// Use $derived to make data reactive - this ensures effects re-run when data changes
+	const reactiveData = $derived(getDataFn());
+	const getData = () => reactiveData;
 
 	// ========================================
 	// Reactive State using Svelte 5 runes
