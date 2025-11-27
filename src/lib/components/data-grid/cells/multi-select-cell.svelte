@@ -1,6 +1,7 @@
 <script lang="ts" generics="TData">
 	import type { CellVariantProps } from '$lib/types/data-grid.js';
 	import { getCellKey, getLineCount } from '$lib/types/data-grid.js';
+	import { useBadgeOverflow } from '$lib/hooks/use-badge-overflow.svelte.js';
 	import DataGridCellWrapper from '../data-grid-cell-wrapper.svelte';
 	import { Popover as PopoverPrimitive } from 'bits-ui';
 	import { PopoverContent } from '$lib/components/ui/popover/index.js';
@@ -26,10 +27,12 @@
 		isEditing,
 		isFocused,
 		isSelected,
-		readOnly = false
+		readOnly = false,
+		cellValue
 	}: CellVariantProps<TData> = $props();
 
-	const cellValue = $derived((cell.getValue() as string[]) ?? []);
+	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
+	const initialCellValue = $derived((cellValue as string[]) ?? []);
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
 	let prevCellKey = $state('');
 
@@ -43,7 +46,7 @@
 
 	// Sync with cell value - compare by content, not reference
 	$effect(() => {
-		const cv = cellValue;
+		const cv = initialCellValue;
 		if (!isEditing) {
 			// Only update if arrays differ by content
 			if (cv.length !== selectedValues.length || cv.some((v, i) => v !== selectedValues[i])) {
@@ -108,7 +111,7 @@
 		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
-			selectedValues = [...cellValue];
+			selectedValues = [...initialCellValue];
 			searchValue = '';
 			meta?.onCellEditingStop?.();
 		} else if (!isEditing && isFocused && event.key === 'Tab') {
@@ -135,35 +138,30 @@
 		}
 	}
 
-	const displayLabels = $derived(
+	// Build display items with labels
+	const displayItems = $derived(
 		selectedValues
-			.map((val) => options.find((opt) => opt.value === val)?.label ?? val)
-			.filter(Boolean)
+			.map((val) => ({
+				value: val,
+				label: options.find((opt) => opt.value === val)?.label ?? val
+			}))
+			.filter((item) => item.label)
 	);
 
 	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
 	const lineCount = $derived(getLineCount(rowHeight));
 
-	// Calculate visible badges based on container width and estimated badge widths
-	const containerWidth = $derived(containerRef?.clientWidth ?? 200);
-	const estimatedBadgeWidth = 70; // Average badge width for labels
-	const badgeGap = 4; // gap-1 = 4px
-	const containerPadding = 16; // px-2 = 8px * 2
-	
-	const availableWidth = $derived(containerWidth - containerPadding);
-	const badgesPerLine = $derived(Math.max(1, Math.floor(availableWidth / (estimatedBadgeWidth + badgeGap))));
-	const maxVisibleBadges = $derived(Math.max(1, badgesPerLine * lineCount));
-	
-	// Reserve space for overflow badge if we have more items than can fit
-	const needsOverflowBadge = $derived(displayLabels.length > maxVisibleBadges);
-	const adjustedMaxBadges = $derived(
-		needsOverflowBadge && maxVisibleBadges > 1 
-			? maxVisibleBadges - 1 
-			: maxVisibleBadges
-	);
-	
-	const visibleLabels = $derived(displayLabels.slice(0, adjustedMaxBadges));
-	const hiddenBadgeCount = $derived(Math.max(0, displayLabels.length - adjustedMaxBadges));
+	// Use the badge overflow hook for accurate measurement
+	const badgeOverflow = useBadgeOverflow(() => ({
+		items: displayItems,
+		getLabel: (item) => item.label,
+		containerRef: containerRef,
+		lineCount: lineCount,
+		cacheKeyPrefix: 'multi-select'
+	}));
+
+	const visibleItems = $derived(badgeOverflow.value.visibleItems);
+	const hiddenBadgeCount = $derived(badgeOverflow.value.hiddenCount);
 </script>
 
 <DataGridCellWrapper
@@ -249,11 +247,11 @@
 			</PopoverContent>
 		</PopoverPrimitive.Root>
 	{/if}
-	{#if displayLabels.length > 0}
+	{#if displayItems.length > 0}
 		<div class="flex flex-wrap items-center gap-1 overflow-hidden">
-			{#each visibleLabels as label, index (selectedValues[index])}
+			{#each visibleItems as item (item.value)}
 				<Badge variant="secondary" class="h-5 shrink-0 px-1.5 text-xs">
-					{label}
+					{item.label}
 				</Badge>
 			{/each}
 			{#if hiddenBadgeCount > 0}

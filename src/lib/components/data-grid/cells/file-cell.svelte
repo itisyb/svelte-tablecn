@@ -1,6 +1,7 @@
 <script lang="ts" generics="TData">
 	import type { CellVariantProps, FileCellData } from '$lib/types/data-grid.js';
 	import { getCellKey, getLineCount } from '$lib/types/data-grid.js';
+	import { useBadgeOverflow } from '$lib/hooks/use-badge-overflow.svelte.js';
 	import DataGridCellWrapper from '../data-grid-cell-wrapper.svelte';
 	import { PopoverContent } from '$lib/components/ui/popover/index.js';
 	import { Popover as PopoverPrimitive } from 'bits-ui';
@@ -29,10 +30,12 @@
 		isEditing,
 		isFocused,
 		isSelected,
-		readOnly = false
+		readOnly = false,
+		cellValue
 	}: CellVariantProps<TData> = $props();
 
-	const cellValue = $derived((cell.getValue() as FileCellData[]) ?? []);
+	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
+	const initialCellValue = $derived((cellValue as FileCellData[]) ?? []);
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
 	let prevCellKey = $state('');
 
@@ -57,7 +60,7 @@
 
 	// Sync with cell value - compare by content, not reference
 	$effect(() => {
-		const cv = cellValue;
+		const cv = initialCellValue;
 		if (!isEditing) {
 			// Only update if arrays differ by content (compare by id)
 			const cvIds = cv.map((f) => f.id).join(',');
@@ -416,7 +419,7 @@
 		if (isEditing) {
 			if (event.key === 'Escape') {
 				event.preventDefault();
-				files = [...cellValue];
+				files = [...initialCellValue];
 				error = null;
 				table.options.meta?.onCellEditingStop?.();
 			} else if (event.key === ' ') {
@@ -437,28 +440,20 @@
 	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
 	const lineCount = $derived(getLineCount(rowHeight));
 
-	// Calculate visible files based on container width and estimated badge widths
-	// Each file badge is roughly 80-120px wide (icon + truncated name)
-	const containerWidth = $derived(containerRef?.clientWidth ?? 200);
-	const estimatedBadgeWidth = 100; // Average badge width
-	const badgeGap = 4; // gap-1 = 4px
-	const containerPadding = 16; // px-2 = 8px * 2
-	const overflowBadgeWidth = 32; // "+N" badge width
-	
-	const availableWidth = $derived(containerWidth - containerPadding);
-	const badgesPerLine = $derived(Math.max(1, Math.floor(availableWidth / (estimatedBadgeWidth + badgeGap))));
-	const maxVisibleFiles = $derived(Math.max(1, badgesPerLine * lineCount));
-	
-	// Reserve space for overflow badge if we have more files than can fit
-	const needsOverflowBadge = $derived(files.length > maxVisibleFiles);
-	const adjustedMaxFiles = $derived(
-		needsOverflowBadge && maxVisibleFiles > 1 
-			? maxVisibleFiles - 1 
-			: maxVisibleFiles
-	);
-	
-	const visibleFiles = $derived(files.slice(0, adjustedMaxFiles));
-	const hiddenFileCount = $derived(Math.max(0, files.length - adjustedMaxFiles));
+	// Use the badge overflow hook for accurate measurement
+	// File badges have an icon (12px) and truncated name (max 100px)
+	const badgeOverflow = useBadgeOverflow(() => ({
+		items: files,
+		getLabel: (file) => file.name,
+		containerRef: containerRef,
+		lineCount: lineCount,
+		cacheKeyPrefix: 'file',
+		iconSize: 12, // size-3 = 12px
+		maxWidth: 100 // max-w-[100px] on truncated text
+	}));
+
+	const visibleFiles = $derived(badgeOverflow.value.visibleItems);
+	const hiddenFileCount = $derived(badgeOverflow.value.hiddenCount);
 </script>
 
 <DataGridCellWrapper

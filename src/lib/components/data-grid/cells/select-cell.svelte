@@ -16,10 +16,12 @@
 		isEditing,
 		isFocused,
 		isSelected,
-		readOnly = false
+		readOnly = false,
+		cellValue
 	}: CellVariantProps<TData> = $props();
 
-	const initialValue = $derived(cell.getValue() as string);
+	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
+	const initialValue = $derived((cellValue as string) ?? '');
 	let value = $state('');
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const options = $derived(cellOpts?.variant === 'select' ? cellOpts.options : []);

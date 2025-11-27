@@ -181,6 +181,7 @@ export {
 // Hooks
 // ==============================================
 export { useWindowSize } from './hooks/use-window-size.svelte.js';
+export { useBadgeOverflow, clearBadgeWidthCache, type UseBadgeOverflowOptions, type UseBadgeOverflowReturn } from './hooks/use-badge-overflow.svelte.js';
 
 // ==============================================
 // Utils

@@ -150,6 +150,8 @@ export interface CellVariantProps<TData> {
 	isFocused: boolean;
 	isSelected: boolean;
 	readOnly?: boolean;
+	/** Centralized cell value with fine-grained reactivity from SvelteMap */
+	cellValue: unknown;
 }
 
 // ============================================
@@ -243,6 +245,8 @@ declare module '@tanstack/table-core' {
 		searchOpen?: boolean;
 		readOnly?: boolean;
 		getIsCellSelected?: (rowIndex: number, columnId: string) => boolean;
+		// Fine-grained cell value access - only re-renders the specific cell when its value changes
+		getCellValue?: (rowIndex: number, columnId: string) => unknown;
 		getIsSearchMatch?: (rowIndex: number, columnId: string) => boolean;
 		getIsActiveSearchMatch?: (rowIndex: number, columnId: string) => boolean;
 		// SvelteSet for fine-grained reactive search match lookups
