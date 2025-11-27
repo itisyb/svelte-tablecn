@@ -1268,26 +1268,55 @@ export function useDataGrid<TData extends RowData>(
 			const currentRow = rows[rowIndex];
 			if (!currentRow) return;
 
+			let newRowSelection: RowSelectionState;
+
 			if (shiftKey && lastClickedRowIndex !== null) {
 				// Shift-click range selection
 				const startIndex = Math.min(lastClickedRowIndex, rowIndex);
 				const endIndex = Math.max(lastClickedRowIndex, rowIndex);
 
-				const newRowSelection = { ...rowSelection };
+				newRowSelection = { ...rowSelection };
 				for (let i = startIndex; i <= endIndex; i++) {
 					const row = rows[i];
 					if (row) {
 						newRowSelection[row.id] = selected;
 					}
 				}
-				rowSelection = newRowSelection;
 			} else {
 				// Regular click
-				rowSelection = {
+				newRowSelection = {
 					...rowSelection,
 					[currentRow.id]: selected
 				};
 			}
+
+			// Update rowSelection state
+			rowSelection = newRowSelection;
+
+			// Also update selectionState.selectedCells to highlight all cells in selected rows
+			// This matches the React behavior where selecting a row highlights the entire row
+			const selectedRows = Object.keys(newRowSelection).filter((key) => newRowSelection[key]);
+			const selectedCellsSet = new Set<string>();
+			const allColumnIds = table.getAllColumns().map((col) => col.id);
+
+			for (const rowId of selectedRows) {
+				const rowIdx = rows.findIndex((r) => r.id === rowId);
+				if (rowIdx === -1) continue;
+
+				for (const columnId of allColumnIds) {
+					selectedCellsSet.add(getCellKey(rowIdx, columnId));
+				}
+			}
+
+			selectionState = {
+				selectedCells: selectedCellsSet,
+				selectionRange: null,
+				isSelecting: false
+			};
+
+			// Clear focused/editing cell when selecting rows
+			focusedCell = null;
+			editingCell = null;
 
 			lastClickedRowIndex = rowIndex;
 		},
@@ -1349,7 +1378,34 @@ export function useDataGrid<TData extends RowData>(
 			columnFilters = typeof updater === 'function' ? updater(columnFilters) : updater;
 		},
 		onRowSelectionChange: (updater) => {
-			rowSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
+			const newRowSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
+			rowSelection = newRowSelection;
+
+			// Also update selectionState.selectedCells to highlight all cells in selected rows
+			// This matches the React behavior where selecting a row highlights the entire row
+			const rows = table.getRowModel().rows;
+			const selectedRows = Object.keys(newRowSelection).filter((key) => newRowSelection[key]);
+			const selectedCellsSet = new Set<string>();
+			const allColumnIds = table.getAllColumns().map((col) => col.id);
+
+			for (const rowId of selectedRows) {
+				const rowIdx = rows.findIndex((r) => r.id === rowId);
+				if (rowIdx === -1) continue;
+
+				for (const columnId of allColumnIds) {
+					selectedCellsSet.add(getCellKey(rowIdx, columnId));
+				}
+			}
+
+			selectionState = {
+				selectedCells: selectedCellsSet,
+				selectionRange: null,
+				isSelecting: false
+			};
+
+			// Clear focused/editing cell when selecting rows
+			focusedCell = null;
+			editingCell = null;
 		},
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),

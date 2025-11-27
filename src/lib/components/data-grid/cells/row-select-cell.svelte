@@ -10,17 +10,22 @@
 
 	let { row, table, rowIndex }: Props = $props();
 
-	const isSelected = $derived(row.getIsSelected());
+	// Read rowSelection from table state to create reactive dependency
+	// This ensures the component re-renders when selection changes
+	const rowSelection = $derived(table.getState().rowSelection);
+	const isSelected = $derived.by(() => {
+		// Access rowSelection to create dependency, then call getIsSelected
+		const _ = rowSelection;
+		return row.getIsSelected();
+	});
 	const meta = $derived(table.options.meta);
 
-	function handleChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		const checked = target.checked;
+	function handleCheckedChange(checked: boolean | 'indeterminate') {
 		const onRowSelect = meta?.onRowSelect;
 		if (onRowSelect) {
-			onRowSelect(rowIndex, checked, false);
+			onRowSelect(rowIndex, !!checked, false);
 		} else {
-			row.toggleSelected(checked);
+			row.toggleSelected(!!checked);
 		}
 	}
 
@@ -46,7 +51,7 @@
 		aria-label="Select row"
 		class="after:-inset-2.5 relative transition-[shadow,border] after:absolute after:content-[''] hover:border-primary/40"
 		checked={isSelected}
-		onchange={handleChange}
+		onCheckedChange={handleCheckedChange}
 		onclick={handleClick}
 		onmousedown={handleMouseDown}
 	/>
