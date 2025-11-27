@@ -22,21 +22,25 @@
 
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialValue = $derived((cellValue as string) ?? '');
-	let value = $state('');
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const options = $derived(cellOpts?.variant === 'select' ? cellOpts.options : []);
 
-	// Initialize and sync value
+	// Track local edits separately
+	let localEditValue = $state<string | null>(null);
+	
+	// Value for display - use localEditValue if set, otherwise initialValue
+	const value = $derived(localEditValue ?? initialValue ?? '');
+
+	// Reset local edit value when editing stops
 	$effect(() => {
-		const iv = initialValue;
-		if (iv !== value && !isEditing) {
-			value = iv;
+		if (!isEditing) {
+			localEditValue = null;
 		}
 	});
 
 	function handleValueChange(newValue: string | undefined) {
 		if (readOnly || !newValue) return;
-		value = newValue;
+		localEditValue = newValue;
 		const meta = table.options.meta;
 		meta?.onDataUpdate?.({ rowIndex, columnId, value: newValue });
 		meta?.onCellEditingStop?.();
@@ -55,7 +59,7 @@
 		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
-			value = initialValue;
+			localEditValue = null;
 			meta?.onCellEditingStop?.();
 		} else if (!isEditing && isFocused && event.key === 'Tab') {
 			event.preventDefault();

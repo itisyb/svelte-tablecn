@@ -17,17 +17,16 @@
 
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialValue = $derived(cellValue as boolean);
-	let value = $state(false);
-
-	// Initialize and sync value from cell data
-	$effect(() => {
-		const iv = Boolean(initialValue);
-		value = iv;
-	});
+	
+	// Track local edits separately
+	let localEditValue = $state<boolean | null>(null);
+	
+	// Value for display - use localEditValue if set, otherwise initialValue
+	const value = $derived(localEditValue ?? Boolean(initialValue));
 
 	function handleCheckedChange(newValue: boolean) {
 		if (readOnly) return;
-		value = newValue;
+		localEditValue = newValue;
 		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValue });
 	}
 

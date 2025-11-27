@@ -18,17 +18,29 @@
 
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialValue = $derived((cellValue as string) ?? '');
-	let value = $state('');
 	let cellRef = $state<HTMLDivElement | null>(null);
+	
+	// Track local edits separately - this only matters during editing
+	let localEditValue = $state<string | null>(null);
+	
+	// The display value directly from initialValue (no effect delay)
+	const displayValue = $derived(!isEditing ? (initialValue ?? '') : '');
+	
+	// Value for tracking edits - use localEditValue if set, otherwise initialValue
+	const value = $derived(localEditValue ?? initialValue ?? '');
 
-	// Initialize and sync value
+	// Reset local edit value when editing stops
+	$effect(() => {
+		if (!isEditing) {
+			localEditValue = null;
+		}
+	});
+	
+	// Update DOM when initialValue changes (for non-editing state)
 	$effect(() => {
 		const iv = initialValue ?? '';
-		if (iv !== value && !isEditing) {
-			value = iv;
-			if (cellRef) {
-				cellRef.textContent = iv;
-			}
+		if (cellRef && !isEditing && cellRef.textContent !== iv) {
+			cellRef.textContent = iv;
 		}
 	});
 
@@ -37,8 +49,8 @@
 		if (isEditing && cellRef) {
 			cellRef.focus();
 
-			if (!cellRef.textContent && value) {
-				cellRef.textContent = value;
+			if (!cellRef.textContent && initialValue) {
+				cellRef.textContent = initialValue;
 			}
 
 			if (cellRef.textContent) {
@@ -87,7 +99,7 @@
 
 	function handleInput(event: Event) {
 		const target = event.currentTarget as HTMLDivElement;
-		value = target.textContent ?? '';
+		localEditValue = target.textContent ?? '';
 	}
 
 	function handleWrapperKeyDown(event: KeyboardEvent) {
@@ -119,12 +131,15 @@
 				});
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
-				value = initialValue ?? '';
+				localEditValue = null;
+				if (cellRef) {
+					cellRef.textContent = initialValue ?? '';
+				}
 				cellRef?.blur();
 			}
 		} else if (isFocused && !readOnly && event.key.length === 1 && !event.ctrlKey && !event.metaKey) {
 			// Handle typing to pre-fill the value when editing starts
-			value = event.key;
+			localEditValue = event.key;
 
 			queueMicrotask(() => {
 				if (cellRef && cellRef.contentEditable === 'true') {
@@ -160,7 +175,6 @@
 		event.stopPropagation();
 	}
 
-	const displayValue = $derived(!isEditing ? (value ?? '') : '');
 	const urlHref = $derived(displayValue ? getUrlHref(displayValue) : '');
 	const isDangerousUrl = $derived(displayValue && !urlHref);
 </script>

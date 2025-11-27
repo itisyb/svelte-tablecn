@@ -134,6 +134,15 @@
 			zIndex: undefined
 		};
 	}
+	
+	// Compute total visible width for this row (sum of visible cell widths)
+	const totalVisibleWidth = $derived.by(() => {
+		let total = 0;
+		for (const cell of visibleCells) {
+			total += cell.column.getSize();
+		}
+		return total;
+	});
 </script>
 
 <div
@@ -144,8 +153,8 @@
 	data-slot="grid-row"
 	bind:this={rowRef}
 	tabindex={-1}
-	class={cn('absolute flex w-full border-b', className)}
-	style="top: {virtualStart}px; height: {getRowHeightValue(rowHeight)}px;"
+	class={cn('absolute flex border-b', className)}
+	style="top: {virtualStart}px; height: {getRowHeightValue(rowHeight)}px; width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
 >
 	{#each visibleCells as cell, colIndex (cell.id)}
 		{@const isCellFocused =

@@ -19,19 +19,23 @@
 
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialValue = $derived((cellValue as string) ?? '');
-	let value = $state('');
 	let textareaRef = $state<HTMLTextAreaElement | null>(null);
 	let containerRef = $state<HTMLDivElement | null>(null);
 	const sideOffset = $derived(-(containerRef?.clientHeight ?? 0));
 
 	// Track timeout for debounced save
 	let saveTimeoutId: ReturnType<typeof setTimeout> | null = null;
+	
+	// Track local edits separately - this only matters during editing
+	let localEditValue = $state<string | null>(null);
+	
+	// Value for display and tracking - use localEditValue if set, otherwise initialValue
+	const value = $derived(localEditValue ?? initialValue ?? '');
 
-	// Initialize and sync value
+	// Reset local edit value when editing stops
 	$effect(() => {
-		const iv = initialValue ?? '';
-		if (iv !== value && !isEditing) {
-			value = iv;
+		if (!isEditing) {
+			localEditValue = null;
 		}
 	});
 
@@ -64,7 +68,7 @@
 			clearTimeout(saveTimeoutId);
 			saveTimeoutId = null;
 		}
-		value = initialValue ?? '';
+		localEditValue = null;
 		const meta = table.options.meta;
 		if (!readOnly) {
 			meta?.onDataUpdate?.({ rowIndex, columnId, value: initialValue });
@@ -104,7 +108,7 @@
 	function handleInput(event: Event) {
 		const target = event.currentTarget as HTMLTextAreaElement;
 		const newValue = target.value;
-		value = newValue;
+		localEditValue = newValue;
 		debouncedSave(newValue);
 	}
 
