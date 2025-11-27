@@ -1459,6 +1459,7 @@ export function useDataGrid<TData extends RowData>(
 	let prevSorting = $state<SortingState>([]);
 	let prevColumnFilters = $state<ColumnFiltersState>([]);
 	let prevDataLength = $state<number>(0);
+	let prevColumnVisibility = $state<VisibilityState>({});
 	
 	// This is the key to reactivity: update table options in $effect.pre
 	// whenever any of the state values change
@@ -1475,17 +1476,19 @@ export function useDataGrid<TData extends RowData>(
 		};
 		const currentData = getData();
 
-		// Clear cell value cache when sorting, filtering, or row count changes
-		// This ensures cells show correct values after re-ordering or add/delete
+		// Clear cell value cache when sorting, filtering, row count, or column visibility changes
+		// This ensures cells show correct values after re-ordering, add/delete, or column show/hide
 		const sortingChanged = JSON.stringify(sorting) !== JSON.stringify(prevSorting);
 		const filtersChanged = JSON.stringify(columnFilters) !== JSON.stringify(prevColumnFilters);
 		const dataLengthChanged = currentData.length !== prevDataLength;
+		const visibilityChanged = JSON.stringify(columnVisibility) !== JSON.stringify(prevColumnVisibility);
 		
-		if (sortingChanged || filtersChanged || dataLengthChanged) {
+		if (sortingChanged || filtersChanged || dataLengthChanged || visibilityChanged) {
 			clearCellValueCache();
 			prevSorting = [...sorting];
 			prevColumnFilters = [...columnFilters];
 			prevDataLength = currentData.length;
+			prevColumnVisibility = { ...columnVisibility };
 		}
 
 		// Update table with current state

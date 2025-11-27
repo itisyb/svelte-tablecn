@@ -16,19 +16,25 @@
 
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialValue = $derived(cellValue as number | undefined);
-	let value = $state('');
 	let inputRef = $state<HTMLInputElement | null>(null);
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const min = $derived(cellOpts?.variant === 'number' ? cellOpts.min : undefined);
 	const max = $derived(cellOpts?.variant === 'number' ? cellOpts.max : undefined);
 	const step = $derived(cellOpts?.variant === 'number' ? cellOpts.step : undefined);
 
-	// Initialize and sync value
+	// Track local edits separately - this only matters during editing
+	let localEditValue = $state<string | null>(null);
+	
+	// Display value directly from initialValue (no effect delay)
+	const displayValue = $derived(String(initialValue ?? ''));
+	
+	// Value for editing - use localEditValue if set, otherwise displayValue
+	const value = $derived(localEditValue ?? displayValue);
+
+	// Reset local edit value when editing stops
 	$effect(() => {
-		const iv = initialValue;
-		const ivStr = String(iv ?? '');
-		if (ivStr !== value && !isEditing) {
-			value = ivStr;
+		if (!isEditing) {
+			localEditValue = null;
 		}
 	});
 
@@ -51,7 +57,7 @@
 
 	function handleInput(event: Event) {
 		const target = event.currentTarget as HTMLInputElement;
-		value = target.value;
+		localEditValue = target.value;
 	}
 
 	function handleWrapperKeyDown(event: KeyboardEvent) {
@@ -75,16 +81,16 @@
 				});
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
-				value = String(initialValue ?? '');
+				localEditValue = null;
 				inputRef?.blur();
 			}
 		} else if (isFocused) {
 			// Handle Backspace to start editing with empty value
 			if (event.key === 'Backspace') {
-				value = '';
+				localEditValue = '';
 			} else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey) {
 				// Handle typing to pre-fill the value when editing starts
-				value = event.key;
+				localEditValue = event.key;
 			}
 		}
 	}
@@ -113,6 +119,6 @@
 			class="w-full border-none bg-transparent p-0 outline-none"
 		/>
 	{:else}
-		<span data-slot="grid-cell-content">{value}</span>
+		<span data-slot="grid-cell-content">{displayValue}</span>
 	{/if}
 </DataGridCellWrapper>

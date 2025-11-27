@@ -43,10 +43,23 @@
 		const map = meta?.cellValueMap;
 		const key = getCellKey(rowIndex, columnId);
 		
+		// Check the SvelteMap first for edited values
 		if (map && map.has(key)) {
 			return map.get(key);
 		}
-		// Fallback to cell.getValue() for initial render or if SvelteMap not available
+		
+		// IMPORTANT: Access raw data directly from row.original
+		// This avoids any potential caching issues with cell.getValue()
+		// and ensures we always get the current data for the row
+		const original = cell.row.original as Record<string, unknown>;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const accessorKey = (cell.column.columnDef as any).accessorKey as string | undefined;
+		
+		if (accessorKey && original) {
+			return original[accessorKey];
+		}
+		
+		// Fallback to cell.getValue() for computed columns
 		return cell.getValue();
 	});
 

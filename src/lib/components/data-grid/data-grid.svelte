@@ -76,6 +76,20 @@
 
 	// Get visible headers reactively
 	const visibleLeafColumns = $derived(table.getVisibleLeafColumns());
+	
+	// Compute total visible width (only visible columns)
+	const totalVisibleWidth = $derived.by(() => {
+		// Read column sizing to create reactive dependency
+		const _ = columnSizing;
+		const __ = columnSizingInfo;
+		const ___ = columnVisibility;
+		
+		let total = 0;
+		for (const col of visibleLeafColumns) {
+			total += col.getSize();
+		}
+		return total;
+	});
 
 	// Compute pinning styles reactively based on state
 	function getPinningStyles(column: Column<TData, unknown>): Record<string, string | number | undefined> {
@@ -210,7 +224,8 @@
 					aria-rowindex={rowIndex + 1}
 					data-slot="grid-header-row"
 					tabindex={-1}
-					class="flex w-full"
+					class="flex"
+					style="width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
 				>
 					{#each headerGroup.headers.filter(h => columnVisibility[h.column.id] !== false) as header, colIndex (header.id)}
 						{@const sorting = tableState.sorting}
@@ -299,7 +314,7 @@
 						role="gridcell"
 						tabindex={0}
 						class="relative flex h-9 grow items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
-						style="width: {table.getTotalSize()}px; min-width: {table.getTotalSize()}px;"
+						style="width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
 						onclick={onRowAdd}
 						onkeydown={onAddRowKeyDown}
 					>

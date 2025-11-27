@@ -36,7 +36,12 @@
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
 	let prevCellKey = $state('');
 
-	let selectedValues = $state<string[]>([]);
+	// Track local edits separately
+	let localEditValues = $state<string[] | null>(null);
+	
+	// Selected values - use localEditValues if set, otherwise initialCellValue
+	const selectedValues = $derived(localEditValues ?? initialCellValue);
+	
 	let searchValue = $state('');
 	let containerRef = $state<HTMLDivElement | null>(null);
 	let inputRef = $state<HTMLInputElement | null>(null);
@@ -44,14 +49,10 @@
 	const options = $derived(cellOpts?.variant === 'multi-select' ? cellOpts.options : []);
 	const sideOffset = $derived(-(containerRef?.clientHeight ?? 0));
 
-	// Sync with cell value - compare by content, not reference
+	// Reset local edit value when editing stops
 	$effect(() => {
-		const cv = initialCellValue;
 		if (!isEditing) {
-			// Only update if arrays differ by content
-			if (cv.length !== selectedValues.length || cv.some((v, i) => v !== selectedValues[i])) {
-				selectedValues = [...cv];
-			}
+			localEditValues = null;
 		}
 	});
 
@@ -65,11 +66,12 @@
 
 	function handleValueChange(value: string) {
 		if (readOnly) return;
-		const newValues = selectedValues.includes(value)
-			? selectedValues.filter((v) => v !== value)
-			: [...selectedValues, value];
+		const currentValues = localEditValues ?? initialCellValue;
+		const newValues = currentValues.includes(value)
+			? currentValues.filter((v) => v !== value)
+			: [...currentValues, value];
 
-		selectedValues = newValues;
+		localEditValues = newValues;
 		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValues });
 		searchValue = '';
 		queueMicrotask(() => inputRef?.focus());
@@ -79,15 +81,16 @@
 		if (readOnly) return;
 		event?.stopPropagation();
 		event?.preventDefault();
-		const newValues = selectedValues.filter((v) => v !== valueToRemove);
-		selectedValues = newValues;
+		const currentValues = localEditValues ?? initialCellValue;
+		const newValues = currentValues.filter((v) => v !== valueToRemove);
+		localEditValues = newValues;
 		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValues });
 		setTimeout(() => inputRef?.focus(), 0);
 	}
 
 	function clearAll() {
 		if (readOnly) return;
-		selectedValues = [];
+		localEditValues = [];
 		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: [] });
 		queueMicrotask(() => inputRef?.focus());
 	}
@@ -111,7 +114,7 @@
 		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
-			selectedValues = [...initialCellValue];
+			localEditValues = null;
 			searchValue = '';
 			meta?.onCellEditingStop?.();
 		} else if (!isEditing && isFocused && event.key === 'Tab') {
