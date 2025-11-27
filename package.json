@@ -62,7 +62,6 @@
 	},
 	"dependencies": {
 		"@faker-js/faker": "^10.1.0",
-		"@tanstack/svelte-virtual": "^3.13.12",
 		"@tanstack/table-core": "^8.21.3",
 		"@tanstack/virtual-core": "^3.13.12",
 		"svelte-dnd-action": "^0.9.67",
