@@ -1,8 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Table, ColumnFilter, Column } from '@tanstack/table-core';
 	import type { Option, FilterOperator, FilterValue, CellSelectOption } from '$lib/types/data-grid.js';
-	import { browser } from '$app/environment';
-	import { onMount, onDestroy } from 'svelte';
 	import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { getDefaultOperator, getOperatorsForVariant } from '$lib/data-grid-filters.js';
@@ -190,18 +188,9 @@
 		return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}T00:00:00.000Z`;
 	}
 
-	onMount(() => {
-		if (browser) {
-			window.addEventListener('keydown', handleKeyDown);
-		}
-	});
-
-	onDestroy(() => {
-		if (browser) {
-			window.removeEventListener('keydown', handleKeyDown);
-		}
-	});
 </script>
+
+<svelte:window onkeydown={handleKeyDown} />
 
 <Popover bind:open>
 	<PopoverTrigger>

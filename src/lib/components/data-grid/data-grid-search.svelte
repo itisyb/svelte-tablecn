@@ -5,45 +5,70 @@
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import X from '@lucide/svelte/icons/x';
 
-	interface Props extends SearchState {}
+	interface Props {
+		searchState: SearchState;
+	}
 
-	let {
-		searchMatches,
-		matchIndex,
-		searchOpen,
-		onSearchOpenChange,
-		searchQuery,
-		onSearchQueryChange,
-		onSearch,
-		onNavigateToNextMatch,
-		onNavigateToPrevMatch
-	}: Props = $props();
+	let { searchState }: Props = $props();
 
+	// Local state only
+	let query = $state('');
+	let matchCount = $state(0);
+	let currentMatchIndex = $state(0);
+	let isOpen = $state(false);
 	let inputRef = $state<HTMLInputElement | null>(null);
-
-	// Focus input when search opens
+	
+	// Sync isOpen from searchState on mount and when it changes
 	$effect(() => {
-		if (searchOpen) {
+		const open = searchState.searchOpen;
+		console.log('Effect 1: isOpen sync, open=', open);
+		isOpen = open;
+		
+		// Focus input when opening
+		if (open && inputRef) {
+			console.log('Focusing input');
 			requestAnimationFrame(() => {
 				inputRef?.focus();
 			});
 		}
 	});
 
-	// Handle escape key
-	$effect(() => {
-		if (!searchOpen) return;
-
-		function onEscape(event: KeyboardEvent) {
-			if (event.key === 'Escape') {
-				event.preventDefault();
-				onSearchOpenChange(false);
-			}
+	function handleWindowKeydown(event: KeyboardEvent) {
+		if (!isOpen) return;
+		
+		if (event.key === 'Escape') {
+			event.preventDefault();
+			searchState.onSearchOpenChange(false);
 		}
+	}
 
-		document.addEventListener('keydown', onEscape);
-		return () => document.removeEventListener('keydown', onEscape);
-	});
+	// Simple search without debounce for testing
+	function handleInput(event: Event) {
+		console.log('handleInput called');
+		const target = event.target as HTMLInputElement;
+		const newQuery = target.value;
+		console.log('New query:', newQuery);
+		
+		query = newQuery;
+		console.log('Query state updated');
+		
+		// DON'T call search - just update local state for now
+		// searchState.onSearch(query);
+		
+		// matchCount = searchState.searchMatches.length;
+		// currentMatchIndex = searchState.matchIndex;
+		console.log('handleInput done');
+	}
+
+	function handleNavigateNext() {
+		searchState.onNavigateToNextMatch();
+		currentMatchIndex = searchState.matchIndex;
+	}
+	
+	function handleNavigatePrev() {
+		searchState.onNavigateToPrevMatch();
+		currentMatchIndex = searchState.matchIndex;
+	}
 
 	function onKeyDown(event: KeyboardEvent) {
 		event.stopPropagation();
@@ -51,56 +76,21 @@
 		if (event.key === 'Enter') {
 			event.preventDefault();
 			if (event.shiftKey) {
-				onNavigateToPrevMatch();
+				handleNavigatePrev();
 			} else {
-				onNavigateToNextMatch();
+				handleNavigateNext();
 			}
 		}
 	}
 
-	// Simple debounce
-	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-	function debouncedSearch(query: string) {
-		if (debounceTimer) {
-			clearTimeout(debounceTimer);
-		}
-		debounceTimer = setTimeout(() => {
-			onSearch(query);
-		}, 150);
-	}
-
-	function onChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		const value = target.value;
-		onSearchQueryChange(value);
-		debouncedSearch(value);
-	}
-
-	function onTriggerPointerDown(event: PointerEvent) {
-		// prevent implicit pointer capture
-		const target = event.target;
-		if (!(target instanceof HTMLElement)) return;
-		if (target.hasPointerCapture(event.pointerId)) {
-			target.releasePointerCapture(event.pointerId);
-		}
-
-		// Only prevent default if we're not clicking on the input
-		if (
-			event.button === 0 &&
-			event.ctrlKey === false &&
-			event.pointerType === 'mouse' &&
-			!(event.target instanceof HTMLInputElement)
-		) {
-			event.preventDefault();
-		}
-	}
-
 	function onClose() {
-		onSearchOpenChange(false);
+		searchState.onSearchOpenChange(false);
 	}
 </script>
 
-{#if searchOpen}
+<svelte:window onkeydown={handleWindowKeydown} />
+
+{#if isOpen}
 	<div
 		role="search"
 		data-slot="grid-search"
@@ -116,8 +106,8 @@
 				spellcheck="false"
 				placeholder="Find in table..."
 				class="flex h-8 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm"
-				value={searchQuery}
-				oninput={onChange}
+				value={query}
+				oninput={handleInput}
 				onkeydown={onKeyDown}
 			/>
 			<div class="flex items-center gap-1">
@@ -126,9 +116,8 @@
 					variant="ghost"
 					size="icon"
 					class="size-7"
-					onclick={onNavigateToPrevMatch}
-					onpointerdown={onTriggerPointerDown}
-					disabled={searchMatches.length === 0}
+					onclick={handleNavigatePrev}
+					disabled={matchCount === 0}
 				>
 					<ChevronUp />
 				</Button>
@@ -137,9 +126,8 @@
 					variant="ghost"
 					size="icon"
 					class="size-7"
-					onclick={onNavigateToNextMatch}
-					onpointerdown={onTriggerPointerDown}
-					disabled={searchMatches.length === 0}
+					onclick={handleNavigateNext}
+					disabled={matchCount === 0}
 				>
 					<ChevronDown />
 				</Button>
@@ -149,11 +137,11 @@
 			</div>
 		</div>
 		<div class="flex items-center gap-1 whitespace-nowrap text-muted-foreground text-xs">
-			{#if searchMatches.length > 0}
+			{#if matchCount > 0}
 				<span>
-					{matchIndex + 1} of {searchMatches.length}
+					{currentMatchIndex + 1} of {matchCount}
 				</span>
-			{:else if searchQuery}
+			{:else if query}
 				<span>No results</span>
 			{:else}
 				<span>Type to search</span>

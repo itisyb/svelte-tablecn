@@ -1,7 +1,5 @@
 <script lang="ts" generics="TData">
 	import type { Table, ColumnSort, SortDirection, SortingState } from '@tanstack/table-core';
-	import { browser } from '$app/environment';
-	import { onMount, onDestroy } from 'svelte';
 	import { dndzone, TRIGGERS, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -147,18 +145,9 @@
 		table.setSorting(cleanItems);
 	}
 
-	onMount(() => {
-		if (browser) {
-			window.addEventListener('keydown', handleKeyDown);
-		}
-	});
-
-	onDestroy(() => {
-		if (browser) {
-			window.removeEventListener('keydown', handleKeyDown);
-		}
-	});
 </script>
+
+<svelte:window onkeydown={handleKeyDown} />
 
 <Popover bind:open>
 	<PopoverTrigger>
