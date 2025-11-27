@@ -158,8 +158,8 @@
 	data-slot="grid-row"
 	bind:this={rowRef}
 	tabindex={-1}
-	class={cn('absolute flex border-b', className)}
-	style="top: {virtualStart}px; height: {getRowHeightValue(rowHeight)}px; width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
+	class={cn('absolute left-0 top-0 flex border-b will-change-transform', className)}
+	style="transform: translateY({virtualStart}px); height: {getRowHeightValue(rowHeight)}px; width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
 >
 	{#each visibleCells as cell, colIndex (`${cell.id}-${selectionVersion}`)}
 		{@const isCellFocused =

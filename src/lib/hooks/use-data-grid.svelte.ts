@@ -1579,6 +1579,9 @@ export function useDataGrid<TData extends RowData>(
 		// Use filtered row count, not raw data length
 		const rowCount = untrack(() => table.getRowModel().rows.length);
 
+		// measureElement for better accuracy (except Firefox which has issues)
+		const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
+		
 		virtualizer = new Virtualizer<HTMLDivElement, Element>({
 			count: rowCount,
 			getScrollElement: () => ref,
@@ -1587,7 +1590,8 @@ export function useDataGrid<TData extends RowData>(
 			observeElementRect,
 			observeElementOffset,
 			scrollToFn: elementScroll,
-			onChange: handleVirtualizerChange
+			onChange: handleVirtualizerChange,
+			measureElement: isFirefox ? undefined : (element) => element?.getBoundingClientRect().height
 		});
 
 		virtualizer._willUpdate();
@@ -1610,6 +1614,9 @@ export function useDataGrid<TData extends RowData>(
 			if (virtualizer && ref) {
 				const prevCount = virtualizer.options.count;
 				
+				// measureElement for better accuracy (except Firefox which has issues)
+				const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
+				
 				virtualizer.setOptions({
 					count: rowCount,
 					getScrollElement: () => ref,
@@ -1618,7 +1625,8 @@ export function useDataGrid<TData extends RowData>(
 					observeElementRect,
 					observeElementOffset,
 					scrollToFn: elementScroll,
-					onChange: handleVirtualizerChange
+					onChange: handleVirtualizerChange,
+					measureElement: isFirefox ? undefined : (element) => element?.getBoundingClientRect().height
 				});
 				
 				// Force virtualizer to recalculate
