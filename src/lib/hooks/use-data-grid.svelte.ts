@@ -36,7 +36,8 @@ import {
 	Virtualizer,
 	elementScroll,
 	observeElementOffset,
-	observeElementRect
+	observeElementRect,
+	type VirtualItem
 } from '@tanstack/virtual-core';
 import type {
 	CellPosition,
@@ -124,27 +125,15 @@ export interface UseDataGridReturn<TData extends RowData> {
 	setFooterRef: (el: HTMLDivElement | null) => void;
 }
 
+// VirtualizerReturn interface for the virtualizer object we expose
 interface VirtualizerReturn {
-	/** Use getter for reactive access in consuming components */
 	readonly virtualItems: VirtualItem[];
-	/** Use getter for reactive access in consuming components */
 	readonly totalSize: number;
+	readonly isScrolling: boolean;
 	scrollToIndex: (index: number, options?: { align?: 'start' | 'center' | 'end' | 'auto' }) => void;
 	measureElement: (element: Element | null) => void;
-	readonly isScrolling: boolean;
-	/** Legacy method - prefer using virtualItems getter directly */
 	getVirtualItems: () => VirtualItem[];
-	/** Legacy method - prefer using totalSize getter directly */
 	getTotalSize: () => number;
-}
-
-interface VirtualItem {
-	index: number;
-	key: string | number | bigint;
-	start: number;
-	end: number;
-	size: number;
-	lane: number;
 }
 
 // ============================================
@@ -244,6 +233,13 @@ export function useDataGrid<TData extends RowData>(
 		isSelecting: false
 	});
 	let cutCells = $state<Set<string>>(new Set());
+	
+	// SvelteSet for fine-grained reactivity on cell selection
+	// Cells can call selectedCellsSet.has(key) in $derived for proper Svelte tracking
+	let selectedCellsSet = new SvelteSet<string>();
+	// Version counter to force cell re-renders when selection changes
+	// Cells read this in $derived to create a reactive dependency
+	let selectionVersion = $state(0);
 	// Track the anchor cell for shift+arrow range selection
 	let selectionAnchor = $state<CellPosition | null>(null);
 
@@ -269,6 +265,16 @@ export function useDataGrid<TData extends RowData>(
 	
 	// SvelteSet for O(1) reactive search match lookups
 	let searchMatchSet = new SvelteSet<string>();
+	
+	// Helper to sync SvelteSet with regular Set for selection
+	function syncSelectedCellsSet(newCells: Set<string>) {
+		selectedCellsSet.clear();
+		for (const key of newCells) {
+			selectedCellsSet.add(key);
+		}
+		// Increment version to trigger re-renders in cells
+		selectionVersion++;
+	}
 
 	// Track last clicked row for shift-click selection
 	let lastClickedRowIndex = $state<number | null>(null);
@@ -337,8 +343,10 @@ export function useDataGrid<TData extends RowData>(
 
 		// Clear selection when focusing new cell (unless holding shift or explicitly keeping anchor)
 		if (!selectionState.isSelecting && !opts?.keepAnchor) {
+			const newCells = new Set([cellKey]);
+			syncSelectedCellsSet(newCells);
 			selectionState = {
-				selectedCells: new Set([cellKey]),
+				selectedCells: newCells,
 				selectionRange: null,
 				isSelecting: false
 			};
@@ -471,6 +479,7 @@ export function useDataGrid<TData extends RowData>(
 			} else {
 				newSelected.add(cellKey);
 			}
+			syncSelectedCellsSet(newSelected);
 			selectionState = {
 				...selectionState,
 				selectedCells: newSelected
@@ -480,8 +489,10 @@ export function useDataGrid<TData extends RowData>(
 			selectRange(focusedCell, { rowIndex, columnId });
 		} else {
 			// Single selection
+			const newCells = new Set([cellKey]);
+			syncSelectedCellsSet(newCells);
 			selectionState = {
-				selectedCells: new Set([cellKey]),
+				selectedCells: newCells,
 				selectionRange: null,
 				isSelecting: false
 			};
@@ -510,6 +521,7 @@ export function useDataGrid<TData extends RowData>(
 			}
 		}
 
+		syncSelectedCellsSet(newSelected);
 		selectionState = {
 			selectedCells: newSelected,
 			selectionRange: { start, end },
@@ -528,6 +540,7 @@ export function useDataGrid<TData extends RowData>(
 			}
 		}
 
+		syncSelectedCellsSet(newSelected);
 		selectionState = {
 			selectedCells: newSelected,
 			selectionRange: null,
@@ -536,8 +549,10 @@ export function useDataGrid<TData extends RowData>(
 	}
 
 	function clearSelection() {
+		const newCells = new Set<string>();
+		syncSelectedCellsSet(newCells);
 		selectionState = {
-			selectedCells: new Set(),
+			selectedCells: newCells,
 			selectionRange: null,
 			isSelecting: false
 		};
@@ -562,6 +577,7 @@ export function useDataGrid<TData extends RowData>(
 			} else {
 				newSelected.add(cellKey);
 			}
+			syncSelectedCellsSet(newSelected);
 			selectionState = {
 				...selectionState,
 				selectedCells: newSelected,
@@ -580,8 +596,10 @@ export function useDataGrid<TData extends RowData>(
 			scrollAndFocusCell(rowIndex, columnId);
 		} else {
 			// Start drag selection - set this cell as anchor
+			const newCells = new Set([cellKey]);
+			syncSelectedCellsSet(newCells);
 			selectionState = {
-				selectedCells: new Set([cellKey]),
+				selectedCells: newCells,
 				selectionRange: null,
 				isSelecting: true
 			};
@@ -1258,6 +1276,13 @@ export function useDataGrid<TData extends RowData>(
 		get cellValueMap() {
 			return getCellValueMap();
 		},
+		// Expose SvelteSet directly for fine-grained cell selection reactivity
+		// Cells can call selectedCellsSet.has(key) in $derived for proper Svelte tracking
+		selectedCellsSet,
+		// Version counter to trigger cell re-renders when selection changes
+		get selectionVersion() {
+			return selectionVersion;
+		},
 		// Expose SvelteSet directly for fine-grained reactivity
 		// Cells can call searchMatchSet.has(key) directly in template
 		searchMatchSet,
@@ -1321,7 +1346,7 @@ export function useDataGrid<TData extends RowData>(
 			// Also update selectionState.selectedCells to highlight all cells in selected rows
 			// This matches the React behavior where selecting a row highlights the entire row
 			const selectedRows = Object.keys(newRowSelection).filter((key) => newRowSelection[key]);
-			const selectedCellsSet = new Set<string>();
+			const newSelectedCells = new Set<string>();
 			const allColumnIds = table.getAllColumns().map((col) => col.id);
 
 			for (const rowId of selectedRows) {
@@ -1329,12 +1354,13 @@ export function useDataGrid<TData extends RowData>(
 				if (rowIdx === -1) continue;
 
 				for (const columnId of allColumnIds) {
-					selectedCellsSet.add(getCellKey(rowIdx, columnId));
+					newSelectedCells.add(getCellKey(rowIdx, columnId));
 				}
 			}
 
+			syncSelectedCellsSet(newSelectedCells);
 			selectionState = {
-				selectedCells: selectedCellsSet,
+				selectedCells: newSelectedCells,
 				selectionRange: null,
 				isSelecting: false
 			};
@@ -1393,7 +1419,7 @@ export function useDataGrid<TData extends RowData>(
 		onColumnPinningChange: (updater) => {
 			columnPinning = typeof updater === 'function' ? updater(columnPinning) : updater;
 		},
-		onColumnVisibilityChange: (updater) => {
+	onColumnVisibilityChange: (updater) => {
 			columnVisibility = typeof updater === 'function' ? updater(columnVisibility) : updater;
 		},
 		onSortingChange: (updater) => {
@@ -1410,7 +1436,7 @@ export function useDataGrid<TData extends RowData>(
 			// This matches the React behavior where selecting a row highlights the entire row
 			const rows = table.getRowModel().rows;
 			const selectedRows = Object.keys(newRowSelection).filter((key) => newRowSelection[key]);
-			const selectedCellsSet = new Set<string>();
+			const newSelectedCells = new Set<string>();
 			const allColumnIds = table.getAllColumns().map((col) => col.id);
 
 			for (const rowId of selectedRows) {
@@ -1418,12 +1444,13 @@ export function useDataGrid<TData extends RowData>(
 				if (rowIdx === -1) continue;
 
 				for (const columnId of allColumnIds) {
-					selectedCellsSet.add(getCellKey(rowIdx, columnId));
+					newSelectedCells.add(getCellKey(rowIdx, columnId));
 				}
 			}
 
+			syncSelectedCellsSet(newSelectedCells);
 			selectionState = {
-				selectedCells: selectedCellsSet,
+				selectedCells: newSelectedCells,
 				selectionRange: null,
 				isSelecting: false
 			};
@@ -1613,6 +1640,16 @@ export function useDataGrid<TData extends RowData>(
 				handleVirtualizerChange(virtualizer);
 			}
 		});
+	});
+
+	// Force virtualItems update when columnVisibility or selection changes
+	$effect(() => {
+		const visibilitySnapshot = JSON.stringify(columnVisibility);
+		const selVer = selectionVersion; // Track selection changes
+		if (virtualizer) {
+			const items = virtualizer.getVirtualItems();
+			virtualItems = [...items];
+		}
 	});
 
 	// Setup keyboard handler on data grid element

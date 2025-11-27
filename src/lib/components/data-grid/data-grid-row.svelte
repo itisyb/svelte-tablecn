@@ -1,7 +1,8 @@
 <script lang="ts" generics="TData">
 	import type { Row, Table, Column, ColumnPinningState, VisibilityState } from '@tanstack/table-core';
+	import type { SvelteSet } from 'svelte/reactivity';
 	import type { CellPosition, RowHeightValue } from '$lib/types/data-grid.js';
-	import { getRowHeightValue } from '$lib/types/data-grid.js';
+	import { getRowHeightValue, getCellKey } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import DataGridCell from './data-grid-cell.svelte';
 
@@ -14,6 +15,8 @@
 		table: Table<TData>;
 		columnPinning: ColumnPinningState;
 		columnVisibility: VisibilityState;
+		selectedCellsSet: SvelteSet<string> | undefined;
+		selectionVersion: number;
 		rowVirtualizer: VirtualizerReturn;
 		virtualRowIndex: number;
 		virtualStart: number;
@@ -28,6 +31,8 @@
 		table,
 		columnPinning,
 		columnVisibility,
+		selectedCellsSet,
+		selectionVersion,
 		virtualRowIndex,
 		virtualStart,
 		rowVirtualizer,
@@ -156,9 +161,10 @@
 	class={cn('absolute flex border-b', className)}
 	style="top: {virtualStart}px; height: {getRowHeightValue(rowHeight)}px; width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
 >
-	{#each visibleCells as cell, colIndex (cell.id)}
+	{#each visibleCells as cell, colIndex (`${cell.id}-${selectionVersion}`)}
 		{@const isCellFocused =
 			focusedCell?.rowIndex === virtualRowIndex && focusedCell?.columnId === cell.column.id}
+		{@const isCellSelected = selectedCellsSet?.has(getCellKey(virtualRowIndex, cell.column.id)) ?? false}
 		{@const pinningStyles = getPinningStyles(cell.column.id)}
 
 		<div
@@ -173,7 +179,7 @@
 			style="position: {pinningStyles.position}; left: {pinningStyles.left}; right: {pinningStyles.right}; background: {pinningStyles.background}; z-index: {pinningStyles.zIndex}; width: calc(var(--col-{cell.column.id}-size) * 1px);"
 		>
 			<!-- Use DataGridCell for variant-based rendering (handles all cell types via meta.cell.variant) -->
-			<DataGridCell {cell} {table} />
+			<DataGridCell {cell} {table} {selectionVersion} isSelectedProp={isCellSelected} />
 		</div>
 	{/each}
 </div>

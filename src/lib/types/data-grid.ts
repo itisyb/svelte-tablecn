@@ -9,6 +9,7 @@ import type {
 	Column,
 	RowData
 } from '@tanstack/table-core';
+import type { SvelteSet, SvelteMap } from 'svelte/reactivity';
 import type { Snippet, Component } from 'svelte';
 
 // ============================================
@@ -246,11 +247,15 @@ declare module '@tanstack/table-core' {
 		readOnly?: boolean;
 		getIsCellSelected?: (rowIndex: number, columnId: string) => boolean;
 		// SvelteMap for fine-grained cell value reactivity - cells access map.get(key) in $derived
-		cellValueMap?: Map<string, unknown>;
+		cellValueMap?: SvelteMap<string, unknown>;
+		// SvelteSet for fine-grained cell selection reactivity
+		selectedCellsSet?: SvelteSet<string>;
+		// Version counter to force cell re-renders when selection changes
+		selectionVersion?: number;
 		getIsSearchMatch?: (rowIndex: number, columnId: string) => boolean;
 		getIsActiveSearchMatch?: (rowIndex: number, columnId: string) => boolean;
 		// SvelteSet for fine-grained reactive search match lookups
-		searchMatchSet?: Set<string>;
+		searchMatchSet?: SvelteSet<string>;
 		activeSearchMatch?: CellPosition | null;
 		rowHeight?: RowHeightValue;
 		onRowHeightChange?: (value: RowHeightValue) => void;
