@@ -89,15 +89,9 @@ export {
 } from '@tanstack/table-core';
 
 // ==============================================
-// Virtual utilities
+// Virtual utilities (re-export from TanStack Virtual)
 // ==============================================
-export {
-	createSvelteVirtualizer,
-	createWindowVirtualizer,
-	type CreateVirtualizerOptions,
-	type VirtualizerReturn,
-	type VirtualItem as TanStackVirtualItem
-} from './virtual';
+export { type VirtualItem } from '@tanstack/virtual-core';
 
 // ==============================================
 // Stores
