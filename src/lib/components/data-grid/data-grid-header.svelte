@@ -63,8 +63,11 @@
 
 					<!-- Column resize handle -->
 					{#if header.column.getCanResize()}
+						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 						<div
 							role="separator"
+							aria-orientation="vertical"
+							aria-label="Resize column {header.column.id}"
 							class="absolute right-0 top-0 h-full w-1 cursor-col-resize bg-transparent hover:bg-primary/50"
 							onmousedown={header.getResizeHandler()}
 							ontouchstart={header.getResizeHandler()}
