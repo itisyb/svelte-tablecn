@@ -1,0 +1,35 @@
+[
+	{
+		"name": "data-grid",
+		"title": "Data Grid",
+		"type": "registry:block",
+		"description": "A powerful, feature-rich data grid component for Svelte 5. Port of tablecn.com",
+		"dependencies": [
+			"@tanstack/table-core",
+			"@tanstack/virtual-core",
+			"@internationalized/date",
+			"bits-ui",
+			"clsx",
+			"tailwind-merge",
+			"sonner",
+			"@lucide/svelte"
+		],
+		"registryDependencies": [
+			"button",
+			"badge",
+			"calendar",
+			"checkbox",
+			"input",
+			"kbd",
+			"popover",
+			"skeleton",
+			"table",
+			"tooltip"
+		],
+		"meta": {
+			"author": "itisyb",
+			"originalAuthor": "tablecn.com"
+		},
+		"relativeUrl": "data-grid.json"
+	}
+]
