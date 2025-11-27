@@ -46,7 +46,7 @@
 	let error = $state<string | null>(null);
 	let containerRef = $state<HTMLDivElement | null>(null);
 	let fileInputRef = $state<HTMLInputElement | null>(null);
-	let dropzoneRef = $state<HTMLDivElement | null>(null);
+	let dropzoneRef = $state<HTMLButtonElement | null>(null);
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const sideOffset = $derived(-(containerRef?.clientHeight ?? 0));
 
@@ -487,13 +487,11 @@
 			>
 				<div class="flex flex-col gap-2 p-3">
 					<span class="sr-only">File upload</span>
-					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-					<div
-						role="region"
-						aria-invalid={!!error}
+					<button
+						type="button"
+						aria-label="Drop files here or click to browse"
 						data-dragging={isDragging ? '' : undefined}
 						data-invalid={error ? '' : undefined}
-						tabindex={isDragging ? -1 : 0}
 						class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed p-6 outline-none transition-colors hover:bg-accent/30 focus-visible:border-ring/50 data-[dragging]:border-primary/30 data-[invalid]:border-destructive data-[dragging]:bg-accent/30 data-[invalid]:ring-destructive/20"
 						bind:this={dropzoneRef}
 						onclick={handleDropzoneClick}
@@ -517,7 +515,7 @@
 									? `Max ${maxFiles} files`
 									: 'Select files to upload'}
 						</p>
-					</div>
+					</button>
 					<input
 						type="file"
 						{multiple}
