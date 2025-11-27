@@ -245,6 +245,9 @@ declare module '@tanstack/table-core' {
 		getIsCellSelected?: (rowIndex: number, columnId: string) => boolean;
 		getIsSearchMatch?: (rowIndex: number, columnId: string) => boolean;
 		getIsActiveSearchMatch?: (rowIndex: number, columnId: string) => boolean;
+		// SvelteSet for fine-grained reactive search match lookups
+		searchMatchSet?: Set<string>;
+		activeSearchMatch?: CellPosition | null;
 		rowHeight?: RowHeightValue;
 		onRowHeightChange?: (value: RowHeightValue) => void;
 		onRowSelect?: (rowIndex: number, checked: boolean, shiftKey: boolean) => void;
