@@ -66,14 +66,18 @@
 		}
 	});
 
-	// Derived state - access meta fresh each time via $derived.by
+	// Use SvelteSet directly for fine-grained reactivity
+	// Each cell only re-renders when ITS key changes in the set, not when other keys change
+	const cellKey = getCellKey(rowIndex, columnId);
 	const isSearchMatch = $derived.by(() => {
 		const meta = table.options.meta;
-		return meta?.getIsSearchMatch?.(rowIndex, columnId) ?? false;
+		// Direct SvelteSet.has() - Svelte tracks this specific key
+		return meta?.searchMatchSet?.has(cellKey) ?? false;
 	});
 	const isActiveSearchMatch = $derived.by(() => {
 		const meta = table.options.meta;
-		return meta?.getIsActiveSearchMatch?.(rowIndex, columnId) ?? false;
+		const active = meta?.activeSearchMatch;
+		return active?.rowIndex === rowIndex && active?.columnId === columnId;
 	});
 	const rowHeight = $derived.by<RowHeightValue>(() => {
 		const meta = table.options.meta;

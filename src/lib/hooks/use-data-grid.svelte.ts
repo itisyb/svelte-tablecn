@@ -827,6 +827,9 @@ export function useDataGrid<TData extends RowData>(
 		const cols = getNavigableColumns();
 		const matches: CellPosition[] = [];
 		const lowerQuery = query.toLowerCase();
+		
+		// Clear set before building - we'll add during the same loop
+		searchMatchSet.clear();
 
 		for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
 			const row = rows[rowIndex];
@@ -836,19 +839,16 @@ export function useDataGrid<TData extends RowData>(
 				const value = row.getValue(col.id);
 				const strValue = String(value ?? '').toLowerCase();
 				if (strValue.includes(lowerQuery)) {
-					matches.push({ rowIndex, columnId: col.id });
+					const columnId = col.id;
+					matches.push({ rowIndex, columnId });
+					// Build Set in same loop - single pass
+					searchMatchSet.add(getCellKey(rowIndex, columnId));
 				}
 			}
 		}
 
 		searchMatches = matches;
 		matchIndex = matches.length > 0 ? 0 : 0;
-		
-		// Update SvelteSet for O(1) lookups
-		searchMatchSet.clear();
-		for (const m of matches) {
-			searchMatchSet.add(getCellKey(m.rowIndex, m.columnId));
-		}
 
 		// Scroll to first match (like React version - just scroll, don't focus)
 		if (matches.length > 0 && matches[0]) {
@@ -1233,6 +1233,13 @@ export function useDataGrid<TData extends RowData>(
 			return pasteDialog;
 		},
 		getIsCellSelected,
+		// Expose SvelteSet directly for fine-grained reactivity
+		// Cells can call searchMatchSet.has(key) directly in template
+		searchMatchSet,
+		get activeSearchMatch() {
+			return searchMatches[matchIndex] ?? null;
+		},
+		// Keep functions for backwards compatibility
 		getIsSearchMatch,
 		getIsActiveSearchMatch,
 		onRowHeightChange: (value: RowHeightValue) => {
