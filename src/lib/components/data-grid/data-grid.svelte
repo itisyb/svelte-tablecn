@@ -260,24 +260,24 @@
 			class="relative grid"
 			style="height: {totalSize}px;"
 		>
-			{#each virtualItems as virtualItem (virtualItem.key)}
-				{@const virtualRowIndex = virtualItem.index}
-				{@const row = rows[virtualRowIndex]}
-				{#if row}
-					<DataGridRow
-						{row}
-						{table}
-						{columnPinning}
-						{columnVisibility}
-						{rowMapRef}
-						{virtualRowIndex}
-						{rowVirtualizer}
-						{rowHeight}
-						{focusedCell}
-						virtualStart={virtualItem.start}
-					/>
-				{/if}
-			{/each}
+		{#each virtualItems as virtualItem (virtualItem.key)}
+			{@const virtualRowIndex = virtualItem.index}
+			{@const row = rows[virtualRowIndex]}
+			{#if row}
+				<DataGridRow
+					{row}
+					{table}
+					{columnPinning}
+					{columnVisibility}
+					{rowMapRef}
+					{virtualRowIndex}
+					{rowVirtualizer}
+					{rowHeight}
+					{focusedCell}
+					virtualStart={virtualItem.start}
+				/>
+			{/if}
+		{/each}
 		</div>
 
 		<!-- Footer / Add Row -->

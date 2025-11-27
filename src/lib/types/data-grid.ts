@@ -245,8 +245,8 @@ declare module '@tanstack/table-core' {
 		searchOpen?: boolean;
 		readOnly?: boolean;
 		getIsCellSelected?: (rowIndex: number, columnId: string) => boolean;
-		// Fine-grained cell value access - only re-renders the specific cell when its value changes
-		getCellValue?: (rowIndex: number, columnId: string) => unknown;
+		// SvelteMap for fine-grained cell value reactivity - cells access map.get(key) in $derived
+		cellValueMap?: Map<string, unknown>;
 		getIsSearchMatch?: (rowIndex: number, columnId: string) => boolean;
 		getIsActiveSearchMatch?: (rowIndex: number, columnId: string) => boolean;
 		// SvelteSet for fine-grained reactive search match lookups
