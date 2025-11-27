@@ -835,11 +835,11 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		searchMatches = matches;
-		matchIndex = 0;
+		matchIndex = matches.length > 0 ? 0 : 0;
 
-		// Focus first match
+		// Scroll to first match (like React version - just scroll, don't focus)
 		if (matches.length > 0 && matches[0]) {
-			focusCell(matches[0].rowIndex, matches[0].columnId);
+			virtualizer?.scrollToIndex(matches[0].rowIndex, { align: 'center' });
 		}
 	}
 
@@ -851,7 +851,7 @@ export function useDataGrid<TData extends RowData>(
 
 		const match = searchMatches[newIndex];
 		if (match) {
-			focusCell(match.rowIndex, match.columnId);
+			virtualizer?.scrollToIndex(match.rowIndex, { align: 'center' });
 		}
 	}
 
@@ -863,7 +863,7 @@ export function useDataGrid<TData extends RowData>(
 
 		const match = searchMatches[newIndex];
 		if (match) {
-			focusCell(match.rowIndex, match.columnId);
+			virtualizer?.scrollToIndex(match.rowIndex, { align: 'center' });
 		}
 	}
 
@@ -1474,7 +1474,7 @@ export function useDataGrid<TData extends RowData>(
 		});
 	});
 
-	// Setup keyboard handler
+	// Setup keyboard handler on data grid element
 	$effect(() => {
 		if (dataGridRef) {
 			dataGridRef.addEventListener('keydown', handleKeyDown);
@@ -1482,6 +1482,43 @@ export function useDataGrid<TData extends RowData>(
 				dataGridRef?.removeEventListener('keydown', handleKeyDown);
 			};
 		}
+	});
+
+	// Global keyboard handler for search shortcut (Cmd+F / Ctrl+F)
+	$effect(() => {
+		if (!enableSearch) return;
+
+		function onGlobalKeyDown(event: KeyboardEvent) {
+			const target = event.target;
+			if (!(target instanceof HTMLElement)) return;
+
+			const { key, ctrlKey, metaKey, shiftKey } = event;
+			const isCtrlPressed = ctrlKey || metaKey;
+
+			// Handle Cmd+F / Ctrl+F for search
+			if (isCtrlPressed && !shiftKey && key === 'f') {
+				const isInInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+				const isInDataGrid = dataGridRef?.contains(target) ?? false;
+				const isInSearchInput = target.closest('[role="search"]') !== null;
+
+				if (isInDataGrid || isInSearchInput || !isInInput) {
+					event.preventDefault();
+					event.stopPropagation();
+					searchOpen = !searchOpen;
+
+					if (!isInDataGrid && !isInSearchInput && dataGridRef) {
+						requestAnimationFrame(() => {
+							dataGridRef?.focus();
+						});
+					}
+				}
+			}
+		}
+
+		window.addEventListener('keydown', onGlobalKeyDown, true);
+		return () => {
+			window.removeEventListener('keydown', onGlobalKeyDown, true);
+		};
 	});
 
 	// Auto-focus on mount
@@ -1506,23 +1543,8 @@ export function useDataGrid<TData extends RowData>(
 	// Create Search State (if enabled)
 	// ========================================
 
-	const searchStateReturn: SearchState | undefined = enableSearch
-		? {
-				searchMatches,
-				matchIndex,
-				searchOpen,
-				onSearchOpenChange: (open) => {
-					searchOpen = open;
-				},
-				searchQuery,
-				onSearchQueryChange: (query) => {
-					searchQuery = query;
-				},
-				onSearch: performSearch,
-				onNavigateToNextMatch: navigateToNextMatch,
-				onNavigateToPrevMatch: navigateToPrevMatch
-		  }
-		: undefined;
+	// Note: searchState is returned as a getter in the return object
+	// This allows the consuming component to get fresh values each render
 
 	// ========================================
 	// Create Virtualizer Return Object
@@ -1648,6 +1670,20 @@ export function useDataGrid<TData extends RowData>(
 		initialState: table.initialState
 	} as unknown as Table<TData>;
 
+	// Search callbacks - these are stable references
+	function handleSearchOpenChange(open: boolean) {
+		searchOpen = open;
+		if (!open) {
+			searchQuery = '';
+			searchMatches = [];
+			matchIndex = 0;
+		}
+	}
+
+	function handleSearchQueryChange(query: string) {
+		searchQuery = query;
+	}
+
 	return {
 		dataGridRef,
 		headerRef,
@@ -1655,19 +1691,33 @@ export function useDataGrid<TData extends RowData>(
 		footerRef,
 		table: reactiveTable,
 		rowVirtualizer,
-		searchState: searchStateReturn,
+		// Search state with getters for reactive values
+		searchState: enableSearch
+			? {
+					get searchMatches() { return searchMatches; },
+					get matchIndex() { return matchIndex; },
+					get searchOpen() { return searchOpen; },
+					get searchQuery() { return searchQuery; },
+					onSearchOpenChange: handleSearchOpenChange,
+					onSearchQueryChange: handleSearchQueryChange,
+					onSearch: performSearch,
+					onNavigateToNextMatch: navigateToNextMatch,
+					onNavigateToPrevMatch: navigateToPrevMatch
+				}
+			: undefined,
 		get columnSizeVars() {
 			return getColumnSizeVars();
 		},
 		onRowAdd: onRowAddProp ? handleRowAdd : undefined,
-		setDataGridRef: (el) => {
+		setDataGridRef: (el: HTMLDivElement | null) => {
 			dataGridRef = el;
 		},
-		setHeaderRef: (el) => {
+		setHeaderRef: (el: HTMLDivElement | null) => {
 			headerRef = el;
 		},
-		setFooterRef: (el) => {
+		setFooterRef: (el: HTMLDivElement | null) => {
 			footerRef = el;
 		}
 	};
 }
+

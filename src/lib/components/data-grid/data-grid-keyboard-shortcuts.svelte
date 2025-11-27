@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { onMount, onDestroy } from 'svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import {
 		Dialog,
@@ -153,18 +152,9 @@
 		}
 	}
 
-	onMount(() => {
-		if (browser) {
-			window.addEventListener('keydown', handleKeyDown);
-		}
-	});
-
-	onDestroy(() => {
-		if (browser) {
-			window.removeEventListener('keydown', handleKeyDown);
-		}
-	});
 </script>
+
+<svelte:window onkeydown={handleKeyDown} />
 
 <Dialog {open} {onOpenChange}>
 	<DialogContent class="max-w-2xl px-0" onOpenAutoFocus={onOpenAutoFocus} showCloseButton={false}>

@@ -153,18 +153,13 @@
 	const virtualItems = $derived(rowVirtualizer.virtualItems);
 	const totalSize = $derived(rowVirtualizer.totalSize);
 
-	// Global mouseup listener to end drag selection even when mouse leaves grid
-	$effect(() => {
-		function handleWindowMouseUp() {
-			meta?.onCellMouseUp?.();
-		}
-		
-		window.addEventListener('mouseup', handleWindowMouseUp);
-		return () => {
-			window.removeEventListener('mouseup', handleWindowMouseUp);
-		};
-	});
+	// Handler for global mouseup - ends drag selection even when mouse leaves grid
+	function handleWindowMouseUp() {
+		meta?.onCellMouseUp?.();
+	}
 </script>
+
+<svelte:window onmouseup={handleWindowMouseUp} />
 
 <TooltipProvider>
 <div
@@ -172,7 +167,7 @@
 	class={cn('relative flex w-full flex-col', className)}
 >
 	{#if searchState}
-		<DataGridSearch {...searchState} />
+		<DataGridSearch {searchState} />
 	{/if}
 
 	<DataGridContextMenu {table} />
