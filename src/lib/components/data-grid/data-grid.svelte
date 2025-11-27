@@ -167,7 +167,17 @@
 	class={cn('relative flex w-full flex-col', className)}
 >
 	{#if searchState}
-		<DataGridSearch {searchState} />
+		<DataGridSearch
+			searchOpen={searchState.searchOpen}
+			searchQuery={searchState.searchQuery}
+			searchMatches={searchState.searchMatches}
+			matchIndex={searchState.matchIndex}
+			onSearchOpenChange={searchState.onSearchOpenChange}
+			onSearchQueryChange={searchState.onSearchQueryChange}
+			onSearch={searchState.onSearch}
+			onNavigateToNextMatch={searchState.onNavigateToNextMatch}
+			onNavigateToPrevMatch={searchState.onNavigateToPrevMatch}
+		/>
 	{/if}
 
 	<DataGridContextMenu {table} />

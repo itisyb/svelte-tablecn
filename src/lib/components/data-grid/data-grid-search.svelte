@@ -1,73 +1,87 @@
 <script lang="ts">
-	import type { SearchState } from '$lib/types/data-grid.js';
+	import type { CellPosition } from '$lib/types/data-grid.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import X from '@lucide/svelte/icons/x';
 
+	// Pass individual values as props - NOT an object with getters
+	// This is the Svelte 5 way: primitive/array props are properly reactive
 	interface Props {
-		searchState: SearchState;
+		searchOpen: boolean;
+		searchQuery: string;
+		searchMatches: CellPosition[];
+		matchIndex: number;
+		onSearchOpenChange: (open: boolean) => void;
+		onSearchQueryChange: (query: string) => void;
+		onSearch: (query: string) => void;
+		onNavigateToNextMatch: () => void;
+		onNavigateToPrevMatch: () => void;
 	}
 
-	let { searchState }: Props = $props();
+	let {
+		searchOpen,
+		searchQuery,
+		searchMatches,
+		matchIndex,
+		onSearchOpenChange,
+		onSearchQueryChange,
+		onSearch,
+		onNavigateToNextMatch,
+		onNavigateToPrevMatch
+	}: Props = $props();
 
-	// Local state only
-	let query = $state('');
-	let matchCount = $state(0);
-	let currentMatchIndex = $state(0);
-	let isOpen = $state(false);
+	// Debug - DO NOT REMOVE until user says so
+	$inspect('SearchComponent', { searchOpen, searchQuery, matchCount: searchMatches.length, matchIndex });
+
 	let inputRef = $state<HTMLInputElement | null>(null);
-	
-	// Sync isOpen from searchState on mount and when it changes
+
+	// Debounce timer
+	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+	// Focus input when opening
 	$effect(() => {
-		const open = searchState.searchOpen;
-		console.log('Effect 1: isOpen sync, open=', open);
-		isOpen = open;
-		
-		// Focus input when opening
-		if (open && inputRef) {
-			console.log('Focusing input');
+		if (searchOpen && inputRef) {
 			requestAnimationFrame(() => {
 				inputRef?.focus();
 			});
 		}
 	});
 
+	// Cleanup debounce timer on unmount
+	$effect(() => {
+		return () => {
+			if (debounceTimer) {
+				clearTimeout(debounceTimer);
+			}
+		};
+	});
+
 	function handleWindowKeydown(event: KeyboardEvent) {
-		if (!isOpen) return;
-		
+		if (!searchOpen) return;
+
 		if (event.key === 'Escape') {
 			event.preventDefault();
-			searchState.onSearchOpenChange(false);
+			onSearchOpenChange(false);
 		}
 	}
 
-	// Simple search without debounce for testing
 	function handleInput(event: Event) {
-		console.log('handleInput called');
 		const target = event.target as HTMLInputElement;
-		const newQuery = target.value;
-		console.log('New query:', newQuery);
-		
-		query = newQuery;
-		console.log('Query state updated');
-		
-		// DON'T call search - just update local state for now
-		// searchState.onSearch(query);
-		
-		// matchCount = searchState.searchMatches.length;
-		// currentMatchIndex = searchState.matchIndex;
-		console.log('handleInput done');
-	}
+		const value = target.value;
 
-	function handleNavigateNext() {
-		searchState.onNavigateToNextMatch();
-		currentMatchIndex = searchState.matchIndex;
-	}
-	
-	function handleNavigatePrev() {
-		searchState.onNavigateToPrevMatch();
-		currentMatchIndex = searchState.matchIndex;
+		// Update query immediately for UI responsiveness
+		onSearchQueryChange(value);
+
+		// Clear previous timer
+		if (debounceTimer) {
+			clearTimeout(debounceTimer);
+		}
+
+		// Debounce the actual search (150ms like React)
+		debounceTimer = setTimeout(() => {
+			onSearch(value);
+		}, 150);
 	}
 
 	function onKeyDown(event: KeyboardEvent) {
@@ -76,21 +90,21 @@
 		if (event.key === 'Enter') {
 			event.preventDefault();
 			if (event.shiftKey) {
-				handleNavigatePrev();
+				onNavigateToPrevMatch();
 			} else {
-				handleNavigateNext();
+				onNavigateToNextMatch();
 			}
 		}
 	}
 
 	function onClose() {
-		searchState.onSearchOpenChange(false);
+		onSearchOpenChange(false);
 	}
 </script>
 
 <svelte:window onkeydown={handleWindowKeydown} />
 
-{#if isOpen}
+{#if searchOpen}
 	<div
 		role="search"
 		data-slot="grid-search"
@@ -106,7 +120,7 @@
 				spellcheck="false"
 				placeholder="Find in table..."
 				class="flex h-8 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm"
-				value={query}
+				value={searchQuery}
 				oninput={handleInput}
 				onkeydown={onKeyDown}
 			/>
@@ -116,8 +130,8 @@
 					variant="ghost"
 					size="icon"
 					class="size-7"
-					onclick={handleNavigatePrev}
-					disabled={matchCount === 0}
+					onclick={onNavigateToPrevMatch}
+					disabled={searchMatches.length === 0}
 				>
 					<ChevronUp />
 				</Button>
@@ -126,8 +140,8 @@
 					variant="ghost"
 					size="icon"
 					class="size-7"
-					onclick={handleNavigateNext}
-					disabled={matchCount === 0}
+					onclick={onNavigateToNextMatch}
+					disabled={searchMatches.length === 0}
 				>
 					<ChevronDown />
 				</Button>
@@ -137,11 +151,11 @@
 			</div>
 		</div>
 		<div class="flex items-center gap-1 whitespace-nowrap text-muted-foreground text-xs">
-			{#if matchCount > 0}
+			{#if searchMatches.length > 0}
 				<span>
-					{currentMatchIndex + 1} of {matchCount}
+					{matchIndex + 1} of {searchMatches.length}
 				</span>
-			{:else if query}
+			{:else if searchQuery}
 				<span>No results</span>
 			{:else}
 				<span>Type to search</span>

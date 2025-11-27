@@ -12,6 +12,7 @@
  */
 
 import { untrack } from 'svelte';
+import { SvelteSet } from 'svelte/reactivity';
 import {
 	createTable,
 	getCoreRowModel,
@@ -242,6 +243,12 @@ export function useDataGrid<TData extends RowData>(
 	let searchQuery = $state('');
 	let searchMatches = $state<CellPosition[]>([]);
 	let matchIndex = $state(0);
+	
+	// SvelteSet for O(1) reactive search match lookups
+	let searchMatchSet = new SvelteSet<string>();
+	
+	// Debug search state
+	$inspect('useDataGrid search', { searchOpen, searchQuery, matchCount: searchMatches.length, matchIndex });
 
 	// Track last clicked row for shift-click selection
 	let lastClickedRowIndex = $state<number | null>(null);
@@ -290,9 +297,8 @@ export function useDataGrid<TData extends RowData>(
 	}
 
 	function getIsSearchMatch(rowIndex: number, columnId: string): boolean {
-		return searchMatches.some(
-			(match) => match.rowIndex === rowIndex && match.columnId === columnId
-		);
+		// O(1) lookup using the derived Set instead of O(n) .some()
+		return searchMatchSet.has(getCellKey(rowIndex, columnId));
 	}
 
 	function getIsActiveSearchMatch(rowIndex: number, columnId: string): boolean {
@@ -812,6 +818,7 @@ export function useDataGrid<TData extends RowData>(
 	function performSearch(query: string) {
 		if (!query.trim()) {
 			searchMatches = [];
+			searchMatchSet.clear();
 			matchIndex = 0;
 			return;
 		}
@@ -836,6 +843,12 @@ export function useDataGrid<TData extends RowData>(
 
 		searchMatches = matches;
 		matchIndex = matches.length > 0 ? 0 : 0;
+		
+		// Update SvelteSet for O(1) lookups
+		searchMatchSet.clear();
+		for (const m of matches) {
+			searchMatchSet.add(getCellKey(m.rowIndex, m.columnId));
+		}
 
 		// Scroll to first match (like React version - just scroll, don't focus)
 		if (matches.length > 0 && matches[0]) {
@@ -1676,6 +1689,7 @@ export function useDataGrid<TData extends RowData>(
 		if (!open) {
 			searchQuery = '';
 			searchMatches = [];
+			searchMatchSet.clear();
 			matchIndex = 0;
 		}
 	}
