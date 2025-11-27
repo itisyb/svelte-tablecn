@@ -34,6 +34,17 @@
 	const rowIndex = $derived(displayRowIndex);
 	const columnId = $derived(cell.column.id);
 
+	// CENTRALIZED: Fine-grained cell value using SvelteMap
+	// This is computed ONCE here and passed to all cell variants
+	// Only re-renders when THIS specific cell's value changes in the SvelteMap
+	const cellValue = $derived.by(() => {
+		const meta = table.options.meta;
+		const val = meta?.getCellValue?.(rowIndex, columnId);
+		if (val !== undefined) return val;
+		// Fallback to cell.getValue() for initial render or if SvelteMap not available
+		return cell.getValue();
+	});
+
 	// Derive cell state from table meta - access meta fresh each time via getter
 	const isFocused = $derived.by(() => {
 		const meta = table.options.meta;
@@ -72,6 +83,7 @@
 		{isFocused}
 		{isSelected}
 		{readOnly}
+		{cellValue}
 	/>
 {:else if variant === 'number'}
 	<NumberCell
@@ -83,9 +95,10 @@
 		{isFocused}
 		{isSelected}
 		{readOnly}
+		{cellValue}
 	/>
 {:else if variant === 'checkbox'}
-	<CheckboxCell {cell} {table} {rowIndex} {columnId} {isFocused} {isSelected} {readOnly} />
+	<CheckboxCell {cell} {table} {rowIndex} {columnId} {isEditing} {isFocused} {isSelected} {readOnly} {cellValue} />
 {:else if variant === 'long-text'}
 	<LongTextCell
 		{cell}
@@ -96,6 +109,7 @@
 		{isFocused}
 		{isSelected}
 		{readOnly}
+		{cellValue}
 	/>
 {:else if variant === 'select'}
 	<SelectCell
@@ -107,6 +121,7 @@
 		{isFocused}
 		{isSelected}
 		{readOnly}
+		{cellValue}
 	/>
 {:else if variant === 'multi-select'}
 	<MultiSelectCell
@@ -118,6 +133,7 @@
 		{isFocused}
 		{isSelected}
 		{readOnly}
+		{cellValue}
 	/>
 {:else if variant === 'date'}
 	<DateCell
@@ -129,6 +145,7 @@
 		{isFocused}
 		{isSelected}
 		{readOnly}
+		{cellValue}
 	/>
 {:else if variant === 'url'}
 	<UrlCell
@@ -140,6 +157,7 @@
 		{isFocused}
 		{isSelected}
 		{readOnly}
+		{cellValue}
 	/>
 {:else if variant === 'file'}
 	<FileCell
@@ -151,6 +169,7 @@
 		{isFocused}
 		{isSelected}
 		{readOnly}
+		{cellValue}
 	/>
 {:else if variant === 'row-select'}
 	<RowSelectCell row={cell.row} {table} {rowIndex} />
@@ -165,5 +184,6 @@
 		{isFocused}
 		{isSelected}
 		{readOnly}
+		{cellValue}
 	/>
 {/if}

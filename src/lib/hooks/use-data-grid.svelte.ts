@@ -12,7 +12,7 @@
  */
 
 import { untrack } from 'svelte';
-import { SvelteSet } from 'svelte/reactivity';
+import { SvelteSet, SvelteMap } from 'svelte/reactivity';
 import {
 	createTable,
 	getCoreRowModel,
@@ -183,11 +183,31 @@ export function useDataGrid<TData extends RowData>(
 	
 	// Support both direct data array and getter function for reactivity
 	// Using a getter function () => data allows Svelte 5 to track changes
-	const getDataFn = typeof dataProp === 'function' ? dataProp : () => dataProp;
+	const getData = typeof dataProp === 'function' ? dataProp : () => dataProp;
 	
-	// Use $derived to make data reactive - this ensures effects re-run when data changes
-	const reactiveData = $derived(getDataFn());
-	const getData = () => reactiveData;
+	// SvelteMap for CELL-LEVEL fine-grained reactivity
+	// Key is "rowIndex:columnId", value is the cell value
+	// Only the specific cell that changed will re-render
+	const cellValueMap = new SvelteMap<string, unknown>();
+	
+	// Helper to get cell value with fine-grained reactivity
+	function getCellValue(rowIndex: number, columnId: string): unknown {
+		const key = getCellKey(rowIndex, columnId);
+		// If we have a cached value in the map, use it (fine-grained reactive)
+		if (cellValueMap.has(key)) {
+			return cellValueMap.get(key);
+		}
+		// Otherwise get from data array
+		const data = getData();
+		const row = data[rowIndex] as Record<string, unknown> | undefined;
+		return row?.[columnId];
+	}
+	
+	// Helper to set cell value with fine-grained reactivity
+	function setCellValue(rowIndex: number, columnId: string, value: unknown): void {
+		const key = getCellKey(rowIndex, columnId);
+		cellValueMap.set(key, value);
+	}
 
 	// ========================================
 	// Reactive State using Svelte 5 runes
@@ -197,8 +217,8 @@ export function useDataGrid<TData extends RowData>(
 	let dataGridRef = $state<HTMLDivElement | null>(null);
 	let headerRef = $state<HTMLDivElement | null>(null);
 	let footerRef = $state<HTMLDivElement | null>(null);
-	let rowMapRef = $state(new Map<number, HTMLDivElement>());
-	let cellMapRef = $state(new Map<string, HTMLDivElement>());
+	let rowMapRef = new Map<number, HTMLDivElement>();
+	let cellMapRef = new Map<string, HTMLDivElement>();
 
 	// Table state - use initialState if provided
 	let sorting = $state<SortingState>(initialState?.sorting ?? []);
@@ -251,9 +271,6 @@ export function useDataGrid<TData extends RowData>(
 	
 	// SvelteSet for O(1) reactive search match lookups
 	let searchMatchSet = new SvelteSet<string>();
-	
-	// Debug search state
-	$inspect('useDataGrid search', { searchOpen, searchQuery, matchCount: searchMatches.length, matchIndex });
 
 	// Track last clicked row for shift-click selection
 	let lastClickedRowIndex = $state<number | null>(null);
@@ -1144,8 +1161,9 @@ export function useDataGrid<TData extends RowData>(
 		if (updateArray.length === 0) return;
 
 		const rows = table.getRowModel().rows;
+		const currentData = getData();
 
-		// Group updates by row
+		// Group updates by row index
 		const rowUpdatesMap = new Map<number, Array<{ columnId: string; value: unknown }>>();
 
 		for (const update of updateArray) {
@@ -1153,36 +1171,31 @@ export function useDataGrid<TData extends RowData>(
 			if (!row) continue;
 
 			const originalData = row.original;
-			const originalRowIndex = getData().indexOf(originalData);
+			const originalRowIndex = currentData.indexOf(originalData);
 			const targetIndex = originalRowIndex !== -1 ? originalRowIndex : update.rowIndex;
 
 			const existingUpdates = rowUpdatesMap.get(targetIndex) ?? [];
 			existingUpdates.push({ columnId: update.columnId, value: update.value });
 			rowUpdatesMap.set(targetIndex, existingUpdates);
+			
+			// Update cellValueMap for fine-grained reactivity - ONLY THIS CELL re-renders
+			setCellValue(targetIndex, update.columnId, update.value);
 		}
 
-		// Build new data array
-		const tableRowCount = rows?.length ?? getData().length;
-		const newData: TData[] = [];
-
-		for (let i = 0; i < tableRowCount; i++) {
-			const rowUpdates = rowUpdatesMap.get(i);
-			const existingRow = getData()[i];
-			const tableRow = rows?.[i];
-
-			if (rowUpdates) {
-				const baseRow = (existingRow ?? tableRow?.original ?? {}) as Record<string, unknown>;
-				const updatedRow = { ...baseRow };
+		// Update the underlying data array directly WITHOUT triggering parent re-render
+		// We mutate in place to avoid creating a new array reference
+		for (const [rowIndex, rowUpdates] of rowUpdatesMap) {
+			const existingRow = currentData[rowIndex] as Record<string, unknown> | undefined;
+			if (existingRow) {
 				for (const { columnId, value } of rowUpdates) {
-					updatedRow[columnId] = value;
+					existingRow[columnId] = value;
 				}
-				newData.push(updatedRow as TData);
-			} else {
-				newData.push(existingRow ?? tableRow?.original ?? ({} as TData));
 			}
 		}
 
-		onDataChange?.(newData);
+		// DO NOT call onDataChange here - it triggers full re-render
+		// The cellValueMap already provides fine-grained reactivity for display
+		// Parent can access the mutated data array when needed (e.g., on save)
 	}
 
 	// ========================================
@@ -1238,6 +1251,9 @@ export function useDataGrid<TData extends RowData>(
 			return pasteDialog;
 		},
 		getIsCellSelected,
+		// Expose getCellValue for fine-grained cell-level reactivity
+		// Cells call this instead of cell.getValue() to only re-render when THEIR value changes
+		getCellValue,
 		// Expose SvelteSet directly for fine-grained reactivity
 		// Cells can call searchMatchSet.has(key) directly in template
 		searchMatchSet,

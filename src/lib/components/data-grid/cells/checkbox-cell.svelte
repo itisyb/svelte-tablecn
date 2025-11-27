@@ -1,29 +1,22 @@
 <script lang="ts" generics="TData">
-	import type { Cell, Table } from '@tanstack/table-core';
+	import type { CellVariantProps } from '$lib/types/data-grid.js';
 	import DataGridCellWrapper from '../data-grid-cell-wrapper.svelte';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
-
-	interface Props {
-		cell: Cell<TData, unknown>;
-		table: Table<TData>;
-		rowIndex: number;
-		columnId: string;
-		isFocused: boolean;
-		isSelected: boolean;
-		readOnly?: boolean;
-	}
 
 	let {
 		cell,
 		table,
 		rowIndex,
 		columnId,
+		isEditing: _isEditing,
 		isFocused,
 		isSelected,
-		readOnly = false
-	}: Props = $props();
+		readOnly = false,
+		cellValue
+	}: CellVariantProps<TData> = $props();
 
-	const initialValue = $derived(cell.getValue() as boolean);
+	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
+	const initialValue = $derived(cellValue as boolean);
 	let value = $state(false);
 
 	// Initialize and sync value from cell data
@@ -51,15 +44,20 @@
 		}
 	}
 
-	function handleCheckboxClick(event: MouseEvent) {
+	// Handle wrapper click - focus cell and toggle checkbox
+	function handleWrapperClick(event: MouseEvent) {
+		event.preventDefault();
 		event.stopPropagation();
+		
+		// Focus the cell if not already focused
+		if (!isFocused) {
+			table.options.meta?.onCellClick?.(rowIndex, columnId, event);
+		}
+		
+		// Toggle checkbox on single click
 		if (!readOnly) {
 			handleCheckedChange(!value);
 		}
-	}
-
-	function handleCheckboxMouseDown(event: MouseEvent) {
-		event.stopPropagation();
 	}
 </script>
 
@@ -73,12 +71,11 @@
 	{isSelected}
 	class="flex size-full justify-center"
 	onkeydown={handleWrapperKeyDown}
+	onclick={handleWrapperClick}
 >
 	<Checkbox
 		checked={value}
 		disabled={readOnly}
-		class="border-primary"
-		onclick={handleCheckboxClick}
-		onmousedown={handleCheckboxMouseDown}
+		class="border-primary pointer-events-none"
 	/>
 </DataGridCellWrapper>
