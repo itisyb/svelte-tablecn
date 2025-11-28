@@ -36,9 +36,20 @@
 		setFooterRef,
 		class: className
 	}: Props = $props();
-	
+
 	// Selection version - read from the reactive getter in selectionState
 	const selectionVersion = $derived(selectionState?.version ?? 0);
+
+	// Visibility key for {#key} block - forces re-render when visibility changes
+	// This is computed locally from table state
+	const visibilityKey = $derived.by(() => {
+		const visibility = table.getState().columnVisibility;
+		return Object.entries(visibility)
+			.filter(([_, visible]) => visible === false)
+			.map(([id]) => id)
+			.sort()
+			.join(',');
+	});
 
 	// Notify hook when refs change - only run once per ref
 	let dataGridRefSet = false;
@@ -83,14 +94,14 @@
 
 	// Get visible headers reactively
 	const visibleLeafColumns = $derived(table.getVisibleLeafColumns());
-	
+
 	// Compute total visible width (only visible columns)
 	const totalVisibleWidth = $derived.by(() => {
 		// Read column sizing to create reactive dependency
 		const _ = columnSizing;
 		const __ = columnSizingInfo;
 		const ___ = columnVisibility;
-		
+
 		let total = 0;
 		for (const col of visibleLeafColumns) {
 			total += col.getSize();
@@ -99,10 +110,12 @@
 	});
 
 	// Compute pinning styles reactively based on state
-	function getPinningStyles(column: Column<TData, unknown>): Record<string, string | number | undefined> {
+	function getPinningStyles(
+		column: Column<TData, unknown>
+	): Record<string, string | number | undefined> {
 		// Read pinning state to create reactive dependency
 		const _ = columnPinning;
-		
+
 		try {
 			const isPinned = column.getIsPinned();
 			const isLastLeftPinnedColumn = isPinned === 'left' && column.getIsLastColumn('left');
@@ -155,7 +168,7 @@
 		// Read both states to ensure reactivity when columns are resized
 		const _ = columnSizing;
 		const __ = columnSizingInfo;
-		
+
 		const vars: string[] = [];
 		try {
 			const headers = table.getFlatHeaders();
@@ -183,159 +196,158 @@
 <svelte:window onmouseup={handleWindowMouseUp} />
 
 <TooltipProvider>
-<div
-	data-slot="grid-wrapper"
-	class={cn('relative flex w-full flex-col', className)}
->
-	{#if searchState}
-		<DataGridSearch
-			searchOpen={searchState.searchOpen}
-			searchQuery={searchState.searchQuery}
-			searchMatches={searchState.searchMatches}
-			matchIndex={searchState.matchIndex}
-			onSearchOpenChange={searchState.onSearchOpenChange}
-			onSearchQueryChange={searchState.onSearchQueryChange}
-			onSearch={searchState.onSearch}
-			onNavigateToNextMatch={searchState.onNavigateToNextMatch}
-			onNavigateToPrevMatch={searchState.onNavigateToPrevMatch}
-		/>
-	{/if}
+	<div data-slot="grid-wrapper" class={cn('relative flex w-full flex-col', className)}>
+		{#if searchState}
+			<DataGridSearch
+				searchOpen={searchState.searchOpen}
+				searchQuery={searchState.searchQuery}
+				searchMatches={searchState.searchMatches}
+				matchIndex={searchState.matchIndex}
+				onSearchOpenChange={searchState.onSearchOpenChange}
+				onSearchQueryChange={searchState.onSearchQueryChange}
+				onSearch={searchState.onSearch}
+				onNavigateToNextMatch={searchState.onNavigateToNextMatch}
+				onNavigateToPrevMatch={searchState.onNavigateToPrevMatch}
+			/>
+		{/if}
 
-	<DataGridContextMenu {table} />
+		<DataGridContextMenu {table} />
 
-	<DataGridPasteDialog {table} />
+		<DataGridPasteDialog {table} />
 
-	<div
-		role="grid"
-		aria-label="Data grid"
-		aria-rowcount={rows.length + (onRowAdd ? 1 : 0)}
-		aria-colcount={columns.length}
-		data-slot="grid"
-		tabindex={0}
-		bind:this={dataGridRef}
-		class="relative grid select-none overflow-auto rounded-md border focus:outline-none"
-		style="{columnSizeStyle}; max-height: {height}px;"
-		oncontextmenu={onGridContextMenu}
-		onmouseup={handleGridMouseUp}
-	>
-		<!-- Header -->
 		<div
-			role="rowgroup"
-			data-slot="grid-header"
-			bind:this={headerRef}
-			class="sticky top-0 z-10 grid border-b bg-background"
+			role="grid"
+			aria-label="Data grid"
+			aria-rowcount={rows.length + (onRowAdd ? 1 : 0)}
+			aria-colcount={columns.length}
+			data-slot="grid"
+			tabindex={0}
+			bind:this={dataGridRef}
+			class="relative grid select-none overflow-auto rounded-md border focus:outline-none"
+			style="{columnSizeStyle}; max-height: {height}px;"
+			oncontextmenu={onGridContextMenu}
+			onmouseup={handleGridMouseUp}
 		>
-			{#each table.getHeaderGroups() as headerGroup, rowIndex (headerGroup.id)}
-				<div
-					role="row"
-					aria-rowindex={rowIndex + 1}
-					data-slot="grid-header-row"
-					tabindex={-1}
-					class="flex"
-					style="width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
-				>
-					{#each headerGroup.headers.filter(h => columnVisibility[h.column.id] !== false) as header, colIndex (header.id)}
-						{@const sorting = tableState.sorting}
-						{@const currentSort = sorting.find((sort) => sort.id === header.column.id)}
-						{@const isSortable = header.column.getCanSort()}
-						{@const pinningStyles = getPinningStyles(header.column)}
-
-						<div
-							role="columnheader"
-							aria-colindex={colIndex + 1}
-							aria-sort={currentSort?.desc === false
-								? 'ascending'
-								: currentSort?.desc === true
-									? 'descending'
-									: isSortable
-										? 'none'
-										: undefined}
-							data-slot="grid-header-cell"
-							tabindex={-1}
-							class={cn('group relative', {
-								'border-r': header.column.id !== 'select'
-							})}
-							style="position: {pinningStyles.position}; left: {pinningStyles.left}; right: {pinningStyles.right}; background: {pinningStyles.background}; z-index: {pinningStyles.zIndex}; width: calc(var(--header-{header.id}-size) * 1px);"
-						>
-							{#if header.isPlaceholder}
-								<!-- Empty -->
-							{:else if typeof header.column.columnDef.header === 'function'}
-								<div class="size-full px-3 py-1.5">
-									<FlexRender
-										content={header.column.columnDef.header}
-										context={header.getContext()}
-									/>
-								</div>
-							{:else}
-								<DataGridColumnHeader {header} {table} />
-							{/if}
-						</div>
-					{/each}
-				</div>
-			{/each}
-		</div>
-
-		<!-- Body -->
-		<div
-			role="rowgroup"
-			data-slot="grid-body"
-			class="relative grid"
-			style="height: {totalSize}px;"
-		>
-		{#each virtualItems as virtualItem (virtualItem.key)}
-			{@const virtualRowIndex = virtualItem.index}
-			{@const row = rows[virtualRowIndex]}
-			{#if row}
-				<DataGridRow
-					{row}
-					{table}
-					{columnPinning}
-					{columnVisibility}
-					{columnSizing}
-					{selectedCellsSet}
-					{selectionVersion}
-					{rowMapRef}
-					{virtualRowIndex}
-					{rowVirtualizer}
-					{rowHeight}
-					{focusedCell}
-					virtualStart={virtualItem.start}
-				/>
-			{/if}
-		{/each}
-		</div>
-
-		<!-- Footer / Add Row -->
-		{#if onRowAdd}
+			<!-- Header -->
 			<div
 				role="rowgroup"
-				data-slot="grid-footer"
-				bind:this={footerRef}
-				class="sticky bottom-0 z-10 grid border-t bg-background"
+				data-slot="grid-header"
+				bind:this={headerRef}
+				class="sticky top-0 z-10 grid border-b bg-background"
 			>
+				{#each table.getHeaderGroups() as headerGroup, rowIndex (headerGroup.id)}
+					<div
+						role="row"
+						aria-rowindex={rowIndex + 1}
+						data-slot="grid-header-row"
+						tabindex={-1}
+						class="flex"
+						style="width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
+					>
+						{#each headerGroup.headers.filter((h) => columnVisibility[h.column.id] !== false) as header, colIndex (header.id)}
+							{@const sorting = tableState.sorting}
+							{@const currentSort = sorting.find((sort) => sort.id === header.column.id)}
+							{@const isSortable = header.column.getCanSort()}
+							{@const pinningStyles = getPinningStyles(header.column)}
+
+							<div
+								role="columnheader"
+								aria-colindex={colIndex + 1}
+								aria-sort={currentSort?.desc === false
+									? 'ascending'
+									: currentSort?.desc === true
+										? 'descending'
+										: isSortable
+											? 'none'
+											: undefined}
+								data-slot="grid-header-cell"
+								tabindex={-1}
+								class={cn('group relative', {
+									'border-r': header.column.id !== 'select'
+								})}
+								style="position: {pinningStyles.position}; left: {pinningStyles.left}; right: {pinningStyles.right}; background: {pinningStyles.background}; z-index: {pinningStyles.zIndex}; width: calc(var(--header-{header.id}-size) * 1px);"
+							>
+								{#if header.isPlaceholder}
+									<!-- Empty -->
+								{:else if typeof header.column.columnDef.header === 'function'}
+									<div class="size-full px-3 py-1.5">
+										<FlexRender
+											content={header.column.columnDef.header}
+											context={header.getContext()}
+										/>
+									</div>
+								{:else}
+									<DataGridColumnHeader {header} {table} />
+								{/if}
+							</div>
+						{/each}
+					</div>
+				{/each}
+			</div>
+
+			<!-- Body -->
+			<div
+				role="rowgroup"
+				data-slot="grid-body"
+				class="relative grid"
+				style="height: {totalSize}px;"
+			>
+				{#key visibilityKey}
+					{#each virtualItems as virtualItem (virtualItem.key)}
+						{@const virtualRowIndex = virtualItem.index}
+						{@const row = rows[virtualRowIndex]}
+						{#if row}
+							<DataGridRow
+								{row}
+								{table}
+								{columnPinning}
+								{columnVisibility}
+								{columnSizing}
+								{selectedCellsSet}
+								{selectionVersion}
+								{rowMapRef}
+								{virtualRowIndex}
+								{rowVirtualizer}
+								{rowHeight}
+								{focusedCell}
+								virtualStart={virtualItem.start}
+							/>
+						{/if}
+					{/each}
+				{/key}
+			</div>
+
+			<!-- Footer / Add Row -->
+			{#if onRowAdd}
 				<div
-					role="row"
-					aria-rowindex={rows.length + 2}
-					data-slot="grid-add-row"
-					tabindex={-1}
-					class="flex w-full"
+					role="rowgroup"
+					data-slot="grid-footer"
+					bind:this={footerRef}
+					class="sticky bottom-0 z-10 grid border-t bg-background"
 				>
 					<div
-						role="gridcell"
-						tabindex={0}
-						class="relative flex h-9 grow items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
-						style="width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
-						onclick={onRowAdd}
-						onkeydown={onAddRowKeyDown}
+						role="row"
+						aria-rowindex={rows.length + 2}
+						data-slot="grid-add-row"
+						tabindex={-1}
+						class="flex w-full"
 					>
-						<div class="sticky left-0 flex items-center gap-2 px-3 text-muted-foreground">
-							<Plus class="size-3.5" />
-							<span class="text-sm">Add row</span>
+						<div
+							role="gridcell"
+							tabindex={0}
+							class="relative flex h-9 grow items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
+							style="width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
+							onclick={onRowAdd}
+							onkeydown={onAddRowKeyDown}
+						>
+							<div class="sticky left-0 flex items-center gap-2 px-3 text-muted-foreground">
+								<Plus class="size-3.5" />
+								<span class="text-sm">Add row</span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		{/if}
+			{/if}
+		</div>
 	</div>
-</div>
 </TooltipProvider>
