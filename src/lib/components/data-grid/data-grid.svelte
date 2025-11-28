@@ -66,8 +66,6 @@
 	const meta = $derived(table.options.meta);
 	const rowHeight = $derived<RowHeightValue>(meta?.rowHeight ?? 'short');
 	const focusedCell = $derived<CellPosition | null>(meta?.focusedCell ?? null);
-	const selectionVersion = $derived(meta?.selectionVersion ?? 0);
-	const selectedCellsSet = $derived(meta?.selectedCellsSet);
 
 	// Get table state reactively for pinning/visibility/sizing
 	const tableState = $derived(table.getState());
@@ -277,7 +275,7 @@
 			class="relative grid"
 			style="height: {totalSize}px;"
 		>
-		{#each virtualItems as virtualItem (`${virtualItem.key}-${selectionVersion}`)}
+		{#each virtualItems as virtualItem (virtualItem.key)}
 			{@const virtualRowIndex = virtualItem.index}
 			{@const row = rows[virtualRowIndex]}
 			{#if row}
@@ -286,8 +284,6 @@
 					{table}
 					{columnPinning}
 					{columnVisibility}
-					{selectedCellsSet}
-					{selectionVersion}
 					{rowMapRef}
 					{virtualRowIndex}
 					{rowVirtualizer}
