@@ -20,8 +20,6 @@
 		selectedCellsSet: SvelteSet<string> | undefined;
 		/** Version counter that increments when selection changes - triggers re-render */
 		selectionVersion: number;
-		/** Version counter that increments when column visibility changes - forces cell re-render */
-		visibilityVersion: number;
 		rowVirtualizer: VirtualizerReturn;
 		virtualRowIndex: number;
 		virtualStart: number;
@@ -39,7 +37,6 @@
 		columnSizing,
 		selectedCellsSet,
 		selectionVersion,
-		visibilityVersion,
 		virtualRowIndex,
 		virtualStart,
 		rowVirtualizer,
@@ -63,11 +60,8 @@
 		};
 	});
 
-	// Include visibilityVersion to force recalculation when columns change
-	const isRowSelected = $derived.by(() => {
-		const _ = visibilityVersion;
-		return row.getIsSelected();
-	});
+	// Row selection is reactive via table state
+	const isRowSelected = $derived(row.getIsSelected());
 
 	// Get visible cells in correct order (left pinned -> center -> right pinned)
 	// We manually construct the order using table's column methods since Row.getVisibleCells()
@@ -174,7 +168,7 @@
 	class={cn('absolute left-0 top-0 flex border-b will-change-transform', className)}
 	style="transform: translateY({virtualStart}px); height: {getRowHeightValue(rowHeight)}px; width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
 >
-	{#each visibleCells as cell, colIndex (`${cell.id}-${visibilityVersion}`)}
+	{#each visibleCells as cell, colIndex (cell.id)}
 		{@const isCellFocused =
 			focusedCell?.rowIndex === virtualRowIndex && focusedCell?.columnId === cell.column.id}
 		{@const pinningStyles = getPinningStyles(cell.column.id)}
@@ -196,7 +190,6 @@
 				{table}
 				{selectedCellsSet}
 				{selectionVersion}
-				{visibilityVersion}
 			/>
 		</div>
 	{/each}

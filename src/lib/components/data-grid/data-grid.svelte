@@ -27,7 +27,6 @@
 		selectedCellsSet,
 		selectionState,
 		getSelectionVersion,
-		visibilityState,
 		height = 600,
 		searchState,
 		columnSizeVars: _, // We compute this ourselves for reactivity
@@ -40,9 +39,6 @@
 	
 	// Selection version - read from the reactive getter in selectionState
 	const selectionVersion = $derived(selectionState?.version ?? 0);
-	
-	// Visibility version - read from the reactive getter in visibilityState
-	const visibilityVersion = $derived(visibilityState?.version ?? 0);
 
 	// Notify hook when refs change - only run once per ref
 	let dataGridRefSet = false;
@@ -286,7 +282,7 @@
 			class="relative grid"
 			style="height: {totalSize}px;"
 		>
-		{#each virtualItems as virtualItem (`${virtualItem.key}-${visibilityVersion}`)}
+		{#each virtualItems as virtualItem (virtualItem.key)}
 			{@const virtualRowIndex = virtualItem.index}
 			{@const row = rows[virtualRowIndex]}
 			{#if row}
@@ -298,7 +294,6 @@
 					{columnSizing}
 					{selectedCellsSet}
 					{selectionVersion}
-					{visibilityVersion}
 					{rowMapRef}
 					{virtualRowIndex}
 					{rowVirtualizer}

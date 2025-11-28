@@ -22,11 +22,9 @@
 		selectedCellsSet?: SvelteSet<string>;
 		/** Version counter that triggers re-computation when selection changes */
 		selectionVersion?: number;
-		/** Version counter that triggers re-computation when column visibility changes */
-		visibilityVersion?: number;
 	}
 
-	let { cell, table, selectedCellsSet, selectionVersion = 0, visibilityVersion = 0 }: Props = $props();
+	let { cell, table, selectedCellsSet, selectionVersion = 0 }: Props = $props();
 
 	// Access meta directly each time - don't cache the reference
 	const originalRowIndex = $derived(cell.row.index);
@@ -46,10 +44,6 @@
 	// Only re-renders when THIS specific cell's value changes in the SvelteMap
 	// We access the map directly inside $derived so Svelte tracks this specific key
 	const cellValue = $derived.by(() => {
-		// Include visibilityVersion to force recalculation when columns change
-		// This is needed because virtualization reuses component instances
-		const _ = visibilityVersion;
-		
 		const meta = table.options.meta;
 		const map = meta?.cellValueMap;
 		const key = getCellKey(rowIndex, columnId);
@@ -202,7 +196,7 @@
 		{cellValue}
 	/>
 {:else if variant === 'row-select'}
-	<RowSelectCell row={cell.row} {table} {rowIndex} {visibilityVersion} />
+	<RowSelectCell row={cell.row} {table} {rowIndex} />
 {:else}
 	<!-- Default to short-text -->
 	<ShortTextCell

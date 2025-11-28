@@ -115,10 +115,6 @@ export interface UseDataGridReturn<TData extends RowData> {
 	selectionState: { readonly version: number };
 	getSelectionVersion: () => number;
 
-	// Visibility state - version increments when column visibility changes
-	// Used to force re-renders of virtualized cells
-	visibilityState: { readonly version: number };
-
 	// Search state (if enabled)
 	searchState?: SearchState;
 
@@ -249,11 +245,6 @@ export function useDataGrid<TData extends RowData>(
 	// Version counter to force cell re-renders when selection changes
 	// Cells read this in $derived to create a reactive dependency
 	let selectionVersion = $state(0);
-
-	// Version counter to force cell re-renders when column visibility changes
-	// This is needed because virtualized cells may not properly re-render
-	// when columns are hidden and then shown back
-	let visibilityVersion = $state(0);
 
 	// Track the anchor cell for shift+arrow range selection
 	let selectionAnchor = $state<CellPosition | null>(null);
@@ -1446,9 +1437,8 @@ export function useDataGrid<TData extends RowData>(
 		},
 	onColumnVisibilityChange: (updater) => {
 			columnVisibility = typeof updater === 'function' ? updater(columnVisibility) : updater;
-			// Increment visibility version immediately when visibility changes
-			// This forces virtualized cells to re-render
-			visibilityVersion++;
+			// No version counter needed - visibilityKey is derived from columnVisibility
+			// and will automatically update when visibility changes
 		},
 		onSortingChange: (updater) => {
 			sorting = typeof updater === 'function' ? updater(sorting) : updater;
@@ -1544,8 +1534,6 @@ export function useDataGrid<TData extends RowData>(
 			prevColumnFilters = [...columnFilters];
 			prevDataLength = currentData.length;
 			prevColumnVisibility = { ...columnVisibility };
-			// Note: visibilityVersion is incremented directly in onColumnVisibilityChange
-			// to ensure it happens synchronously with the state change
 		}
 
 		// Update table with current state
@@ -1918,10 +1906,6 @@ export function useDataGrid<TData extends RowData>(
 			get version() { return selectionVersion; }
 		},
 		getSelectionVersion: () => selectionVersion,
-		// Visibility state - wrap in object with getter for reactivity through spread
-		visibilityState: {
-			get version() { return visibilityVersion; }
-		},
 		// Search state with getters for reactive values
 		searchState: enableSearch
 			? {
