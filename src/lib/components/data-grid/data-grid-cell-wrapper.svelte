@@ -70,17 +70,18 @@
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
 	
 	// Direct DOM update for selection state - bypasses Svelte reactivity issues
-	// This runs whenever isSelected, isFocused, or isEditing props change
+	// This runs whenever isSelected, isFocused, isEditing props change OR when the element mounts
 	$effect(() => {
-		if (internalRef) {
+		const el = internalRef; // Read internalRef to create dependency
+		if (el) {
 			// Only show selection highlight when not focused and not editing
 			const showHighlight = isSelected && !isFocused && !isEditing;
 			if (showHighlight) {
-				internalRef.setAttribute('data-selected', '');
-				internalRef.classList.add('bg-primary/10');
+				el.setAttribute('data-selected', '');
+				el.classList.add('bg-primary/10');
 			} else {
-				internalRef.removeAttribute('data-selected');
-				internalRef.classList.remove('bg-primary/10');
+				el.removeAttribute('data-selected');
+				el.classList.remove('bg-primary/10');
 			}
 		}
 	});
