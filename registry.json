@@ -15,7 +15,8 @@
 				"bits-ui",
 				"clsx",
 				"tailwind-merge",
-				"sonner",
+				"svelte-sonner",
+				"svelte-dnd-action",
 				"@lucide/svelte"
 			],
 			"registryDependencies": [
@@ -23,169 +24,199 @@
 				"badge",
 				"calendar",
 				"checkbox",
+				"command",
+				"dialog",
+				"dropdown-menu",
 				"input",
 				"kbd",
 				"popover",
+				"select",
+				"separator",
 				"skeleton",
 				"table",
+				"textarea",
 				"tooltip"
 			],
 			"files": [
 				{
 					"path": "src/lib/components/data-grid/data-grid.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-cell-wrapper.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-cell-wrapper.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-column-header.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-column-header.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-context-menu.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-context-menu.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-filter-menu.svelte",
-					"type": "registry:component"
-				},
-				{
-					"path": "src/lib/components/data-grid/data-grid-header.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-filter-menu.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-keyboard-shortcuts.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-keyboard-shortcuts.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-paste-dialog.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-paste-dialog.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-render-count.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-render-count.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-row-height-menu.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-row-height-menu.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-row.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-row.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-search.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-search.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-sort-menu.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-sort-menu.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-view-menu.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/data-grid-view-menu.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/index.ts",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/index.ts"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/checkbox-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/checkbox-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/date-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/date-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/file-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/file-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/long-text-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/long-text-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/multi-select-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/multi-select-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/number-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/number-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/row-select-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/row-select-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/row-select-header.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/row-select-header.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/select-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/select-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/short-text-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/short-text-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/url-cell.svelte",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/url-cell.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/cells/index.ts",
-					"type": "registry:component"
+					"type": "registry:component",
+					"target": "data-grid/cells/index.ts"
 				},
 				{
 					"path": "src/lib/hooks/use-data-grid.svelte.ts",
-					"type": "registry:hook"
+					"type": "registry:hook",
+					"target": "use-data-grid.svelte.ts"
 				},
 				{
 					"path": "src/lib/types/data-grid.ts",
-					"type": "registry:lib"
+					"type": "registry:lib",
+					"target": "src/lib/types/data-grid.ts"
 				},
 				{
 					"path": "src/lib/config/data-grid.ts",
-					"type": "registry:lib"
+					"type": "registry:lib",
+					"target": "src/lib/config/data-grid.ts"
 				},
 				{
 					"path": "src/lib/data-grid-filters.ts",
-					"type": "registry:lib"
+					"type": "registry:lib",
+					"target": "src/lib/data-grid-filters.ts"
 				},
 				{
-					"path": "src/lib/table/create-svelte-table.svelte.ts",
-					"type": "registry:lib"
+					"path": "src/lib/components/ui/data-table/data-table.svelte.ts",
+					"type": "registry:ui",
+					"target": "data-table/data-table.svelte.ts"
 				},
 				{
-					"path": "src/lib/table/flex-render.svelte",
-					"type": "registry:component"
+					"path": "src/lib/components/ui/data-table/flex-render.svelte",
+					"type": "registry:ui",
+					"target": "data-table/flex-render.svelte"
 				},
 				{
-					"path": "src/lib/table/render-helpers.ts",
-					"type": "registry:lib"
+					"path": "src/lib/components/ui/data-table/render-helpers.ts",
+					"type": "registry:ui",
+					"target": "data-table/render-helpers.ts"
+				},
+				{
+					"path": "src/lib/components/ui/data-table/index.ts",
+					"type": "registry:ui",
+					"target": "data-table/index.ts"
 				},
 				{
 					"path": "src/lib/table/index.ts",
-					"type": "registry:lib"
-				},
-				{
-					"path": "src/lib/virtual/create-svelte-virtualizer.svelte.ts",
-					"type": "registry:lib"
-				},
-				{
-					"path": "src/lib/virtual/index.ts",
-					"type": "registry:lib"
-				},
-				{
-					"path": "src/lib/utils/keyboard.ts",
-					"type": "registry:lib"
+					"type": "registry:lib",
+					"target": "src/lib/table/index.ts"
 				}
 			],
 			"docs": "This is a Svelte 5 port of tablecn.com - a feature-rich data grid with cell editing, keyboard navigation, search, filtering, sorting, and more. Visit https://tablecn.com for the original React version.",

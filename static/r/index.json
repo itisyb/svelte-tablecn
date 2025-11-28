@@ -11,7 +11,8 @@
 			"bits-ui",
 			"clsx",
 			"tailwind-merge",
-			"sonner",
+			"svelte-sonner",
+			"svelte-dnd-action",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -19,11 +20,17 @@
 			"badge",
 			"calendar",
 			"checkbox",
+			"command",
+			"dialog",
+			"dropdown-menu",
 			"input",
 			"kbd",
 			"popover",
+			"select",
+			"separator",
 			"skeleton",
 			"table",
+			"textarea",
 			"tooltip"
 		],
 		"meta": {
