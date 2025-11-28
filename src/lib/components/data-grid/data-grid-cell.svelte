@@ -1,5 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Cell, Table } from '@tanstack/table-core';
+	import type { SvelteSet } from 'svelte/reactivity';
 	import { getCellKey } from '$lib/types/data-grid.js';
 
 	// Cell variant imports
@@ -17,9 +18,13 @@
 	interface Props {
 		cell: Cell<TData, unknown>;
 		table: Table<TData>;
+		/** SvelteSet for fine-grained selection reactivity */
+		selectedCellsSet?: SvelteSet<string>;
+		/** Version counter that triggers re-computation when selection changes */
+		selectionVersion?: number;
 	}
 
-	let { cell, table }: Props = $props();
+	let { cell, table, selectedCellsSet, selectionVersion = 0 }: Props = $props();
 
 	// Access meta directly each time - don't cache the reference
 	const originalRowIndex = $derived(cell.row.index);
@@ -74,15 +79,14 @@
 		const ec = meta?.editingCell;
 		return ec?.rowIndex === rowIndex && ec?.columnId === columnId;
 	});
-	// Direct SvelteSet access for fine-grained reactivity
-	// SvelteSet.has() is reactive - only this specific cell re-renders when its selection state changes
+	// Compute selection state using the SvelteSet directly
+	// SvelteSet.has() is reactive - Svelte tracks when items are added/removed
 	const isSelected = $derived.by(() => {
-		const meta = table.options.meta;
-		const selectedSet = meta?.selectedCellsSet;
-		if (!selectedSet) return false;
-		// SvelteSet.has() creates a fine-grained reactive dependency
-		return selectedSet.has(getCellKey(rowIndex, columnId));
+		if (!selectedCellsSet) return false;
+		const key = getCellKey(rowIndex, columnId);
+		return selectedCellsSet.has(key);
 	});
+	
 	const readOnly = $derived.by(() => {
 		const meta = table.options.meta;
 		return meta?.readOnly ?? false;

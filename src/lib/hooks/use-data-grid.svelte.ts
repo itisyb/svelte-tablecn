@@ -110,6 +110,11 @@ export interface UseDataGridReturn<TData extends RowData> {
 	// Virtualizer
 	rowVirtualizer: VirtualizerReturn;
 
+	// Selection state - exposed as getters for use in $derived
+	selectedCellsSet: SvelteSet<string>;
+	selectionState: { readonly version: number };
+	getSelectionVersion: () => number;
+
 	// Search state (if enabled)
 	searchState?: SearchState;
 
@@ -236,10 +241,11 @@ export function useDataGrid<TData extends RowData>(
 	
 	// SvelteSet for fine-grained reactivity on cell selection
 	// Cells can call selectedCellsSet.has(key) in $derived for proper Svelte tracking
-	let selectedCellsSet = new SvelteSet<string>();
+	const selectedCellsSet = new SvelteSet<string>();
 	// Version counter to force cell re-renders when selection changes
 	// Cells read this in $derived to create a reactive dependency
 	let selectionVersion = $state(0);
+	
 	// Track the anchor cell for shift+arrow range selection
 	let selectionAnchor = $state<CellPosition | null>(null);
 
@@ -268,12 +274,39 @@ export function useDataGrid<TData extends RowData>(
 	
 	// Helper to sync SvelteSet with regular Set for selection
 	function syncSelectedCellsSet(newCells: Set<string>) {
+		const oldCells = new Set(selectedCellsSet);
+		
 		selectedCellsSet.clear();
 		for (const key of newCells) {
 			selectedCellsSet.add(key);
 		}
 		// Increment version to trigger re-renders in cells
 		selectionVersion++;
+		
+		// Direct DOM update - bypass Svelte reactivity for selection highlight
+		// This ensures visible cells update immediately
+		if (dataGridRef) {
+			// Remove highlight from cells no longer selected
+			for (const key of oldCells) {
+				if (!newCells.has(key)) {
+					const cellEl = cellMapRef.get(key);
+					if (cellEl) {
+						cellEl.classList.remove('bg-primary/10');
+						cellEl.removeAttribute('data-selected');
+					}
+				}
+			}
+			// Add highlight to newly selected cells
+			for (const key of newCells) {
+				if (!oldCells.has(key)) {
+					const cellEl = cellMapRef.get(key);
+					if (cellEl) {
+						cellEl.classList.add('bg-primary/10');
+						cellEl.setAttribute('data-selected', '');
+					}
+				}
+			}
+		}
 	}
 
 	// Track last clicked row for shift-click selection
@@ -1860,6 +1893,13 @@ export function useDataGrid<TData extends RowData>(
 		footerRef,
 		table: reactiveTable,
 		rowVirtualizer,
+		// Selection state - pass the SvelteSet and a reactive object for version
+		selectedCellsSet,
+		// Wrap selectionVersion in object with getter so components can track it reactively
+		selectionState: {
+			get version() { return selectionVersion; }
+		},
+		getSelectionVersion: () => selectionVersion,
 		// Search state with getters for reactive values
 		searchState: enableSearch
 			? {

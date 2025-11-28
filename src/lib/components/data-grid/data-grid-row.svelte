@@ -1,7 +1,8 @@
 <script lang="ts" generics="TData">
 	import type { Row, Table, Column, ColumnPinningState, VisibilityState } from '@tanstack/table-core';
+	import type { SvelteSet } from 'svelte/reactivity';
 	import type { CellPosition, RowHeightValue } from '$lib/types/data-grid.js';
-	import { getRowHeightValue } from '$lib/types/data-grid.js';
+	import { getRowHeightValue, getCellKey } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import DataGridCell from './data-grid-cell.svelte';
 
@@ -14,6 +15,10 @@
 		table: Table<TData>;
 		columnPinning: ColumnPinningState;
 		columnVisibility: VisibilityState;
+		/** SvelteSet for fine-grained selection reactivity */
+		selectedCellsSet: SvelteSet<string> | undefined;
+		/** Version counter that increments when selection changes - triggers re-render */
+		selectionVersion: number;
 		rowVirtualizer: VirtualizerReturn;
 		virtualRowIndex: number;
 		virtualStart: number;
@@ -28,6 +33,8 @@
 		table,
 		columnPinning,
 		columnVisibility,
+		selectedCellsSet,
+		selectionVersion,
 		virtualRowIndex,
 		virtualStart,
 		rowVirtualizer,
@@ -173,7 +180,12 @@
 			style="position: {pinningStyles.position}; left: {pinningStyles.left}; right: {pinningStyles.right}; background: {pinningStyles.background}; z-index: {pinningStyles.zIndex}; width: calc(var(--col-{cell.column.id}-size) * 1px);"
 		>
 			<!-- Use DataGridCell for variant-based rendering (handles all cell types via meta.cell.variant) -->
-			<DataGridCell {cell} {table} />
+			<DataGridCell 
+				{cell} 
+				{table}
+				{selectedCellsSet}
+				{selectionVersion}
+			/>
 		</div>
 	{/each}
 </div>
