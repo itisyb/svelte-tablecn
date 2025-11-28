@@ -1,13 +1,20 @@
 import {
 	type RowData,
+	type Table,
 	type TableOptions,
 	type TableOptionsResolved,
 	type TableState,
 	createTable,
 } from "@tanstack/table-core";
+import { createSubscriber } from "svelte/reactivity";
 
 /**
- * Creates a reactive TanStack table object for Svelte.
+ * Creates a reactive TanStack table object for Svelte 5 using createSubscriber.
+ * 
+ * This implementation uses Svelte 5's `createSubscriber` to bridge TanStack Table's
+ * internal subscription model with Svelte's reactivity system. When table state changes,
+ * the subscriber triggers a re-render without needing to wrap state in `$state`.
+ * 
  * @param options Table options to create the table with.
  * @returns A reactive table object.
  * @example
@@ -32,7 +39,12 @@ import {
  * </table>
  * ```
  */
-export function createSvelteTable<TData extends RowData>(options: TableOptions<TData>) {
+export function createSvelteTable<TData extends RowData>(
+	options: TableOptions<TData>
+): Table<TData> {
+	// Track internal state - not wrapped in $state since we use createSubscriber
+	let state: Partial<TableState> = {};
+
 	const resolvedOptions: TableOptionsResolved<TData> = mergeObjects(
 		{
 			state: {},
@@ -40,40 +52,74 @@ export function createSvelteTable<TData extends RowData>(options: TableOptions<T
 			renderFallbackValue: null,
 			mergeOptions: (
 				defaultOptions: TableOptions<TData>,
-				options: Partial<TableOptions<TData>>
+				opts: Partial<TableOptions<TData>>
 			) => {
-				return mergeObjects(defaultOptions, options);
+				return mergeObjects(defaultOptions, opts);
 			},
 		},
 		options
 	);
 
 	const table = createTable(resolvedOptions);
-	let state = $state<Partial<TableState>>(table.initialState);
+	state = table.initialState;
 
-	function updateOptions() {
+	// Store the update function so we can call it from the proxy
+	let triggerUpdate: (() => void) | null = null;
+
+	// Create subscriber that will trigger Svelte reactivity when table state changes
+	const subscribe = createSubscriber((update) => {
+		triggerUpdate = update;
+		
+		// Cleanup function - runs when no more subscribers
+		return () => {
+			triggerUpdate = null;
+		};
+	});
+
+	// Update table options - called on every access to sync with latest options
+	function syncOptions() {
+		const originalOnStateChange = options.onStateChange;
+		
 		table.setOptions((prev) => {
 			return mergeObjects(prev, options, {
 				state: mergeObjects(state, options.state || {}),
-
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				onStateChange: (updater: any) => {
-					if (updater instanceof Function) state = updater(state);
-					else state = mergeObjects(state, updater);
-
-					options.onStateChange?.(updater);
+				onStateChange: (updater: Parameters<NonNullable<TableOptions<TData>['onStateChange']>>[0]) => {
+					if (updater instanceof Function) {
+						state = updater(state as TableState);
+					} else {
+						state = mergeObjects(state, updater);
+					}
+					
+					// Trigger Svelte reactivity
+					triggerUpdate?.();
+					
+					// Call user's onStateChange if provided
+					originalOnStateChange?.(updater);
 				},
 			});
 		});
 	}
 
-	updateOptions();
-
-	$effect.pre(() => {
-		updateOptions();
+	// Create a proxy that calls subscribe() on property access
+	// This ensures any effect reading table properties will re-run on state changes
+	return new Proxy(table, {
+		get(target, prop, receiver) {
+			// Register as subscriber
+			subscribe();
+			
+			// Sync options on every access to pick up reactive changes (e.g., data updates)
+			syncOptions();
+			
+			const value = Reflect.get(target, prop, receiver);
+			
+			// Bind methods to the original table
+			if (typeof value === "function") {
+				return value.bind(target);
+			}
+			
+			return value;
+		},
 	});
-
-	return table;
 }
 
 type MaybeThunk<T extends object> = T | (() => T | null | undefined);

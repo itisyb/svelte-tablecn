@@ -94,11 +94,6 @@ export {
 export { type VirtualItem } from '@tanstack/virtual-core';
 
 // ==============================================
-// Stores
-// ==============================================
-export { dataGridStore, DataGridStore, createDataGridStore } from './stores';
-
-// ==============================================
 // Types
 // ==============================================
 export type {
@@ -176,28 +171,3 @@ export {
 // ==============================================
 export { useWindowSize } from './hooks/use-window-size.svelte.js';
 export { useBadgeOverflow, clearBadgeWidthCache, type UseBadgeOverflowOptions, type UseBadgeOverflowReturn } from './hooks/use-badge-overflow.svelte.js';
-
-// ==============================================
-// Utils
-// ==============================================
-export {
-	createKeyboardHandler,
-	getKeyboardAction,
-	matchesKeyBinding,
-	formatKeyBinding,
-	DEFAULT_KEY_BINDINGS,
-	type KeyboardAction,
-	type KeyBinding
-} from './utils/keyboard';
-
-export {
-	parseClipboardText,
-	formatClipboardText,
-	getSelectedCellValues,
-	formatCellValue,
-	copyToClipboard,
-	readFromClipboard,
-	calculatePasteRequirements,
-	createPasteOperations,
-	type ClipboardData
-} from './utils/clipboard';
