@@ -291,6 +291,7 @@
 					{table}
 					{columnPinning}
 					{columnVisibility}
+					{columnSizing}
 					{selectedCellsSet}
 					{selectionVersion}
 					{rowMapRef}

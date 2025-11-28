@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData">
-	import type { Row, Table, Column, ColumnPinningState, VisibilityState } from '@tanstack/table-core';
+	import type { Row, Table, Column, ColumnPinningState, VisibilityState, ColumnSizingState } from '@tanstack/table-core';
 	import type { SvelteSet } from 'svelte/reactivity';
 	import type { CellPosition, RowHeightValue } from '$lib/types/data-grid.js';
 	import { getRowHeightValue, getCellKey } from '$lib/types/data-grid.js';
@@ -15,6 +15,7 @@
 		table: Table<TData>;
 		columnPinning: ColumnPinningState;
 		columnVisibility: VisibilityState;
+		columnSizing: ColumnSizingState;
 		/** SvelteSet for fine-grained selection reactivity */
 		selectedCellsSet: SvelteSet<string> | undefined;
 		/** Version counter that increments when selection changes - triggers re-render */
@@ -33,6 +34,7 @@
 		table,
 		columnPinning,
 		columnVisibility,
+		columnSizing,
 		selectedCellsSet,
 		selectionVersion,
 		virtualRowIndex,
@@ -143,7 +145,9 @@
 	}
 	
 	// Compute total visible width for this row (sum of visible cell widths)
+	// Read columnSizing prop to create reactive dependency on column resize
 	const totalVisibleWidth = $derived.by(() => {
+		const _ = columnSizing; // Create reactive dependency
 		let total = 0;
 		for (const cell of visibleCells) {
 			total += cell.column.getSize();
