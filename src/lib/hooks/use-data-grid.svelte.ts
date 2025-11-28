@@ -115,6 +115,10 @@ export interface UseDataGridReturn<TData extends RowData> {
 	selectionState: { readonly version: number };
 	getSelectionVersion: () => number;
 
+	// Visibility state - version increments when column visibility changes
+	// Used to force re-renders of virtualized cells
+	visibilityState: { readonly version: number };
+
 	// Search state (if enabled)
 	searchState?: SearchState;
 
@@ -174,28 +178,28 @@ export function useDataGrid<TData extends RowData>(
 		onFilesUpload,
 		onFilesDelete
 	} = options;
-	
+
 	// Support both direct data array and getter function for reactivity
 	// Using a getter function () => data allows Svelte 5 to track changes
 	const getData = typeof dataProp === 'function' ? dataProp : () => dataProp;
-	
+
 	// SvelteMap for CELL-LEVEL fine-grained reactivity
 	// Key is "rowIndex:columnId", value is the cell value
 	// Only the specific cell that changed will re-render
 	const cellValueMap = new SvelteMap<string, unknown>();
-	
+
 	// Expose the map directly so cells can access it in $derived for proper reactivity
 	// When a cell calls cellValueMap.get(key) inside $derived, Svelte tracks that specific key
 	function getCellValueMap(): SvelteMap<string, unknown> {
 		return cellValueMap;
 	}
-	
+
 	// Helper to set cell value with fine-grained reactivity
 	function setCellValue(rowIndex: number, columnId: string, value: unknown): void {
 		const key = getCellKey(rowIndex, columnId);
 		cellValueMap.set(key, value);
 	}
-	
+
 	// Helper to clear cell value cache (called when table state changes)
 	function clearCellValueCache(): void {
 		cellValueMap.clear();
@@ -238,14 +242,19 @@ export function useDataGrid<TData extends RowData>(
 		isSelecting: false
 	});
 	let cutCells = $state<Set<string>>(new Set());
-	
+
 	// SvelteSet for fine-grained reactivity on cell selection
 	// Cells can call selectedCellsSet.has(key) in $derived for proper Svelte tracking
 	const selectedCellsSet = new SvelteSet<string>();
 	// Version counter to force cell re-renders when selection changes
 	// Cells read this in $derived to create a reactive dependency
 	let selectionVersion = $state(0);
-	
+
+	// Version counter to force cell re-renders when column visibility changes
+	// This is needed because virtualized cells may not properly re-render
+	// when columns are hidden and then shown back
+	let visibilityVersion = $state(0);
+
 	// Track the anchor cell for shift+arrow range selection
 	let selectionAnchor = $state<CellPosition | null>(null);
 
@@ -268,21 +277,21 @@ export function useDataGrid<TData extends RowData>(
 	let searchQuery = $state('');
 	let searchMatches = $state<CellPosition[]>([]);
 	let matchIndex = $state(0);
-	
+
 	// SvelteSet for O(1) reactive search match lookups
 	let searchMatchSet = new SvelteSet<string>();
-	
+
 	// Helper to sync SvelteSet with regular Set for selection
 	function syncSelectedCellsSet(newCells: Set<string>) {
 		const oldCells = new Set(selectedCellsSet);
-		
+
 		selectedCellsSet.clear();
 		for (const key of newCells) {
 			selectedCellsSet.add(key);
 		}
 		// Increment version to trigger re-renders in cells
 		selectionVersion++;
-		
+
 		// Direct DOM update - bypass Svelte reactivity for selection highlight
 		// This ensures visible cells update immediately
 		if (dataGridRef) {
@@ -601,7 +610,7 @@ export function useDataGrid<TData extends RowData>(
 
 		// Set selection anchor for drag selection
 		const cellKey = getCellKey(rowIndex, columnId);
-		
+
 		if (event.ctrlKey || event.metaKey) {
 			// Toggle selection - don't start drag, keep anchor
 			const newSelected = new Set(selectionState.selectedCells);
@@ -640,11 +649,11 @@ export function useDataGrid<TData extends RowData>(
 			focusCell(rowIndex, columnId);
 		}
 	}
-	
+
 	// Helper to scroll to cell and focus it without changing selection anchor
 	function scrollAndFocusCell(rowIndex: number, columnId: string) {
 		const cellKey = getCellKey(rowIndex, columnId);
-		
+
 		// Scroll to row if needed (for virtualization)
 		if (virtualizer) {
 			virtualizer.scrollToIndex(rowIndex, { align: 'auto' });
@@ -810,7 +819,7 @@ export function useDataGrid<TData extends RowData>(
 
 			handleDataUpdate(updates);
 			onPaste?.(updates);
-			
+
 			toast.success(`${updates.length} cell${updates.length !== 1 ? 's' : ''} pasted`);
 		}
 	}
@@ -898,7 +907,7 @@ export function useDataGrid<TData extends RowData>(
 		const cols = getNavigableColumns();
 		const matches: CellPosition[] = [];
 		const lowerQuery = query.toLowerCase();
-		
+
 		// Clear set before building - we'll add during the same loop
 		searchMatchSet.clear();
 
@@ -1217,17 +1226,17 @@ export function useDataGrid<TData extends RowData>(
 		for (const update of updateArray) {
 			const row = rows[update.rowIndex];
 			if (!row) continue;
-			
+
 			// Update cellValueMap using DISPLAY row index (update.rowIndex)
 			// This matches what the cell components use when rendering
 			setCellValue(update.rowIndex, update.columnId, update.value);
-			
+
 			// Also update the underlying row data directly (mutate in place)
 			// This ensures sorting/filtering work correctly without triggering full re-render
 			const original = row.original as Record<string, unknown>;
 			original[update.columnId] = update.value;
 		}
-		
+
 		// NOTE: We intentionally DON'T call onDataChange here!
 		// The SvelteMap provides fine-grained reactivity for cell values.
 		// Calling onDataChange would trigger a full data re-render which is slow.
@@ -1437,6 +1446,9 @@ export function useDataGrid<TData extends RowData>(
 		},
 	onColumnVisibilityChange: (updater) => {
 			columnVisibility = typeof updater === 'function' ? updater(columnVisibility) : updater;
+			// Increment visibility version immediately when visibility changes
+			// This forces virtualized cells to re-render
+			visibilityVersion++;
 		},
 		onSortingChange: (updater) => {
 			sorting = typeof updater === 'function' ? updater(sorting) : updater;
@@ -1503,7 +1515,7 @@ export function useDataGrid<TData extends RowData>(
 	let prevColumnFilters = $state<ColumnFiltersState>([]);
 	let prevDataLength = $state<number>(0);
 	let prevColumnVisibility = $state<VisibilityState>({});
-	
+
 	// This is the key to reactivity: update table options in $effect.pre
 	// whenever any of the state values change
 	$effect.pre(() => {
@@ -1525,13 +1537,15 @@ export function useDataGrid<TData extends RowData>(
 		const filtersChanged = JSON.stringify(columnFilters) !== JSON.stringify(prevColumnFilters);
 		const dataLengthChanged = currentData.length !== prevDataLength;
 		const visibilityChanged = JSON.stringify(columnVisibility) !== JSON.stringify(prevColumnVisibility);
-		
+
 		if (sortingChanged || filtersChanged || dataLengthChanged || visibilityChanged) {
 			clearCellValueCache();
 			prevSorting = [...sorting];
 			prevColumnFilters = [...columnFilters];
 			prevDataLength = currentData.length;
 			prevColumnVisibility = { ...columnVisibility };
+			// Note: visibilityVersion is incremented directly in onColumnVisibilityChange
+			// to ensure it happens synchronously with the state change
 		}
 
 		// Update table with current state
@@ -1556,7 +1570,7 @@ export function useDataGrid<TData extends RowData>(
 		// columnSizingInfo updates during resize drag, columnSizing updates on release
 		const _ = columnSizing;
 		const __ = columnSizingInfo;
-		
+
 		const vars: Record<string, number> = {};
 		try {
 			const headers = table.getFlatHeaders();
@@ -1597,7 +1611,7 @@ export function useDataGrid<TData extends RowData>(
 
 		// measureElement for better accuracy (except Firefox which has issues)
 		const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
-		
+
 		virtualizer = new Virtualizer<HTMLDivElement, Element>({
 			count: rowCount,
 			getScrollElement: () => ref,
@@ -1621,7 +1635,7 @@ export function useDataGrid<TData extends RowData>(
 		const _ = columnFilters;
 		const __ = sorting;
 		const currentData = getData();
-		
+
 		// Get the filtered/sorted row count from the table
 		const rowCount = table.getRowModel().rows.length;
 
@@ -1629,10 +1643,10 @@ export function useDataGrid<TData extends RowData>(
 			const ref = dataGridRef;
 			if (virtualizer && ref) {
 				const prevCount = virtualizer.options.count;
-				
+
 				// measureElement for better accuracy (except Firefox which has issues)
 				const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
-				
+
 				virtualizer.setOptions({
 					count: rowCount,
 					getScrollElement: () => ref,
@@ -1644,11 +1658,11 @@ export function useDataGrid<TData extends RowData>(
 					onChange: handleVirtualizerChange,
 					measureElement: isFirefox ? undefined : (element) => element?.getBoundingClientRect().height
 				});
-				
+
 				// Force virtualizer to recalculate
 				virtualizer._willUpdate();
 				virtualizer.measure();
-				
+
 				// If rows were deleted and we're scrolled past the new content,
 				// scroll to the last row to avoid gaps
 				if (rowCount < prevCount && rowCount > 0) {
@@ -1659,7 +1673,7 @@ export function useDataGrid<TData extends RowData>(
 						virtualizer.scrollToIndex(rowCount - 1, { align: 'end' });
 					}
 				}
-				
+
 				// Update virtual items immediately
 				handleVirtualizerChange(virtualizer);
 			}
@@ -1670,6 +1684,10 @@ export function useDataGrid<TData extends RowData>(
 	$effect(() => {
 		const visibilitySnapshot = JSON.stringify(columnVisibility);
 		if (virtualizer) {
+			// Force virtualizer to recalculate
+			virtualizer._willUpdate();
+			virtualizer.measure();
+			// Get fresh items
 			const items = virtualizer.getVirtualItems();
 			virtualItems = [...items];
 		}
@@ -1796,7 +1814,7 @@ export function useDataGrid<TData extends RowData>(
 			return table.getHeaderGroups();
 		},
 		getAllColumns: () => {
-			// Read state to create Svelte dependencies  
+			// Read state to create Svelte dependencies
 			const _ = columnVisibility;
 			const __ = columnPinning;
 			return table.getAllColumns();
@@ -1900,6 +1918,10 @@ export function useDataGrid<TData extends RowData>(
 			get version() { return selectionVersion; }
 		},
 		getSelectionVersion: () => selectionVersion,
+		// Visibility state - wrap in object with getter for reactivity through spread
+		visibilityState: {
+			get version() { return visibilityVersion; }
+		},
 		// Search state with getters for reactive values
 		searchState: enableSearch
 			? {
@@ -1929,4 +1951,3 @@ export function useDataGrid<TData extends RowData>(
 		}
 	};
 }
-
