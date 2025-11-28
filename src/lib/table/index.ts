@@ -1,5 +1,5 @@
 // TanStack Table integration for Svelte 5
-// Re-exports from shadcn-svelte data-table components
+// Re-exports from data-table components
 
 // Core table creation
 export { createSvelteTable } from '$lib/components/ui/data-table/data-table.svelte.js';
