@@ -173,26 +173,36 @@
 					"type": "registry:component",
 					"target": "data-grid/cells/index.ts"
 				},
-				{
-					"path": "src/lib/hooks/use-data-grid.svelte.ts",
-					"type": "registry:hook",
-					"target": "use-data-grid.svelte.ts"
-				},
-				{
-					"path": "src/lib/types/data-grid.ts",
-					"type": "registry:lib",
-					"target": "src/lib/types/data-grid.ts"
-				},
-				{
-					"path": "src/lib/config/data-grid.ts",
-					"type": "registry:lib",
-					"target": "src/lib/config/data-grid.ts"
-				},
-				{
-					"path": "src/lib/data-grid-filters.ts",
-					"type": "registry:lib",
-					"target": "src/lib/data-grid-filters.ts"
-				},
+			{
+				"path": "src/lib/hooks/use-data-grid.svelte.ts",
+				"type": "registry:hook",
+				"target": "use-data-grid.svelte.ts"
+			},
+			{
+				"path": "src/lib/hooks/use-badge-overflow.svelte.ts",
+				"type": "registry:hook",
+				"target": "use-badge-overflow.svelte.ts"
+			},
+			{
+				"path": "src/lib/hooks/use-window-size.svelte.ts",
+				"type": "registry:hook",
+				"target": "use-window-size.svelte.ts"
+			},
+			{
+				"path": "src/lib/types/data-grid.ts",
+				"type": "registry:lib",
+				"target": "types/data-grid.ts"
+			},
+			{
+				"path": "src/lib/config/data-grid.ts",
+				"type": "registry:lib",
+				"target": "config/data-grid.ts"
+			},
+			{
+				"path": "src/lib/data-grid-filters.ts",
+				"type": "registry:lib",
+				"target": "data-grid-filters.ts"
+			},
 				{
 					"path": "src/lib/components/ui/data-table/data-table.svelte.ts",
 					"type": "registry:ui",
@@ -213,11 +223,11 @@
 					"type": "registry:ui",
 					"target": "data-table/index.ts"
 				},
-				{
-					"path": "src/lib/table/index.ts",
-					"type": "registry:lib",
-					"target": "src/lib/table/index.ts"
-				}
+			{
+				"path": "src/lib/table/index.ts",
+				"type": "registry:lib",
+				"target": "table/index.ts"
+			}
 			],
 			"docs": "This is a Svelte 5 port of tablecn.com - a feature-rich data grid with cell editing, keyboard navigation, search, filtering, sorting, and more. Visit https://tablecn.com for the original React version.",
 			"meta": {
