@@ -24,6 +24,9 @@
 		footerRef = $bindable(null),
 		table,
 		rowVirtualizer,
+		selectedCellsSet,
+		selectionState,
+		getSelectionVersion,
 		height = 600,
 		searchState,
 		columnSizeVars: _, // We compute this ourselves for reactivity
@@ -33,6 +36,9 @@
 		setFooterRef,
 		class: className
 	}: Props = $props();
+	
+	// Selection version - read from the reactive getter in selectionState
+	const selectionVersion = $derived(selectionState?.version ?? 0);
 
 	// Notify hook when refs change - only run once per ref
 	let dataGridRefSet = false;
@@ -66,6 +72,7 @@
 	const meta = $derived(table.options.meta);
 	const rowHeight = $derived<RowHeightValue>(meta?.rowHeight ?? 'short');
 	const focusedCell = $derived<CellPosition | null>(meta?.focusedCell ?? null);
+	// selectedCellsSet and selectionVersion are now received as props from hook return
 
 	// Get table state reactively for pinning/visibility/sizing
 	const tableState = $derived(table.getState());
@@ -284,6 +291,8 @@
 					{table}
 					{columnPinning}
 					{columnVisibility}
+					{selectedCellsSet}
+					{selectionVersion}
 					{rowMapRef}
 					{virtualRowIndex}
 					{rowVirtualizer}

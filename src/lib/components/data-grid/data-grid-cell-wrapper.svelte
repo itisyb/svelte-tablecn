@@ -66,9 +66,25 @@
 		}
 	});
 
-	// Use SvelteSet directly for fine-grained reactivity
-	// Each cell only re-renders when ITS key changes in the set, not when other keys change
-	const cellKey = getCellKey(rowIndex, columnId);
+	// Compute cellKey reactively for virtualization
+	const cellKey = $derived(getCellKey(rowIndex, columnId));
+	
+	// Direct DOM update for selection state - bypasses Svelte reactivity issues
+	// This runs whenever isSelected, isFocused, or isEditing props change
+	$effect(() => {
+		if (internalRef) {
+			// Only show selection highlight when not focused and not editing
+			const showHighlight = isSelected && !isFocused && !isEditing;
+			if (showHighlight) {
+				internalRef.setAttribute('data-selected', '');
+				internalRef.classList.add('bg-primary/10');
+			} else {
+				internalRef.removeAttribute('data-selected');
+				internalRef.classList.remove('bg-primary/10');
+			}
+		}
+	});
+	
 	const isSearchMatch = $derived.by(() => {
 		const meta = table.options.meta;
 		// Direct SvelteSet.has() - Svelte tracks this specific key
@@ -83,6 +99,26 @@
 		const meta = table.options.meta;
 		return meta?.rowHeight ?? 'short';
 	});
+
+
+
+	// Compute cell classes - selection highlight is handled via $effect DOM manipulation
+	const cellClasses = $derived(
+		cn(
+			'size-full px-2 py-1.5 text-left text-sm outline-none has-data-[slot=checkbox]:pt-2.5',
+			{
+				'ring-1 ring-ring ring-inset': isFocused,
+				'bg-yellow-100 dark:bg-yellow-900/30': isSearchMatch && !isActiveSearchMatch,
+				'bg-orange-200 dark:bg-orange-900/50': isActiveSearchMatch,
+				'cursor-default': !isEditing,
+				'**:data-[slot=grid-cell-content]:line-clamp-1': !isEditing && rowHeight === 'short',
+				'**:data-[slot=grid-cell-content]:line-clamp-2': !isEditing && rowHeight === 'medium',
+				'**:data-[slot=grid-cell-content]:line-clamp-3': !isEditing && rowHeight === 'tall',
+				'**:data-[slot=grid-cell-content]:line-clamp-4': !isEditing && rowHeight === 'extra-tall'
+			},
+			className
+		)
+	);
 
 	function handleClick(event: MouseEvent) {
 		if (!isEditing) {
@@ -190,23 +226,9 @@
 	data-slot="grid-cell-wrapper"
 	data-editing={isEditing ? '' : undefined}
 	data-focused={isFocused ? '' : undefined}
-	data-selected={isSelected ? '' : undefined}
+
 	tabindex={isFocused && !isEditing ? 0 : -1}
-	class={cn(
-		'size-full px-2 py-1.5 text-left text-sm outline-none has-data-[slot=checkbox]:pt-2.5',
-		{
-			'ring-1 ring-ring ring-inset': isFocused,
-			'bg-yellow-100 dark:bg-yellow-900/30': isSearchMatch && !isActiveSearchMatch,
-			'bg-orange-200 dark:bg-orange-900/50': isActiveSearchMatch,
-			'bg-primary/10': isSelected && !isFocused && !isEditing,
-			'cursor-default': !isEditing,
-			'**:data-[slot=grid-cell-content]:line-clamp-1': !isEditing && rowHeight === 'short',
-			'**:data-[slot=grid-cell-content]:line-clamp-2': !isEditing && rowHeight === 'medium',
-			'**:data-[slot=grid-cell-content]:line-clamp-3': !isEditing && rowHeight === 'tall',
-			'**:data-[slot=grid-cell-content]:line-clamp-4': !isEditing && rowHeight === 'extra-tall'
-		},
-		className
-	)}
+	class={cellClasses}
 	onclick={handleClick}
 	oncontextmenu={handleContextMenu}
 	ondblclick={handleDoubleClick}
