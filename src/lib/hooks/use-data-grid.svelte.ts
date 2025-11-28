@@ -1179,43 +1179,26 @@ export function useDataGrid<TData extends RowData>(
 		const rows = table.getRowModel().rows;
 		const currentData = getData();
 
-		// Group updates by original data index (for updating the data array)
-		const dataUpdatesMap = new Map<number, Array<{ columnId: string; value: unknown }>>();
-
+		// Update cellValueMap for immediate UI feedback (fine-grained reactivity)
+		// This is the fast path - only the specific cells that changed will re-render
 		for (const update of updateArray) {
 			const row = rows[update.rowIndex];
 			if (!row) continue;
-
-			// Find the original data index for updating the data array
-			const originalData = row.original;
-			const originalRowIndex = currentData.indexOf(originalData);
-			const dataIndex = originalRowIndex !== -1 ? originalRowIndex : update.rowIndex;
-
-			const existingUpdates = dataUpdatesMap.get(dataIndex) ?? [];
-			existingUpdates.push({ columnId: update.columnId, value: update.value });
-			dataUpdatesMap.set(dataIndex, existingUpdates);
 			
 			// Update cellValueMap using DISPLAY row index (update.rowIndex)
 			// This matches what the cell components use when rendering
 			setCellValue(update.rowIndex, update.columnId, update.value);
+			
+			// Also update the underlying row data directly (mutate in place)
+			// This ensures sorting/filtering work correctly without triggering full re-render
+			const original = row.original as Record<string, unknown>;
+			original[update.columnId] = update.value;
 		}
-
-		// Build updated data array for parent notification
-		const newData = [...currentData];
-
-		for (const [dataIndex, rowUpdates] of dataUpdatesMap) {
-			const existingRow = currentData[dataIndex];
-			if (existingRow) {
-				const updatedRow = { ...existingRow } as Record<string, unknown>;
-				for (const { columnId, value } of rowUpdates) {
-					updatedRow[columnId] = value;
-				}
-				newData[dataIndex] = updatedRow as TData;
-			}
-		}
-
-		// Notify parent so sorting/filtering/search work correctly
-		onDataChange?.(newData);
+		
+		// NOTE: We intentionally DON'T call onDataChange here!
+		// The SvelteMap provides fine-grained reactivity for cell values.
+		// Calling onDataChange would trigger a full data re-render which is slow.
+		// The parent's data array is updated via mutation above.
 	}
 
 	// ========================================
@@ -1650,10 +1633,9 @@ export function useDataGrid<TData extends RowData>(
 		});
 	});
 
-	// Force virtualItems update when columnVisibility or selection changes
+	// Force virtualItems update when columnVisibility changes
 	$effect(() => {
 		const visibilitySnapshot = JSON.stringify(columnVisibility);
-		const selVer = selectionVersion; // Track selection changes
 		if (virtualizer) {
 			const items = virtualizer.getVirtualItems();
 			virtualItems = [...items];

@@ -17,13 +17,9 @@
 	interface Props {
 		cell: Cell<TData, unknown>;
 		table: Table<TData>;
-		/** Selection version passed from parent for reactivity */
-		selectionVersion?: number;
-		/** Pre-computed selection state from parent */
-		isSelectedProp?: boolean;
 	}
 
-	let { cell, table, selectionVersion = 0, isSelectedProp }: Props = $props();
+	let { cell, table }: Props = $props();
 
 	// Access meta directly each time - don't cache the reference
 	const originalRowIndex = $derived(cell.row.index);
@@ -78,21 +74,13 @@
 		const ec = meta?.editingCell;
 		return ec?.rowIndex === rowIndex && ec?.columnId === columnId;
 	});
-	// Use prop-based selection if provided (more reliable reactivity), otherwise fall back to meta
-	// The selectionVersion prop creates a reactive dependency that forces re-render when selection changes
+	// Direct SvelteSet access for fine-grained reactivity
+	// SvelteSet.has() is reactive - only this specific cell re-renders when its selection state changes
 	const isSelected = $derived.by(() => {
-		// Read selectionVersion prop to create reactive dependency
-		const _ = selectionVersion;
-		
-		// Use pre-computed prop if provided
-		if (isSelectedProp !== undefined) {
-			return isSelectedProp;
-		}
-		
-		// Fallback to meta-based lookup
 		const meta = table.options.meta;
 		const selectedSet = meta?.selectedCellsSet;
 		if (!selectedSet) return false;
+		// SvelteSet.has() creates a fine-grained reactive dependency
 		return selectedSet.has(getCellKey(rowIndex, columnId));
 	});
 	const readOnly = $derived.by(() => {
