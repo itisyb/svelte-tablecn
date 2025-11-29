@@ -161,6 +161,35 @@ The data grid supports multiple cell types:
 | Ctrl/Cmd + F | Open search |
 | Delete/Backspace | Clear cell content |
 
+## Using with Async Data
+
+The data grid fully supports async data sources like database queries, API calls, or any reactive data fetching pattern. Simply pass a getter function that returns your data:
+
+```svelte
+<script lang="ts">
+  import { DataGrid, useDataGrid } from '$lib/components/data-grid';
+  
+  // Example with a reactive query (e.g., Convex, TanStack Query, etc.)
+  const query = useQuery(api.users.list);
+  
+  const { table, ...dataGridProps } = useDataGrid({
+    // Pass a getter function - the grid will reactively update when data loads
+    data: () => query.data ?? [],
+    columns,
+    readOnly: true,
+    getRowId: (row) => row.id
+  });
+</script>
+
+{#if query.isLoading}
+  <Skeleton class="h-96 w-full" />
+{:else}
+  <DataGrid {...dataGridProps} {table} height={500} />
+{/if}
+```
+
+The grid uses Svelte 5's `createSubscriber` internally to ensure proper reactivity with async data sources.
+
 ## API Reference
 
 ### useDataGrid Options

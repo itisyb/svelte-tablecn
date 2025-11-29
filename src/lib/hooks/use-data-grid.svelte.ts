@@ -1,7 +1,7 @@
 /**
- * useDataGrid - Svelte 5 port of TableCN's useDataGrid React hook
+ * useDataGrid - Svelte 5 data grid hook using TanStack Table
  *
- * This is the core hook that manages all data grid state including:
+ * This hook manages all data grid state including:
  * - Cell focus and editing
  * - Cell selection (single, multi, range)
  * - Keyboard navigation
@@ -9,10 +9,25 @@
  * - Search
  * - Context menus
  * - Row virtualization
+ *
+ * ## Reactivity Pattern
+ *
+ * TanStack Table's `@tanstack/table-core` is framework-agnostic and doesn't have
+ * built-in Svelte reactivity. To make it reactive, we use `createSubscriber` from
+ * `svelte/reactivity`:
+ *
+ * 1. `subscribeToTable()` - Called in table method getters to register effects as subscribers
+ * 2. `notifyTableUpdate()` - Called after `table.setOptions()` to trigger re-renders
+ *
+ * This pattern is essential for async data sources (like database queries) where
+ * data arrives after the initial render. Without it, `$derived(table.getRowModel().rows)`
+ * would not update when data loads.
+ *
+ * @see https://svelte.dev/docs/svelte/svelte-reactivity#createSubscriber
  */
 
 import { untrack } from 'svelte';
-import { SvelteSet, SvelteMap } from 'svelte/reactivity';
+import { SvelteSet, SvelteMap, createSubscriber } from 'svelte/reactivity';
 import {
 	createTable,
 	getCoreRowModel,
@@ -1500,6 +1515,16 @@ export function useDataGrid<TData extends RowData>(
 
 	const table = createTable(baseTableOptions);
 
+	// Create a subscriber to notify effects when table data changes
+	// This is the key to making TanStack Table reactive in Svelte 5
+	// When data comes from async sources (like database queries), the table needs
+	// to notify consuming components that data has changed so they can re-render
+	let notifyTableUpdate: () => void;
+	const subscribeToTable = createSubscriber((update) => {
+		notifyTableUpdate = update;
+		return () => {};
+	});
+
 	// Track previous state to detect changes that require cache clearing
 	let prevSorting = $state<SortingState>([]);
 	let prevColumnFilters = $state<ColumnFiltersState>([]);
@@ -1546,6 +1571,10 @@ export function useDataGrid<TData extends RowData>(
 			},
 			meta
 		}));
+
+		// Notify any subscribers that table data has changed
+		// This triggers re-runs of effects/derived that called subscribeToTable()
+		notifyTableUpdate?.();
 	});
 
 	// ========================================
@@ -1783,46 +1812,36 @@ export function useDataGrid<TData extends RowData>(
 
 	// Create a reactive table wrapper that exposes state-dependent getters
 	// This is key to making the table reactive in Svelte 5
+	// We use subscribeToTable() to register effects as subscribers, so they
+	// re-run when notifyTableUpdate() is called after data changes
 	const reactiveTable = {
 		// Expose all original table methods and properties
 		...table,
 		// Override methods that depend on state to create reactive dependencies
 		getRowModel: () => {
-			// Read state to create Svelte dependencies
-			const _ = sorting;
-			const __ = columnFilters;
-			const ___ = getData();
+			subscribeToTable();
 			return table.getRowModel();
 		},
 		getHeaderGroups: () => {
-			// Read state to create Svelte dependencies
-			const _ = columnVisibility;
-			const __ = columnPinning;
-			const ___ = columnSizing;
+			subscribeToTable();
 			return table.getHeaderGroups();
 		},
 		getAllColumns: () => {
-			// Read state to create Svelte dependencies
-			const _ = columnVisibility;
-			const __ = columnPinning;
+			subscribeToTable();
 			return table.getAllColumns();
 		},
 		getVisibleLeafColumns: () => {
-			const _ = columnVisibility;
+			subscribeToTable();
 			return table.getVisibleLeafColumns();
 		},
 		getState: () => {
-			// Read all state to create dependencies
-			const _ = sorting;
-			const __ = columnFilters;
-			const ___ = rowSelection;
-			const ____ = columnPinning;
-			const _____ = columnVisibility;
-			const ______ = columnSizing;
-			const _______ = columnSizingInfo;
+			subscribeToTable();
 			return table.getState();
 		},
-		getColumn: (columnId: string) => table.getColumn(columnId),
+		getColumn: (columnId: string) => {
+			subscribeToTable();
+			return table.getColumn(columnId);
+		},
 		// Forward all other methods to the original table
 		setColumnFilters: table.setColumnFilters.bind(table),
 		setSorting: table.setSorting.bind(table),
@@ -1832,48 +1851,49 @@ export function useDataGrid<TData extends RowData>(
 		setColumnSizing: table.setColumnSizing.bind(table),
 		setOptions: table.setOptions.bind(table),
 		getFlatHeaders: () => {
-			const _ = columnSizing;
-			const __ = columnVisibility;
-			const ___ = columnSizingInfo;
+			subscribeToTable();
 			return table.getFlatHeaders();
 		},
 		getTotalSize: () => {
-			const _ = columnSizing;
+			subscribeToTable();
 			return table.getTotalSize();
 		},
 		getLeftLeafColumns: () => {
-			const _ = columnPinning;
+			subscribeToTable();
 			return table.getLeftLeafColumns();
 		},
 		getRightLeafColumns: () => {
-			const _ = columnPinning;
+			subscribeToTable();
 			return table.getRightLeafColumns();
 		},
 		getCenterLeafColumns: () => {
-			const _ = columnPinning;
+			subscribeToTable();
 			return table.getCenterLeafColumns();
 		},
 		getIsAllRowsSelected: () => {
-			const _ = rowSelection;
+			subscribeToTable();
 			return table.getIsAllRowsSelected();
 		},
 		getIsSomeRowsSelected: () => {
-			const _ = rowSelection;
+			subscribeToTable();
 			return table.getIsSomeRowsSelected();
 		},
 		getIsAllPageRowsSelected: () => {
-			const _ = rowSelection;
+			subscribeToTable();
 			return table.getIsAllPageRowsSelected();
 		},
 		getIsSomePageRowsSelected: () => {
-			const _ = rowSelection;
+			subscribeToTable();
 			return table.getIsSomePageRowsSelected();
 		},
 		toggleAllRowsSelected: table.toggleAllRowsSelected.bind(table),
 		toggleAllPageRowsSelected: table.toggleAllPageRowsSelected.bind(table),
 		// Keep table reference for any other property access
 		_getDefaultColumnDef: table._getDefaultColumnDef.bind(table),
-		options: table.options,
+		get options() {
+			subscribeToTable();
+			return table.options;
+		},
 		initialState: table.initialState
 	} as unknown as Table<TData>;
 
