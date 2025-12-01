@@ -1,7 +1,8 @@
 <script lang="ts">
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	import type { Table } from '@tanstack/table-core';
+	import type { Table, RowSelectionState } from '@tanstack/table-core';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import { getContext } from 'svelte';
 
 	interface Props {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10,16 +11,18 @@
 
 	let { table }: Props = $props();
 
-	// Read rowSelection from table state to create reactive dependency
-	const rowSelection = $derived(table.getState().rowSelection);
-	const isAllSelected = $derived.by(() => {
-		const _ = rowSelection;
-		return table.getIsAllPageRowsSelected();
-	});
-	const isSomeSelected = $derived.by(() => {
-		const _ = rowSelection;
-		return table.getIsSomePageRowsSelected();
-	});
+	// Get reactive rowSelection from context (provided by DataGrid)
+	const getRowSelection = getContext<() => RowSelectionState>('getRowSelection');
+
+	// Use the getter to get reactive rowSelection
+	const rowSelection = $derived(getRowSelection?.() ?? {});
+	const rowCount = $derived(table.getRowModel().rows.length);
+
+	// Count only rows that are actually selected (value is true)
+	const selectedCount = $derived(Object.values(rowSelection).filter(Boolean).length);
+
+	const isAllSelected = $derived(rowCount > 0 && selectedCount === rowCount);
+	const isSomeSelected = $derived(selectedCount > 0 && selectedCount < rowCount);
 </script>
 
 <div class="flex size-full items-center justify-center px-3 py-1.5">

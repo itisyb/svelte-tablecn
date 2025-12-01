@@ -94,7 +94,9 @@ export interface UseDataGridOptions<TData extends RowData> {
 		rowSelection?: RowSelectionState;
 	};
 	onDataChange?: (data: TData[]) => void;
-	onRowAdd?: (event?: MouseEvent) => Partial<CellPosition> | void | Promise<Partial<CellPosition> | void>;
+	onRowAdd?: (
+		event?: MouseEvent
+	) => Partial<CellPosition> | void | Promise<Partial<CellPosition> | void>;
 	onRowsAdd?: (count: number) => void | Promise<void>;
 	onRowsDelete?: (rows: TData[], rowIndices: number[]) => void | Promise<void>;
 	onPaste?: (updates: UpdateCell[]) => void | Promise<void>;
@@ -129,6 +131,9 @@ export interface UseDataGridReturn<TData extends RowData> {
 	selectedCellsSet: SvelteSet<string>;
 	selectionState: { readonly version: number };
 	getSelectionVersion: () => number;
+
+	// Row selection state - reactive for header checkbox
+	getRowSelection: () => RowSelectionState;
 
 	// Search state (if enabled)
 	searchState?: SearchState;
@@ -336,7 +341,6 @@ export function useDataGrid<TData extends RowData>(
 	// Derived values (declared later after table is created)
 	// ========================================
 
-
 	// ========================================
 	// Helper Functions
 	// ========================================
@@ -357,7 +361,10 @@ export function useDataGrid<TData extends RowData>(
 		return cols[cols.length - 1]?.id ?? null;
 	}
 
-	function getNextNavigableColumnId(currentColumnId: string, direction: 'left' | 'right'): string | null {
+	function getNextNavigableColumnId(
+		currentColumnId: string,
+		direction: 'left' | 'right'
+	): string | null {
 		const cols = getNavigableColumns();
 		const currentIndex = cols.findIndex((col) => col.id === currentColumnId);
 		if (currentIndex === -1) return null;
@@ -736,12 +743,15 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		const text = lines.join('\n');
-		navigator.clipboard.writeText(text).then(() => {
-			const cellCount = selectionState.selectedCells.size;
-			toast.success(`${cellCount} cell${cellCount !== 1 ? 's' : ''} copied`);
-		}).catch((error) => {
-			toast.error(error instanceof Error ? error.message : 'Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				const cellCount = selectionState.selectedCells.size;
+				toast.success(`${cellCount} cell${cellCount !== 1 ? 's' : ''} copied`);
+			})
+			.catch((error) => {
+				toast.error(error instanceof Error ? error.message : 'Failed to copy to clipboard');
+			});
 	}
 
 	function cutSelectedCells() {
@@ -1131,13 +1141,7 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		// Typing starts editing
-		if (
-			focusedCell &&
-			!readOnly &&
-			event.key.length === 1 &&
-			!event.ctrlKey &&
-			!event.metaKey
-		) {
+		if (focusedCell && !readOnly && event.key.length === 1 && !event.ctrlKey && !event.metaKey) {
 			startEditing(focusedCell.rowIndex, focusedCell.columnId);
 		}
 	}
@@ -1450,7 +1454,7 @@ export function useDataGrid<TData extends RowData>(
 		onColumnPinningChange: (updater) => {
 			columnPinning = typeof updater === 'function' ? updater(columnPinning) : updater;
 		},
-	onColumnVisibilityChange: (updater) => {
+		onColumnVisibilityChange: (updater) => {
 			columnVisibility = typeof updater === 'function' ? updater(columnVisibility) : updater;
 			// No version counter needed - visibilityKey is derived from columnVisibility
 			// and will automatically update when visibility changes
@@ -1507,7 +1511,10 @@ export function useDataGrid<TData extends RowData>(
 		enableFilters: true,
 		renderFallbackValue: null,
 		onStateChange: () => {},
-		mergeOptions: (defaultOptions: TableOptions<TData>, newOptions: Partial<TableOptions<TData>>) => {
+		mergeOptions: (
+			defaultOptions: TableOptions<TData>,
+			newOptions: Partial<TableOptions<TData>>
+		) => {
 			return { ...defaultOptions, ...newOptions };
 		},
 		meta
@@ -1551,7 +1558,8 @@ export function useDataGrid<TData extends RowData>(
 		const sortingChanged = JSON.stringify(sorting) !== JSON.stringify(prevSorting);
 		const filtersChanged = JSON.stringify(columnFilters) !== JSON.stringify(prevColumnFilters);
 		const dataLengthChanged = currentData.length !== prevDataLength;
-		const visibilityChanged = JSON.stringify(columnVisibility) !== JSON.stringify(prevColumnVisibility);
+		const visibilityChanged =
+			JSON.stringify(columnVisibility) !== JSON.stringify(prevColumnVisibility);
 
 		if (sortingChanged || filtersChanged || dataLengthChanged || visibilityChanged) {
 			clearCellValueCache();
@@ -1627,7 +1635,8 @@ export function useDataGrid<TData extends RowData>(
 		const rowCount = untrack(() => table.getRowModel().rows.length);
 
 		// measureElement for better accuracy (except Firefox which has issues)
-		const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
+		const isFirefox =
+			typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
 
 		virtualizer = new Virtualizer<HTMLDivElement, Element>({
 			count: rowCount,
@@ -1662,7 +1671,8 @@ export function useDataGrid<TData extends RowData>(
 				const prevCount = virtualizer.options.count;
 
 				// measureElement for better accuracy (except Firefox which has issues)
-				const isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
+				const isFirefox =
+					typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
 
 				virtualizer.setOptions({
 					count: rowCount,
@@ -1673,7 +1683,9 @@ export function useDataGrid<TData extends RowData>(
 					observeElementOffset,
 					scrollToFn: elementScroll,
 					onChange: handleVirtualizerChange,
-					measureElement: isFirefox ? undefined : (element) => element?.getBoundingClientRect().height
+					measureElement: isFirefox
+						? undefined
+						: (element) => element?.getBoundingClientRect().height
 				});
 
 				// Force virtualizer to recalculate
@@ -1923,16 +1935,27 @@ export function useDataGrid<TData extends RowData>(
 		selectedCellsSet,
 		// Wrap selectionVersion in object with getter so components can track it reactively
 		selectionState: {
-			get version() { return selectionVersion; }
+			get version() {
+				return selectionVersion;
+			}
 		},
 		getSelectionVersion: () => selectionVersion,
+		getRowSelection: () => rowSelection,
 		// Search state with getters for reactive values
 		searchState: enableSearch
 			? {
-					get searchMatches() { return searchMatches; },
-					get matchIndex() { return matchIndex; },
-					get searchOpen() { return searchOpen; },
-					get searchQuery() { return searchQuery; },
+					get searchMatches() {
+						return searchMatches;
+					},
+					get matchIndex() {
+						return matchIndex;
+					},
+					get searchOpen() {
+						return searchOpen;
+					},
+					get searchQuery() {
+						return searchQuery;
+					},
 					onSearchOpenChange: handleSearchOpenChange,
 					onSearchQueryChange: handleSearchQueryChange,
 					onSearch: performSearch,

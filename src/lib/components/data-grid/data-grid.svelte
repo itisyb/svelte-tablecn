@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData">
-	import type { Table, Column } from '@tanstack/table-core';
+	import type { Table, Column, RowSelectionState } from '@tanstack/table-core';
 	import type { UseDataGridReturn } from '$lib/hooks/use-data-grid.svelte.js';
 	import type { RowHeightValue, CellPosition, SearchState } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
@@ -11,6 +11,7 @@
 	import DataGridPasteDialog from './data-grid-paste-dialog.svelte';
 	import { TooltipProvider } from '$lib/components/ui/tooltip/index.js';
 	import Plus from '@lucide/svelte/icons/plus';
+	import { setContext } from 'svelte';
 
 	interface Props extends UseDataGridReturn<TData> {
 		height?: number;
@@ -27,6 +28,7 @@
 		selectedCellsSet,
 		selectionState,
 		getSelectionVersion,
+		getRowSelection,
 		height = 600,
 		searchState,
 		columnSizeVars: _, // We compute this ourselves for reactivity
@@ -36,6 +38,9 @@
 		setFooterRef,
 		class: className
 	}: Props = $props();
+
+	// Provide row selection getter via context for header checkbox reactivity
+	setContext<() => RowSelectionState>('getRowSelection', getRowSelection);
 
 	// Selection version - read from the reactive getter in selectionState
 	const selectionVersion = $derived(selectionState?.version ?? 0);
