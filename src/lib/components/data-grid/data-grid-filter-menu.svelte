@@ -1,7 +1,7 @@
 <script lang="ts" generics="TData">
 	import type { Table, ColumnFilter, Column } from '@tanstack/table-core';
 	import type { Option, FilterOperator, FilterValue, CellSelectOption } from '$lib/types/data-grid.js';
-	import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
+	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { getDefaultOperator, getOperatorsForVariant } from '$lib/data-grid-filters.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -232,7 +232,7 @@
 		{#if filterItems.length > 0}
 			<ul
 				class="flex max-h-[400px] flex-col gap-2 overflow-y-auto p-1"
-				use:dndzone={{
+				use:dragHandleZone={{
 					items: filterItems,
 					flipDurationMs: 150,
 					dropTargetStyle: {},
@@ -560,9 +560,13 @@
 						>
 							<Trash2 />
 						</Button>
-						<Button variant="outline" size="icon" class="size-8 shrink-0 cursor-grab rounded">
-							<GripVertical />
-						</Button>
+						<button
+							use:dragHandle
+							aria-label="drag handle for filter"
+							class="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex size-8 shrink-0 cursor-grab items-center justify-center rounded border text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+						>
+							<GripVertical class="size-4" />
+						</button>
 					</li>
 				{/each}
 			</ul>

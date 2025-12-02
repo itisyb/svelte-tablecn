@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Table, ColumnSort, SortDirection, SortingState } from '@tanstack/table-core';
-	import { dndzone, TRIGGERS, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
+	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
@@ -189,7 +189,7 @@
 		{#if sortingItems.length > 0}
 			<ul
 				class="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1"
-				use:dndzone={{
+				use:dragHandleZone={{
 					items: sortingItems,
 					flipDurationMs: 150,
 					dropTargetStyle: {},
@@ -259,9 +259,13 @@
 						>
 							<Trash2 />
 						</Button>
-						<Button variant="outline" size="icon" class="size-8 shrink-0 cursor-grab rounded">
-							<GripVertical />
-						</Button>
+						<button
+							use:dragHandle
+							aria-label="drag handle for sort"
+							class="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex size-8 shrink-0 cursor-grab items-center justify-center rounded border text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+						>
+							<GripVertical class="size-4" />
+						</button>
 					</li>
 				{/each}
 			</ul>
