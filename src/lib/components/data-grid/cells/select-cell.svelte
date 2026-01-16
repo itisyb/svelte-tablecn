@@ -7,6 +7,7 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
+	import { tick } from 'svelte';
 
 	let {
 		cell,
@@ -27,14 +28,26 @@
 
 	// Track local edits separately
 	let localEditValue = $state<string | null>(null);
-	
+
 	// Value for display - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? initialValue ?? '');
+
+	// Reference to the SelectTrigger for focus management
+	let triggerRef = $state<HTMLButtonElement | null>(null);
 
 	// Reset local edit value when editing stops
 	$effect(() => {
 		if (!isEditing) {
 			localEditValue = null;
+		}
+	});
+
+	// Focus the trigger when editing starts so typeahead works
+	$effect(() => {
+		if (isEditing && triggerRef) {
+			tick().then(() => {
+				triggerRef?.focus();
+			});
 		}
 	});
 
@@ -70,6 +83,7 @@
 	}
 
 	const displayLabel = $derived(options.find((opt) => opt.value === value)?.label ?? value);
+
 </script>
 
 <DataGridCellWrapper
@@ -86,11 +100,13 @@
 		<Select
 			type="single"
 			{value}
+			items={options}
 			onValueChange={handleValueChange}
 			open={isEditing}
 			onOpenChange={handleOpenChange}
 		>
 			<SelectTrigger
+				bind:ref={triggerRef}
 				class="size-full items-start border-none p-0 shadow-none focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
 			>
 				{displayLabel}
@@ -103,7 +119,7 @@
 				class="min-w-[calc(var(--bits-select-trigger-width)+16px)]"
 			>
 				{#each options as option (option.value)}
-					<SelectItem value={option.value}>
+					<SelectItem value={option.value} label={option.label}>
 						{option.label}
 					</SelectItem>
 				{/each}
