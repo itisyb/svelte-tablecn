@@ -90,6 +90,22 @@
 			});
 		}
 	}
+
+	function handleOpenAutoFocus(e: Event) {
+		e.preventDefault();
+		// Focus the selected day, or today, or first day of month
+		// Use setTimeout to ensure calendar is fully rendered
+		setTimeout(() => {
+			const popover = document.querySelector('[data-grid-cell-editor]');
+			if (!popover) return;
+			// Target the Calendar.Day element with data-calendar-day attribute
+			const target =
+				popover.querySelector<HTMLElement>('[data-calendar-day][data-selected]') ??
+				popover.querySelector<HTMLElement>('[data-calendar-day][data-today]') ??
+				popover.querySelector<HTMLElement>('[data-calendar-day]');
+			target?.focus();
+		}, 0);
+	}
 </script>
 
 <DataGridCellWrapper
@@ -114,13 +130,16 @@
 			alignOffset={-8}
 			class="w-auto p-0"
 			customAnchor={containerRef}
+			onOpenAutoFocus={handleOpenAutoFocus}
 		>
 			<Calendar
 				type="single"
 				value={selectedDate}
+				placeholder={defaultMonth}
 				onValueChange={handleDateSelect}
 				captionLayout="dropdown"
 				weekdayFormat="short"
+				initialFocus
 			/>
 		</PopoverContent>
 	</PopoverPrimitive.Root>
