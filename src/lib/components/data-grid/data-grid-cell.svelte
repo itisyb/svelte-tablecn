@@ -47,23 +47,23 @@
 		const meta = table.options.meta;
 		const map = meta?.cellValueMap;
 		const key = getCellKey(rowIndex, columnId);
-		
+
 		// Check the SvelteMap first for edited values
 		if (map && map.has(key)) {
 			return map.get(key);
 		}
-		
+
 		// IMPORTANT: Access raw data directly from row.original
 		// This avoids any potential caching issues with cell.getValue()
 		// and ensures we always get the current data for the row
 		const original = cell.row.original as Record<string, unknown>;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const accessorKey = (cell.column.columnDef as any).accessorKey as string | undefined;
-		
+
 		if (accessorKey && original) {
 			return original[accessorKey];
 		}
-		
+
 		// Fallback to cell.getValue() for computed columns
 		return cell.getValue();
 	});
@@ -86,7 +86,7 @@
 		const key = getCellKey(rowIndex, columnId);
 		return selectedCellsSet.has(key);
 	});
-	
+
 	const readOnly = $derived.by(() => {
 		const meta = table.options.meta;
 		return meta?.readOnly ?? false;
@@ -95,6 +95,10 @@
 	// Get cell variant from column def
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const variant = $derived(cellOpts?.variant ?? 'short-text');
+	const rowSelectOptions = $derived.by(() => {
+		if (cellOpts?.variant !== 'row-select') return null;
+		return cellOpts;
+	});
 </script>
 
 {#if variant === 'short-text'}
@@ -122,7 +126,17 @@
 		{cellValue}
 	/>
 {:else if variant === 'checkbox'}
-	<CheckboxCell {cell} {table} {rowIndex} {columnId} {isEditing} {isFocused} {isSelected} {readOnly} {cellValue} />
+	<CheckboxCell
+		{cell}
+		{table}
+		{rowIndex}
+		{columnId}
+		{isEditing}
+		{isFocused}
+		{isSelected}
+		{readOnly}
+		{cellValue}
+	/>
 {:else if variant === 'long-text'}
 	<LongTextCell
 		{cell}
@@ -196,7 +210,15 @@
 		{cellValue}
 	/>
 {:else if variant === 'row-select'}
-	<RowSelectCell row={cell.row} {table} {rowIndex} />
+	<RowSelectCell
+		row={cell.row}
+		{table}
+		{rowIndex}
+		enableRowMarkers={rowSelectOptions?.enableRowMarkers}
+		readOnly={rowSelectOptions?.readOnly}
+		hitboxSize={rowSelectOptions?.hitboxSize}
+		debug={rowSelectOptions?.debug}
+	/>
 {:else}
 	<!-- Default to short-text -->
 	<ShortTextCell

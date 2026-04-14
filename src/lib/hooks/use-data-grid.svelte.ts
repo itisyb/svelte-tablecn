@@ -1230,6 +1230,22 @@ export function useDataGrid<TData extends RowData>(
 
 		const rows = table.getRowModel().rows;
 		const currentData = getData();
+		const nextData = onDataChange ? [...currentData] : null;
+		let didApplyUpdate = false;
+
+		function getSourceRowIndex(rowData: TData): number {
+			const directIndex = currentData.indexOf(rowData);
+			if (directIndex !== -1) {
+				return directIndex;
+			}
+
+			if (!getRowId) {
+				return -1;
+			}
+
+			const rowId = getRowId(rowData, -1);
+			return currentData.findIndex((item, index) => getRowId(item, index) === rowId);
+		}
 
 		// Update cellValueMap for immediate UI feedback (fine-grained reactivity)
 		// This is the fast path - only the specific cells that changed will re-render
@@ -1241,16 +1257,30 @@ export function useDataGrid<TData extends RowData>(
 			// This matches what the cell components use when rendering
 			setCellValue(update.rowIndex, update.columnId, update.value);
 
-			// Also update the underlying row data directly (mutate in place)
-			// This ensures sorting/filtering work correctly without triggering full re-render
-			const original = row.original as Record<string, unknown>;
-			original[update.columnId] = update.value;
+			if (nextData) {
+				const sourceRowIndex = getSourceRowIndex(row.original as TData);
+				if (sourceRowIndex === -1) continue;
+
+				const nextRow = nextData[sourceRowIndex];
+				if (!nextRow) continue;
+
+				nextData[sourceRowIndex] = {
+					...(nextRow as Record<string, unknown>),
+					[update.columnId]: update.value
+				} as TData;
+			} else {
+				// Without an external onDataChange callback, preserve the existing fast path
+				// and mutate the row directly so the proxied data stays in sync.
+				const original = row.original as Record<string, unknown>;
+				original[update.columnId] = update.value;
+			}
+
+			didApplyUpdate = true;
 		}
 
-		// NOTE: We intentionally DON'T call onDataChange here!
-		// The SvelteMap provides fine-grained reactivity for cell values.
-		// Calling onDataChange would trigger a full data re-render which is slow.
-		// The parent's data array is updated via mutation above.
+		if (didApplyUpdate && nextData) {
+			onDataChange?.(nextData);
+		}
 	}
 
 	// ========================================
@@ -1536,6 +1566,7 @@ export function useDataGrid<TData extends RowData>(
 	let prevSorting = $state<SortingState>([]);
 	let prevColumnFilters = $state<ColumnFiltersState>([]);
 	let prevDataLength = $state<number>(0);
+	let prevDataRef = $state<TData[] | null>(null);
 	let prevColumnVisibility = $state<VisibilityState>({});
 
 	// This is the key to reactivity: update table options in $effect.pre
@@ -1558,14 +1589,22 @@ export function useDataGrid<TData extends RowData>(
 		const sortingChanged = JSON.stringify(sorting) !== JSON.stringify(prevSorting);
 		const filtersChanged = JSON.stringify(columnFilters) !== JSON.stringify(prevColumnFilters);
 		const dataLengthChanged = currentData.length !== prevDataLength;
+		const dataReferenceChanged = currentData !== prevDataRef;
 		const visibilityChanged =
 			JSON.stringify(columnVisibility) !== JSON.stringify(prevColumnVisibility);
 
-		if (sortingChanged || filtersChanged || dataLengthChanged || visibilityChanged) {
+		if (
+			sortingChanged ||
+			filtersChanged ||
+			dataLengthChanged ||
+			dataReferenceChanged ||
+			visibilityChanged
+		) {
 			clearCellValueCache();
 			prevSorting = [...sorting];
 			prevColumnFilters = [...columnFilters];
 			prevDataLength = currentData.length;
+			prevDataRef = currentData;
 			prevColumnVisibility = { ...columnVisibility };
 		}
 

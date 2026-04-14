@@ -8,13 +8,14 @@
 		DataGridRowHeightMenu,
 		DataGridViewMenu,
 		DataGridKeyboardShortcuts,
+		getDataGridSelectColumn,
 		useDataGrid,
+		useDataGridUndoRedo,
 		useWindowSize,
 		getFilterFn,
-		type FileCellData
+		type FileCellData,
+		type UndoRedoCellUpdate
 	} from '$lib';
-	import { RowSelectHeader } from '$lib/components/data-grid/cells';
-	import { renderComponent } from '$lib/table';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
 
@@ -139,6 +140,26 @@
 
 	let data = $state<Person[]>(initialData);
 
+	function areValuesEqual(left: unknown, right: unknown): boolean {
+		if (Object.is(left, right)) {
+			return true;
+		}
+
+		try {
+			return JSON.stringify(left) === JSON.stringify(right);
+		} catch {
+			return false;
+		}
+	}
+
+	const { trackCellsUpdate, trackRowsAdd, trackRowsDelete } = useDataGridUndoRedo({
+		data: () => data,
+		onDataChange: (newData) => {
+			data = newData;
+		},
+		getRowId: (row) => row.id
+	});
+
 	// Dynamic height based on window size
 	const windowSize = useWindowSize({ defaultHeight: 760 });
 	const gridHeight = $derived(Math.max(400, windowSize.height - 150));
@@ -147,20 +168,7 @@
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const columns: ColumnDef<Person, any>[] = [
-		{
-			id: 'select',
-			size: 40,
-			enableSorting: false,
-			enableHiding: false,
-			enableResizing: false,
-			header: ({ table }) => renderComponent(RowSelectHeader, { table }),
-			meta: {
-				label: 'Select',
-				cell: {
-					variant: 'row-select'
-				}
-			}
-		},
+		getDataGridSelectColumn<Person>({ enableRowMarkers: true }),
 		{
 			id: 'name',
 			accessorKey: 'name',
@@ -341,12 +349,12 @@
 	];
 
 	function onRowAdd() {
-		data = [
-			...data,
-			{
-				id: faker.string.nanoid(8)
-			}
-		];
+		const newRow = {
+			id: faker.string.nanoid(8)
+		};
+
+		data = [...data, newRow];
+		trackRowsAdd([newRow]);
 
 		return {
 			rowIndex: data.length - 1,
@@ -359,10 +367,49 @@
 			id: faker.string.nanoid(8)
 		}));
 		data = [...data, ...newRows];
+		trackRowsAdd(newRows);
 	}
 
 	function onRowsDelete(rows: Person[]) {
+		trackRowsDelete(rows);
 		data = data.filter((row) => !rows.includes(row));
+	}
+
+	function onDataChange(newData: Person[]) {
+		const cellUpdates: UndoRedoCellUpdate[] = [];
+		const maxLength = Math.max(data.length, newData.length);
+
+		for (let rowIndex = 0; rowIndex < maxLength; rowIndex++) {
+			const oldRow = data[rowIndex];
+			const newRow = newData[rowIndex];
+
+			if (!oldRow || !newRow || oldRow === newRow) {
+				continue;
+			}
+
+			const allKeys = new Set([...Object.keys(oldRow), ...Object.keys(newRow)]);
+
+			for (const key of allKeys) {
+				const columnId = key as keyof Person;
+				const previousValue = oldRow[columnId];
+				const nextValue = newRow[columnId];
+
+				if (!areValuesEqual(previousValue, nextValue)) {
+					cellUpdates.push({
+						rowId: oldRow.id,
+						columnId: key,
+						previousValue,
+						newValue: nextValue
+					});
+				}
+			}
+		}
+
+		if (cellUpdates.length > 0) {
+			trackCellsUpdate(cellUpdates);
+		}
+
+		data = newData;
 	}
 
 	async function onFilesUpload({ files }: { files: File[] }) {
@@ -387,15 +434,16 @@
 		rowIndex: number;
 		columnId: string;
 	}) {
-		console.log(`Deleting ${fileIds.length} file(s) from row ${rowIndex}, column ${columnId}:`, fileIds);
+		console.log(
+			`Deleting ${fileIds.length} file(s) from row ${rowIndex}, column ${columnId}:`,
+			fileIds
+		);
 	}
 
 	const { table, ...dataGridProps } = useDataGrid({
 		columns,
 		data: () => data, // Pass as getter for Svelte 5 reactivity
-		onDataChange: (newData) => {
-			data = newData;
-		},
+		onDataChange,
 		onRowAdd,
 		onRowsAdd,
 		onRowsDelete,
@@ -419,7 +467,12 @@
 			<div>
 				<h1 class="text-2xl font-bold tracking-tight">svelte-tablecn</h1>
 				<p class="text-sm text-muted-foreground">
-					A powerful data grid for Svelte 5. Port of <a href="https://tablecn.com" target="_blank" rel="noopener noreferrer" class="underline underline-offset-4 hover:text-foreground">tablecn.com</a>
+					A powerful data grid for Svelte 5. Port of <a
+						href="https://tablecn.com"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="underline underline-offset-4 hover:text-foreground">tablecn.com</a
+					>
 				</p>
 			</div>
 			<div class="flex items-center gap-2">
@@ -438,7 +491,11 @@
 
 	<!-- Toolbar -->
 	<div role="toolbar" aria-orientation="horizontal" class="flex items-center justify-between">
-		<DataGridKeyboardShortcuts enableSearch={!!dataGridProps.searchState} />
+		<DataGridKeyboardShortcuts
+			enableSearch={!!dataGridProps.searchState}
+			enableUndoRedo
+			enablePaste
+		/>
 		<div class="flex items-center gap-2">
 			<DataGridFilterMenu {table} />
 			<DataGridSortMenu {table} />

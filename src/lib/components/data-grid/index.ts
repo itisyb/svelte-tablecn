@@ -7,6 +7,11 @@ export { default as DataGridCellWrapper } from './data-grid-cell-wrapper.svelte'
 export { default as DataGridSearch } from './data-grid-search.svelte';
 export { default as DataGridContextMenu } from './data-grid-context-menu.svelte';
 export { default as DataGridPasteDialog } from './data-grid-paste-dialog.svelte';
+export { default as DataGridSkeleton } from './data-grid-skeleton.svelte';
+export { default as DataGridSkeletonToolbar } from './data-grid-skeleton-toolbar.svelte';
+export { default as DataGridSkeletonGrid } from './data-grid-skeleton-grid.svelte';
+export { getDataGridSelectColumn } from './data-grid-select-column';
+export type { GetDataGridSelectColumnOptions } from './data-grid-select-column';
 
 // Menu components
 export { default as DataGridFilterMenu } from './data-grid-filter-menu.svelte';
@@ -24,6 +29,12 @@ export * from './cells';
 // Re-export the hook
 export { useDataGrid } from '$lib/hooks/use-data-grid.svelte.js';
 export type { UseDataGridOptions, UseDataGridReturn } from '$lib/hooks/use-data-grid.svelte.js';
+export { useDataGridUndoRedo } from '$lib/hooks/use-data-grid-undo-redo.svelte.js';
+export type {
+	UseDataGridUndoRedoOptions,
+	UseDataGridUndoRedoReturn,
+	UndoRedoCellUpdate
+} from '$lib/hooks/use-data-grid-undo-redo.svelte.js';
 
 // Re-export types
 export * from '$lib/types/data-grid.js';

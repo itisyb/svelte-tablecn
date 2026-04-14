@@ -29,9 +29,11 @@
 
 	interface Props {
 		enableSearch?: boolean;
+		enableUndoRedo?: boolean;
+		enablePaste?: boolean;
 	}
 
-	let { enableSearch = false }: Props = $props();
+	let { enableSearch = false, enableUndoRedo = false, enablePaste = false }: Props = $props();
 
 	let open = $state(false);
 	let input = $state('');
@@ -57,77 +59,97 @@
 		input = target.value;
 	}
 
-	const shortcutGroups = $derived.by((): ShortcutGroup[] => [
-		{
-			title: 'Navigation',
-			shortcuts: [
-				{ keys: ['↑', '↓', '←', '→'], description: 'Navigate between cells' },
-				{ keys: ['Tab'], description: 'Move to next cell' },
-				{ keys: ['Shift', 'Tab'], description: 'Move to previous cell' },
-				{ keys: ['Home'], description: 'Move to first column' },
-				{ keys: ['End'], description: 'Move to last column' },
-				{ keys: [modKey, 'Home'], description: 'Move to first cell' },
-				{ keys: [modKey, 'End'], description: 'Move to last cell' },
-				{ keys: ['PgUp'], description: 'Move up one page' },
-				{ keys: ['PgDn'], description: 'Move down one page' }
-			]
-		},
-		{
-			title: 'Selection',
-			shortcuts: [
-				{ keys: ['Shift', '↑↓←→'], description: 'Extend selection' },
-				{ keys: [modKey, 'A'], description: 'Select all cells' },
-				{ keys: [modKey, 'Click'], description: 'Toggle cell selection' },
-				{ keys: ['Shift', 'Click'], description: 'Select range' },
-				{ keys: ['Esc'], description: 'Clear selection' }
-			]
-		},
-		{
-			title: 'Editing',
-			shortcuts: [
-				{ keys: ['Enter'], description: 'Start editing cell' },
-				{ keys: ['Double Click'], description: 'Start editing cell' },
-				{ keys: [modKey, 'C'], description: 'Copy selected cells' },
-				{ keys: [modKey, 'X'], description: 'Cut selected cells' },
-				{ keys: [modKey, 'V'], description: 'Paste cells' },
-				{ keys: ['Delete'], description: 'Clear selected cells' },
-				{ keys: ['Backspace'], description: 'Clear selected cells' }
-			]
-		},
-		...(enableSearch
-			? [
-					{
-						title: 'Search',
-						shortcuts: [
-							{ keys: [modKey, 'F'], description: 'Open search' },
-							{ keys: ['Enter'], description: 'Next match' },
-							{ keys: ['Shift', 'Enter'], description: 'Previous match' },
-							{ keys: ['Esc'], description: 'Close search' }
-						]
-					}
+	const shortcutGroups = $derived.by((): ShortcutGroup[] => {
+		const groups: ShortcutGroup[] = [
+			{
+				title: 'Navigation',
+				shortcuts: [
+					{ keys: ['↑', '↓', '←', '→'], description: 'Navigate between cells' },
+					{ keys: ['Tab'], description: 'Move to next cell' },
+					{ keys: ['Shift', 'Tab'], description: 'Move to previous cell' },
+					{ keys: ['Home'], description: 'Move to first column' },
+					{ keys: ['End'], description: 'Move to last column' },
+					{ keys: [modKey, 'Home'], description: 'Move to first cell' },
+					{ keys: [modKey, 'End'], description: 'Move to last cell' },
+					{ keys: ['PgUp'], description: 'Move up one page' },
+					{ keys: ['PgDn'], description: 'Move down one page' }
 				]
-			: []),
-		{
-			title: 'Filtering',
-			shortcuts: [
-				{ keys: [modKey, 'Shift', 'F'], description: 'Toggle the filter menu' },
-				{ keys: ['Backspace'], description: 'Remove filter (when focused)' },
-				{ keys: ['Delete'], description: 'Remove filter (when focused)' }
-			]
-		},
-		{
-			title: 'Sorting',
-			shortcuts: [
-				{ keys: [modKey, 'Shift', 'S'], description: 'Toggle the sort menu' },
-				{ keys: ['Backspace'], description: 'Remove sort (when focused)' },
-				{ keys: ['Delete'], description: 'Remove sort (when focused)' }
-			]
-		},
-		{
-			title: 'General',
-			shortcuts: [{ keys: [modKey, '/'], description: 'Show keyboard shortcuts' }]
+			},
+			{
+				title: 'Selection',
+				shortcuts: [
+					{ keys: ['Shift', '↑↓←→'], description: 'Extend selection' },
+					{ keys: [modKey, 'A'], description: 'Select all cells' },
+					{ keys: [modKey, 'Click'], description: 'Toggle cell selection' },
+					{ keys: ['Shift', 'Click'], description: 'Select range' },
+					{ keys: ['Esc'], description: 'Clear selection' }
+				]
+			}
+		];
+
+		const editingShortcuts: ShortcutGroup['shortcuts'] = [
+			{ keys: ['Enter'], description: 'Start editing cell' },
+			{ keys: ['F2'], description: 'Start editing cell' },
+			{ keys: ['Double Click'], description: 'Start editing cell' },
+			{ keys: [modKey, 'C'], description: 'Copy selected cells' },
+			{ keys: [modKey, 'X'], description: 'Cut selected cells' },
+			{ keys: ['Delete'], description: 'Clear selected cells' },
+			{ keys: ['Backspace'], description: 'Clear selected cells' }
+		];
+
+		if (enablePaste) {
+			editingShortcuts.splice(5, 0, { keys: [modKey, 'V'], description: 'Paste cells' });
 		}
-	]);
+
+		if (enableUndoRedo) {
+			editingShortcuts.push(
+				{ keys: [modKey, 'Z'], description: 'Undo last action' },
+				{ keys: [modKey, 'Shift', 'Z'], description: 'Redo last action' }
+			);
+		}
+
+		groups.push({
+			title: 'Editing',
+			shortcuts: editingShortcuts
+		});
+
+		if (enableSearch) {
+			groups.push({
+				title: 'Search',
+				shortcuts: [
+					{ keys: [modKey, 'F'], description: 'Open search' },
+					{ keys: ['Enter'], description: 'Next match' },
+					{ keys: ['Shift', 'Enter'], description: 'Previous match' },
+					{ keys: ['Esc'], description: 'Close search' }
+				]
+			});
+		}
+
+		groups.push(
+			{
+				title: 'Filtering',
+				shortcuts: [
+					{ keys: [modKey, 'Shift', 'F'], description: 'Toggle the filter menu' },
+					{ keys: ['Backspace'], description: 'Remove filter (when focused)' },
+					{ keys: ['Delete'], description: 'Remove filter (when focused)' }
+				]
+			},
+			{
+				title: 'Sorting',
+				shortcuts: [
+					{ keys: [modKey, 'Shift', 'S'], description: 'Toggle the sort menu' },
+					{ keys: ['Backspace'], description: 'Remove sort (when focused)' },
+					{ keys: ['Delete'], description: 'Remove sort (when focused)' }
+				]
+			},
+			{
+				title: 'General',
+				shortcuts: [{ keys: [modKey, '/'], description: 'Show keyboard shortcuts' }]
+			}
+		);
+
+		return groups;
+	});
 
 	const filteredGroups = $derived.by(() => {
 		if (!input.trim()) return shortcutGroups;

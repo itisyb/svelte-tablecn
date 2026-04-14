@@ -1,14 +1,7 @@
 // Data Grid Types for TableCN-Svelte
 // Exact port of TableCN React types for Svelte 5
 
-import type {
-	ColumnDef,
-	Table,
-	Row,
-	Cell,
-	Column,
-	RowData
-} from '@tanstack/table-core';
+import type { ColumnDef, Table, Row, Cell, Column, RowData } from '@tanstack/table-core';
 import type { SvelteSet, SvelteMap } from 'svelte/reactivity';
 import type { Snippet, Component } from 'svelte';
 
@@ -22,6 +15,8 @@ export interface Option {
 }
 
 export type RowHeightValue = 'short' | 'medium' | 'tall' | 'extra-tall';
+
+export type DataGridSelectHitboxSize = 'default' | 'sm' | 'lg';
 
 export interface CellSelectOption {
 	label: string;
@@ -43,7 +38,13 @@ export type CellOpts =
 	| { variant: 'checkbox' }
 	| { variant: 'date' }
 	| { variant: 'url' }
-	| { variant: 'row-select' }
+	| {
+			variant: 'row-select';
+			enableRowMarkers?: boolean;
+			readOnly?: boolean;
+			hitboxSize?: DataGridSelectHitboxSize;
+			debug?: boolean;
+	  }
 	| {
 			variant: 'file';
 			maxFileSize?: number;
@@ -334,7 +335,9 @@ export interface DataGridProps<TData> {
 
 	// Callbacks
 	onDataChange?: (data: TData[]) => void;
-	onRowAdd?: (event?: MouseEvent) => Partial<CellPosition> | void | Promise<Partial<CellPosition> | void>;
+	onRowAdd?: (
+		event?: MouseEvent
+	) => Partial<CellPosition> | void | Promise<Partial<CellPosition> | void>;
 	onRowsAdd?: (count: number) => void | Promise<void>;
 	onRowsDelete?: (rows: TData[], rowIndices: number[]) => void | Promise<void>;
 	onPaste?: (updates: UpdateCell[]) => void | Promise<void>;

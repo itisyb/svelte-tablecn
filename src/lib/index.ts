@@ -6,11 +6,40 @@
 // ==============================================
 
 // Data Grid (main export)
-export { DataGrid, DataGridCell, DataGridRow, DataGridColumnHeader, DataGridCellWrapper, DataGridSearch, DataGridContextMenu, DataGridPasteDialog } from './components/data-grid';
-export { useDataGrid, type UseDataGridOptions, type UseDataGridReturn } from './components/data-grid';
+export {
+	DataGrid,
+	DataGridCell,
+	DataGridRow,
+	DataGridColumnHeader,
+	DataGridCellWrapper,
+	DataGridSearch,
+	DataGridContextMenu,
+	DataGridPasteDialog
+} from './components/data-grid';
+export {
+	DataGridSkeleton,
+	DataGridSkeletonToolbar,
+	DataGridSkeletonGrid,
+	getDataGridSelectColumn,
+	useDataGrid,
+	useDataGridUndoRedo,
+	type UseDataGridOptions,
+	type UseDataGridReturn,
+	type UseDataGridUndoRedoOptions,
+	type UseDataGridUndoRedoReturn,
+	type UndoRedoCellUpdate,
+	type GetDataGridSelectColumnOptions
+} from './components/data-grid';
 
 // Data Grid Menu components
-export { DataGridFilterMenu, DataGridSortMenu, DataGridViewMenu, DataGridRowHeightMenu, DataGridKeyboardShortcuts, DataGridRenderCount } from './components/data-grid';
+export {
+	DataGridFilterMenu,
+	DataGridSortMenu,
+	DataGridViewMenu,
+	DataGridRowHeightMenu,
+	DataGridKeyboardShortcuts,
+	DataGridRenderCount
+} from './components/data-grid';
 
 // Data Grid filter utilities
 export { getFilterFn } from './components/data-grid';
@@ -104,6 +133,7 @@ export type {
 	CellRange,
 	SelectionState,
 	RowHeightValue,
+	DataGridSelectHitboxSize,
 	ContextMenuState,
 	PasteDialogState,
 	SearchState,
@@ -113,7 +143,14 @@ export type {
 	CellVariantProps
 } from './types/data-grid';
 
-export { getCellKey, parseCellKey, getRowHeightValue, getLineCount, ROW_HEIGHT_VALUES, ROW_LINE_COUNTS } from './types/data-grid';
+export {
+	getCellKey,
+	parseCellKey,
+	getRowHeightValue,
+	getLineCount,
+	ROW_HEIGHT_VALUES,
+	ROW_LINE_COUNTS
+} from './types/data-grid';
 
 export type {
 	FilterOperator,
@@ -170,4 +207,9 @@ export {
 // Hooks
 // ==============================================
 export { useWindowSize } from './hooks/use-window-size.svelte.js';
-export { useBadgeOverflow, clearBadgeWidthCache, type UseBadgeOverflowOptions, type UseBadgeOverflowReturn } from './hooks/use-badge-overflow.svelte.js';
+export {
+	useBadgeOverflow,
+	clearBadgeWidthCache,
+	type UseBadgeOverflowOptions,
+	type UseBadgeOverflowReturn
+} from './hooks/use-badge-overflow.svelte.js';
