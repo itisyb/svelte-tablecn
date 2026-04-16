@@ -259,6 +259,537 @@
 				"author": "itisyb",
 				"originalAuthor": "tablecn.com"
 			}
+		},
+		{
+			"name": "data-table",
+			"type": "registry:block",
+			"title": "Data Table",
+			"description": "A reusable data table component with sorting, filtering, pagination, view options, and skeleton states for Svelte 5.",
+			"dependencies": [
+				"@tanstack/table-core",
+				"bits-ui",
+				"clsx",
+				"tailwind-merge",
+				"@lucide/svelte"
+			],
+			"registryDependencies": [
+				"badge",
+				"button",
+				"command",
+				"dropdown-menu",
+				"input",
+				"popover",
+				"select",
+				"separator",
+				"slider",
+				"skeleton",
+				"table"
+			],
+			"files": [
+				{
+					"path": "src/lib/components/data-table/data-table.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-column-header.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-column-header.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-advanced-toolbar.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-pagination.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-pagination.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-view-options.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-view-options.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-faceted-filter.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-faceted-filter.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-sort-list.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-sort-list.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-filter-list.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-filter-list.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-filter-menu.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-filter-menu.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-date-filter.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-date-filter.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-range-filter.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-range-filter.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-slider-filter.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-slider-filter.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-toolbar.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-toolbar.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-skeleton.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-skeleton.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/index.ts",
+					"type": "registry:component",
+					"target": "data-table/index.ts"
+				},
+				{
+					"path": "src/lib/hooks/use-data-table.svelte.ts",
+					"type": "registry:hook",
+					"target": "use-data-table.svelte.ts"
+				},
+				{
+					"path": "src/lib/hooks/use-callback-ref.ts",
+					"type": "registry:hook",
+					"target": "use-callback-ref.ts"
+				},
+				{
+					"path": "src/lib/hooks/use-debounced-callback.ts",
+					"type": "registry:hook",
+					"target": "use-debounced-callback.ts"
+				},
+				{
+					"path": "src/lib/data-table.ts",
+					"type": "registry:lib",
+					"target": "data-table.ts"
+				},
+				{
+					"path": "src/lib/format.ts",
+					"type": "registry:lib",
+					"target": "format.ts"
+				},
+				{
+					"path": "src/lib/id.ts",
+					"type": "registry:lib",
+					"target": "id.ts"
+				},
+				{
+					"path": "src/lib/parsers.ts",
+					"type": "registry:lib",
+					"target": "parsers.ts"
+				},
+				{
+					"path": "src/lib/config/data-table.ts",
+					"type": "registry:lib",
+					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-table.ts",
+					"type": "registry:lib",
+					"target": "types/data-table.ts"
+				}
+			],
+			"docs": "This is the core non-editable data-table surface for Svelte 5, with toolbar filters, pagination, view options, and skeleton loading states.",
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-table-sort-list",
+			"type": "registry:component",
+			"title": "Data Table Sort List",
+			"description": "A sort list component for the data table.",
+			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
+			"registryDependencies": ["badge", "button", "command", "popover", "select"],
+			"files": [
+				{
+					"path": "src/lib/components/data-table/data-table-sort-list.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-sort-list.svelte"
+				},
+				{
+					"path": "src/lib/config/data-table.ts",
+					"type": "registry:lib",
+					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-table.ts",
+					"type": "registry:lib",
+					"target": "types/data-table.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-table-filter-list",
+			"type": "registry:component",
+			"title": "Data Table Filter List",
+			"description": "A filter list component for the data table.",
+			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
+			"registryDependencies": ["badge", "button", "command", "input", "popover", "select"],
+			"files": [
+				{
+					"path": "src/lib/components/data-table/data-table-filter-list.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-filter-list.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-range-filter.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-range-filter.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-advanced-toolbar.svelte"
+				},
+				{
+					"path": "src/lib/hooks/use-debounced-callback.ts",
+					"type": "registry:hook",
+					"target": "use-debounced-callback.ts"
+				},
+				{
+					"path": "src/lib/format.ts",
+					"type": "registry:lib",
+					"target": "format.ts"
+				},
+				{
+					"path": "src/lib/id.ts",
+					"type": "registry:lib",
+					"target": "id.ts"
+				},
+				{
+					"path": "src/lib/parsers.ts",
+					"type": "registry:lib",
+					"target": "parsers.ts"
+				},
+				{
+					"path": "src/lib/config/data-table.ts",
+					"type": "registry:lib",
+					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-table.ts",
+					"type": "registry:lib",
+					"target": "types/data-table.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-table-filter-menu",
+			"type": "registry:component",
+			"title": "Data Table Filter Menu",
+			"description": "A filter menu component for the data table.",
+			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
+			"registryDependencies": ["badge", "button", "command", "input", "popover", "select"],
+			"files": [
+				{
+					"path": "src/lib/components/data-table/data-table-filter-menu.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-filter-menu.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-filter-list.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-filter-list.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-range-filter.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-range-filter.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-advanced-toolbar.svelte"
+				},
+				{
+					"path": "src/lib/hooks/use-debounced-callback.ts",
+					"type": "registry:hook",
+					"target": "use-debounced-callback.ts"
+				},
+				{
+					"path": "src/lib/format.ts",
+					"type": "registry:lib",
+					"target": "format.ts"
+				},
+				{
+					"path": "src/lib/id.ts",
+					"type": "registry:lib",
+					"target": "id.ts"
+				},
+				{
+					"path": "src/lib/parsers.ts",
+					"type": "registry:lib",
+					"target": "parsers.ts"
+				},
+				{
+					"path": "src/lib/config/data-table.ts",
+					"type": "registry:lib",
+					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-table.ts",
+					"type": "registry:lib",
+					"target": "types/data-table.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-grid-select-column",
+			"type": "registry:component",
+			"title": "Data Grid Select Column",
+			"description": "A reusable select column definition for the data grid.",
+			"dependencies": ["@tanstack/table-core", "bits-ui"],
+			"registryDependencies": ["checkbox"],
+			"files": [
+				{
+					"path": "src/lib/components/data-grid/data-grid-select-column.ts",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-select-column.ts"
+				},
+				{
+					"path": "src/lib/components/data-grid/cells/row-select-cell.svelte",
+					"type": "registry:component",
+					"target": "data-grid/cells/row-select-cell.svelte"
+				},
+				{
+					"path": "src/lib/components/data-grid/cells/row-select-header.svelte",
+					"type": "registry:component",
+					"target": "data-grid/cells/row-select-header.svelte"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
+				},
+				{
+					"path": "src/lib/components/ui/data-table/data-table.svelte.ts",
+					"type": "registry:ui",
+					"target": "data-table/data-table.svelte.ts"
+				},
+				{
+					"path": "src/lib/components/ui/data-table/flex-render.svelte",
+					"type": "registry:ui",
+					"target": "data-table/flex-render.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/data-table/render-helpers.ts",
+					"type": "registry:ui",
+					"target": "data-table/render-helpers.ts"
+				},
+				{
+					"path": "src/lib/components/ui/data-table/index.ts",
+					"type": "registry:ui",
+					"target": "data-table/index.ts"
+				},
+				{
+					"path": "src/lib/table/index.ts",
+					"type": "registry:lib",
+					"target": "table/index.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-grid-sort-menu",
+			"type": "registry:component",
+			"title": "Data Grid Sort Menu",
+			"description": "A sort menu component for the data grid.",
+			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
+			"registryDependencies": ["badge", "button", "command", "popover", "select"],
+			"files": [
+				{
+					"path": "src/lib/components/data-grid/data-grid-sort-menu.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-sort-menu.svelte"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-grid-row-height-menu",
+			"type": "registry:component",
+			"title": "Data Grid Row Height Menu",
+			"description": "A row height menu component for the data grid.",
+			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"registryDependencies": ["select"],
+			"files": [
+				{
+					"path": "src/lib/components/data-grid/data-grid-row-height-menu.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-row-height-menu.svelte"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-grid-view-menu",
+			"type": "registry:component",
+			"title": "Data Grid View Menu",
+			"description": "A view menu component for the data grid.",
+			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"registryDependencies": ["button", "command", "popover"],
+			"files": [
+				{
+					"path": "src/lib/components/data-grid/data-grid-view-menu.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-view-menu.svelte"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-grid-keyboard-shortcuts",
+			"type": "registry:component",
+			"title": "Data Grid Keyboard Shortcuts",
+			"description": "A keyboard shortcuts dialog component for the data grid.",
+			"dependencies": ["bits-ui", "@lucide/svelte"],
+			"registryDependencies": ["button", "dialog", "input", "kbd", "separator"],
+			"files": [
+				{
+					"path": "src/lib/components/data-grid/data-grid-keyboard-shortcuts.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-keyboard-shortcuts.svelte"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-grid-filter-menu",
+			"type": "registry:component",
+			"title": "Data Grid Filter Menu",
+			"description": "A filter menu component for the data grid.",
+			"dependencies": [
+				"@tanstack/table-core",
+				"bits-ui",
+				"svelte-dnd-action",
+				"@internationalized/date",
+				"@lucide/svelte"
+			],
+			"registryDependencies": [
+				"badge",
+				"button",
+				"calendar",
+				"command",
+				"input",
+				"popover",
+				"select"
+			],
+			"files": [
+				{
+					"path": "src/lib/components/data-grid/data-grid-filter-menu.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-filter-menu.svelte"
+				},
+				{
+					"path": "src/lib/data-grid-filters.ts",
+					"type": "registry:lib",
+					"target": "data-grid-filters.ts"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "data-grid-skeleton",
+			"type": "registry:component",
+			"title": "Data Grid Skeleton",
+			"description": "A composable skeleton component for the data grid.",
+			"dependencies": [],
+			"registryDependencies": ["skeleton"],
+			"files": [
+				{
+					"path": "src/lib/components/data-grid/data-grid-skeleton.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-skeleton.svelte"
+				},
+				{
+					"path": "src/lib/components/data-grid/data-grid-skeleton-toolbar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-skeleton-toolbar.svelte"
+				},
+				{
+					"path": "src/lib/components/data-grid/data-grid-skeleton-grid.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-skeleton-grid.svelte"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "use-data-grid-undo-redo",
+			"type": "registry:hook",
+			"title": "Use Data Grid Undo Redo",
+			"description": "An undo/redo hook for the data grid.",
+			"dependencies": ["svelte-sonner"],
+			"registryDependencies": [],
+			"files": [
+				{
+					"path": "src/lib/hooks/use-data-grid-undo-redo.svelte.ts",
+					"type": "registry:hook",
+					"target": "use-data-grid-undo-redo.svelte.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
 		}
 	]
 }

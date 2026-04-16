@@ -1,0 +1,29 @@
+{
+	"$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+	"name": "data-grid-row-height-menu",
+	"title": "Data Grid Row Height Menu",
+	"type": "registry:component",
+	"description": "A row height menu component for the data grid.",
+	"dependencies": [
+		"@tanstack/table-core",
+		"bits-ui",
+		"@lucide/svelte"
+	],
+	"devDependencies": [
+		"@lucide/svelte@^0.544.0"
+	],
+	"registryDependencies": [
+		"select"
+	],
+	"meta": {
+		"author": "itisyb",
+		"originalAuthor": "tablecn.com"
+	},
+	"files": [
+		{
+			"content": "<script lang=\"ts\" generics=\"TData\">\n\timport type { Table } from '@tanstack/table-core';\n\timport type { RowHeightValue } from '$lib/types/data-grid.js';\n\timport {\n\t\tSelect,\n\t\tSelectContent,\n\t\tSelectItem,\n\t\tSelectTrigger\n\t} from '$lib/components/ui/select/index.js';\n\timport type { Component } from 'svelte';\n\n\t// Icons\n\timport Minus from '@lucide/svelte/icons/minus';\n\timport Equal from '@lucide/svelte/icons/equal';\n\timport AlignVerticalSpaceAround from '@lucide/svelte/icons/align-vertical-space-around';\n\timport ChevronsDownUp from '@lucide/svelte/icons/chevrons-down-up';\n\n\tinterface RowHeightOption {\n\t\tlabel: string;\n\t\tvalue: RowHeightValue;\n\t\ticon: Component<{ class?: string }>;\n\t}\n\n\tconst rowHeights: RowHeightOption[] = [\n\t\t{ label: 'Short', value: 'short', icon: Minus },\n\t\t{ label: 'Medium', value: 'medium', icon: Equal },\n\t\t{ label: 'Tall', value: 'tall', icon: AlignVerticalSpaceAround },\n\t\t{ label: 'Extra Tall', value: 'extra-tall', icon: ChevronsDownUp }\n\t];\n\n\tinterface Props {\n\t\ttable: Table<TData>;\n\t\talign?: 'start' | 'center' | 'end';\n\t\tclass?: string;\n\t}\n\n\tlet { table, align = 'start', class: className }: Props = $props();\n\n\tconst rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');\n\tconst onRowHeightChange = $derived(table.options.meta?.onRowHeightChange);\n\n\tconst selectedRowHeight = $derived(\n\t\trowHeights.find((opt) => opt.value === rowHeight) ?? rowHeights[0]\n\t);\n\n\tfunction handleValueChange(value: string) {\n\t\tonRowHeightChange?.(value as RowHeightValue);\n\t}\n</script>\n\n<Select type=\"single\" value={rowHeight} onValueChange={handleValueChange}>\n\t<SelectTrigger size=\"sm\" class=\"[&_svg:nth-child(2)]:hidden {className}\">\n\t\t<span data-slot=\"select-value\" class=\"flex items-center gap-2\">\n\t\t\t{#if selectedRowHeight}\n\t\t\t\t{@const Icon = selectedRowHeight.icon}\n\t\t\t\t<Icon class=\"size-4\" />\n\t\t\t\t{selectedRowHeight.label}\n\t\t\t{:else}\n\t\t\t\tRow height\n\t\t\t{/if}\n\t\t</span>\n\t</SelectTrigger>\n\t<SelectContent {align}>\n\t\t{#each rowHeights as option (option.value)}\n\t\t\t{@const OptionIcon = option.icon}\n\t\t\t<SelectItem value={option.value}>\n\t\t\t\t<OptionIcon class=\"size-4\" />\n\t\t\t\t{option.label}\n\t\t\t</SelectItem>\n\t\t{/each}\n\t</SelectContent>\n</Select>\n",
+			"type": "registry:component",
+			"target": "data-grid/data-grid-row-height-menu.svelte"
+		}
+	]
+}

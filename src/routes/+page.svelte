@@ -2,12 +2,14 @@
 	import { faker } from '@faker-js/faker';
 	import type { ColumnDef } from '@tanstack/table-core';
 	import {
+		Button,
 		DataGrid,
 		DataGridFilterMenu,
 		DataGridSortMenu,
 		DataGridRowHeightMenu,
 		DataGridViewMenu,
 		DataGridKeyboardShortcuts,
+		DataTableSkeleton,
 		getDataGridSelectColumn,
 		useDataGrid,
 		useDataGridUndoRedo,
@@ -18,6 +20,10 @@
 	} from '$lib';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
+	import DataTableShowcase from './data-table-showcase.svelte';
+
+	type DemoMode = 'grid' | 'table';
+	type TableMode = 'basic' | 'advanced';
 
 	interface Person {
 		id: string;
@@ -139,6 +145,9 @@
 	const initialData: Person[] = Array.from({ length: 10000 }, (_, i) => generatePerson(i + 1));
 
 	let data = $state<Person[]>(initialData);
+	let demoMode = $state<DemoMode>('grid');
+	let tableMode = $state<TableMode>('basic');
+	let showTableSkeleton = $state(false);
 
 	function areValuesEqual(left: unknown, right: unknown): boolean {
 		if (Object.is(left, right)) {
@@ -165,6 +174,7 @@
 	const gridHeight = $derived(Math.max(400, windowSize.height - 150));
 
 	const filterFn = getFilterFn<Person>();
+	const tableRows = $derived(data.slice(0, 200));
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const columns: ColumnDef<Person, any>[] = [
@@ -487,25 +497,79 @@
 				<ModeToggle />
 			</div>
 		</div>
-	</div>
-
-	<!-- Toolbar -->
-	<div role="toolbar" aria-orientation="horizontal" class="flex items-center justify-between">
-		<DataGridKeyboardShortcuts
-			enableSearch={!!dataGridProps.searchState}
-			enableUndoRedo
-			enablePaste
-		/>
-		<div class="flex items-center gap-2">
-			<DataGridFilterMenu {table} />
-			<DataGridSortMenu {table} />
-			<DataGridRowHeightMenu {table} />
-			<DataGridViewMenu {table} />
+		<div class="flex flex-wrap items-center gap-2">
+			<Button
+				variant={demoMode === 'grid' ? 'default' : 'outline'}
+				size="sm"
+				onclick={() => (demoMode = 'grid')}
+			>
+				Data Grid Demo
+			</Button>
+			<Button
+				variant={demoMode === 'table' ? 'default' : 'outline'}
+				size="sm"
+				onclick={() => (demoMode = 'table')}
+			>
+				Data Table Demo
+			</Button>
 		</div>
 	</div>
 
-	<!-- Data Grid -->
-	<DataGrid {...dataGridProps} {table} height={gridHeight} />
+	{#if demoMode === 'grid'}
+		<!-- Toolbar -->
+		<div role="toolbar" aria-orientation="horizontal" class="flex items-center justify-between">
+			<DataGridKeyboardShortcuts
+				enableSearch={!!dataGridProps.searchState}
+				enableUndoRedo
+				enablePaste
+			/>
+			<div class="flex items-center gap-2">
+				<DataGridFilterMenu {table} />
+				<DataGridSortMenu {table} />
+				<DataGridRowHeightMenu {table} />
+				<DataGridViewMenu {table} />
+			</div>
+		</div>
+
+		<!-- Data Grid -->
+		<DataGrid {...dataGridProps} {table} height={gridHeight} />
+	{:else}
+		<div
+			class="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3"
+		>
+			<div class="flex flex-wrap items-center gap-2">
+				<Button
+					variant={tableMode === 'basic' ? 'default' : 'outline'}
+					size="sm"
+					onclick={() => (tableMode = 'basic')}
+				>
+					Basic Table
+				</Button>
+				<Button
+					variant={tableMode === 'advanced' ? 'default' : 'outline'}
+					size="sm"
+					onclick={() => (tableMode = 'advanced')}
+				>
+					Advanced Table
+				</Button>
+			</div>
+			<Button variant="outline" size="sm" onclick={() => (showTableSkeleton = !showTableSkeleton)}>
+				{showTableSkeleton ? 'Show Live Table' : 'Show Skeleton'}
+			</Button>
+		</div>
+
+		{#if showTableSkeleton}
+			<DataTableSkeleton
+				columnCount={8}
+				filterCount={tableMode === 'basic' ? 6 : 2}
+				rowCount={10}
+			/>
+		{:else}
+			{#key tableMode}
+				<DataTableShowcase mode={tableMode} rows={tableRows} {departments} {statuses} {skills} />
+			{/key}
+		{/if}
+	{/if}
 </div>
 
 <Toaster />

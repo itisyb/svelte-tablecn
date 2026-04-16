@@ -43,6 +43,31 @@ export {
 
 // Data Grid filter utilities
 export { getFilterFn } from './components/data-grid';
+export { getColumnPinningStyle } from './data-table';
+export { formatDate } from './format';
+export { generateId } from './id';
+export { getSortingStateParser, getFiltersStateParser, type FilterItemSchema } from './parsers';
+
+// Data Table
+export {
+	DataTable,
+	DataTableColumnHeader,
+	DataTablePagination,
+	DataTableViewOptions,
+	DataTableFacetedFilter,
+	DataTableDateFilter,
+	DataTableSliderFilter,
+	DataTableRangeFilter,
+	DataTableToolbar,
+	DataTableSkeleton,
+	DataTableSortList,
+	DataTableFilterList,
+	DataTableFilterMenu,
+	DataTableAdvancedToolbar,
+	useDataTable,
+	type UseDataTableOptions,
+	type UseDataTableReturn
+} from './components/data-table';
 
 // Cell variants
 export {
@@ -62,6 +87,7 @@ export { Button, buttonVariants } from './components/ui/button';
 export { Input } from './components/ui/input';
 export { Checkbox } from './components/ui/checkbox';
 export { Select } from './components/ui/select';
+export { Slider } from './components/ui/slider';
 export {
 	Table,
 	TableHeader,
@@ -155,6 +181,8 @@ export {
 export type {
 	FilterOperator,
 	FilterVariant,
+	DataTableOption,
+	QueryKeys,
 	TextFilterOperator,
 	NumberFilterOperator,
 	DateFilterOperator,
@@ -163,9 +191,7 @@ export type {
 	JoinOperator,
 	FilterOperatorDef,
 	ExtendedColumnFilter,
-	ExtendedColumnSort,
-	UseDataTableOptions,
-	UseDataTableReturn
+	ExtendedColumnSort
 } from './types/data-table';
 
 export {
@@ -202,6 +228,19 @@ export {
 	CLIPBOARD_SEPARATOR,
 	CLIPBOARD_ROW_SEPARATOR
 } from './config/data-grid';
+export {
+	DATA_TABLE_FILTER_VARIANTS,
+	DATA_TABLE_JOIN_OPERATORS,
+	DATA_TABLE_TEXT_OPERATORS,
+	DATA_TABLE_NUMERIC_OPERATORS,
+	DATA_TABLE_DATE_OPERATORS,
+	DATA_TABLE_SELECT_OPERATORS,
+	DATA_TABLE_BOOLEAN_OPERATORS,
+	DATA_TABLE_SORT_ORDERS,
+	DEFAULT_DATA_TABLE_QUERY_KEYS,
+	DATA_TABLE_DEFAULTS,
+	dataTableConfig
+} from './config/data-table';
 
 // ==============================================
 // Hooks
@@ -213,3 +252,5 @@ export {
 	type UseBadgeOverflowOptions,
 	type UseBadgeOverflowReturn
 } from './hooks/use-badge-overflow.svelte.js';
+export { useDebouncedCallback, type DebouncedCallback } from './hooks/use-debounced-callback';
+export { useCallbackRef } from './hooks/use-callback-ref';

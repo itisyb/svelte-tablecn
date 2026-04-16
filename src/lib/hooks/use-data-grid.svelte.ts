@@ -1466,14 +1466,16 @@ export function useDataGrid<TData extends RowData>(
 		data: getData(),
 		columns,
 		...(getRowId ? { getRowId } : {}),
-		state: {
-			sorting,
-			columnFilters,
-			rowSelection,
-			columnPinning,
-			columnVisibility,
-			columnSizing,
-			columnSizingInfo
+		get state() {
+			return {
+				sorting,
+				columnFilters,
+				rowSelection,
+				columnPinning,
+				columnVisibility,
+				columnSizing,
+				columnSizingInfo
+			};
 		},
 		onColumnSizingChange: (updater) => {
 			columnSizing = typeof updater === 'function' ? updater(columnSizing) : updater;
@@ -1964,10 +1966,16 @@ export function useDataGrid<TData extends RowData>(
 	}
 
 	return {
-		dataGridRef,
-		headerRef,
+		get dataGridRef() {
+			return dataGridRef;
+		},
+		get headerRef() {
+			return headerRef;
+		},
 		rowMapRef,
-		footerRef,
+		get footerRef() {
+			return footerRef;
+		},
 		table: reactiveTable,
 		rowVirtualizer,
 		// Selection state - pass the SvelteSet and a reactive object for version

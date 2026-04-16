@@ -258,6 +258,69 @@ Use `useDataGridUndoRedo` to track cell edits, row adds, and row deletes:
 </DataGridSkeleton>
 ```
 
+## Data Table
+
+The package also includes the core non-editable `data-table` surface:
+
+- `useDataTable`
+- `DataTable`
+- `DataTableToolbar`
+- `DataTableAdvancedToolbar`
+- `DataTablePagination`
+- `DataTableViewOptions`
+- `DataTableFacetedFilter`
+- `DataTableRangeFilter`
+- `DataTableSortList`
+- `DataTableFilterList`
+- `DataTableFilterMenu`
+- `DataTableSkeleton`
+
+```svelte
+<script lang="ts">
+	import { DataTable, DataTableToolbar, useDataTable } from '$lib';
+	import type { ColumnDef } from '@tanstack/table-core';
+
+	const columns: ColumnDef<Employee, unknown>[] = [
+		{
+			accessorKey: 'name',
+			header: 'Name',
+			meta: { label: 'Name', variant: 'text' },
+			enableColumnFilter: true
+		}
+	];
+
+	const { table } = useDataTable({
+		data: () => data,
+		columns
+	});
+</script>
+
+<DataTable {table}>
+	{#snippet children()}
+		<DataTableToolbar {table} />
+	{/snippet}
+</DataTable>
+```
+
+`useDataTable` also supports URL-synced state for:
+
+- `page`
+- `perPage`
+- `sort`
+- per-column toolbar filters
+- advanced `filters` and `joinOperator`
+
+Relevant options:
+
+- `queryKeys`
+- `history`
+- `debounceMs`
+- `throttleMs`
+- `clearOnDefault`
+- `enableAdvancedFilter`
+- `scroll`
+- `shallow`
+
 ## Cell Variants
 
 The data grid supports multiple cell types:

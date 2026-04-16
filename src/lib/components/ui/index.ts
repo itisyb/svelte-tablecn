@@ -26,3 +26,4 @@ export {
 	SelectScrollUpButton,
 	SelectGroupHeading
 } from './select';
+export { Slider } from './slider';

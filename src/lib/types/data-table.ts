@@ -8,8 +8,10 @@ import type {
 	ColumnFiltersState,
 	VisibilityState,
 	PaginationState,
-	RowSelectionState
+	RowSelectionState,
+	RowData
 } from '@tanstack/table-core';
+import type { Component } from 'svelte';
 
 // Re-export filter operator types from data-grid to avoid duplication
 import type { FilterOperator as FilterOperatorType } from './data-grid.js';
@@ -36,6 +38,21 @@ export type FilterVariant =
 	| 'multiSelect';
 
 export type JoinOperator = 'and' | 'or';
+
+export interface DataTableOption {
+	label: string;
+	value: string;
+	icon?: Component<{ class?: string }>;
+	count?: number;
+}
+
+export interface QueryKeys {
+	page: string;
+	perPage: string;
+	sort: string;
+	filters: string;
+	joinOperator: string;
+}
 
 // ============================================
 // Filter Operator Definitions
@@ -99,8 +116,10 @@ export const BOOLEAN_OPERATORS: FilterOperatorDef[] = [
 
 export interface ExtendedColumnFilter<TData> {
 	id: keyof TData & string;
-	value: unknown;
+	value: string | string[];
+	variant: FilterVariant;
 	operator: FilterOperator;
+	filterId: string;
 }
 
 export interface ExtendedColumnSort<TData> {
@@ -113,13 +132,20 @@ export interface ExtendedColumnSort<TData> {
 // ============================================
 
 declare module '@tanstack/table-core' {
+	interface TableMeta<TData extends RowData> {
+		queryKeys?: QueryKeys;
+		joinOperator?: JoinOperator;
+		setJoinOperator?: (value: JoinOperator) => void;
+	}
+
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	interface ColumnMeta<TData, TValue> {
 		// Data Table specific
 		label?: string;
+		icon?: Component<{ class?: string }>;
 		placeholder?: string;
 		variant?: FilterVariant;
-		options?: { label: string; value: string }[];
+		options?: DataTableOption[];
 		range?: [number, number];
 		unit?: string;
 	}
@@ -130,9 +156,18 @@ declare module '@tanstack/table-core' {
 // ============================================
 
 export interface UseDataTableOptions<TData> {
-	data: TData[];
+	data: TData[] | (() => TData[]);
 	columns: ColumnDef<TData, unknown>[];
 	pageCount?: number;
+	getRowId?: (row: TData, index: number) => string;
+	queryKeys?: Partial<QueryKeys>;
+	history?: 'push' | 'replace';
+	debounceMs?: number;
+	throttleMs?: number;
+	clearOnDefault?: boolean;
+	enableAdvancedFilter?: boolean;
+	scroll?: boolean;
+	shallow?: boolean;
 	initialState?: {
 		sorting?: SortingState;
 		columnFilters?: ColumnFiltersState;
@@ -155,12 +190,14 @@ export interface UseDataTableReturn<TData> {
 	columnVisibility: VisibilityState;
 	rowSelection: RowSelectionState;
 	pagination: PaginationState;
+	joinOperator: JoinOperator;
 	// Setters
 	setSorting: (sorting: SortingState) => void;
 	setColumnFilters: (filters: ColumnFiltersState) => void;
 	setColumnVisibility: (visibility: VisibilityState) => void;
 	setRowSelection: (selection: RowSelectionState) => void;
 	setPagination: (pagination: PaginationState) => void;
+	setJoinOperator: (joinOperator: JoinOperator) => void;
 }
 
 // ============================================
