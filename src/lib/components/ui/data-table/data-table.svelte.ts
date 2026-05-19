@@ -11,15 +11,10 @@ import { createSubscriber } from "svelte/reactivity";
 /**
  * Bridges TanStack Table (external reactive system) to Svelte 5.
  *
- * ## Correct pattern (this file)
+ * 1. `$effect.pre` syncs options when parent `$state` changes (not on every table read).
+ * 2. `createSubscriber` on proxy reads re-runs `$derived` when the table updates.
+ * 3. Wrapped change handlers are stable references so `setOptions` does not retrigger callbacks.
  *
- * 1. **`$effect.pre`** — sync `data`, `state`, and options when Svelte `$state` changes
- *    (same approach as `useDataGrid`).
- * 2. **`createSubscriber`** — proxy getters call `subscribe()` so `$derived(table.getRowModel())`
- *    re-runs when `notifyTableUpdate()` fires.
- * 3. **Never `setOptions` on every property read** — that causes feedback loops and jank.
- *
- * @see https://svelte.dev/docs/svelte/svelte-reactivity#createSubscriber
  * @see docs/REACTIVITY.md
  */
 export function createSvelteTable<TData extends RowData>(
@@ -46,6 +41,8 @@ export function createSvelteTable<TData extends RowData>(
 	state = table.initialState;
 
 	let notifyTableUpdate: (() => void) | null = null;
+	let lastDataRef: TData[] | null = null;
+	let lastStateKey = "";
 
 	const subscribe = createSubscriber((update) => {
 		notifyTableUpdate = update;
@@ -54,14 +51,31 @@ export function createSvelteTable<TData extends RowData>(
 		};
 	});
 
-	function wrapOnChange<Updater>(
+	function wrapControlledChange<Updater>(
 		handler: ((updater: Updater) => void) | undefined
 	): (updater: Updater) => void {
 		return (updater) => {
 			handler?.(updater);
-			notifyTableUpdate?.();
+			// Parent $state is synced in $effect.pre — avoid double notify per change.
 		};
 	}
+
+	// Stable handler refs — recreated wrappers on every setOptions caused churn/loops.
+	const onColumnFiltersChange = wrapControlledChange(options.onColumnFiltersChange);
+	const onSortingChange = wrapControlledChange(options.onSortingChange);
+	const onPaginationChange = wrapControlledChange(options.onPaginationChange);
+	const onColumnVisibilityChange = wrapControlledChange(options.onColumnVisibilityChange);
+	const onRowSelectionChange = wrapControlledChange(options.onRowSelectionChange);
+	const onStateChange: NonNullable<TableOptions<TData>["onStateChange"]> = (updater) => {
+		if (updater instanceof Function) {
+			state = updater(state as TableState);
+		} else {
+			state = mergeObjects(state, updater);
+		}
+
+		notifyTableUpdate?.();
+		options.onStateChange?.(updater);
+	};
 
 	function readReactiveData(): TData[] {
 		const data = options.data as TData[] | (() => TData[]);
@@ -77,35 +91,30 @@ export function createSvelteTable<TData extends RowData>(
 	}
 
 	function syncOptions() {
-		const originalOnStateChange = options.onStateChange;
-
 		table.setOptions((prev) => {
 			return mergeObjects(prev, options, {
 				state: mergeObjects(state, readReactiveState() ?? {}),
-				onColumnFiltersChange: wrapOnChange(options.onColumnFiltersChange),
-				onSortingChange: wrapOnChange(options.onSortingChange),
-				onPaginationChange: wrapOnChange(options.onPaginationChange),
-				onColumnVisibilityChange: wrapOnChange(options.onColumnVisibilityChange),
-				onRowSelectionChange: wrapOnChange(options.onRowSelectionChange),
-				onStateChange: (updater: Parameters<NonNullable<TableOptions<TData>["onStateChange"]>>[0]) => {
-					if (updater instanceof Function) {
-						state = updater(state as TableState);
-					} else {
-						state = mergeObjects(state, updater);
-					}
-
-					notifyTableUpdate?.();
-					originalOnStateChange?.(updater);
-				},
+				onColumnFiltersChange,
+				onSortingChange,
+				onPaginationChange,
+				onColumnVisibilityChange,
+				onRowSelectionChange,
+				onStateChange,
 			});
 		});
 	}
 
-	// Sync when parent $state / getters change (filters, sort, data, etc.)
 	$effect.pre(() => {
-		readReactiveData();
-		readReactiveState();
-		options.pageCount;
+		const data = readReactiveData();
+		const stateKey = JSON.stringify({
+			pageCount: options.pageCount,
+			state: readReactiveState(),
+		});
+
+		if (data === lastDataRef && stateKey === lastStateKey) return;
+		lastDataRef = data;
+		lastStateKey = stateKey;
+
 		syncOptions();
 		notifyTableUpdate?.();
 	});

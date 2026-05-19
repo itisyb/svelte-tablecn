@@ -79,6 +79,16 @@ function getExtendedFilterKey<TData>(
 	return filter.filterId ?? `${filter.id}-${fallbackIndex}`;
 }
 
+function ensureFilterIds<TData>(filters: ColumnFiltersState): ColumnFiltersState {
+	return (filters as DataTableColumnFilter<TData>[]).map((filter, index) => {
+		if (filter.filterId) return filter;
+		return {
+			...filter,
+			filterId: getExtendedFilterKey(filter, index)
+		};
+	}) as ColumnFiltersState;
+}
+
 function extractAdvancedFilters<TData>(
 	filters: ColumnFiltersState,
 	getColumnVariant: (columnId: string) => FilterVariant
@@ -392,7 +402,9 @@ export function useDataTable<TData>(
 		isApplyingQueryState = true;
 		const nextState = parseQueryState(new URLSearchParams(window.location.search));
 		sorting = nextState.sorting ?? defaultSorting;
-		columnFilters = nextState.columnFilters ?? initialState?.columnFilters ?? [];
+		columnFilters = ensureFilterIds<TData>(
+			nextState.columnFilters ?? initialState?.columnFilters ?? []
+		);
 		pagination = nextState.pagination ?? defaultPagination;
 		joinOperator = nextState.joinOperator ?? defaultJoinOperator;
 		lastQueryString = window.location.search;
@@ -447,23 +459,27 @@ export function useDataTable<TData>(
 	const useClientAdvancedFiltering = enableAdvancedFilter && !manualFiltering;
 	let filteredDataCache: FilteredDataCache<TData> | null = null;
 
+	const tableData = $derived.by(() => {
+		const rawData = getData();
+
+		if (!useClientAdvancedFiltering) {
+			return rawData;
+		}
+
+		const next = getClientFilteredData(
+			rawData,
+			columnFilters,
+			joinOperator,
+			getColumnVariant,
+			filteredDataCache
+		);
+		filteredDataCache = next.cache;
+		return next.data;
+	});
+
 	const table = createSvelteTable<TData>({
 		get data() {
-			const rawData = getData();
-
-			if (!useClientAdvancedFiltering) {
-				return rawData;
-			}
-
-			const next = getClientFilteredData(
-				rawData,
-				columnFilters,
-				joinOperator,
-				getColumnVariant,
-				filteredDataCache
-			);
-			filteredDataCache = next.cache;
-			return next.data;
+			return tableData;
 		},
 		columns,
 		...(getRowId ? { getRowId } : {}),
@@ -492,7 +508,9 @@ export function useDataTable<TData>(
 			sorting = typeof updater === 'function' ? updater(sorting) : updater;
 		},
 		onColumnFiltersChange: (updater) => {
-			columnFilters = typeof updater === 'function' ? updater(columnFilters) : updater;
+			const next =
+				typeof updater === 'function' ? updater(columnFilters) : updater;
+			columnFilters = ensureFilterIds<TData>(next);
 		},
 		onColumnVisibilityChange: (updater) => {
 			columnVisibility = typeof updater === 'function' ? updater(columnVisibility) : updater;

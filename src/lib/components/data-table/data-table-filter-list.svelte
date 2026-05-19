@@ -53,26 +53,31 @@
 
 	interface Props {
 		table: Table<TData>;
+		/** Prefer passing from useDataTable — avoids re-reading table state every sync */
+		columnFilters?: FilterItem[];
+		joinOperator?: JoinOperator;
 		disabled?: boolean;
 		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, disabled = false, align = 'start', class: className }: Props = $props();
+	let {
+		table,
+		columnFilters: columnFiltersProp,
+		joinOperator: joinOperatorProp,
+		disabled = false,
+		align = 'start',
+		class: className
+	}: Props = $props();
 
 	let open = $state(false);
-	const columnFilters = $derived(table.getState().columnFilters as FilterItem[]);
-	const columnFiltersSnapshot = $derived(JSON.stringify(columnFilters));
-	const joinOperator = $derived(table.options.meta?.joinOperator ?? 'and');
-	let filterItems = $state<FilterItem[]>([]);
-	let filterItemsSnapshot = $state('[]');
-
-	$effect(() => {
-		const snapshot = columnFiltersSnapshot;
-		if (snapshot === filterItemsSnapshot) return;
-		filterItemsSnapshot = snapshot;
-		filterItems = JSON.parse(snapshot) as FilterItem[];
-	});
+	const columnFilters = $derived(
+		columnFiltersProp ?? (table.getState().columnFilters as FilterItem[])
+	);
+	const joinOperator = $derived(joinOperatorProp ?? table.options.meta?.joinOperator ?? 'and');
+	let isDragging = $state(false);
+	let dragItems = $state<FilterItem[]>([]);
+	const listFilters = $derived(isDragging ? dragItems : columnFilters);
 
 	const columns = $derived.by((): AvailableColumn[] => {
 		return table
@@ -206,12 +211,13 @@
 	}
 
 	function handleDndConsider(event: CustomEvent<{ items: FilterItem[] }>) {
-		filterItems = event.detail.items;
+		isDragging = true;
+		dragItems = event.detail.items;
 	}
 
 	function handleDndFinalize(event: CustomEvent<{ items: FilterItem[] }>) {
-		filterItems = event.detail.items;
-		const cleanItems = filterItems.filter(
+		isDragging = false;
+		const cleanItems = event.detail.items.filter(
 			(item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]
 		);
 		table.setColumnFilters(cleanItems as ColumnFiltersState);
@@ -259,11 +265,11 @@
 			</p>
 		</div>
 
-		{#if filterItems.length > 0}
+		{#if listFilters.length > 0}
 			<ul
 				class="flex max-h-[400px] flex-col gap-2 overflow-y-auto p-1"
 				use:dragHandleZone={{
-					items: filterItems,
+					items: listFilters,
 					flipDurationMs: 150,
 					dropTargetStyle: {},
 					type: 'data-table-filter-items'
@@ -271,7 +277,7 @@
 				onconsider={handleDndConsider}
 				onfinalize={handleDndFinalize}
 			>
-				{#each filterItems as filter, index (getFilterKey(filter, index))}
+				{#each listFilters as filter, index (getFilterKey(filter, index))}
 					{@const filterKey = getFilterKey(filter, index)}
 					{@const variant = getFilterVariant(filter)}
 					{@const operator = getFilterOperator(filter)}

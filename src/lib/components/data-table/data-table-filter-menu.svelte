@@ -48,19 +48,28 @@
 
 	interface Props {
 		table: Table<TData>;
+		columnFilters?: FilterItem[];
 		disabled?: boolean;
 		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, disabled = false, align = 'start', class: className }: Props = $props();
+	let {
+		table,
+		columnFilters: columnFiltersProp,
+		disabled = false,
+		align = 'start',
+		class: className
+	}: Props = $props();
 
 	let open = $state(false);
 	let selectedColumnId = $state<string | null>(null);
 	let draftValue = $state('');
 	let draftSecondaryValue = $state('');
 
-	const filters = $derived(table.getState().columnFilters as FilterItem[]);
+	const filters = $derived(
+		columnFiltersProp ?? (table.getState().columnFilters as FilterItem[])
+	);
 	const columns = $derived.by((): AvailableColumn[] => {
 		return table
 			.getAllColumns()

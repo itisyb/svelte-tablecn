@@ -44,11 +44,9 @@
 
 	let open = $state(false);
 	const sorting = $derived(table.getState().sorting);
-	let sortingItems = $state<ColumnSort[]>([]);
-
-	$effect(() => {
-		sortingItems = [...sorting];
-	});
+	let isDragging = $state(false);
+	let dragSorting = $state<ColumnSort[]>([]);
+	const sortingItems = $derived(isDragging ? dragSorting : sorting);
 
 	const { columnLabels, columns } = $derived.by(() => {
 		const labels = new Map<string, string>();
@@ -141,12 +139,13 @@
 	}
 
 	function handleDndConsider(event: CustomEvent<{ items: ColumnSort[] }>) {
-		sortingItems = event.detail.items;
+		isDragging = true;
+		dragSorting = event.detail.items;
 	}
 
 	function handleDndFinalize(event: CustomEvent<{ items: ColumnSort[] }>) {
-		sortingItems = event.detail.items;
-		const cleanItems = sortingItems.filter(
+		isDragging = false;
+		const cleanItems = event.detail.items.filter(
 			(item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]
 		);
 		table.setSorting(cleanItems);

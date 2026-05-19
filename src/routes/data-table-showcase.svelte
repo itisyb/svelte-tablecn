@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ColumnDef, FilterFn } from '@tanstack/table-core';
+	import type { ExtendedColumnFilter } from '$lib/types/data-table.js';
 	import {
 		DataTable,
 		DataTableAdvancedToolbar,
@@ -250,7 +251,7 @@
 				: 'Command filter menu (tablecn commandFilters): compact popover filters with operators, synced to the URL.'
 			: 'Basic mode showcases per-column toolbar filters (tablecn default toolbar), client-side sort/filter, and faceted controls.';
 
-	const { table } = useDataTable({
+	const { table, columnFilters, joinOperator } = useDataTable({
 		data: () => rows,
 		columns,
 		getRowId: (row) => row.id,
@@ -285,9 +286,18 @@
 					{#snippet children()}
 						<DataTableSortList {table} align="start" />
 						{#if advancedFilterUi === 'advancedFilters'}
-							<DataTableFilterList {table} align="start" />
+							<DataTableFilterList
+								{table}
+								columnFilters={columnFilters as import('$lib/types/data-table.js').ExtendedColumnFilter<Person>[]}
+								{joinOperator}
+								align="start"
+							/>
 						{:else}
-							<DataTableFilterMenu {table} align="start" />
+							<DataTableFilterMenu
+								{table}
+								columnFilters={columnFilters as import('$lib/types/data-table.js').ExtendedColumnFilter<Person>[]}
+								align="start"
+							/>
 						{/if}
 					{/snippet}
 				</DataTableAdvancedToolbar>
