@@ -66,7 +66,12 @@ import type {
 	SearchState,
 	FileCellData
 } from '$lib/types/data-grid.js';
-import { getCellKey, parseCellKey, getRowHeightValue } from '$lib/types/data-grid.js';
+import {
+	getCellKey,
+	getCellValueKey,
+	parseCellKey,
+	getRowHeightValue
+} from '$lib/types/data-grid.js';
 import { toast } from 'svelte-sonner';
 
 // ============================================
@@ -94,14 +99,6 @@ export interface UseDataGridOptions<TData extends RowData> {
 		rowSelection?: RowSelectionState;
 	};
 	onDataChange?: (data: TData[]) => void;
-	onCellUpdates?: (
-		updates: Array<{
-			rowId: string;
-			columnId: string;
-			previousValue: unknown;
-			newValue: unknown;
-		}>
-	) => void;
 	onRowAdd?: (
 		event?: MouseEvent
 	) => Partial<CellPosition> | void | Promise<Partial<CellPosition> | void>;
@@ -175,6 +172,54 @@ interface VirtualizerReturn {
 
 const NON_NAVIGABLE_COLUMNS = new Set(['select', 'actions']);
 
+function isSortingStateEqual(a: SortingState, b: SortingState): boolean {
+	if (a.length !== b.length) return false;
+	for (let i = 0; i < a.length; i++) {
+		const left = a[i];
+		const right = b[i];
+		if (!left || !right || left.id !== right.id || left.desc !== right.desc) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function isColumnFiltersStateEqual(a: ColumnFiltersState, b: ColumnFiltersState): boolean {
+	if (a.length !== b.length) return false;
+	for (let i = 0; i < a.length; i++) {
+		const left = a[i];
+		const right = b[i];
+		if (!left || !right || left.id !== right.id) {
+			return false;
+		}
+		if (left.value !== right.value) {
+			if (
+				typeof left.value === 'object' &&
+				left.value !== null &&
+				typeof right.value === 'object' &&
+				right.value !== null
+			) {
+				if (JSON.stringify(left.value) !== JSON.stringify(right.value)) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+function isVisibilityStateEqual(a: VisibilityState, b: VisibilityState): boolean {
+	const aKeys = Object.keys(a);
+	const bKeys = Object.keys(b);
+	if (aKeys.length !== bKeys.length) return false;
+	for (const key of aKeys) {
+		if (a[key] !== b[key]) return false;
+	}
+	return true;
+}
+
 // ============================================
 // Main Hook
 // ============================================
@@ -195,7 +240,6 @@ export function useDataGrid<TData extends RowData>(
 		getRowId,
 		initialState,
 		onDataChange,
-		onCellUpdates,
 		onRowAdd: onRowAddProp,
 		onRowsAdd,
 		onRowsDelete: onRowsDeleteProp,
@@ -209,7 +253,7 @@ export function useDataGrid<TData extends RowData>(
 	const getData = typeof dataProp === 'function' ? dataProp : () => dataProp;
 
 	// SvelteMap for CELL-LEVEL fine-grained reactivity
-	// Key is "rowIndex:columnId", value is the cell value
+	// Key is "rowId\0columnId", value is the cell value
 	// Only the specific cell that changed will re-render
 	const cellValueMap = new SvelteMap<string, unknown>();
 
@@ -220,8 +264,8 @@ export function useDataGrid<TData extends RowData>(
 	}
 
 	// Helper to set cell value with fine-grained reactivity
-	function setCellValue(rowIndex: number, columnId: string, value: unknown): void {
-		const key = getCellKey(rowIndex, columnId);
+	function setCellValue(rowId: string, columnId: string, value: unknown): void {
+		const key = getCellValueKey(rowId, columnId);
 		cellValueMap.set(key, value);
 	}
 
@@ -1240,12 +1284,6 @@ export function useDataGrid<TData extends RowData>(
 		const rows = table.getRowModel().rows;
 		const currentData = getData();
 		const nextData = onDataChange ? [...currentData] : null;
-		const cellUpdates: Array<{
-			rowId: string;
-			columnId: string;
-			previousValue: unknown;
-			newValue: unknown;
-		}> = [];
 		let didApplyUpdate = false;
 
 		function getSourceRowIndex(rowData: TData): number {
@@ -1268,9 +1306,7 @@ export function useDataGrid<TData extends RowData>(
 			const row = rows[update.rowIndex];
 			if (!row) continue;
 
-			// Update cellValueMap using DISPLAY row index (update.rowIndex)
-			// This matches what the cell components use when rendering
-			setCellValue(update.rowIndex, update.columnId, update.value);
+			setCellValue(row.id, update.columnId, update.value);
 
 			if (nextData) {
 				const sourceRowIndex = getSourceRowIndex(row.original as TData);
@@ -1278,16 +1314,6 @@ export function useDataGrid<TData extends RowData>(
 
 				const nextRow = nextData[sourceRowIndex];
 				if (!nextRow) continue;
-
-				const previousValue = (nextRow as Record<string, unknown>)[update.columnId];
-				if (!Object.is(previousValue, update.value)) {
-					cellUpdates.push({
-						rowId: row.id,
-						columnId: update.columnId,
-						previousValue,
-						newValue: update.value
-					});
-				}
 
 				nextData[sourceRowIndex] = {
 					...(nextRow as Record<string, unknown>),
@@ -1304,9 +1330,6 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		if (didApplyUpdate && nextData) {
-			if (cellUpdates.length > 0) {
-				onCellUpdates?.(cellUpdates);
-			}
 			onDataChange?.(nextData);
 		}
 	}
@@ -1593,8 +1616,6 @@ export function useDataGrid<TData extends RowData>(
 	});
 
 	// Track previous state to detect changes that require cache clearing
-	let prevSorting = $state<SortingState>([]);
-	let prevColumnFilters = $state<ColumnFiltersState>([]);
 	let prevDataLength = $state<number>(0);
 	let prevDataRef = $state<TData[] | null>(null);
 	let prevColumnVisibility = $state<VisibilityState>({});
@@ -1614,25 +1635,14 @@ export function useDataGrid<TData extends RowData>(
 		};
 		const currentData = getData();
 
-		// Clear cell value cache when sorting, filtering, row count, or column visibility changes
-		// This ensures cells show correct values after re-ordering, add/delete, or column show/hide
-		const sortingChanged = JSON.stringify(sorting) !== JSON.stringify(prevSorting);
-		const filtersChanged = JSON.stringify(columnFilters) !== JSON.stringify(prevColumnFilters);
+		// Clear cell value cache when row count, data reference, or column visibility changes.
+		// Sort/filter reordering keeps stable rowId keys, so the cache must not be cleared there.
 		const dataLengthChanged = currentData.length !== prevDataLength;
 		const dataReferenceChanged = currentData !== prevDataRef;
-		const visibilityChanged =
-			JSON.stringify(columnVisibility) !== JSON.stringify(prevColumnVisibility);
+		const visibilityChanged = !isVisibilityStateEqual(columnVisibility, prevColumnVisibility);
 
-		if (
-			sortingChanged ||
-			filtersChanged ||
-			dataLengthChanged ||
-			dataReferenceChanged ||
-			visibilityChanged
-		) {
+		if (dataLengthChanged || dataReferenceChanged || visibilityChanged) {
 			clearCellValueCache();
-			prevSorting = [...sorting];
-			prevColumnFilters = [...columnFilters];
 			prevDataLength = currentData.length;
 			prevDataRef = currentData;
 			prevColumnVisibility = { ...columnVisibility };
@@ -1757,7 +1767,7 @@ export function useDataGrid<TData extends RowData>(
 						: (element) => element?.getBoundingClientRect().height
 				});
 
-				// Recalculate virtual range — fixed row heights; skip measure() (very expensive)
+				// Force virtualizer to recalculate
 				virtualizer._willUpdate();
 
 				// If rows were deleted and we're scrolled past the new content,

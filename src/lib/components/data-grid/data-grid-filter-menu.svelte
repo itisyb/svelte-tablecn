@@ -4,7 +4,7 @@
 	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { getDefaultOperator, getOperatorsForVariant } from '$lib/data-grid-filters.js';
-	import { useDebouncedCallback } from '$lib/hooks/use-debounced-callback.js';
+	import { useDebouncedCallback } from '$lib/hooks/use-debounced-callback';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';

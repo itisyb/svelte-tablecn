@@ -373,9 +373,6 @@
 		data = data.filter((row) => !rows.includes(row));
 	}
 
-	function onCellUpdates(updates: UndoRedoCellUpdate[]) {
-		trackCellsUpdate(updates);
-	}
 
 	function onDataChange(newData: Person[]) {
 		data = newData;
@@ -413,7 +410,6 @@
 		columns,
 		data: () => data, // Pass as getter for Svelte 5 reactivity
 		onDataChange,
-		onCellUpdates,
 		onRowAdd,
 		onRowsAdd,
 		onRowsDelete,

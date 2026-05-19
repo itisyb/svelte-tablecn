@@ -373,7 +373,7 @@ export function getCellKey(rowIndex: number, columnId: string): string {
 }
 
 /**
- * Stable cell value cache key — survives sort/filter because it uses row id, not display index.
+ * Creates a stable cell value key from row id and column id (survives sort/filter reordering)
  */
 export function getCellValueKey(rowId: string, columnId: string): string {
 	return `${rowId}\0${columnId}`;

@@ -26,10 +26,9 @@
 
 	let { cell, table, selectedCellsSet, selectionVersion = 0 }: Props = $props();
 
-	// Row index in the current (filtered/sorted) row model — O(1)
 	const rowIndex = $derived(cell.row.index);
-	const columnId = $derived(cell.column.id);
 	const rowId = $derived(cell.row.id);
+	const columnId = $derived(cell.column.id);
 
 	// CENTRALIZED: Fine-grained cell value using SvelteMap
 	// This is computed ONCE here and passed to all cell variants
@@ -38,11 +37,11 @@
 	const cellValue = $derived.by(() => {
 		const meta = table.options.meta;
 		const map = meta?.cellValueMap;
-		const valueKey = getCellValueKey(rowId, columnId);
+		const key = getCellValueKey(rowId, columnId);
 
-		// Check the SvelteMap first for edited values (keyed by stable row id)
-		if (map && map.has(valueKey)) {
-			return map.get(valueKey);
+		// Check the SvelteMap first for edited values
+		if (map && map.has(key)) {
+			return map.get(key);
 		}
 
 		// IMPORTANT: Access raw data directly from row.original
