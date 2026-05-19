@@ -27,26 +27,19 @@
 	let { cell, table, selectedCellsSet, selectionVersion = 0 }: Props = $props();
 
 	const rowIndex = $derived(cell.row.index);
-	const rowId = $derived(cell.row.id);
 	const columnId = $derived(cell.column.id);
+	const rowId = $derived(cell.row.id);
 
 	// CENTRALIZED: Fine-grained cell value using SvelteMap
-	// This is computed ONCE here and passed to all cell variants
-	// Only re-renders when THIS specific cell's value changes in the SvelteMap
-	// We access the map directly inside $derived so Svelte tracks this specific key
 	const cellValue = $derived.by(() => {
 		const meta = table.options.meta;
 		const map = meta?.cellValueMap;
-		const key = getCellValueKey(rowId, columnId);
+		const valueKey = getCellValueKey(rowId, columnId);
 
-		// Check the SvelteMap first for edited values
-		if (map && map.has(key)) {
-			return map.get(key);
+		if (map && map.has(valueKey)) {
+			return map.get(valueKey);
 		}
 
-		// IMPORTANT: Access raw data directly from row.original
-		// This avoids any potential caching issues with cell.getValue()
-		// and ensures we always get the current data for the row
 		const original = cell.row.original as Record<string, unknown>;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const accessorKey = (cell.column.columnDef as any).accessorKey as string | undefined;
@@ -55,11 +48,9 @@
 			return original[accessorKey];
 		}
 
-		// Fallback to cell.getValue() for computed columns
 		return cell.getValue();
 	});
 
-	// Derive cell state from table meta - access meta fresh each time via getter
 	const isFocused = $derived.by(() => {
 		const meta = table.options.meta;
 		const fc = meta?.focusedCell;
@@ -70,8 +61,6 @@
 		const ec = meta?.editingCell;
 		return ec?.rowIndex === rowIndex && ec?.columnId === columnId;
 	});
-	// Compute selection state using the SvelteSet directly
-	// SvelteSet.has() is reactive - Svelte tracks when items are added/removed
 	const isSelected = $derived.by(() => {
 		if (!selectedCellsSet) return false;
 		const key = getCellKey(rowIndex, columnId);
@@ -83,7 +72,6 @@
 		return meta?.readOnly ?? false;
 	});
 
-	// Get cell variant from column def
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const variant = $derived(cellOpts?.variant ?? 'short-text');
 	const rowSelectOptions = $derived.by(() => {
@@ -211,7 +199,6 @@
 		debug={rowSelectOptions?.debug}
 	/>
 {:else}
-	<!-- Default to short-text -->
 	<ShortTextCell
 		{cell}
 		{table}

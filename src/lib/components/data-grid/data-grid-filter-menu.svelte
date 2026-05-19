@@ -4,7 +4,7 @@
 	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { getDefaultOperator, getOperatorsForVariant } from '$lib/data-grid-filters.js';
-	import { useDebouncedCallback } from '$lib/hooks/use-debounced-callback';
+	import { useDebouncedCallback } from '$lib/hooks/use-debounced-callback.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -113,6 +113,11 @@
 			);
 		});
 	}
+
+	const debouncedFilterUpdate = useDebouncedCallback(
+		(filterId: string, updates: Partial<ColumnFilter>) => onFilterUpdate(filterId, updates),
+		250
+	);
 
 	function onFilterRemove(filterId: string) {
 		table.setColumnFilters((prevFilters) =>
@@ -356,7 +361,7 @@
 										oninput={(event) => {
 											const val = (event.target as HTMLInputElement).value;
 											const newValue = val === '' ? undefined : Number(val);
-											onFilterUpdate(filter.id, {
+											debouncedFilterUpdate(filter.id, {
 												value: {
 													operator,
 													value: newValue,
@@ -539,7 +544,7 @@
 										oninput={(event) => {
 											const val = (event.target as HTMLInputElement).value;
 											const newValue = val === '' ? undefined : val;
-											onFilterUpdate(filter.id, {
+											debouncedFilterUpdate(filter.id, {
 												value: {
 													operator,
 													value: newValue,

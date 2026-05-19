@@ -172,53 +172,28 @@ interface VirtualizerReturn {
 
 const NON_NAVIGABLE_COLUMNS = new Set(['select', 'actions']);
 
-function isSortingStateEqual(a: SortingState, b: SortingState): boolean {
-	if (a.length !== b.length) return false;
-	for (let i = 0; i < a.length; i++) {
-		const left = a[i];
-		const right = b[i];
-		if (!left || !right || left.id !== right.id || left.desc !== right.desc) {
-			return false;
-		}
+function isSortingStateEqual(left: SortingState, right: SortingState): boolean {
+	if (left.length !== right.length) return false;
+	for (let i = 0; i < left.length; i++) {
+		const a = left[i]; const b = right[i];
+		if (a?.id !== b?.id || a?.desc !== b?.desc) return false;
 	}
 	return true;
 }
-
 function isColumnFiltersStateEqual(a: ColumnFiltersState, b: ColumnFiltersState): boolean {
 	if (a.length !== b.length) return false;
 	for (let i = 0; i < a.length; i++) {
-		const left = a[i];
-		const right = b[i];
-		if (!left || !right || left.id !== right.id) {
-			return false;
-		}
-		if (left.value !== right.value) {
-			if (
-				typeof left.value === 'object' &&
-				left.value !== null &&
-				typeof right.value === 'object' &&
-				right.value !== null
-			) {
-				if (JSON.stringify(left.value) !== JSON.stringify(right.value)) {
-					return false;
-				}
-			} else {
-				return false;
-			}
-		}
+		if (a[i]?.id !== b[i]?.id || !Object.is(a[i]?.value, b[i]?.value)) return false;
 	}
+	return true;
+}
+function isVisibilityStateEqual(a: VisibilityState, b: VisibilityState): boolean {
+	const keys = Object.keys(a);
+	if (keys.length !== Object.keys(b).length) return false;
+	for (const k of keys) if (a[k] !== b[k]) return false;
 	return true;
 }
 
-function isVisibilityStateEqual(a: VisibilityState, b: VisibilityState): boolean {
-	const aKeys = Object.keys(a);
-	const bKeys = Object.keys(b);
-	if (aKeys.length !== bKeys.length) return false;
-	for (const key of aKeys) {
-		if (a[key] !== b[key]) return false;
-	}
-	return true;
-}
 
 // ============================================
 // Main Hook
@@ -253,7 +228,7 @@ export function useDataGrid<TData extends RowData>(
 	const getData = typeof dataProp === 'function' ? dataProp : () => dataProp;
 
 	// SvelteMap for CELL-LEVEL fine-grained reactivity
-	// Key is "rowId\0columnId", value is the cell value
+	// Key is "rowIndex:columnId", value is the cell value
 	// Only the specific cell that changed will re-render
 	const cellValueMap = new SvelteMap<string, unknown>();
 
@@ -265,8 +240,7 @@ export function useDataGrid<TData extends RowData>(
 
 	// Helper to set cell value with fine-grained reactivity
 	function setCellValue(rowId: string, columnId: string, value: unknown): void {
-		const key = getCellValueKey(rowId, columnId);
-		cellValueMap.set(key, value);
+		cellValueMap.set(getCellValueKey(rowId, columnId), value);
 	}
 
 	// Helper to clear cell value cache (called when table state changes)
@@ -1616,6 +1590,8 @@ export function useDataGrid<TData extends RowData>(
 	});
 
 	// Track previous state to detect changes that require cache clearing
+	let prevSorting = $state<SortingState>([]);
+	let prevColumnFilters = $state<ColumnFiltersState>([]);
 	let prevDataLength = $state<number>(0);
 	let prevDataRef = $state<TData[] | null>(null);
 	let prevColumnVisibility = $state<VisibilityState>({});
@@ -1635,8 +1611,6 @@ export function useDataGrid<TData extends RowData>(
 		};
 		const currentData = getData();
 
-		// Clear cell value cache when row count, data reference, or column visibility changes.
-		// Sort/filter reordering keeps stable rowId keys, so the cache must not be cleared there.
 		const dataLengthChanged = currentData.length !== prevDataLength;
 		const dataReferenceChanged = currentData !== prevDataRef;
 		const visibilityChanged = !isVisibilityStateEqual(columnVisibility, prevColumnVisibility);
@@ -1647,6 +1621,8 @@ export function useDataGrid<TData extends RowData>(
 			prevDataRef = currentData;
 			prevColumnVisibility = { ...columnVisibility };
 		}
+		if (!isSortingStateEqual(sorting, prevSorting)) prevSorting = [...sorting];
+		if (!isColumnFiltersStateEqual(columnFilters, prevColumnFilters)) prevColumnFilters = [...columnFilters];
 
 		// Update table with current state
 		table.setOptions((prev) => ({
@@ -1767,7 +1743,6 @@ export function useDataGrid<TData extends RowData>(
 						: (element) => element?.getBoundingClientRect().height
 				});
 
-				// Force virtualizer to recalculate
 				virtualizer._willUpdate();
 
 				// If rows were deleted and we're scrolled past the new content,
