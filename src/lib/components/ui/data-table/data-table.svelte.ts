@@ -77,10 +77,15 @@ export function createSvelteTable<TData extends RowData>(
 	});
 
 	function wrapOnChange<Updater>(
-		handler: ((updater: Updater) => void) | undefined
+		handler: ((updater: Updater) => void) | undefined,
+		flushSync = false
 	): (updater: Updater) => void {
 		return (updater) => {
 			handler?.(updater);
+			if (flushSync) {
+				syncScheduled = false;
+				syncOptions();
+			}
 			triggerUpdate?.();
 		};
 	}
@@ -92,8 +97,8 @@ export function createSvelteTable<TData extends RowData>(
 		table.setOptions((prev) => {
 			return mergeObjects(prev, options, {
 				state: mergeObjects(state, options.state || {}),
-				onColumnFiltersChange: wrapOnChange(options.onColumnFiltersChange),
-				onSortingChange: wrapOnChange(options.onSortingChange),
+				onColumnFiltersChange: wrapOnChange(options.onColumnFiltersChange, true),
+				onSortingChange: wrapOnChange(options.onSortingChange, true),
 				onPaginationChange: wrapOnChange(options.onPaginationChange),
 				onColumnVisibilityChange: wrapOnChange(options.onColumnVisibilityChange),
 				onRowSelectionChange: wrapOnChange(options.onRowSelectionChange),
@@ -111,13 +116,23 @@ export function createSvelteTable<TData extends RowData>(
 		});
 	}
 
+	let syncScheduled = false;
+	function scheduleSyncOptions() {
+		if (syncScheduled) return;
+		syncScheduled = true;
+		queueMicrotask(() => {
+			syncScheduled = false;
+			syncOptions();
+		});
+	}
+
 	// Create a proxy that calls subscribe() on property access
 	// This ensures any effect reading table properties will re-run on state changes
 	return new Proxy(table, {
 		get(target, prop, receiver) {
 			// Register as subscriber
 			subscribe();
-			syncOptions();
+			scheduleSyncOptions();
 
 			const value = Reflect.get(target, prop, receiver);
 			

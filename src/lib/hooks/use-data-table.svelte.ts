@@ -105,6 +105,46 @@ function createUrlWithSearch(params: URLSearchParams): string {
 	return `${currentUrl.pathname}${search ? `?${search}` : ''}${currentUrl.hash}`;
 }
 
+interface FilteredDataCache<TData> {
+	source: TData[];
+	filtersKey: string;
+	join: JoinOperator;
+	result: TData[];
+}
+
+function getClientFilteredData<TData>(
+	rawData: TData[],
+	columnFilters: ColumnFiltersState,
+	join: JoinOperator,
+	getColumnVariant: (columnId: string) => FilterVariant,
+	cache: FilteredDataCache<TData> | null
+): { data: TData[]; cache: FilteredDataCache<TData> | null } {
+	const advancedFilters = getValidFilters(
+		extractAdvancedFilters(columnFilters, getColumnVariant)
+	);
+
+	if (advancedFilters.length === 0) {
+		return { data: rawData, cache: null };
+	}
+
+	const filtersKey = JSON.stringify(advancedFilters);
+
+	if (
+		cache &&
+		cache.source === rawData &&
+		cache.filtersKey === filtersKey &&
+		cache.join === join
+	) {
+		return { data: cache.result, cache };
+	}
+
+	const result = filterRows(rawData, advancedFilters, join);
+	return {
+		data: result,
+		cache: { source: rawData, filtersKey, join, result }
+	};
+}
+
 export function useDataTable<TData>(
 	options: UseDataTableOptions<TData>
 ): UseDataTableReturn<TData> {
@@ -405,6 +445,7 @@ export function useDataTable<TData>(
 	});
 
 	const useClientAdvancedFiltering = enableAdvancedFilter && !manualFiltering;
+	let filteredDataCache: FilteredDataCache<TData> | null = null;
 
 	const table = createSvelteTable<TData>({
 		get data() {
@@ -414,15 +455,15 @@ export function useDataTable<TData>(
 				return rawData;
 			}
 
-			const advancedFilters = getValidFilters(
-				extractAdvancedFilters(columnFilters, getColumnVariant)
+			const next = getClientFilteredData(
+				rawData,
+				columnFilters,
+				joinOperator,
+				getColumnVariant,
+				filteredDataCache
 			);
-
-			if (advancedFilters.length === 0) {
-				return rawData;
-			}
-
-			return filterRows(rawData, advancedFilters, joinOperator);
+			filteredDataCache = next.cache;
+			return next.data;
 		},
 		columns,
 		...(getRowId ? { getRowId } : {}),

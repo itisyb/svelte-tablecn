@@ -55,31 +55,23 @@
 		table: Table<TData>;
 		disabled?: boolean;
 		align?: 'start' | 'center' | 'end';
-		joinOperator?: JoinOperator;
 		class?: string;
 	}
 
-	let {
-		table,
-		disabled = false,
-		align = 'start',
-		joinOperator = $bindable<JoinOperator>('and'),
-		class: className
-	}: Props = $props();
+	let { table, disabled = false, align = 'start', class: className }: Props = $props();
 
 	let open = $state(false);
 	const columnFilters = $derived(table.getState().columnFilters as FilterItem[]);
+	const columnFiltersSnapshot = $derived(JSON.stringify(columnFilters));
+	const joinOperator = $derived(table.options.meta?.joinOperator ?? 'and');
 	let filterItems = $state<FilterItem[]>([]);
+	let filterItemsSnapshot = $state('[]');
 
 	$effect(() => {
-		filterItems = [...columnFilters];
-	});
-
-	$effect(() => {
-		const metaJoinOperator = table.options.meta?.joinOperator;
-		if (metaJoinOperator && metaJoinOperator !== joinOperator) {
-			joinOperator = metaJoinOperator;
-		}
+		const snapshot = columnFiltersSnapshot;
+		if (snapshot === filterItemsSnapshot) return;
+		filterItemsSnapshot = snapshot;
+		filterItems = JSON.parse(snapshot) as FilterItem[];
 	});
 
 	const columns = $derived.by((): AvailableColumn[] => {
@@ -183,7 +175,6 @@
 	}
 
 	function onJoinOperatorChange(value: string) {
-		joinOperator = value as JoinOperator;
 		table.options.meta?.setJoinOperator?.(value as JoinOperator);
 	}
 
