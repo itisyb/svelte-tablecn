@@ -323,6 +323,8 @@ Relevant options:
 
 For advanced filters (multi-rule, AND/OR, operators), see [docs/ADVANCED_FILTERS.md](./docs/ADVANCED_FILTERS.md). The demo toggles **Filter list** vs **Filter menu** like tablecn’s `filterFlag`.
 
+For how Svelte 5 and TanStack Table interact (and why filters used to loop), see [docs/REACTIVITY.md](./docs/REACTIVITY.md).
+
 ## Cell Variants
 
 The data grid supports multiple cell types:

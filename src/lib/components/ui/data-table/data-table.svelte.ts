@@ -9,40 +9,22 @@ import {
 import { createSubscriber } from "svelte/reactivity";
 
 /**
- * Creates a reactive TanStack table object for Svelte 5 using createSubscriber.
- * 
- * This implementation uses Svelte 5's `createSubscriber` to bridge TanStack Table's
- * internal subscription model with Svelte's reactivity system. When table state changes,
- * the subscriber triggers a re-render without needing to wrap state in `$state`.
- * 
- * @param options Table options to create the table with.
- * @returns A reactive table object.
- * @example
- * ```svelte
- * <script>
- *   const table = createSvelteTable({ ... })
- * </script>
+ * Bridges TanStack Table (external reactive system) to Svelte 5.
  *
- * <table>
- *   <thead>
- *     {#each table.getHeaderGroups() as headerGroup}
- *       <tr>
- *         {#each headerGroup.headers as header}
- *           <th colspan={header.colSpan}>
- *         	   <FlexRender content={header.column.columnDef.header} context={header.getContext()} />
- *         	 </th>
- *         {/each}
- *       </tr>
- *     {/each}
- *   </thead>
- * 	 <!-- ... -->
- * </table>
- * ```
+ * ## Correct pattern (this file)
+ *
+ * 1. **`$effect.pre`** — sync `data`, `state`, and options when Svelte `$state` changes
+ *    (same approach as `useDataGrid`).
+ * 2. **`createSubscriber`** — proxy getters call `subscribe()` so `$derived(table.getRowModel())`
+ *    re-runs when `notifyTableUpdate()` fires.
+ * 3. **Never `setOptions` on every property read** — that causes feedback loops and jank.
+ *
+ * @see https://svelte.dev/docs/svelte/svelte-reactivity#createSubscriber
+ * @see docs/REACTIVITY.md
  */
 export function createSvelteTable<TData extends RowData>(
 	options: TableOptions<TData>
 ): Table<TData> {
-	// Track internal state - not wrapped in $state since we use createSubscriber
 	let state: Partial<TableState> = {};
 
 	const resolvedOptions: TableOptionsResolved<TData> = mergeObjects(
@@ -63,84 +45,81 @@ export function createSvelteTable<TData extends RowData>(
 	const table = createTable(resolvedOptions);
 	state = table.initialState;
 
-	// Store the update function so we can call it from the proxy
-	let triggerUpdate: (() => void) | null = null;
+	let notifyTableUpdate: (() => void) | null = null;
 
-	// Create subscriber that will trigger Svelte reactivity when table state changes
 	const subscribe = createSubscriber((update) => {
-		triggerUpdate = update;
-		
-		// Cleanup function - runs when no more subscribers
+		notifyTableUpdate = update;
 		return () => {
-			triggerUpdate = null;
+			notifyTableUpdate = null;
 		};
 	});
 
 	function wrapOnChange<Updater>(
-		handler: ((updater: Updater) => void) | undefined,
-		flushSync = false
+		handler: ((updater: Updater) => void) | undefined
 	): (updater: Updater) => void {
 		return (updater) => {
 			handler?.(updater);
-			if (flushSync) {
-				syncScheduled = false;
-				syncOptions();
-			}
-			triggerUpdate?.();
+			notifyTableUpdate?.();
 		};
 	}
 
-	// Update table options when reactive inputs may have changed
+	function readReactiveData(): TData[] {
+		const data = options.data as TData[] | (() => TData[]);
+		return typeof data === "function" ? data() : data;
+	}
+
+	function readReactiveState(): Partial<TableState> | undefined {
+		const tableState = options.state;
+		if (tableState === undefined) return undefined;
+		return typeof tableState === "function"
+			? (tableState as () => Partial<TableState>)()
+			: tableState;
+	}
+
 	function syncOptions() {
 		const originalOnStateChange = options.onStateChange;
 
 		table.setOptions((prev) => {
 			return mergeObjects(prev, options, {
-				state: mergeObjects(state, options.state || {}),
-				onColumnFiltersChange: wrapOnChange(options.onColumnFiltersChange, true),
-				onSortingChange: wrapOnChange(options.onSortingChange, true),
+				state: mergeObjects(state, readReactiveState() ?? {}),
+				onColumnFiltersChange: wrapOnChange(options.onColumnFiltersChange),
+				onSortingChange: wrapOnChange(options.onSortingChange),
 				onPaginationChange: wrapOnChange(options.onPaginationChange),
 				onColumnVisibilityChange: wrapOnChange(options.onColumnVisibilityChange),
 				onRowSelectionChange: wrapOnChange(options.onRowSelectionChange),
-				onStateChange: (updater: Parameters<NonNullable<TableOptions<TData>['onStateChange']>>[0]) => {
+				onStateChange: (updater: Parameters<NonNullable<TableOptions<TData>["onStateChange"]>>[0]) => {
 					if (updater instanceof Function) {
 						state = updater(state as TableState);
 					} else {
 						state = mergeObjects(state, updater);
 					}
 
-					triggerUpdate?.();
+					notifyTableUpdate?.();
 					originalOnStateChange?.(updater);
-				}
+				},
 			});
 		});
 	}
 
-	let syncScheduled = false;
-	function scheduleSyncOptions() {
-		if (syncScheduled) return;
-		syncScheduled = true;
-		queueMicrotask(() => {
-			syncScheduled = false;
-			syncOptions();
-		});
-	}
+	// Sync when parent $state / getters change (filters, sort, data, etc.)
+	$effect.pre(() => {
+		readReactiveData();
+		readReactiveState();
+		options.pageCount;
+		syncOptions();
+		notifyTableUpdate?.();
+	});
 
-	// Create a proxy that calls subscribe() on property access
-	// This ensures any effect reading table properties will re-run on state changes
 	return new Proxy(table, {
 		get(target, prop, receiver) {
-			// Register as subscriber
 			subscribe();
-			scheduleSyncOptions();
 
 			const value = Reflect.get(target, prop, receiver);
-			
-			// Bind methods to the original table
+
 			if (typeof value === "function") {
 				return value.bind(target);
 			}
-			
+
 			return value;
 		},
 	});
