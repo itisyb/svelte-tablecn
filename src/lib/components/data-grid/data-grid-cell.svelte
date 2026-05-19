@@ -1,7 +1,7 @@
 <script lang="ts" generics="TData">
 	import type { Cell, Table } from '@tanstack/table-core';
 	import type { SvelteSet } from 'svelte/reactivity';
-	import { getCellKey } from '$lib/types/data-grid.js';
+	import { getCellKey, getCellValueKey } from '$lib/types/data-grid.js';
 
 	// Cell variant imports
 	import ShortTextCell from './cells/short-text-cell.svelte';
@@ -26,18 +26,10 @@
 
 	let { cell, table, selectedCellsSet, selectionVersion = 0 }: Props = $props();
 
-	// Access meta directly each time - don't cache the reference
-	const originalRowIndex = $derived(cell.row.index);
-
-	// Get the display row index (for filtered/sorted tables)
-	const displayRowIndex = $derived.by(() => {
-		const rows = table.getRowModel().rows;
-		const idx = rows.findIndex((row) => row.original === cell.row.original);
-		return idx >= 0 ? idx : originalRowIndex;
-	});
-
-	const rowIndex = $derived(displayRowIndex);
+	// Row index in the current (filtered/sorted) row model — O(1)
+	const rowIndex = $derived(cell.row.index);
 	const columnId = $derived(cell.column.id);
+	const rowId = $derived(cell.row.id);
 
 	// CENTRALIZED: Fine-grained cell value using SvelteMap
 	// This is computed ONCE here and passed to all cell variants
@@ -46,11 +38,11 @@
 	const cellValue = $derived.by(() => {
 		const meta = table.options.meta;
 		const map = meta?.cellValueMap;
-		const key = getCellKey(rowIndex, columnId);
+		const valueKey = getCellValueKey(rowId, columnId);
 
-		// Check the SvelteMap first for edited values
-		if (map && map.has(key)) {
-			return map.get(key);
+		// Check the SvelteMap first for edited values (keyed by stable row id)
+		if (map && map.has(valueKey)) {
+			return map.get(valueKey);
 		}
 
 		// IMPORTANT: Access raw data directly from row.original

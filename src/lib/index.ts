@@ -171,6 +171,7 @@ export type {
 
 export {
 	getCellKey,
+	getCellValueKey,
 	parseCellKey,
 	getRowHeightValue,
 	getLineCount,
