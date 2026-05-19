@@ -149,18 +149,6 @@
 	let tableMode = $state<TableMode>('basic');
 	let showTableSkeleton = $state(false);
 
-	function areValuesEqual(left: unknown, right: unknown): boolean {
-		if (Object.is(left, right)) {
-			return true;
-		}
-
-		try {
-			return JSON.stringify(left) === JSON.stringify(right);
-		} catch {
-			return false;
-		}
-	}
-
 	const { trackCellsUpdate, trackRowsAdd, trackRowsDelete } = useDataGridUndoRedo({
 		data: () => data,
 		onDataChange: (newData) => {
@@ -385,40 +373,11 @@
 		data = data.filter((row) => !rows.includes(row));
 	}
 
+	function onCellUpdates(updates: UndoRedoCellUpdate[]) {
+		trackCellsUpdate(updates);
+	}
+
 	function onDataChange(newData: Person[]) {
-		const cellUpdates: UndoRedoCellUpdate[] = [];
-		const maxLength = Math.max(data.length, newData.length);
-
-		for (let rowIndex = 0; rowIndex < maxLength; rowIndex++) {
-			const oldRow = data[rowIndex];
-			const newRow = newData[rowIndex];
-
-			if (!oldRow || !newRow || oldRow === newRow) {
-				continue;
-			}
-
-			const allKeys = new Set([...Object.keys(oldRow), ...Object.keys(newRow)]);
-
-			for (const key of allKeys) {
-				const columnId = key as keyof Person;
-				const previousValue = oldRow[columnId];
-				const nextValue = newRow[columnId];
-
-				if (!areValuesEqual(previousValue, nextValue)) {
-					cellUpdates.push({
-						rowId: oldRow.id,
-						columnId: key,
-						previousValue,
-						newValue: nextValue
-					});
-				}
-			}
-		}
-
-		if (cellUpdates.length > 0) {
-			trackCellsUpdate(cellUpdates);
-		}
-
 		data = newData;
 	}
 
@@ -454,6 +413,7 @@
 		columns,
 		data: () => data, // Pass as getter for Svelte 5 reactivity
 		onDataChange,
+		onCellUpdates,
 		onRowAdd,
 		onRowsAdd,
 		onRowsDelete,

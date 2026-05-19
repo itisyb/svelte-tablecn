@@ -66,6 +66,14 @@ export function createSvelteTable<TData extends RowData>(
 	// Store the update function so we can call it from the proxy
 	let triggerUpdate: (() => void) | null = null;
 
+	// Sync options at most once per effect flush instead of on every table property access.
+	let syncGeneration = 0;
+	let lastSyncedGeneration = -1;
+
+	$effect.pre(() => {
+		syncGeneration++;
+	});
+
 	// Create subscriber that will trigger Svelte reactivity when table state changes
 	const subscribe = createSubscriber((update) => {
 		triggerUpdate = update;
@@ -76,7 +84,7 @@ export function createSvelteTable<TData extends RowData>(
 		};
 	});
 
-	// Update table options - called on every access to sync with latest options
+	// Update table options when reactive inputs may have changed
 	function syncOptions() {
 		const originalOnStateChange = options.onStateChange;
 		
@@ -106,9 +114,11 @@ export function createSvelteTable<TData extends RowData>(
 		get(target, prop, receiver) {
 			// Register as subscriber
 			subscribe();
-			
-			// Sync options on every access to pick up reactive changes (e.g., data updates)
-			syncOptions();
+
+			if (lastSyncedGeneration !== syncGeneration) {
+				syncOptions();
+				lastSyncedGeneration = syncGeneration;
+			}
 			
 			const value = Reflect.get(target, prop, receiver);
 			

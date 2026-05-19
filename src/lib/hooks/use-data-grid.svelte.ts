@@ -94,6 +94,15 @@ export interface UseDataGridOptions<TData extends RowData> {
 		rowSelection?: RowSelectionState;
 	};
 	onDataChange?: (data: TData[]) => void;
+	/** Precise cell diffs emitted before onDataChange — use for undo/redo without scanning the full dataset */
+	onCellUpdates?: (
+		updates: Array<{
+			rowId: string;
+			columnId: string;
+			previousValue: unknown;
+			newValue: unknown;
+		}>
+	) => void;
 	onRowAdd?: (
 		event?: MouseEvent
 	) => Partial<CellPosition> | void | Promise<Partial<CellPosition> | void>;
@@ -167,6 +176,44 @@ interface VirtualizerReturn {
 
 const NON_NAVIGABLE_COLUMNS = new Set(['select', 'actions']);
 
+
+function isSortingStateEqual(left: SortingState, right: SortingState): boolean {
+	if (left.length !== right.length) return false;
+	for (let index = 0; index < left.length; index++) {
+		const leftItem = left[index];
+		const rightItem = right[index];
+		if (leftItem?.id !== rightItem?.id || leftItem?.desc !== rightItem?.desc) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function isColumnFiltersStateEqual(
+	left: ColumnFiltersState,
+	right: ColumnFiltersState
+): boolean {
+	if (left.length !== right.length) return false;
+	for (let index = 0; index < left.length; index++) {
+		const leftFilter = left[index];
+		const rightFilter = right[index];
+		if (leftFilter?.id !== rightFilter?.id || !Object.is(leftFilter?.value, rightFilter?.value)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function isVisibilityStateEqual(left: VisibilityState, right: VisibilityState): boolean {
+	const leftKeys = Object.keys(left);
+	const rightKeys = Object.keys(right);
+	if (leftKeys.length !== rightKeys.length) return false;
+	for (const key of leftKeys) {
+		if (left[key] !== right[key]) return false;
+	}
+	return true;
+}
+
 // ============================================
 // Main Hook
 // ============================================
@@ -187,6 +234,7 @@ export function useDataGrid<TData extends RowData>(
 		getRowId,
 		initialState,
 		onDataChange,
+		onCellUpdates,
 		onRowAdd: onRowAddProp,
 		onRowsAdd,
 		onRowsDelete: onRowsDeleteProp,
@@ -1231,6 +1279,12 @@ export function useDataGrid<TData extends RowData>(
 		const rows = table.getRowModel().rows;
 		const currentData = getData();
 		const nextData = onDataChange ? [...currentData] : null;
+		const cellUpdates: Array<{
+			rowId: string;
+			columnId: string;
+			previousValue: unknown;
+			newValue: unknown;
+		}> = [];
 		let didApplyUpdate = false;
 
 		function getSourceRowIndex(rowData: TData): number {
@@ -1264,6 +1318,16 @@ export function useDataGrid<TData extends RowData>(
 				const nextRow = nextData[sourceRowIndex];
 				if (!nextRow) continue;
 
+				const previousValue = (nextRow as Record<string, unknown>)[update.columnId];
+				if (!Object.is(previousValue, update.value) && getRowId) {
+					cellUpdates.push({
+						rowId: getRowId(nextRow, sourceRowIndex),
+						columnId: update.columnId,
+						previousValue,
+						newValue: update.value
+					});
+				}
+
 				nextData[sourceRowIndex] = {
 					...(nextRow as Record<string, unknown>),
 					[update.columnId]: update.value
@@ -1279,6 +1343,9 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		if (didApplyUpdate && nextData) {
+			if (cellUpdates.length > 0) {
+				onCellUpdates?.(cellUpdates);
+			}
 			onDataChange?.(nextData);
 		}
 	}
@@ -1588,12 +1655,11 @@ export function useDataGrid<TData extends RowData>(
 
 		// Clear cell value cache when sorting, filtering, row count, or column visibility changes
 		// This ensures cells show correct values after re-ordering, add/delete, or column show/hide
-		const sortingChanged = JSON.stringify(sorting) !== JSON.stringify(prevSorting);
-		const filtersChanged = JSON.stringify(columnFilters) !== JSON.stringify(prevColumnFilters);
+		const sortingChanged = !isSortingStateEqual(sorting, prevSorting);
+		const filtersChanged = !isColumnFiltersStateEqual(columnFilters, prevColumnFilters);
 		const dataLengthChanged = currentData.length !== prevDataLength;
 		const dataReferenceChanged = currentData !== prevDataRef;
-		const visibilityChanged =
-			JSON.stringify(columnVisibility) !== JSON.stringify(prevColumnVisibility);
+		const visibilityChanged = !isVisibilityStateEqual(columnVisibility, prevColumnVisibility);
 
 		if (
 			sortingChanged ||
