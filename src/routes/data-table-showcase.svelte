@@ -288,14 +288,14 @@
 						{#if advancedFilterUi === 'advancedFilters'}
 							<DataTableFilterList
 								{table}
-								columnFilters={columnFilters as import('$lib/types/data-table.js').ExtendedColumnFilter<Person>[]}
+								columnFilters={columnFilters as ExtendedColumnFilter<Person>[]}
 								{joinOperator}
 								align="start"
 							/>
 						{:else}
 							<DataTableFilterMenu
 								{table}
-								columnFilters={columnFilters as import('$lib/types/data-table.js').ExtendedColumnFilter<Person>[]}
+								columnFilters={columnFilters as ExtendedColumnFilter<Person>[]}
 								align="start"
 							/>
 						{/if}
