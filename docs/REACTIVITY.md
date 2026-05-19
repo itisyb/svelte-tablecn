@@ -67,9 +67,10 @@ With `enableAdvancedFilter` and `manualFiltering: false`, `useDataTable` pre-fil
 ## Rules for new code
 
 1. **No `$effect` that writes state derived from the same state** (e.g. syncing `filterItems` from `table.getState()` without a snapshot guard).
-2. **No reading `table.options.meta` in `$derived` loops** unless necessary — prefer props from the hook (`columnFilters`, `joinOperator`).
-3. **URL sync** (`useDataTable`) uses snapshots + `isApplyingQueryState` so `pushState` does not echo back into filters.
-4. Prefer **`$effect.pre`** for syncing into non-Svelte systems; use **`untrack`** when reading for side effects only.
+2. **Pass `columnFilters` / `joinOperator` from `useDataTable`** into filter components — do not mirror `table.getState()` in a local `$effect`.
+3. **Controlled table handlers must not call `notifyTableUpdate`** — `$effect.pre` already syncs after parent `$state` changes.
+4. **URL sync** (`useDataTable`) uses snapshots + `isApplyingQueryState` so `pushState` does not echo back into filters.
+5. Prefer **`$effect.pre`** for syncing into non-Svelte systems; use **`untrack`** when reading for side effects only.
 
 ## Files
 
