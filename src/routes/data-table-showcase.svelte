@@ -242,7 +242,8 @@
 		columns,
 		getRowId: (row) => row.id,
 		enableAdvancedFilter: mode === 'advanced',
-		manualFiltering: mode === 'advanced',
+		// Demo uses client-side filtering so URL + UI stay in sync with local rows
+		manualFiltering: false,
 		clearOnDefault: true,
 		initialState: {
 			pagination: {

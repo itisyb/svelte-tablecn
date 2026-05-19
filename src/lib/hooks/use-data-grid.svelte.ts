@@ -1486,6 +1486,8 @@ export function useDataGrid<TData extends RowData>(
 		}
 	};
 
+	let notifyTableUpdate: (() => void) | undefined;
+
 	// Create the base table options
 	const baseTableOptions: TableOptionsResolved<TData> = {
 		data: getData(),
@@ -1518,9 +1520,11 @@ export function useDataGrid<TData extends RowData>(
 		},
 		onSortingChange: (updater) => {
 			sorting = typeof updater === 'function' ? updater(sorting) : updater;
+			notifyTableUpdate?.();
 		},
 		onColumnFiltersChange: (updater) => {
 			columnFilters = typeof updater === 'function' ? updater(columnFilters) : updater;
+			notifyTableUpdate?.();
 		},
 		onRowSelectionChange: (updater) => {
 			const newRowSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
@@ -1580,10 +1584,6 @@ export function useDataGrid<TData extends RowData>(
 	const table = createTable(baseTableOptions);
 
 	// Create a subscriber to notify effects when table data changes
-	// This is the key to making TanStack Table reactive in Svelte 5
-	// When data comes from async sources (like database queries), the table needs
-	// to notify consuming components that data has changed so they can re-render
-	let notifyTableUpdate: () => void;
 	const subscribeToTable = createSubscriber((update) => {
 		notifyTableUpdate = update;
 		return () => {};

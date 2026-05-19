@@ -66,14 +66,6 @@ export function createSvelteTable<TData extends RowData>(
 	// Store the update function so we can call it from the proxy
 	let triggerUpdate: (() => void) | null = null;
 
-	// Sync options at most once per effect flush instead of on every table property access.
-	let syncGeneration = 0;
-	let lastSyncedGeneration = -1;
-
-	$effect.pre(() => {
-		syncGeneration++;
-	});
-
 	// Create subscriber that will trigger Svelte reactivity when table state changes
 	const subscribe = createSubscriber((update) => {
 		triggerUpdate = update;
@@ -84,26 +76,37 @@ export function createSvelteTable<TData extends RowData>(
 		};
 	});
 
+	function wrapOnChange<Updater>(
+		handler: ((updater: Updater) => void) | undefined
+	): (updater: Updater) => void {
+		return (updater) => {
+			handler?.(updater);
+			triggerUpdate?.();
+		};
+	}
+
 	// Update table options when reactive inputs may have changed
 	function syncOptions() {
 		const originalOnStateChange = options.onStateChange;
-		
+
 		table.setOptions((prev) => {
 			return mergeObjects(prev, options, {
 				state: mergeObjects(state, options.state || {}),
+				onColumnFiltersChange: wrapOnChange(options.onColumnFiltersChange),
+				onSortingChange: wrapOnChange(options.onSortingChange),
+				onPaginationChange: wrapOnChange(options.onPaginationChange),
+				onColumnVisibilityChange: wrapOnChange(options.onColumnVisibilityChange),
+				onRowSelectionChange: wrapOnChange(options.onRowSelectionChange),
 				onStateChange: (updater: Parameters<NonNullable<TableOptions<TData>['onStateChange']>>[0]) => {
 					if (updater instanceof Function) {
 						state = updater(state as TableState);
 					} else {
 						state = mergeObjects(state, updater);
 					}
-					
-					// Trigger Svelte reactivity
+
 					triggerUpdate?.();
-					
-					// Call user's onStateChange if provided
 					originalOnStateChange?.(updater);
-				},
+				}
 			});
 		});
 	}
@@ -114,12 +117,8 @@ export function createSvelteTable<TData extends RowData>(
 		get(target, prop, receiver) {
 			// Register as subscriber
 			subscribe();
+			syncOptions();
 
-			if (lastSyncedGeneration !== syncGeneration) {
-				syncOptions();
-				lastSyncedGeneration = syncGeneration;
-			}
-			
 			const value = Reflect.get(target, prop, receiver);
 			
 			// Bind methods to the original table
