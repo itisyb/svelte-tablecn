@@ -257,8 +257,13 @@ export function getValidFilters<TData>(
 	filters: ExtendedColumnFilter<TData>[]
 ): ExtendedColumnFilter<TData>[] {
 	return filters.filter((filter) => {
-		// Empty operators don't need a value
-		if (filter.operator === 'isEmpty' || filter.operator === 'isNotEmpty') {
+		// Empty / boolean operators don't need a value
+		if (
+			filter.operator === 'isEmpty' ||
+			filter.operator === 'isNotEmpty' ||
+			filter.operator === 'isTrue' ||
+			filter.operator === 'isFalse'
+		) {
 			return true;
 		}
 

@@ -24,6 +24,7 @@
 
 	type DemoMode = 'grid' | 'table';
 	type TableMode = 'basic' | 'advanced';
+	type AdvancedFilterUi = 'advancedFilters' | 'commandFilters';
 
 	interface Person {
 		id: string;
@@ -147,6 +148,7 @@
 	let data = $state<Person[]>(initialData);
 	let demoMode = $state<DemoMode>('grid');
 	let tableMode = $state<TableMode>('basic');
+	let advancedFilterUi = $state<AdvancedFilterUi>('commandFilters');
 	let showTableSkeleton = $state(false);
 
 	const { trackCellsUpdate, trackRowsAdd, trackRowsDelete } = useDataGridUndoRedo({
@@ -508,6 +510,23 @@
 				>
 					Advanced Table
 				</Button>
+				{#if tableMode === 'advanced'}
+					<span class="mx-1 text-muted-foreground">|</span>
+					<Button
+						variant={advancedFilterUi === 'advancedFilters' ? 'default' : 'outline'}
+						size="sm"
+						onclick={() => (advancedFilterUi = 'advancedFilters')}
+					>
+						Filter list
+					</Button>
+					<Button
+						variant={advancedFilterUi === 'commandFilters' ? 'default' : 'outline'}
+						size="sm"
+						onclick={() => (advancedFilterUi = 'commandFilters')}
+					>
+						Filter menu
+					</Button>
+				{/if}
 			</div>
 			<Button variant="outline" size="sm" onclick={() => (showTableSkeleton = !showTableSkeleton)}>
 				{showTableSkeleton ? 'Show Live Table' : 'Show Skeleton'}
@@ -521,8 +540,15 @@
 				rowCount={10}
 			/>
 		{:else}
-			{#key tableMode}
-				<DataTableShowcase mode={tableMode} rows={tableRows} {departments} {statuses} {skills} />
+			{#key `${tableMode}-${advancedFilterUi}`}
+				<DataTableShowcase
+					mode={tableMode}
+					{advancedFilterUi}
+					rows={tableRows}
+					{departments}
+					{statuses}
+					{skills}
+				/>
 			{/key}
 		{/if}
 	{/if}

@@ -255,3 +255,9 @@ export {
 } from './hooks/use-badge-overflow.svelte.js';
 export { useDebouncedCallback, type DebouncedCallback } from './hooks/use-debounced-callback';
 export { useCallbackRef } from './hooks/use-callback-ref';
+export { filterRows } from './filter-rows.js';
+export {
+	toSqlFilterOperator,
+	fromSqlFilterOperator,
+	type SqlFilterOperator
+} from './map-sql-filter-operators.js';

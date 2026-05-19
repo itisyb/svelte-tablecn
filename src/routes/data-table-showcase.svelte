@@ -4,6 +4,7 @@
 		DataTable,
 		DataTableAdvancedToolbar,
 		DataTableColumnHeader,
+		DataTableFilterList,
 		DataTableFilterMenu,
 		DataTableSortList,
 		DataTableToolbar,
@@ -12,6 +13,8 @@
 	} from '$lib';
 
 	type DemoMode = 'basic' | 'advanced';
+	/** Matches tablecn filterFlag: advancedFilters (list) vs commandFilters (menu) */
+	type AdvancedFilterUi = 'advancedFilters' | 'commandFilters';
 
 	interface Person {
 		id: string;
@@ -27,13 +30,21 @@
 
 	interface Props {
 		mode: DemoMode;
+		advancedFilterUi?: AdvancedFilterUi;
 		rows: Person[];
 		departments: readonly string[];
 		statuses: readonly string[];
 		skills: readonly string[];
 	}
 
-	let { mode, rows, departments, statuses, skills }: Props = $props();
+	let {
+		mode,
+		advancedFilterUi = 'commandFilters',
+		rows,
+		departments,
+		statuses,
+		skills
+	}: Props = $props();
 
 	const currencyFormatter = new Intl.NumberFormat(undefined, {
 		style: 'currency',
@@ -234,8 +245,10 @@
 
 	const description =
 		mode === 'advanced'
-			? 'Advanced mode showcases sort lists, compact filter menus, and URL-synced state. It is best suited to server-side filtering flows.'
-			: 'Basic mode showcases client-side sorting, filtering, pagination, view options, sliders, and date filters.';
+			? advancedFilterUi === 'advancedFilters'
+				? 'Advanced list UI (tablecn advancedFilters): multi-rule filters with AND/OR, drag reorder, and URL-synced filters + joinOperator.'
+				: 'Command filter menu (tablecn commandFilters): compact popover filters with operators, synced to the URL.'
+			: 'Basic mode showcases per-column toolbar filters (tablecn default toolbar), client-side sort/filter, and faceted controls.';
 
 	const { table } = useDataTable({
 		data: () => rows,
@@ -270,8 +283,12 @@
 			{#snippet children()}
 				<DataTableAdvancedToolbar {table}>
 					{#snippet children()}
-						<DataTableSortList {table} />
-						<DataTableFilterMenu {table} />
+						<DataTableSortList {table} align="start" />
+						{#if advancedFilterUi === 'advancedFilters'}
+							<DataTableFilterList {table} align="start" />
+						{:else}
+							<DataTableFilterMenu {table} align="start" />
+						{/if}
 					{/snippet}
 				</DataTableAdvancedToolbar>
 			{/snippet}

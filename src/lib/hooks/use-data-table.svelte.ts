@@ -18,8 +18,10 @@ import {
 import { DATA_TABLE_DEFAULTS, DEFAULT_DATA_TABLE_QUERY_KEYS } from '$lib/config/data-table.js';
 import { getFiltersStateParser, getSortingStateParser } from '$lib/parsers.js';
 import { createSvelteTable } from '$lib/table';
+import { filterRows } from '$lib/filter-rows.js';
 import {
 	getDefaultFilterOperator,
+	getValidFilters,
 	type ExtendedColumnFilter,
 	type ExtendedColumnSort,
 	type FilterVariant,
@@ -402,9 +404,25 @@ export function useDataTable<TData>(
 		void syncQueryState(delay);
 	});
 
+	const useClientAdvancedFiltering = enableAdvancedFilter && !manualFiltering;
+
 	const table = createSvelteTable<TData>({
 		get data() {
-			return getData();
+			const rawData = getData();
+
+			if (!useClientAdvancedFiltering) {
+				return rawData;
+			}
+
+			const advancedFilters = getValidFilters(
+				extractAdvancedFilters(columnFilters, getColumnVariant)
+			);
+
+			if (advancedFilters.length === 0) {
+				return rawData;
+			}
+
+			return filterRows(rawData, advancedFilters, joinOperator);
 		},
 		columns,
 		...(getRowId ? { getRowId } : {}),
@@ -447,7 +465,7 @@ export function useDataTable<TData>(
 		getFacetedMinMaxValues: getFacetedMinMaxValues(),
 		manualPagination,
 		manualSorting,
-		manualFiltering,
+		manualFiltering: useClientAdvancedFiltering ? true : manualFiltering,
 		meta: {
 			queryKeys: resolvedQueryKeys,
 			get joinOperator() {
