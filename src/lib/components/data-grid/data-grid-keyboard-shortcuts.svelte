@@ -89,6 +89,7 @@
 
 		const editingShortcuts: ShortcutGroup['shortcuts'] = [
 			{ keys: ['Enter'], description: 'Start editing cell' },
+			{ keys: ['Shift', 'Enter'], description: 'Add row' },
 			{ keys: ['F2'], description: 'Start editing cell' },
 			{ keys: ['Double Click'], description: 'Start editing cell' },
 			{ keys: [modKey, 'C'], description: 'Copy selected cells' },

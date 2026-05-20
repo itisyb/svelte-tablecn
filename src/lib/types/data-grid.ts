@@ -337,7 +337,11 @@ export interface DataGridProps<TData> {
 	onDataChange?: (data: TData[]) => void;
 	onRowAdd?: (
 		event?: MouseEvent
-	) => Partial<CellPosition> | void | Promise<Partial<CellPosition> | void>;
+	) =>
+		| Partial<CellPosition>
+		| null
+		| void
+		| Promise<Partial<CellPosition> | null | void>;
 	onRowsAdd?: (count: number) => void | Promise<void>;
 	onRowsDelete?: (rows: TData[], rowIndices: number[]) => void | Promise<void>;
 	onPaste?: (updates: UpdateCell[]) => void | Promise<void>;

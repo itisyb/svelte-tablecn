@@ -78,6 +78,7 @@
 	const columns = $derived(table.getAllColumns());
 
 	const meta = $derived(table.options.meta);
+	const readOnly = $derived(meta?.readOnly ?? false);
 	const rowHeight = $derived<RowHeightValue>(meta?.rowHeight ?? 'short');
 	const focusedCell = $derived<CellPosition | null>(meta?.focusedCell ?? null);
 	// selectedCellsSet and selectionVersion are now received as props from hook return
@@ -335,8 +336,8 @@
 			</div>
 			</div>
 
-			<!-- Pinned add row (always visible at bottom of the grid viewport, like tablecn) -->
-			{#if onRowAdd}
+			<!-- Pinned add row (always visible at bottom of the grid viewport) -->
+			{#if !readOnly && onRowAdd}
 				<div
 					role="rowgroup"
 					data-slot="grid-footer"

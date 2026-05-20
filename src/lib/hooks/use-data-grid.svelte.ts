@@ -73,6 +73,7 @@ import {
 	getRowHeightValue
 } from '$lib/types/data-grid.js';
 import { toast } from 'svelte-sonner';
+import { SCROLL_SYNC_RETRY_COUNT, VIEWPORT_OFFSET } from '$lib/config/data-grid.js';
 
 // ============================================
 // Types
@@ -101,7 +102,11 @@ export interface UseDataGridOptions<TData extends RowData> {
 	onDataChange?: (data: TData[]) => void;
 	onRowAdd?: (
 		event?: MouseEvent
-	) => Partial<CellPosition> | void | Promise<Partial<CellPosition> | void>;
+	) =>
+		| Partial<CellPosition>
+		| null
+		| void
+		| Promise<Partial<CellPosition> | null | void>;
 	onRowsAdd?: (count: number) => void | Promise<void>;
 	onRowsDelete?: (rows: TData[], rowIndices: number[]) => void | Promise<void>;
 	onPaste?: (updates: UpdateCell[]) => void | Promise<void>;
@@ -641,6 +646,16 @@ export function useDataGrid<TData extends RowData>(
 		blurCell();
 	}
 
+	function clearCellSelection() {
+		const newCells = new Set<string>();
+		syncSelectedCellsSet(newCells);
+		selectionState = {
+			selectedCells: newCells,
+			selectionRange: null,
+			isSelecting: false
+		};
+	}
+
 	// ========================================
 	// Mouse Selection (Drag)
 	// ========================================
@@ -1151,7 +1166,41 @@ export function useDataGrid<TData extends RowData>(
 			return;
 		}
 
-		// Enter to start editing or move down
+		// Shift+Enter adds a row (tablecn)
+		if (
+			event.key === 'Enter' &&
+			event.shiftKey &&
+			!readOnly &&
+			onRowAddProp &&
+			focusedCell
+		) {
+			event.preventDefault();
+			event.stopPropagation();
+
+			const initialRowCount = getData().length;
+			const currentColumnId = focusedCell.columnId;
+
+			void Promise.resolve(onRowAddProp())
+				.then(async (result) => {
+					if (result === null) return;
+
+					clearCellSelection();
+
+					const targetRowIndex = result?.rowIndex ?? initialRowCount;
+					const targetColumnId = result?.columnId ?? currentColumnId;
+
+					await scrollToRow({
+						rowIndex: targetRowIndex,
+						columnId: targetColumnId
+					});
+				})
+				.catch(() => {
+					// Callback threw; skip scroll/focus
+				});
+			return;
+		}
+
+		// Enter to start editing
 		if (event.key === 'Enter' && focusedCell) {
 			event.preventDefault();
 			event.stopPropagation();
@@ -1224,25 +1273,108 @@ export function useDataGrid<TData extends RowData>(
 	}
 
 	// ========================================
+	// Scroll to row (tablecn-style: virtualizer + viewport + focus retries)
+	// ========================================
+
+	async function scrollToRow(opts: Partial<CellPosition>) {
+		const rowIndex = opts.rowIndex ?? 0;
+		const resolvedColumnId = opts.columnId ?? getFirstNavigableColumnId();
+
+		if (!resolvedColumnId) return;
+
+		const columnId = resolvedColumnId;
+
+		async function scrollAndFocus(retryCount: number) {
+			const currentRowCount = getData().length;
+
+			if (rowIndex >= currentRowCount && retryCount > 0) {
+				await new Promise((resolve) => setTimeout(resolve, 50));
+				await scrollAndFocus(retryCount - 1);
+				return;
+			}
+
+			const safeRowIndex = Math.min(rowIndex, Math.max(0, currentRowCount - 1));
+			const isBottomHalf = safeRowIndex > currentRowCount / 2;
+
+			if (virtualizer) {
+				virtualizer.scrollToIndex(safeRowIndex, {
+					align: isBottomHalf ? 'end' : 'start'
+				});
+			}
+
+			await new Promise((resolve) => requestAnimationFrame(resolve));
+
+			const container = dataGridRef;
+			const targetRow = rowMapRef.get(safeRowIndex);
+
+			if (container && targetRow) {
+				const containerRect = container.getBoundingClientRect();
+				const headerHeight = headerRef?.getBoundingClientRect().height ?? 0;
+				// Footer is pinned outside the scroll container; no in-scroll footer offset.
+				const footerHeight = 0;
+
+				const viewportTop = containerRect.top + headerHeight + VIEWPORT_OFFSET;
+				const viewportBottom = containerRect.bottom - footerHeight - VIEWPORT_OFFSET;
+
+				const rowRect = targetRow.getBoundingClientRect();
+				const isFullyVisible =
+					rowRect.top >= viewportTop && rowRect.bottom <= viewportBottom;
+
+				if (!isFullyVisible) {
+					if (rowRect.top < viewportTop) {
+						container.scrollTop -= viewportTop - rowRect.top;
+					} else if (rowRect.bottom > viewportBottom) {
+						container.scrollTop += rowRect.bottom - viewportBottom;
+					}
+				}
+			}
+
+			editingCell = null;
+			focusedCell = { rowIndex: safeRowIndex, columnId };
+
+			const cellKey = getCellKey(safeRowIndex, columnId);
+			const cellElement = cellMapRef.get(cellKey);
+
+			if (cellElement) {
+				cellElement.focus();
+			} else if (retryCount > 0) {
+				await new Promise((resolve) => requestAnimationFrame(resolve));
+				await scrollAndFocus(retryCount - 1);
+			} else {
+				dataGridRef?.focus();
+			}
+		}
+
+		await scrollAndFocus(SCROLL_SYNC_RETRY_COUNT);
+	}
+
+	// ========================================
 	// Row Add Handler
 	// ========================================
 
 	async function handleRowAdd(event?: MouseEvent) {
-		if (!onRowAddProp) return;
+		if (readOnly || !onRowAddProp) return;
 
-		const result = await onRowAddProp(event);
-		if (result) {
-			const rows = table.getRowModel().rows;
-			const newRowIndex = result.rowIndex ?? rows.length;
-			const newColumnId = result.columnId ?? getFirstNavigableColumnId();
+		const initialRowCount = getData().length;
 
-			if (newColumnId) {
-				// Wait for table to update
-				queueMicrotask(() => {
-					focusCell(newRowIndex, newColumnId);
-				});
-			}
+		let result: Partial<CellPosition> | null | void;
+		try {
+			result = await onRowAddProp(event);
+		} catch {
+			return;
 		}
+
+		if (result === null || event?.defaultPrevented) return;
+
+		clearCellSelection();
+
+		const targetRowIndex = result?.rowIndex ?? initialRowCount;
+		const targetColumnId = result?.columnId;
+
+		await scrollToRow({
+			rowIndex: targetRowIndex,
+			columnId: targetColumnId
+		});
 	}
 
 	// ========================================
