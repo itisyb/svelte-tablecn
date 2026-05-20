@@ -11,8 +11,9 @@
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
 	import DataTableShowcase from './data-table-showcase.svelte';
 	import GridDemo from './grid-demo.svelte';
+	import GridRenderDemo from './grid-render-demo.svelte';
 
-	type DemoMode = 'grid' | 'table';
+	type DemoMode = 'grid' | 'render' | 'table';
 	type TableMode = 'basic' | 'advanced';
 	type AdvancedFilterUi = 'advancedFilters' | 'commandFilters';
 
@@ -63,6 +64,13 @@
 				Data Grid Demo
 			</Button>
 			<Button
+				variant={demoMode === 'render' ? 'default' : 'outline'}
+				size="sm"
+				onclick={() => (demoMode = 'render')}
+			>
+				Render Perf Demo
+			</Button>
+			<Button
 				variant={demoMode === 'table' ? 'default' : 'outline'}
 				size="sm"
 				onclick={() => (demoMode = 'table')}
@@ -74,6 +82,8 @@
 
 	{#if demoMode === 'grid'}
 		<GridDemo height={gridHeight} />
+	{:else if demoMode === 'render'}
+		<GridRenderDemo height={gridHeight} />
 	{:else}
 		<div
 			class="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3"
