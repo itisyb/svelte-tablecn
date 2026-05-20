@@ -21,7 +21,6 @@ export { default as DataGridRowHeightMenu } from './data-grid-row-height-menu.sv
 
 // Utility components
 export { default as DataGridKeyboardShortcuts } from './data-grid-keyboard-shortcuts.svelte';
-export { default as DataGridRenderCount } from './data-grid-render-count.svelte';
 export { default as DataGridActionBar } from './data-grid-action-bar.svelte';
 
 // Cell variants

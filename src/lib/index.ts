@@ -38,7 +38,6 @@ export {
 	DataGridViewMenu,
 	DataGridRowHeightMenu,
 	DataGridKeyboardShortcuts,
-	DataGridRenderCount,
 	DataGridActionBar
 } from './components/data-grid';
 

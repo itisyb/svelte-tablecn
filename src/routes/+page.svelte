@@ -11,8 +11,10 @@
 	} from '$lib/demo/person-data.js';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
+	import DataTableShowcase from './data-table-showcase.svelte';
+	import GridDemo from './grid-demo.svelte';
 
-	type DemoMode = 'grid' | 'render' | 'table';
+	type DemoMode = 'grid' | 'table';
 	type TableMode = 'basic' | 'advanced';
 	type AdvancedFilterUi = 'advancedFilters' | 'commandFilters';
 
@@ -63,13 +65,6 @@
 				Data Grid Demo
 			</Button>
 			<Button
-				variant={demoMode === 'render' ? 'default' : 'outline'}
-				size="sm"
-				onclick={() => (demoMode = 'render')}
-			>
-				Render Perf Demo
-			</Button>
-			<Button
 				variant={demoMode === 'table' ? 'default' : 'outline'}
 				size="sm"
 				onclick={() => (demoMode = 'table')}
@@ -80,13 +75,7 @@
 	</div>
 
 	{#if demoMode === 'grid'}
-		{#await import('./grid-demo.svelte') then { default: GridDemo }}
-			<GridDemo height={gridHeight} />
-		{/await}
-	{:else if demoMode === 'render'}
-		{#await import('./grid-render-demo.svelte') then { default: GridRenderDemo }}
-			<GridRenderDemo height={gridHeight} />
-		{/await}
+		<GridDemo height={gridHeight} />
 	{:else}
 		<div
 			class="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3"
@@ -137,16 +126,14 @@
 			/>
 		{:else}
 			{#key `${tableMode}-${advancedFilterUi}`}
-				{#await import('./data-table-showcase.svelte') then { default: DataTableShowcase }}
-					<DataTableShowcase
-						mode={tableMode}
-						{advancedFilterUi}
-						rows={tableRows}
-						{departments}
-						{statuses}
-						{skills}
-					/>
-				{/await}
+				<DataTableShowcase
+					mode={tableMode}
+					{advancedFilterUi}
+					rows={tableRows}
+					{departments}
+					{statuses}
+					{skills}
+				/>
 			{/key}
 		{/if}
 	{/if}

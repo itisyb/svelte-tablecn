@@ -99,11 +99,6 @@
 					"target": "data-grid/data-grid-skeleton-toolbar.svelte"
 				},
 				{
-					"path": "src/lib/components/data-grid/data-grid-render-count.svelte",
-					"type": "registry:component",
-					"target": "data-grid/data-grid-render-count.svelte"
-				},
-				{
 					"path": "src/lib/components/data-grid/data-grid-row-height-menu.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-row-height-menu.svelte"
