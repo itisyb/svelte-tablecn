@@ -44,11 +44,12 @@
 	const hitboxClass = $derived(getHitboxSizeClass(hitboxSize));
 
 	function handleCheckedChange(checked: boolean | 'indeterminate') {
+		const nextSelected = checked === true || checked === 'indeterminate';
 		const onRowSelect = meta?.onRowSelect;
 		if (onRowSelect) {
-			onRowSelect(rowIndex, !!checked, false);
+			onRowSelect(rowIndex, nextSelected, false);
 		} else {
-			row.toggleSelected(!!checked);
+			row.toggleSelected(nextSelected);
 		}
 	}
 
@@ -60,15 +61,6 @@
 				onRowSelect(rowIndex, !isSelected, true);
 			}
 		}
-	}
-
-	function handleHitboxClick(event: MouseEvent) {
-		if (event.shiftKey) {
-			handleClick(event);
-			return;
-		}
-
-		handleCheckedChange(!isSelected);
 	}
 
 	function handleMouseDown(event: MouseEvent) {
@@ -112,17 +104,6 @@
 				onclick={handleClick}
 				onmousedown={handleMouseDown}
 			/>
-
-			<button
-				type="button"
-				aria-label={rowNumber ? `Select row ${rowNumber}` : 'Select row'}
-				class={cn(
-					'absolute inset-0 cursor-pointer',
-					debug && 'border border-dashed border-red-500 bg-red-500/20'
-				)}
-				onclick={handleHitboxClick}
-				onmousedown={handleMouseDown}
-			></button>
 		</div>
 	</div>
 {/if}

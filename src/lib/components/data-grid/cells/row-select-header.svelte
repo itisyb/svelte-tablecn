@@ -27,42 +27,52 @@
 		}
 	}
 
-	// Get reactive rowSelection from context (provided by DataGrid)
 	const getRowSelection = getContext<() => RowSelectionState>('getRowSelection');
 
-	// Use the getter to get reactive rowSelection
+	// Track rowSelection so header state updates when selection changes.
 	const rowSelection = $derived(getRowSelection?.() ?? {});
-	const rowCount = $derived(table.getRowModel().rows.length);
 
-	// Count only rows that are actually selected (value is true)
-	const selectedCount = $derived(Object.values(rowSelection).filter(Boolean).length);
+	const isAllSelected = $derived.by(() => {
+		void rowSelection;
+		return table.getIsAllPageRowsSelected();
+	});
 
-	const isAllSelected = $derived(rowCount > 0 && selectedCount === rowCount);
-	const isSomeSelected = $derived(selectedCount > 0 && selectedCount < rowCount);
+	const isSomeSelected = $derived.by(() => {
+		void rowSelection;
+		return table.getIsSomePageRowsSelected();
+	});
+
 	const hitboxClass = $derived(getHitboxSizeClass(hitboxSize));
+
+	function handleSelectAllChange(checked: boolean | 'indeterminate') {
+		// One handler only — overlay button was double-toggling (select all then immediately re-select).
+		if (checked === true || checked === 'indeterminate') {
+			table.toggleAllPageRowsSelected(true);
+			return;
+		}
+
+		table.toggleAllPageRowsSelected(false);
+	}
 </script>
 
 {#if readOnly}
 	<div class="mt-1 flex items-center ps-1 text-muted-foreground text-sm">#</div>
 {:else}
 	<div class={cn('flex size-full items-center justify-center px-3 py-1.5')}>
-		<div class={cn('group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5', hitboxClass)}>
+		<div
+			class={cn(
+				'group relative -my-1.5 flex h-[calc(100%+0.75rem)] items-center py-1.5',
+				hitboxClass,
+				debug && 'outline outline-dashed outline-red-500/50'
+			)}
+		>
 			<Checkbox
-				aria-label="Select all"
+				aria-label={isAllSelected ? 'Deselect all rows' : 'Select all rows'}
 				class="relative transition-[shadow,border] hover:border-primary/40"
 				checked={isAllSelected}
-				indeterminate={!isAllSelected && isSomeSelected}
-				onCheckedChange={(checked) => table.toggleAllPageRowsSelected(!!checked)}
+				indeterminate={isSomeSelected}
+				onCheckedChange={handleSelectAllChange}
 			/>
-			<button
-				type="button"
-				aria-label="Select all rows"
-				class={cn(
-					'absolute inset-0 cursor-pointer',
-					debug && 'border border-dashed border-red-500 bg-red-500/20'
-				)}
-				onclick={() => table.toggleAllPageRowsSelected(!isAllSelected)}
-			></button>
 		</div>
 	</div>
 {/if}
