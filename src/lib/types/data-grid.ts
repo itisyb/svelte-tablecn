@@ -66,6 +66,8 @@ export interface UpdateCell {
 export interface CellPosition {
 	rowIndex: number;
 	columnId: string;
+	/** Resolve display index after sort/filter; preferred over rowIndex when adding rows */
+	rowId?: string;
 }
 
 export interface CellRange {

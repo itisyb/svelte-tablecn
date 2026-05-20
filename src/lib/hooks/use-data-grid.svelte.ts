@@ -1273,19 +1273,80 @@ export function useDataGrid<TData extends RowData>(
 	}
 
 	// ========================================
+	// Table sync + row index resolution (sort/filter aware)
+	// ========================================
+
+	function syncTableFromData() {
+		const currentData = getData();
+		table.setOptions((prev) => ({
+			...prev,
+			data: currentData,
+			state: {
+				...prev.state,
+				sorting,
+				columnFilters,
+				rowSelection,
+				columnPinning,
+				columnVisibility,
+				columnSizing,
+				columnSizingInfo
+			},
+			meta
+		}));
+		notifyTableUpdate?.();
+	}
+
+	function resolveDisplayRowIndex(
+		result: Partial<CellPosition> | null | void,
+		fallbackIndex: number
+	): number {
+		const rows = table.getRowModel().rows;
+		if (!rows.length) return 0;
+
+		if (result?.rowId) {
+			const byId = rows.findIndex((row) => row.id === result.rowId);
+			if (byId !== -1) return byId;
+		}
+
+		if (result?.rowIndex !== undefined && getRowId) {
+			const sourceRow = getData()[result.rowIndex];
+			if (sourceRow) {
+				const rowId = getRowId(sourceRow, result.rowIndex);
+				const bySourceId = rows.findIndex((row) => row.id === rowId);
+				if (bySourceId !== -1) return bySourceId;
+			}
+		}
+
+		return Math.min(Math.max(0, fallbackIndex), rows.length - 1);
+	}
+
+	// ========================================
 	// Scroll to row (tablecn-style: virtualizer + viewport + focus retries)
 	// ========================================
 
 	async function scrollToRow(opts: Partial<CellPosition>) {
-		const rowIndex = opts.rowIndex ?? 0;
 		const resolvedColumnId = opts.columnId ?? getFirstNavigableColumnId();
 
 		if (!resolvedColumnId) return;
 
 		const columnId = resolvedColumnId;
+		let rowIndex = opts.rowIndex ?? 0;
 
 		async function scrollAndFocus(retryCount: number) {
-			const currentRowCount = getData().length;
+			syncTableFromData();
+
+			const rows = table.getRowModel().rows;
+			const currentRowCount = rows.length;
+
+			if (currentRowCount === 0) {
+				if (retryCount > 0) {
+					await new Promise((resolve) => setTimeout(resolve, 50));
+					await scrollAndFocus(retryCount - 1);
+				}
+				return;
+			}
+
+			rowIndex = resolveDisplayRowIndex(opts, rowIndex);
 
 			if (rowIndex >= currentRowCount && retryCount > 0) {
 				await new Promise((resolve) => setTimeout(resolve, 50));
@@ -1360,19 +1421,30 @@ export function useDataGrid<TData extends RowData>(
 		let result: Partial<CellPosition> | null | void;
 		try {
 			result = await onRowAddProp(event);
-		} catch {
+		} catch (error) {
+			console.error('[useDataGrid] onRowAdd failed', error);
+			toast.error('Failed to add row');
 			return;
 		}
 
 		if (result === null || event?.defaultPrevented) return;
 
+		syncTableFromData();
+
+		const rows = table.getRowModel().rows;
+		if (result?.rowId && !rows.some((row) => row.id === result.rowId)) {
+			toast.info('Row added but is hidden by the current filter');
+			return;
+		}
+
 		clearCellSelection();
 
-		const targetRowIndex = result?.rowIndex ?? initialRowCount;
+		const targetRowIndex = resolveDisplayRowIndex(result, result?.rowIndex ?? initialRowCount);
 		const targetColumnId = result?.columnId;
 
 		await scrollToRow({
 			rowIndex: targetRowIndex,
+			rowId: result?.rowId,
 			columnId: targetColumnId
 		});
 	}
@@ -1742,6 +1814,8 @@ export function useDataGrid<TData extends RowData>(
 			columnSizingInfo
 		};
 		const currentData = getData();
+		// Subscribe to parent data length so onRowAdd updates re-sync the table
+		void currentData.length;
 
 		const dataLengthChanged = currentData.length !== prevDataLength;
 		const dataReferenceChanged = currentData !== prevDataRef;
@@ -1861,9 +1935,10 @@ export function useDataGrid<TData extends RowData>(
 	// Separate effect to update virtualizer count when filtered rows change
 	// Track columnFilters, sorting, and data to trigger updates
 	$effect(() => {
-		// Read these to create dependencies - when filters/sorting change, row count changes
+		// Read these to create dependencies - when filters/sorting/data change, row count changes
 		const _ = columnFilters;
 		const __ = sorting;
+		const ___ = getData().length;
 
 		// Get the filtered/sorted row count from the table
 		const rowCount = table.getRowModel().rows.length;

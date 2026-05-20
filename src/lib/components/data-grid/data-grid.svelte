@@ -356,7 +356,7 @@
 							tabindex={0}
 							class="relative flex h-9 w-full cursor-pointer items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
 							style="width: {addRowWidth}px; min-width: {addRowWidth}px;"
-							onclick={onRowAdd}
+							onclick={(event) => void onRowAdd?.(event)}
 							onkeydown={onAddRowKeyDown}
 						>
 							<div class="sticky left-0 flex items-center gap-2 px-3 text-muted-foreground">

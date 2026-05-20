@@ -40,9 +40,6 @@
 	let data = $state<DemoPerson[]>([]);
 	let isLoading = $state(true);
 
-	const rowCountLabel = $derived(
-		isLoading ? `Loading ${DEMO_ROW_COUNT.toLocaleString('en-US')}…` : `${data.length.toLocaleString('en-US')} rows`
-	);
 
 	onMount(() => {
 		return scheduleDemoPeopleLoad(DEMO_ROW_COUNT, (people) => {
@@ -192,9 +189,11 @@
 	function onRowAdd() {
 		const newRowIndex = data.length;
 		const newRow = generateDemoPerson(newRowIndex + 1);
-		data = [...data, newRow];
+		const nextData = [...data, newRow];
+		data = nextData;
+		onDataChange(nextData);
 		trackRowsAdd([newRow]);
-		return { rowIndex: newRowIndex, columnId: 'name' };
+		return { rowIndex: newRowIndex, rowId: newRow.id, columnId: 'name' };
 	}
 
 	function onRowsAdd(count: number) {
@@ -259,6 +258,18 @@
 		enablePaste: true
 	});
 
+	const displayedRowCount = $derived(isLoading ? 0 : table.getRowModel().rows.length);
+
+	const rowCountLabel = $derived.by(() => {
+		if (isLoading) {
+			return `Loading ${DEMO_ROW_COUNT.toLocaleString('en-US')}…`;
+		}
+		if (data.length === displayedRowCount) {
+			return `${data.length.toLocaleString('en-US')} rows`;
+		}
+		return `${displayedRowCount.toLocaleString('en-US')} visible · ${data.length.toLocaleString('en-US')} total`;
+	});
+
 	onDestroy(() => {
 		dataGridProps.setDataGridRef(null);
 		dataGridProps.setHeaderRef(null);
@@ -283,7 +294,7 @@
 		</div>
 		<div class="flex items-center gap-2">
 			{#if addRow}
-				<Button variant="outline" size="sm" onclick={() => addRow()}>
+				<Button variant="outline" size="sm" disabled={isLoading} onclick={() => void addRow()}>
 					<Plus class="size-4" />
 					Add row
 				</Button>
