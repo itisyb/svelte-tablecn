@@ -42,7 +42,7 @@
 	let { height }: Props = $props();
 
 	/** Demo seed size only — the grid virtualizes any length; there is no 10k engine cap. */
-	const DEMO_ROW_COUNT = 10_000;
+	const DEMO_ROW_COUNT = import.meta.env.VITEST ? 200 : 10_000;
 
 	let data = $state<DemoPerson[]>([]);
 	let isLoading = $state(true);
@@ -268,8 +268,11 @@
 			}
 		},
 		enableSearch: true,
-		enablePaste: true
+		enablePaste: true,
+		enableColumnSelection: true
 	});
+
+	let stretchColumnsEnabled = $state(false);
 
 	const displayedRowCount = $derived(isLoading ? 0 : table.getRowModel().rows.length);
 
@@ -390,6 +393,15 @@
 			<DataGridSortMenu {table} />
 			<DataGridRowHeightMenu {table} />
 			<DataGridViewMenu {table} />
+			<Button
+				variant={stretchColumnsEnabled ? 'default' : 'outline'}
+				size="sm"
+				onclick={() => {
+					stretchColumnsEnabled = !stretchColumnsEnabled;
+				}}
+			>
+				Stretch
+			</Button>
 		</div>
 	</div>
 
@@ -400,7 +412,14 @@
 		</DataGridSkeleton>
 		<p class="text-center text-muted-foreground text-sm">Loading {DEMO_ROW_COUNT.toLocaleString('en-US')} rows…</p>
 	{:else}
-		<DataGrid {...dataGridProps} onRowAdd={addRow} {table} {height} {dir} />
+		<DataGrid
+			{...dataGridProps}
+			onRowAdd={addRow}
+			{table}
+			{height}
+			{dir}
+			stretchColumns={stretchColumnsEnabled}
+		/>
 		<DataGridActionBar
 			{table}
 			{tableMeta}

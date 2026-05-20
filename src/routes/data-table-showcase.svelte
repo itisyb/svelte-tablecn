@@ -8,9 +8,9 @@
 		DataTableFilterMenu,
 		DataTableSortList,
 		DataTableToolbar,
-		renderComponent,
 		useDataTable
-	} from '$lib';
+	} from '$lib/components/data-table';
+	import { renderComponent } from '$lib/table/index.js';
 
 	type DemoMode = 'basic' | 'advanced';
 	/** Matches tablecn filterFlag: advancedFilters (list) vs commandFilters (menu) */

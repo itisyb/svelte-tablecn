@@ -31,9 +31,6 @@
 		onNavigateToPrevMatch
 	}: Props = $props();
 
-	// Debug - DO NOT REMOVE until user says so
-	$inspect('SearchComponent', { searchOpen, searchQuery, matchCount: searchMatches.length, matchIndex });
-
 	let inputRef = $state<HTMLInputElement | null>(null);
 
 	// Debounce timer

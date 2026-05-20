@@ -12,9 +12,15 @@ export default defineConfig({
 				extends: './vite.config.ts',
 				test: {
 					name: 'client',
+					testTimeout: 30_000,
+					setupFiles: ['vitest-browser-svelte'],
 					browser: {
 						enabled: true,
-						provider: playwright(),
+						provider: playwright({
+							launchOptions: {
+								args: ['--no-sandbox', '--disable-setuid-sandbox']
+							}
+						}),
 						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],

@@ -440,7 +440,7 @@ export function useDataGrid<TData extends RowData>(
 				table,
 				viewportOffset: VIEWPORT_OFFSET,
 				direction: direction ? getScrollDirection(direction) : undefined,
-				isRtl: false
+				isRtl: getDir() === 'rtl'
 			});
 		}
 	}
@@ -453,7 +453,8 @@ export function useDataGrid<TData extends RowData>(
 		const currentIndex = cols.findIndex((col) => col.id === currentColumnId);
 		if (currentIndex === -1) return null;
 
-		const nextIndex = direction === 'right' ? currentIndex + 1 : currentIndex - 1;
+		const step = direction === 'right' ? 1 : -1;
+		const nextIndex = getDir() === 'rtl' ? currentIndex - step : currentIndex + step;
 		return cols[nextIndex]?.id ?? null;
 	}
 
@@ -1620,6 +1621,8 @@ export function useDataGrid<TData extends RowData>(
 		let newRowIndex = rowIndex;
 		let newColumnId: string | null = columnId;
 
+		const isRtl = getDir() === 'rtl';
+
 		switch (direction) {
 			case 'up':
 				newRowIndex = Math.max(0, rowIndex - 1);
@@ -1628,10 +1631,22 @@ export function useDataGrid<TData extends RowData>(
 				newRowIndex = Math.min(rowCount - 1, rowIndex + 1);
 				break;
 			case 'left':
-				newColumnId = getNextNavigableColumnId(columnId, 'left');
+				if (isRtl) {
+					if (currentColIndex < navigableColumnIds.length - 1) {
+						newColumnId = navigableColumnIds[currentColIndex + 1] ?? columnId;
+					}
+				} else if (currentColIndex > 0) {
+					newColumnId = navigableColumnIds[currentColIndex - 1] ?? columnId;
+				}
 				break;
 			case 'right':
-				newColumnId = getNextNavigableColumnId(columnId, 'right');
+				if (isRtl) {
+					if (currentColIndex > 0) {
+						newColumnId = navigableColumnIds[currentColIndex - 1] ?? columnId;
+					}
+				} else if (currentColIndex < navigableColumnIds.length - 1) {
+					newColumnId = navigableColumnIds[currentColIndex + 1] ?? columnId;
+				}
 				break;
 			case 'home':
 				newColumnId = navigableColumnIds[0] ?? null;
@@ -1789,8 +1804,7 @@ export function useDataGrid<TData extends RowData>(
 			if (container && targetRow) {
 				const containerRect = container.getBoundingClientRect();
 				const headerHeight = headerRef?.getBoundingClientRect().height ?? 0;
-				// Footer is pinned outside the scroll container; no in-scroll footer offset.
-				const footerHeight = 0;
+				const footerHeight = footerRef?.getBoundingClientRect().height ?? 0;
 
 				const viewportTop = containerRect.top + headerHeight + VIEWPORT_OFFSET;
 				const viewportBottom = containerRect.bottom - footerHeight - VIEWPORT_OFFSET;

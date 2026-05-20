@@ -71,6 +71,10 @@
 					{ keys: ['End'], description: 'Move to last column' },
 					{ keys: [modKey, 'Home'], description: 'Move to first cell' },
 					{ keys: [modKey, 'End'], description: 'Move to last cell' },
+					{ keys: [modKey, '↑'], description: 'Move to first row in column' },
+					{ keys: [modKey, '↓'], description: 'Move to last row in column' },
+					{ keys: ['Alt', 'PgUp'], description: 'Scroll left one page' },
+					{ keys: ['Alt', 'PgDn'], description: 'Scroll right one page' },
 					{ keys: ['PgUp'], description: 'Move up one page' },
 					{ keys: ['PgDn'], description: 'Move down one page' }
 				]
@@ -79,6 +83,7 @@
 				title: 'Selection',
 				shortcuts: [
 					{ keys: ['Shift', '↑↓←→'], description: 'Extend selection' },
+					{ keys: [modKey, 'Shift', '↑↓'], description: 'Extend selection to grid edge' },
 					{ keys: [modKey, 'A'], description: 'Select all cells' },
 					{ keys: [modKey, 'Click'], description: 'Toggle cell selection' },
 					{ keys: ['Shift', 'Click'], description: 'Select range' },

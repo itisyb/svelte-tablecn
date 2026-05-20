@@ -142,7 +142,7 @@ export function scheduleDemoPeopleLoad(
 	onLoaded: (people: DemoPerson[]) => void,
 	options?: { lite?: boolean }
 ): () => void {
-	if (typeof window === 'undefined') {
+	if (typeof window === 'undefined' || import.meta.env.VITEST) {
 		onLoaded(generateDemoPeople(count, options));
 		return () => {};
 	}

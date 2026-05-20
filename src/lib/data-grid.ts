@@ -138,8 +138,9 @@ export function scrollCellIntoView<TData extends RowData>(params: {
 	const containerRect = container.getBoundingClientRect();
 	const cellRect = targetCell.getBoundingClientRect();
 
-	const hasNegativeScroll = container.scrollLeft < 0;
-	const isActuallyRtl = isRtl || hasNegativeScroll;
+	// Only treat as RTL when explicitly requested. Do not infer from scrollLeft:
+	// after toggling RTL→LTR, scrollLeft can stay negative and breaks LTR scrolling.
+	const isActuallyRtl = isRtl;
 
 	const leftPinnedColumns = table.getLeftVisibleLeafColumns();
 	const rightPinnedColumns = table.getRightVisibleLeafColumns();

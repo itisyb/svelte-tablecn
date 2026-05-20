@@ -73,6 +73,15 @@
 		setFooterRef?.(footerRef);
 	});
 
+	// Reset horizontal scroll when direction changes (RTL scrollLeft can stick negative in LTR).
+	$effect(() => {
+		const currentDir = dir;
+		const grid = dataGridRef;
+		if (!grid) return;
+		grid.scrollLeft = 0;
+		void currentDir;
+	});
+
 	onDestroy(() => {
 		setDataGridRef?.(null);
 		setHeaderRef?.(null);
@@ -179,7 +188,6 @@
 <TooltipProvider>
 	<div
 		data-slot="grid-wrapper"
-		{dir}
 		class={cn('relative flex w-full min-w-0 max-w-full flex-col', className)}
 	>
 		{#if searchState}
@@ -211,6 +219,7 @@
 				aria-rowcount={rows.length + (onRowAdd ? 1 : 0)}
 				aria-colcount={columns.length}
 				data-slot="grid"
+				{dir}
 				tabindex={0}
 				bind:this={dataGridRef}
 				class="relative min-h-0 w-full min-w-0 flex-1 select-none overflow-auto focus:outline-none"
@@ -317,15 +326,14 @@
 					{/each}
 				{/key}
 			</div>
-			</div>
 
-			<!-- Pinned add row (always visible at bottom of the grid viewport) -->
+			<!-- Add row (sticky at bottom of scroll area, like tablecn) -->
 			{#if !readOnly && onRowAdd}
 				<div
 					role="rowgroup"
 					data-slot="grid-footer"
 					bind:this={footerRef}
-					class="z-10 shrink-0 grid border-t bg-background"
+					class="sticky bottom-0 z-10 grid border-t bg-background"
 				>
 					<div
 						role="row"
@@ -350,6 +358,7 @@
 					</div>
 				</div>
 			{/if}
+			</div>
 		</div>
 	</div>
 </TooltipProvider>

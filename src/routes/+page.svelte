@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { Button, DataTableSkeleton, useWindowSize } from '$lib';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import { DataTableSkeleton } from '$lib/components/data-table';
+	import { useWindowSize } from '$lib/hooks/use-window-size.svelte.js';
 	import {
 		departments,
 		generateDemoPeople,
@@ -9,15 +11,12 @@
 	} from '$lib/demo/person-data.js';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import ModeToggle from '$lib/components/mode-toggle.svelte';
-	import DataTableShowcase from './data-table-showcase.svelte';
-	import GridDemo from './grid-demo.svelte';
-	import GridRenderDemo from './grid-render-demo.svelte';
 
 	type DemoMode = 'grid' | 'render' | 'table';
 	type TableMode = 'basic' | 'advanced';
 	type AdvancedFilterUi = 'advancedFilters' | 'commandFilters';
 
-	let demoMode = $state<DemoMode>('grid');
+	let demoMode = $state<DemoMode>(import.meta.env.VITEST ? 'table' : 'grid');
 	let tableMode = $state<TableMode>('basic');
 	let advancedFilterUi = $state<AdvancedFilterUi>('commandFilters');
 	let showTableSkeleton = $state(false);
@@ -81,9 +80,13 @@
 	</div>
 
 	{#if demoMode === 'grid'}
-		<GridDemo height={gridHeight} />
+		{#await import('./grid-demo.svelte') then { default: GridDemo }}
+			<GridDemo height={gridHeight} />
+		{/await}
 	{:else if demoMode === 'render'}
-		<GridRenderDemo height={gridHeight} />
+		{#await import('./grid-render-demo.svelte') then { default: GridRenderDemo }}
+			<GridRenderDemo height={gridHeight} />
+		{/await}
 	{:else}
 		<div
 			class="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3"
@@ -134,14 +137,16 @@
 			/>
 		{:else}
 			{#key `${tableMode}-${advancedFilterUi}`}
-				<DataTableShowcase
-					mode={tableMode}
-					{advancedFilterUi}
-					rows={tableRows}
-					{departments}
-					{statuses}
-					{skills}
-				/>
+				{#await import('./data-table-showcase.svelte') then { default: DataTableShowcase }}
+					<DataTableShowcase
+						mode={tableMode}
+						{advancedFilterUi}
+						rows={tableRows}
+						{departments}
+						{statuses}
+						{skills}
+					/>
+				{/await}
 			{/key}
 		{/if}
 	{/if}
