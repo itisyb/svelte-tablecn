@@ -288,11 +288,6 @@
 				enablePaste
 			/>
 			<Badge variant="secondary" class="font-mono tabular-nums">{rowCountLabel}</Badge>
-			{#if !isLoading}
-				<span class="text-muted-foreground text-xs">
-					All rows are in memory; virtualization only renders the visible window.
-				</span>
-			{/if}
 		</div>
 		<div class="flex items-center gap-2">
 			<DataGridFilterMenu {table} />
