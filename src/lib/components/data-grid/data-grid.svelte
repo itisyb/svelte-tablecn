@@ -1,7 +1,8 @@
 <script lang="ts" generics="TData">
-	import type { Table, Column, RowSelectionState } from '@tanstack/table-core';
+	import type { Table, RowSelectionState } from '@tanstack/table-core';
 	import type { UseDataGridReturn } from '$lib/hooks/use-data-grid.svelte.js';
-	import type { RowHeightValue, CellPosition, SearchState } from '$lib/types/data-grid.js';
+	import type { RowHeightValue, CellPosition, SearchState, Direction } from '$lib/types/data-grid.js';
+	import { getColumnBorderVisibility, getColumnPinningStyle, toPinningStyleString } from '$lib/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import { FlexRender } from '$lib/table';
 	import DataGridRow from './data-grid-row.svelte';
@@ -13,9 +14,11 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import { onDestroy, setContext } from 'svelte';
 
-	interface Props extends UseDataGridReturn<TData> {
+	interface Props extends Omit<UseDataGridReturn<TData>, 'dir'> {
 		height?: number;
 		class?: string;
+		dir?: Direction;
+		stretchColumns?: boolean;
 	}
 
 	let {
@@ -36,6 +39,8 @@
 		setDataGridRef,
 		setHeaderRef,
 		setFooterRef,
+		dir = 'ltr',
+		stretchColumns = false,
 		class: className
 	}: Props = $props();
 
@@ -119,40 +124,6 @@
 
 	const addRowWidth = $derived(Math.max(totalVisibleWidth, tableTotalSize));
 
-	// Compute pinning styles reactively based on state
-	function getPinningStyles(
-		column: Column<TData, unknown>
-	): Record<string, string | number | undefined> {
-		// Read pinning state to create reactive dependency
-		const _ = columnPinning;
-
-		try {
-			const isPinned = column.getIsPinned();
-			const isLastLeftPinnedColumn = isPinned === 'left' && column.getIsLastColumn('left');
-			const isFirstRightPinnedColumn = isPinned === 'right' && column.getIsFirstColumn('right');
-
-			return {
-				boxShadow: isLastLeftPinnedColumn
-					? '-4px 0 4px -4px var(--border) inset'
-					: isFirstRightPinnedColumn
-						? '4px 0 4px -4px var(--border) inset'
-						: undefined,
-				left: isPinned === 'left' ? `${column.getStart('left')}px` : undefined,
-				right: isPinned === 'right' ? `${column.getAfter('right')}px` : undefined,
-				opacity: isPinned ? 0.97 : 1,
-				position: isPinned ? 'sticky' : 'relative',
-				background: 'var(--background)',
-				zIndex: isPinned ? 1 : undefined
-			};
-		} catch {
-			return {
-				position: 'relative',
-				background: 'var(--background)',
-				zIndex: undefined
-			};
-		}
-	}
-
 	function onGridContextMenu(event: MouseEvent) {
 		event.preventDefault();
 	}
@@ -208,6 +179,7 @@
 <TooltipProvider>
 	<div
 		data-slot="grid-wrapper"
+		{dir}
 		class={cn('relative flex w-full min-w-0 max-w-full flex-col', className)}
 	>
 		{#if searchState}
@@ -259,14 +231,21 @@
 						aria-rowindex={rowIndex + 1}
 						data-slot="grid-header-row"
 						tabindex={-1}
-						class="flex"
+						class="flex w-full"
 						style="width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
 					>
 						{#each headerGroup.headers.filter((h) => columnVisibility[h.column.id] !== false) as header, colIndex (header.id)}
 							{@const sorting = tableState.sorting}
 							{@const currentSort = sorting.find((sort) => sort.id === header.column.id)}
 							{@const isSortable = header.column.getCanSort()}
-							{@const pinningStyles = getPinningStyles(header.column)}
+							{@const nextHeader = headerGroup.headers.filter((h) => columnVisibility[h.column.id] !== false)[colIndex + 1]}
+							{@const isLastColumn = colIndex === headerGroup.headers.filter((h) => columnVisibility[h.column.id] !== false).length - 1}
+							{@const borderVisibility = getColumnBorderVisibility({
+								column: header.column,
+								nextColumn: nextHeader?.column,
+								isLastColumn
+							})}
+							{@const pinningStyle = toPinningStyleString(getColumnPinningStyle({ column: header.column, dir }))}
 
 							<div
 								role="columnheader"
@@ -281,9 +260,11 @@
 								data-slot="grid-header-cell"
 								tabindex={-1}
 								class={cn('group relative', {
-									'border-r': header.column.id !== 'select'
+									grow: stretchColumns && header.column.id !== 'select',
+									'border-e': borderVisibility.showEndBorder && header.column.id !== 'select',
+									'border-s': borderVisibility.showStartBorder && header.column.id !== 'select'
 								})}
-								style="position: {pinningStyles.position}; left: {pinningStyles.left}; right: {pinningStyles.right}; background: {pinningStyles.background}; z-index: {pinningStyles.zIndex}; width: calc(var(--header-{header.id}-size) * 1px);"
+								style="{pinningStyle}; width: calc(var(--header-{header.id}-size) * 1px);"
 							>
 								{#if header.isPlaceholder}
 									<!-- Empty -->
@@ -328,6 +309,8 @@
 								{rowVirtualizer}
 								{rowHeight}
 								{focusedCell}
+								{dir}
+								{stretchColumns}
 								virtualStart={virtualItem.start}
 							/>
 						{/if}
@@ -359,7 +342,7 @@
 							onclick={(event) => void onRowAdd?.(event)}
 							onkeydown={onAddRowKeyDown}
 						>
-							<div class="sticky left-0 flex items-center gap-2 px-3 text-muted-foreground">
+							<div class="sticky start-0 flex items-center gap-2 px-3 text-muted-foreground">
 								<Plus class="size-3.5" />
 								<span class="text-sm">Add row</span>
 							</div>

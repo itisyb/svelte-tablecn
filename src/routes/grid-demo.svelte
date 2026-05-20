@@ -3,6 +3,7 @@
 	import type { ColumnDef } from '@tanstack/table-core';
 	import {
 		DataGrid,
+		DataGridActionBar,
 		DataGridFilterMenu,
 		DataGridSortMenu,
 		DataGridRowHeightMenu,
@@ -15,8 +16,14 @@
 		useDataGrid,
 		useDataGridUndoRedo,
 		getFilterFn,
+		exportTableToCSV,
+		parseCellKey,
 	} from '$lib';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import Download from '@lucide/svelte/icons/download';
+	import { toast } from 'svelte-sonner';
 	import { generateId } from '$lib/id.js';
+	import { cn } from '$lib/utils.js';
 	import {
 		departments,
 		scheduleDemoPeopleLoad,
@@ -25,6 +32,8 @@
 		type DemoPerson
 	} from '$lib/demo/person-data.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import Languages from '@lucide/svelte/icons/languages';
+	import type { Direction } from '$lib/types/data-grid.js';
 
 	interface Props {
 		height: number;
@@ -37,6 +46,7 @@
 
 	let data = $state<DemoPerson[]>([]);
 	let isLoading = $state(true);
+	let dir = $state<Direction>('ltr');
 
 
 	onMount(() => {
@@ -244,6 +254,7 @@
 	const { table, onRowAdd: addRow, ...dataGridProps } = useDataGrid({
 		columns,
 		data: () => data,
+		dir: () => dir,
 		onDataChange,
 		onRowAdd,
 		onRowsAdd,
@@ -272,6 +283,70 @@
 		return `${displayedRowCount.toLocaleString('en-US')} visible · ${data.length.toLocaleString('en-US')} total`;
 	});
 
+	const tableMeta = $derived(table.options.meta!);
+	const selectedCellCount = $derived(dataGridProps.selectedCellsSet.size);
+
+	const statusOptions = statuses.map((status) => ({ label: status, value: status }));
+	const departmentOptions = departments.map((dept) => ({ label: dept, value: dept }));
+
+	function getSelectedRowIndices(): number[] {
+		const rowIndices = new Set<number>();
+		for (const cellKey of dataGridProps.selectedCellsSet) {
+			rowIndices.add(parseCellKey(cellKey).rowIndex);
+		}
+		return [...rowIndices];
+	}
+
+	function onStatusUpdate(value: string) {
+		const rowIndices = getSelectedRowIndices();
+		if (rowIndices.length === 0) {
+			toast.error('No cells selected');
+			return;
+		}
+
+		tableMeta.onDataUpdate?.(
+			rowIndices.map((rowIndex) => ({ rowIndex, columnId: 'status', value }))
+		);
+		toast.success(
+			`${rowIndices.length} row${rowIndices.length === 1 ? '' : 's'} updated`
+		);
+	}
+
+	function onDepartmentUpdate(value: string) {
+		const rowIndices = getSelectedRowIndices();
+		if (rowIndices.length === 0) {
+			toast.error('No cells selected');
+			return;
+		}
+
+		tableMeta.onDataUpdate?.(
+			rowIndices.map((rowIndex) => ({ rowIndex, columnId: 'department', value }))
+		);
+		toast.success(
+			`${rowIndices.length} row${rowIndices.length === 1 ? '' : 's'} updated`
+		);
+	}
+
+	function onBulkDelete() {
+		const rowIndices = getSelectedRowIndices();
+		if (rowIndices.length === 0) {
+			toast.error('No cells selected');
+			return;
+		}
+
+		tableMeta.onRowsDelete?.(rowIndices);
+		table.toggleAllRowsSelected(false);
+		tableMeta.onSelectionClear?.();
+		toast.success(`${rowIndices.length} row${rowIndices.length === 1 ? '' : 's'} deleted`);
+	}
+
+	function onExport() {
+		exportTableToCSV(table, {
+			filename: 'people',
+			excludeColumns: ['select']
+		});
+	}
+
 	onDestroy(() => {
 		dataGridProps.setDataGridRef(null);
 		dataGridProps.setHeaderRef(null);
@@ -290,6 +365,27 @@
 			<Badge variant="secondary" class="font-mono tabular-nums">{rowCountLabel}</Badge>
 		</div>
 		<div class="flex items-center gap-2">
+			<Button
+				aria-label="Toggle text direction"
+				{dir}
+				variant="outline"
+				size="sm"
+				aria-pressed={dir === 'rtl'}
+				class={cn(
+					'bg-background dark:bg-input/30 dark:hover:bg-input/50',
+					dir === 'rtl' && 'bg-accent'
+				)}
+				onclick={() => {
+					dir = dir === 'ltr' ? 'rtl' : 'ltr';
+				}}
+			>
+				<Languages class="text-muted-foreground" />
+				{dir === 'ltr' ? 'LTR' : 'RTL'}
+			</Button>
+			<Button variant="outline" size="sm" onclick={onExport}>
+				<Download />
+				Export
+			</Button>
 			<DataGridFilterMenu {table} />
 			<DataGridSortMenu {table} />
 			<DataGridRowHeightMenu {table} />
@@ -304,6 +400,16 @@
 		</DataGridSkeleton>
 		<p class="text-center text-muted-foreground text-sm">Loading {DEMO_ROW_COUNT.toLocaleString('en-US')} rows…</p>
 	{:else}
-		<DataGrid {...dataGridProps} onRowAdd={addRow} {table} {height} />
+		<DataGrid {...dataGridProps} onRowAdd={addRow} {table} {height} {dir} />
+		<DataGridActionBar
+			{table}
+			{tableMeta}
+			{selectedCellCount}
+			{statusOptions}
+			{departmentOptions}
+			{onStatusUpdate}
+			onDepartmentUpdate={onDepartmentUpdate}
+			onDelete={onBulkDelete}
+		/>
 	{/if}
 </div>
