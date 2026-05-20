@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData">
-	import type { Table, RowSelectionState } from '@tanstack/table-core';
+	import type { Header, Table, RowSelectionState } from '@tanstack/table-core';
 	import type { UseDataGridReturn } from '$lib/hooks/use-data-grid.svelte.js';
 	import type { RowHeightValue, CellPosition, SearchState, Direction } from '$lib/types/data-grid.js';
 	import { getColumnBorderVisibility, getColumnPinningStyle, toPinningStyleString } from '$lib/data-grid.js';
@@ -74,12 +74,12 @@
 	});
 
 	// Reset horizontal scroll when direction changes (RTL scrollLeft can stick negative in LTR).
+	let prevDir = $state<Direction>(dir);
 	$effect(() => {
-		const currentDir = dir;
 		const grid = dataGridRef;
-		if (!grid) return;
+		if (!grid || dir === prevDir) return;
+		prevDir = dir;
 		grid.scrollLeft = 0;
-		void currentDir;
 	});
 
 	onDestroy(() => {
@@ -132,6 +132,21 @@
 	});
 
 	const addRowWidth = $derived(Math.max(totalVisibleWidth, tableTotalSize));
+
+	// Leaf column order (pinning-aware) — keep header/body columns aligned.
+	const orderedVisibleColumns = $derived.by(() => {
+		const _ = columnVisibility;
+		const __ = columnPinning;
+		return visibleLeafColumns.filter((col) => columnVisibility[col.id] !== false);
+	});
+
+	const headerByColumnId = $derived.by(() => {
+		const map = new Map<string, Header<TData, unknown>>();
+		for (const header of table.getFlatHeaders()) {
+			map.set(header.column.id, header);
+		}
+		return map;
+	});
 
 	function onGridContextMenu(event: MouseEvent) {
 		event.preventDefault();
@@ -188,6 +203,7 @@
 <TooltipProvider>
 	<div
 		data-slot="grid-wrapper"
+		{dir}
 		class={cn('relative flex w-full min-w-0 max-w-full flex-col', className)}
 	>
 		{#if searchState}
@@ -241,20 +257,22 @@
 						data-slot="grid-header-row"
 						tabindex={-1}
 						class="flex w-full"
-						style="width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
+						style="min-width: {totalVisibleWidth}px;"
 					>
-						{#each headerGroup.headers.filter((h) => columnVisibility[h.column.id] !== false) as header, colIndex (header.id)}
+						{#each orderedVisibleColumns as column, colIndex (column.id)}
+							{@const header = headerByColumnId.get(column.id)}
+							{#if header}
 							{@const sorting = tableState.sorting}
-							{@const currentSort = sorting.find((sort) => sort.id === header.column.id)}
-							{@const isSortable = header.column.getCanSort()}
-							{@const nextHeader = headerGroup.headers.filter((h) => columnVisibility[h.column.id] !== false)[colIndex + 1]}
-							{@const isLastColumn = colIndex === headerGroup.headers.filter((h) => columnVisibility[h.column.id] !== false).length - 1}
+							{@const currentSort = sorting.find((sort) => sort.id === column.id)}
+							{@const isSortable = column.getCanSort()}
+							{@const nextColumn = orderedVisibleColumns[colIndex + 1]}
+							{@const isLastColumn = colIndex === orderedVisibleColumns.length - 1}
 							{@const borderVisibility = getColumnBorderVisibility({
-								column: header.column,
-								nextColumn: nextHeader?.column,
+								column,
+								nextColumn,
 								isLastColumn
 							})}
-							{@const pinningStyle = toPinningStyleString(getColumnPinningStyle({ column: header.column, dir }))}
+							{@const pinningStyle = toPinningStyleString(getColumnPinningStyle({ column, dir }))}
 
 							<div
 								role="columnheader"
@@ -268,19 +286,19 @@
 											: undefined}
 								data-slot="grid-header-cell"
 								tabindex={-1}
-								class={cn('group relative', {
-									grow: stretchColumns && header.column.id !== 'select',
-									'border-e': borderVisibility.showEndBorder && header.column.id !== 'select',
-									'border-s': borderVisibility.showStartBorder && header.column.id !== 'select'
+								class={cn('group relative shrink-0', {
+									grow: stretchColumns && column.id !== 'select',
+									'border-e': borderVisibility.showEndBorder && column.id !== 'select',
+									'border-s': borderVisibility.showStartBorder && column.id !== 'select'
 								})}
 								style="{pinningStyle}; width: calc(var(--header-{header.id}-size) * 1px);"
 							>
 								{#if header.isPlaceholder}
 									<!-- Empty -->
-								{:else if typeof header.column.columnDef.header === 'function'}
+								{:else if typeof column.columnDef.header === 'function'}
 									<div class="size-full px-3 py-1.5">
 										<FlexRender
-											content={header.column.columnDef.header}
+											content={column.columnDef.header}
 											context={header.getContext()}
 										/>
 									</div>
@@ -288,6 +306,7 @@
 									<DataGridColumnHeader {header} {table} />
 								{/if}
 							</div>
+							{/if}
 						{/each}
 					</div>
 				{/each}
@@ -298,7 +317,7 @@
 				role="rowgroup"
 				data-slot="grid-body"
 				class="relative grid"
-				style="height: {totalSize}px;"
+				style="height: {totalSize}px; min-width: {totalVisibleWidth}px;"
 			>
 				{#key visibilityKey}
 					{#each virtualItems as virtualItem (virtualItem.key)}

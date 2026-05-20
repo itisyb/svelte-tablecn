@@ -68,38 +68,11 @@
 	// Row selection is reactive via table state
 	const isRowSelected = $derived(row.getIsSelected());
 
-	// Get visible cells in correct order (left pinned -> center -> right pinned)
+	// Match tablecn: TanStack display order (respects pinning + visibility).
 	const visibleCells = $derived.by(() => {
 		const _pinning = columnPinning;
 		const _visibility = columnVisibility;
-
-		const isColumnVisible = (colId: string) => columnVisibility[colId] !== false;
-
-		const leftCols = table.getLeftLeafColumns().filter((c) => isColumnVisible(c.id));
-		const centerCols = table.getCenterLeafColumns().filter((c) => isColumnVisible(c.id));
-		const rightCols = table.getRightLeafColumns().filter((c) => isColumnVisible(c.id));
-
-		const orderedColumnIds = [
-			...leftCols.map((c) => c.id),
-			...centerCols.map((c) => c.id),
-			...rightCols.map((c) => c.id)
-		];
-
-		const allCells = row.getAllCells();
-		const cellMap = new Map(allCells.map((cell) => [cell.column.id, cell]));
-
-		return orderedColumnIds
-			.map((id) => cellMap.get(id))
-			.filter((cell): cell is NonNullable<typeof cell> => cell != null);
-	});
-
-	const totalVisibleWidth = $derived.by(() => {
-		const _ = columnSizing;
-		let total = 0;
-		for (const cell of visibleCells) {
-			total += cell.column.getSize();
-		}
-		return total;
+		return row.getVisibleCells();
 	});
 </script>
 
@@ -111,8 +84,8 @@
 	data-slot="grid-row"
 	bind:this={rowRef}
 	tabindex={-1}
-	class={cn('absolute left-0 top-0 flex w-full border-b will-change-transform', className)}
-	style="transform: translateY({virtualStart}px); height: {getRowHeightValue(rowHeight)}px; width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
+	class={cn('absolute inset-x-0 flex w-full border-b', className)}
+	style="top: {virtualStart}px; height: {getRowHeightValue(rowHeight)}px;"
 >
 	{#each visibleCells as cell, colIndex (cell.id)}
 		{@const isCellFocused =
@@ -132,7 +105,7 @@
 			data-highlighted={isCellFocused ? '' : undefined}
 			data-slot="grid-cell"
 			tabindex={-1}
-			class={cn({
+			class={cn('shrink-0', {
 				grow: stretchColumns && cell.column.id !== 'select',
 				'border-e': borderVisibility.showEndBorder && cell.column.id !== 'select',
 				'border-s': borderVisibility.showStartBorder && cell.column.id !== 'select'

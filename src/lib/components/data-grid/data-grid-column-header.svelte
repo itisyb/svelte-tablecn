@@ -157,16 +157,23 @@
 		table.setSorting((prev: SortingState) => prev.filter((sort) => sort.id !== column.id));
 	}
 
+	function clearColumnSelectionAfterPin() {
+		table.options.meta?.onSelectionClear?.();
+	}
+
 	function onLeftPin() {
 		column.pin('left');
+		clearColumnSelectionAfterPin();
 	}
 
 	function onRightPin() {
 		column.pin('right');
+		clearColumnSelectionAfterPin();
 	}
 
 	function onUnpin() {
 		column.pin(false);
+		clearColumnSelectionAfterPin();
 	}
 
 	function onTriggerPointerDown(event: PointerEvent) {
