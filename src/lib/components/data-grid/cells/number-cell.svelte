@@ -116,7 +116,7 @@
 			{step}
 			onblur={handleBlur}
 			oninput={handleInput}
-			class="w-full border-none bg-transparent p-0 outline-none"
+			class="w-full border-none bg-transparent p-0 text-start outline-none"
 		/>
 	{:else}
 		<span data-slot="grid-cell-content">{displayValue}</span>

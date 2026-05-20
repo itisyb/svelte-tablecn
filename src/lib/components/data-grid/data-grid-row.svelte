@@ -68,11 +68,17 @@
 	// Row selection is reactive via table state
 	const isRowSelected = $derived(row.getIsSelected());
 
-	// Match tablecn: TanStack display order (respects pinning + visibility).
+	// Same column order as header (getVisibleLeafColumns), not row.getVisibleCells() alone.
 	const visibleCells = $derived.by(() => {
 		const _pinning = columnPinning;
 		const _visibility = columnVisibility;
-		return row.getVisibleCells();
+		const isVisible = (id: string) => columnVisibility[id] !== false;
+		const cellsById = new Map(row.getVisibleCells().map((c) => [c.column.id, c]));
+		return table
+			.getVisibleLeafColumns()
+			.filter((col) => isVisible(col.id))
+			.map((col) => cellsById.get(col.id))
+			.filter((cell): cell is NonNullable<typeof cell> => cell != null);
 	});
 </script>
 
@@ -84,6 +90,7 @@
 	data-slot="grid-row"
 	bind:this={rowRef}
 	tabindex={-1}
+	{dir}
 	class={cn('absolute inset-x-0 flex w-full border-b', className)}
 	style="top: {virtualStart}px; height: {getRowHeightValue(rowHeight)}px;"
 >
@@ -104,6 +111,7 @@
 			aria-colindex={colIndex + 1}
 			data-highlighted={isCellFocused ? '' : undefined}
 			data-slot="grid-cell"
+			{dir}
 			tabindex={-1}
 			class={cn('shrink-0', {
 				grow: stretchColumns && cell.column.id !== 'select',

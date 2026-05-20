@@ -107,7 +107,7 @@
 		>
 			<SelectTrigger
 				bind:ref={triggerRef}
-				class="size-full items-start border-none p-0 shadow-none focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
+				class="size-full w-full justify-start border-none p-0 text-start shadow-none focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
 			>
 				{displayLabel}
 			</SelectTrigger>
@@ -126,6 +126,6 @@
 			</SelectContent>
 		</Select>
 	{:else}
-		<span data-slot="grid-cell-content">{displayLabel}</span>
+		<span data-slot="grid-cell-content" class="block size-full truncate text-start">{displayLabel}</span>
 	{/if}
 </DataGridCellWrapper>

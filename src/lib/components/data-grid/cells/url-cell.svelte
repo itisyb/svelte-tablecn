@@ -190,7 +190,7 @@
 	onkeydown={handleWrapperKeyDown}
 >
 	{#if !isEditing && displayValue}
-		<div data-slot="grid-cell-content" class="size-full overflow-hidden">
+		<div data-slot="grid-cell-content" class="size-full overflow-hidden text-start">
 			<a
 				data-focused={isFocused && !isDangerousUrl ? '' : undefined}
 				data-invalid={isDangerousUrl ? '' : undefined}
@@ -213,7 +213,7 @@
 			bind:this={cellRef}
 			onblur={handleBlur}
 			oninput={handleInput}
-			class={cn('size-full overflow-hidden outline-none', {
+			class={cn('size-full overflow-hidden text-start outline-none', {
 				'whitespace-nowrap **:inline **:whitespace-nowrap [&_br]:hidden': isEditing
 			})}
 		>

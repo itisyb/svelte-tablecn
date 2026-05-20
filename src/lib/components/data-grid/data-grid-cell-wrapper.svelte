@@ -1,8 +1,10 @@
 <script lang="ts" generics="TData">
 	import type { Cell, Table } from '@tanstack/table-core';
 	import type { Snippet } from 'svelte';
-	import { getCellKey, type RowHeightValue } from '$lib/types/data-grid.js';
+	import { getContext } from 'svelte';
+	import { getCellKey, type Direction, type RowHeightValue } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
+	import { GRID_DIR_CONTEXT_KEY, type GridDirGetter } from './grid-dir-context.js';
 
 	interface Props {
 		cell: Cell<TData, unknown>;
@@ -101,12 +103,14 @@
 		return meta?.rowHeight ?? 'short';
 	});
 
-
+	const getGridDir = getContext<GridDirGetter>(GRID_DIR_CONTEXT_KEY);
+	const dir = $derived(getGridDir?.() ?? 'ltr');
 
 	// Compute cell classes - selection highlight is handled via $effect DOM manipulation
 	const cellClasses = $derived(
 		cn(
-			'size-full px-2 py-1.5 text-start text-sm outline-none has-data-[slot=checkbox]:pt-2.5',
+			'size-full px-2 py-1.5 text-sm outline-none has-data-[slot=checkbox]:pt-2.5',
+			dir === 'rtl' ? 'text-right' : 'text-left',
 			{
 				'ring-1 ring-ring ring-inset': isFocused,
 				'bg-yellow-100 dark:bg-yellow-900/30': isSearchMatch && !isActiveSearchMatch,
@@ -227,7 +231,7 @@
 	data-slot="grid-cell-wrapper"
 	data-editing={isEditing ? '' : undefined}
 	data-focused={isFocused ? '' : undefined}
-
+	{dir}
 	tabindex={isFocused && !isEditing ? 0 : -1}
 	class={cellClasses}
 	onclick={handleClick}

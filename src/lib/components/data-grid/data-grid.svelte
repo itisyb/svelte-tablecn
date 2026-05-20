@@ -13,6 +13,7 @@
 	import { TooltipProvider } from '$lib/components/ui/tooltip/index.js';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { onDestroy, setContext } from 'svelte';
+	import { GRID_DIR_CONTEXT_KEY, type GridDirGetter } from './grid-dir-context.js';
 
 	interface Props extends Omit<UseDataGridReturn<TData>, 'dir'> {
 		height?: number;
@@ -46,6 +47,7 @@
 
 	// Provide row selection getter via context for header checkbox reactivity
 	setContext<() => RowSelectionState>('getRowSelection', getRowSelection);
+	setContext<GridDirGetter>(GRID_DIR_CONTEXT_KEY, () => dir);
 
 	// Selection version - read from the reactive getter in selectionState
 	const selectionVersion = $derived(selectionState?.version ?? 0);
@@ -238,7 +240,16 @@
 				{dir}
 				tabindex={0}
 				bind:this={dataGridRef}
-				class="relative min-h-0 w-full min-w-0 flex-1 select-none overflow-auto focus:outline-none"
+				class={cn(
+					'relative min-h-0 w-full min-w-0 flex-1 select-none overflow-auto focus:outline-none',
+					'[&_[data-slot=grid-cell-content]]:text-start',
+					'ltr:[&_[data-slot=grid-cell-content]]:text-left',
+					'rtl:[&_[data-slot=grid-cell-content]]:text-right',
+					'ltr:[&_[data-slot=grid-header-cell]]:text-left',
+					'rtl:[&_[data-slot=grid-header-cell]]:text-right',
+					'ltr:[&_input]:text-left',
+					'rtl:[&_input]:text-right'
+				)}
 				style={columnSizeStyle}
 				oncontextmenu={onGridContextMenu}
 				onmouseup={handleGridMouseUp}

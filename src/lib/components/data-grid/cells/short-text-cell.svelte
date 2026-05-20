@@ -143,7 +143,7 @@
 		bind:this={cellRef}
 		onblur={handleBlur}
 		oninput={handleInput}
-		class={cn('size-full overflow-hidden outline-none', {
+		class={cn('size-full overflow-hidden text-start outline-none', {
 			'whitespace-nowrap **:inline **:whitespace-nowrap [&_br]:hidden': isEditing
 		})}
 	>
