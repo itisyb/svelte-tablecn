@@ -18,12 +18,14 @@
 	} from '$lib';
 	import {
 		departments,
+		generateDemoPerson,
 		generateDemoPeople,
-		scheduleDemoPeopleLoad,
 		skills,
 		statuses,
 		type DemoPerson
 	} from '$lib/demo/person-data.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import Plus from '@lucide/svelte/icons/plus';
 
 	interface Props {
 		height: number;
@@ -37,13 +39,13 @@
 	let isLoading = $state(true);
 
 	onMount(() => {
-		// Paint the shell immediately, then fill rows off the main thread.
-		data = generateDemoPeople(250);
-		isLoading = false;
+		// Full 10k dataset for virtualization demo (defer one frame so shell paints first).
+		const timeoutId = window.setTimeout(() => {
+			data = generateDemoPeople(DEMO_ROW_COUNT);
+			isLoading = false;
+		}, 0);
 
-		return scheduleDemoPeopleLoad(DEMO_ROW_COUNT, (people) => {
-			data = people;
-		});
+		return () => clearTimeout(timeoutId);
 	});
 
 	const { trackRowsAdd, trackRowsDelete } = useDataGridUndoRedo({
@@ -185,14 +187,17 @@
 	];
 
 	function onRowAdd() {
-		const newRow = { id: crypto.randomUUID() };
+		const newRowIndex = data.length;
+		const newRow = generateDemoPerson(newRowIndex + 1);
 		data = [...data, newRow];
 		trackRowsAdd([newRow]);
-		return { rowIndex: data.length - 1, columnId: 'name' };
+		return { rowIndex: newRowIndex, columnId: 'name' };
 	}
 
 	function onRowsAdd(count: number) {
-		const newRows = Array.from({ length: count }, () => ({ id: crypto.randomUUID() }));
+		const newRows = Array.from({ length: count }, (_, index) =>
+			generateDemoPerson(data.length + index + 1)
+		);
 		data = [...data, ...newRows];
 		trackRowsAdd(newRows);
 	}
@@ -232,7 +237,7 @@
 		);
 	}
 
-	const { table, ...dataGridProps } = useDataGrid({
+	const { table, onRowAdd: addRow, ...dataGridProps } = useDataGrid({
 		columns,
 		data: () => data,
 		onDataChange,
@@ -266,6 +271,12 @@
 			enablePaste
 		/>
 		<div class="flex items-center gap-2">
+			{#if addRow}
+				<Button variant="outline" size="sm" onclick={() => addRow()}>
+					<Plus class="size-4" />
+					Add row
+				</Button>
+			{/if}
 			<DataGridFilterMenu {table} />
 			<DataGridSortMenu {table} />
 			<DataGridRowHeightMenu {table} />
@@ -273,12 +284,13 @@
 		</div>
 	</div>
 
-	{#if isLoading && data.length === 0}
+	{#if isLoading}
 		<DataGridSkeleton>
-			<DataGridSkeletonToolbar actionCount={4} />
+			<DataGridSkeletonToolbar actionCount={5} />
 			<DataGridSkeletonGrid />
 		</DataGridSkeleton>
+		<p class="text-center text-muted-foreground text-sm">Loading {DEMO_ROW_COUNT.toLocaleString('en-US')} rows…</p>
 	{:else}
-		<DataGrid {...dataGridProps} {table} {height} />
+		<DataGrid {...dataGridProps} onRowAdd={addRow} {table} {height} />
 	{/if}
 </div>

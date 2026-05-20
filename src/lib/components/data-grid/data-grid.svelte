@@ -106,6 +106,18 @@
 		return total;
 	});
 
+	const tableTotalSize = $derived.by(() => {
+		const _ = columnSizing;
+		const __ = columnSizingInfo;
+		try {
+			return table.getTotalSize();
+		} catch {
+			return totalVisibleWidth;
+		}
+	});
+
+	const addRowWidth = $derived(Math.max(totalVisibleWidth, tableTotalSize));
+
 	// Compute pinning styles reactively based on state
 	function getPinningStyles(
 		column: Column<TData, unknown>
@@ -216,18 +228,23 @@
 		<DataGridPasteDialog {table} />
 
 		<div
-			role="grid"
-			aria-label="Data grid"
-			aria-rowcount={rows.length + (onRowAdd ? 1 : 0)}
-			aria-colcount={columns.length}
-			data-slot="grid"
-			tabindex={0}
-			bind:this={dataGridRef}
-			class="relative grid w-full min-w-0 max-w-full select-none overflow-auto rounded-md border focus:outline-none"
-			style="{columnSizeStyle}; max-height: {height}px;"
-			oncontextmenu={onGridContextMenu}
-			onmouseup={handleGridMouseUp}
+			data-slot="grid-shell"
+			class="flex w-full min-w-0 max-w-full flex-col overflow-hidden rounded-md border bg-background"
+			style="max-height: {height}px;"
 		>
+			<div
+				role="grid"
+				aria-label="Data grid"
+				aria-rowcount={rows.length + (onRowAdd ? 1 : 0)}
+				aria-colcount={columns.length}
+				data-slot="grid"
+				tabindex={0}
+				bind:this={dataGridRef}
+				class="relative min-h-0 w-full min-w-0 flex-1 select-none overflow-auto focus:outline-none"
+				style={columnSizeStyle}
+				oncontextmenu={onGridContextMenu}
+				onmouseup={handleGridMouseUp}
+			>
 			<!-- Header -->
 			<div
 				role="rowgroup"
@@ -316,14 +333,15 @@
 					{/each}
 				{/key}
 			</div>
+			</div>
 
-			<!-- Footer / Add Row -->
+			<!-- Pinned add row (always visible at bottom of the grid viewport, like tablecn) -->
 			{#if onRowAdd}
 				<div
 					role="rowgroup"
 					data-slot="grid-footer"
 					bind:this={footerRef}
-					class="sticky bottom-0 z-10 grid border-t bg-background"
+					class="z-10 shrink-0 grid border-t bg-background"
 				>
 					<div
 						role="row"
@@ -335,8 +353,8 @@
 						<div
 							role="gridcell"
 							tabindex={0}
-							class="relative flex h-9 grow items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
-							style="width: {totalVisibleWidth}px; min-width: {totalVisibleWidth}px;"
+							class="relative flex h-9 w-full cursor-pointer items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
+							style="width: {addRowWidth}px; min-width: {addRowWidth}px;"
 							onclick={onRowAdd}
 							onkeydown={onAddRowKeyDown}
 						>
