@@ -3,18 +3,30 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
 
+async function openTableDemo() {
+	await page.getByRole('button', { name: 'Data Table Demo' }).click();
+}
+
 describe('/+page.svelte', () => {
 	it('should render h1', async () => {
 		render(Page);
+		await openTableDemo();
 
 		const heading = page.getByRole('heading', { level: 1 });
 		await expect.element(heading).toBeInTheDocument();
 	});
 
+	it('should render data grid after switching from table demo', async () => {
+		render(Page);
+		await openTableDemo();
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		await expect.element(page.getByRole('grid', { name: 'Data grid' })).toBeInTheDocument();
+	});
+
 	it('should show selected advanced filter values', async () => {
 		render(Page);
-
-		await page.getByRole('button', { name: 'Data Table Demo' }).click();
+		await openTableDemo();
 		await page.getByRole('button', { name: 'Advanced Table' }).click();
 		await page.getByRole('button', { name: 'Open filter menu' }).click();
 		await page.getByRole('option', { name: 'Department' }).click();
@@ -29,8 +41,7 @@ describe('/+page.svelte', () => {
 
 	it('should show selected basic faceted filter values', async () => {
 		render(Page);
-
-		await page.getByRole('button', { name: 'Data Table Demo' }).click();
+		await openTableDemo();
 		await page.getByRole('button', { name: 'Basic Table' }).click();
 
 		await page.getByLabelText('Filter Department').click();
@@ -49,8 +60,7 @@ describe('/+page.svelte', () => {
 	it('should show selected basic range filter values from URL state', async () => {
 		window.history.replaceState({}, '', '/?salary=50000,90000');
 		render(Page);
-
-		await page.getByRole('button', { name: 'Data Table Demo' }).click();
+		await openTableDemo();
 		await page.getByRole('button', { name: 'Basic Table' }).click();
 
 		await expect
@@ -62,8 +72,7 @@ describe('/+page.svelte', () => {
 
 	it('should update single select filter state when changing options', async () => {
 		render(Page);
-
-		await page.getByRole('button', { name: 'Data Table Demo' }).click();
+		await openTableDemo();
 		await page.getByRole('button', { name: 'Advanced Table' }).click();
 		await page.getByRole('button', { name: 'Open filter menu' }).click();
 		await page.getByRole('option', { name: 'Department' }).click();

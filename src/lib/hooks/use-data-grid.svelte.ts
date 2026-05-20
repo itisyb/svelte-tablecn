@@ -1678,33 +1678,50 @@ export function useDataGrid<TData extends RowData>(
 		isScrolling = instance.isScrolling;
 	}
 
-	// Effect to create virtualizer when ref becomes available
-	$effect(() => {
-		const ref = dataGridRef;
-		if (!ref) return;
+	function disposeVirtualizer() {
+		virtualizer = null;
+		virtualItems = [];
+		totalSize = 0;
+		isScrolling = false;
+	}
 
-		// Only create virtualizer once
-		if (virtualizer) return;
-
-		// Use filtered row count, not raw data length
-		const rowCount = untrack(() => table.getRowModel().rows.length);
-
-		// measureElement for better accuracy (except Firefox which has issues)
+	function createVirtualizerOptions(ref: HTMLDivElement, rowCount: number) {
 		const isFirefox =
 			typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
 
-		virtualizer = new Virtualizer<HTMLDivElement, Element>({
+		return {
 			count: rowCount,
-			getScrollElement: () => ref,
+			getScrollElement: () => dataGridRef ?? ref,
 			estimateSize: () => getRowHeightValue(rowHeight),
 			overscan,
 			observeElementRect,
 			observeElementOffset,
 			scrollToFn: elementScroll,
 			onChange: handleVirtualizerChange,
-			measureElement: isFirefox ? undefined : (element) => element?.getBoundingClientRect().height
-		});
+			measureElement: isFirefox
+				? undefined
+				: (element: Element) => element.getBoundingClientRect().height
+		};
+	}
 
+	// Create or rebind virtualizer when the scroll container mounts (e.g. demo tab switch).
+	$effect(() => {
+		const ref = dataGridRef;
+		if (!ref) {
+			disposeVirtualizer();
+			return;
+		}
+
+		const rowCount = untrack(() => table.getRowModel().rows.length);
+
+		if (virtualizer) {
+			virtualizer.setOptions(createVirtualizerOptions(ref, rowCount));
+			virtualizer._willUpdate();
+			handleVirtualizerChange(virtualizer);
+			return;
+		}
+
+		virtualizer = new Virtualizer<HTMLDivElement, Element>(createVirtualizerOptions(ref, rowCount));
 		virtualizer._willUpdate();
 		handleVirtualizerChange(virtualizer);
 	});
@@ -1715,7 +1732,6 @@ export function useDataGrid<TData extends RowData>(
 		// Read these to create dependencies - when filters/sorting change, row count changes
 		const _ = columnFilters;
 		const __ = sorting;
-		const currentData = getData();
 
 		// Get the filtered/sorted row count from the table
 		const rowCount = table.getRowModel().rows.length;
@@ -1725,23 +1741,7 @@ export function useDataGrid<TData extends RowData>(
 			if (virtualizer && ref) {
 				const prevCount = virtualizer.options.count;
 
-				// measureElement for better accuracy (except Firefox which has issues)
-				const isFirefox =
-					typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
-
-				virtualizer.setOptions({
-					count: rowCount,
-					getScrollElement: () => ref,
-					estimateSize: () => getRowHeightValue(rowHeight),
-					overscan,
-					observeElementRect,
-					observeElementOffset,
-					scrollToFn: elementScroll,
-					onChange: handleVirtualizerChange,
-					measureElement: isFirefox
-						? undefined
-						: (element) => element?.getBoundingClientRect().height
-				});
+				virtualizer.setOptions(createVirtualizerOptions(ref, rowCount));
 
 				virtualizer._willUpdate();
 

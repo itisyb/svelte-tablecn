@@ -11,7 +11,7 @@
 	import DataGridPasteDialog from './data-grid-paste-dialog.svelte';
 	import { TooltipProvider } from '$lib/components/ui/tooltip/index.js';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { setContext } from 'svelte';
+	import { onDestroy, setContext } from 'svelte';
 
 	interface Props extends UseDataGridReturn<TData> {
 		height?: number;
@@ -56,30 +56,22 @@
 			.join(',');
 	});
 
-	// Notify hook when refs change - only run once per ref
-	let dataGridRefSet = false;
-	let headerRefSet = false;
-	let footerRefSet = false;
-
 	$effect(() => {
-		if (dataGridRef && setDataGridRef && !dataGridRefSet) {
-			dataGridRefSet = true;
-			setDataGridRef(dataGridRef);
-		}
+		setDataGridRef?.(dataGridRef);
 	});
 
 	$effect(() => {
-		if (headerRef && setHeaderRef && !headerRefSet) {
-			headerRefSet = true;
-			setHeaderRef(headerRef);
-		}
+		setHeaderRef?.(headerRef);
 	});
 
 	$effect(() => {
-		if (footerRef && setFooterRef && !footerRefSet) {
-			footerRefSet = true;
-			setFooterRef(footerRef);
-		}
+		setFooterRef?.(footerRef);
+	});
+
+	onDestroy(() => {
+		setDataGridRef?.(null);
+		setHeaderRef?.(null);
+		setFooterRef?.(null);
 	});
 
 	const rows = $derived(table.getRowModel().rows);
