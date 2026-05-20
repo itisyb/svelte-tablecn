@@ -1,5 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Table } from '@tanstack/table-core';
+	import type { Direction } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import {
@@ -22,11 +23,12 @@
 
 	interface Props {
 		table: Table<TData>;
+		dir?: Direction;
 		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, align = 'start', class: className }: Props = $props();
+	let { table, dir = 'ltr', align = 'start', class: className }: Props = $props();
 
 	// Get columns - table.getAllColumns() is reactive via our wrapper
 	const columns = $derived(
@@ -50,18 +52,19 @@
 		{#snippet child({ props })}
 			<Button
 				{...props}
+				{dir}
 				aria-label="Toggle columns"
 				role="combobox"
 				variant="outline"
 				size="sm"
-				class={cn('ml-auto hidden h-8 font-normal lg:flex', className)}
+				class={cn('ms-auto hidden h-8 font-normal lg:flex', className)}
 			>
 				<Settings2 class="text-muted-foreground" />
 				View
 			</Button>
 		{/snippet}
 	</PopoverTrigger>
-	<PopoverContent {align} class="w-44 p-0">
+	<PopoverContent {dir} {align} class="w-44 p-0">
 		<Command>
 			<CommandInput placeholder="Search columns..." />
 			<CommandList>
@@ -78,7 +81,7 @@
 							</span>
 							<Check
 								class={cn(
-									'ml-auto size-4 shrink-0',
+									'ms-auto size-4 shrink-0',
 									isVisible ? 'opacity-100' : 'opacity-0'
 								)}
 							/>

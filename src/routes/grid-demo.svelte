@@ -361,6 +361,7 @@
 	<div role="toolbar" aria-orientation="horizontal" class="flex flex-wrap items-center justify-between gap-2">
 		<div class="flex flex-wrap items-center gap-2">
 			<DataGridKeyboardShortcuts
+				{dir}
 				enableSearch={!!dataGridProps.searchState}
 				enableUndoRedo
 				enablePaste
@@ -389,10 +390,10 @@
 				<Download />
 				Export
 			</Button>
-			<DataGridFilterMenu {table} />
-			<DataGridSortMenu {table} />
+			<DataGridFilterMenu {table} {dir} />
+			<DataGridSortMenu {table} {dir} />
 			<DataGridRowHeightMenu {table} />
-			<DataGridViewMenu {table} />
+			<DataGridViewMenu {table} {dir} />
 			<Button
 				variant={stretchColumnsEnabled ? 'default' : 'outline'}
 				size="sm"

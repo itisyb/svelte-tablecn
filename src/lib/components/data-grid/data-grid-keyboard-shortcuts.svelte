@@ -16,6 +16,7 @@
 	// Icons
 	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
+	import type { Direction } from '$lib/types/data-grid.js';
 
 	const SHORTCUT_KEY = '/';
 
@@ -28,12 +29,18 @@
 	}
 
 	interface Props {
+		dir?: Direction;
 		enableSearch?: boolean;
 		enableUndoRedo?: boolean;
 		enablePaste?: boolean;
 	}
 
-	let { enableSearch = false, enableUndoRedo = false, enablePaste = false }: Props = $props();
+	let {
+		dir = 'ltr',
+		enableSearch = false,
+		enableUndoRedo = false,
+		enablePaste = false
+	}: Props = $props();
 
 	let open = $state(false);
 	let input = $state('');
@@ -185,7 +192,12 @@
 <svelte:window onkeydown={handleKeyDown} />
 
 <Dialog {open} {onOpenChange}>
-	<DialogContent class="max-w-2xl px-0" onOpenAutoFocus={onOpenAutoFocus} showCloseButton={false}>
+	<DialogContent
+		{dir}
+		class="max-w-2xl px-0"
+		onOpenAutoFocus={onOpenAutoFocus}
+		showCloseButton={false}
+	>
 		<DialogClose class="absolute top-6 right-6">
 			{#snippet child({ props })}
 				<Button {...props} variant="ghost" size="icon" class="size-6">

@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Table, ColumnFilter, Column } from '@tanstack/table-core';
-	import type { Option, FilterOperator, FilterValue, CellSelectOption } from '$lib/types/data-grid.js';
+	import type { Direction, Option, FilterOperator, FilterValue, CellSelectOption } from '$lib/types/data-grid.js';
 	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { getDefaultOperator, getOperatorsForVariant } from '$lib/data-grid-filters.js';
@@ -43,11 +43,12 @@
 
 	interface Props {
 		table: Table<TData>;
+		dir?: Direction;
 		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, align = 'start', class: className }: Props = $props();
+	let { table, dir = 'ltr', align = 'start', class: className }: Props = $props();
 
 	let open = $state(false);
 
@@ -203,6 +204,7 @@
 		{#snippet child({ props })}
 			<Button
 				{...props}
+				{dir}
 				variant="outline"
 				size="sm"
 				class={cn('font-normal', className)}
@@ -222,6 +224,7 @@
 		{/snippet}
 	</PopoverTrigger>
 	<PopoverContent
+		{dir}
 		{align}
 		class="flex w-full max-w-[var(--radix-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]"
 	>

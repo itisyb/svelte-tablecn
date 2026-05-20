@@ -219,9 +219,9 @@
 					</TooltipContent>
 				</Tooltip>
 			{/if}
-			<span class="truncate">{label}</span>
+			<span class="truncate text-start">{label}</span>
 			{#if hasActiveFilter}
-				<span class="ml-1 size-1.5 shrink-0 rounded-full bg-primary" aria-label="Filtered"></span>
+				<span class="ms-1 size-1.5 shrink-0 rounded-full bg-primary" aria-label="Filtered"></span>
 			{/if}
 			{#if isSorted}
 				{#if sortDirection === 'asc'}
@@ -237,24 +237,24 @@
 	<DropdownMenuContent align="start" sideOffset={0} class="w-60">
 		{#if column.getCanSort()}
 			<DropdownMenuCheckboxItem
-				class="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
+				class="relative ltr:pr-8 ltr:pl-2 rtl:pr-2 rtl:pl-8 [&>span:first-child]:ltr:right-2 [&>span:first-child]:ltr:left-auto [&>span:first-child]:rtl:right-auto [&>span:first-child]:rtl:left-2 [&_svg]:text-muted-foreground"
 				checked={column.getIsSorted() === 'asc'}
 				onCheckedChange={() => onSortingChange('asc')}
 			>
-				<ChevronUp class="mr-2 size-4" />
+				<ChevronUp class="me-2 size-4" />
 				Sort asc
 			</DropdownMenuCheckboxItem>
 			<DropdownMenuCheckboxItem
-				class="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
+				class="relative ltr:pr-8 ltr:pl-2 rtl:pr-2 rtl:pl-8 [&>span:first-child]:ltr:right-2 [&>span:first-child]:ltr:left-auto [&>span:first-child]:rtl:right-auto [&>span:first-child]:rtl:left-2 [&_svg]:text-muted-foreground"
 				checked={column.getIsSorted() === 'desc'}
 				onCheckedChange={() => onSortingChange('desc')}
 			>
-				<ChevronDown class="mr-2 size-4" />
+				<ChevronDown class="me-2 size-4" />
 				Sort desc
 			</DropdownMenuCheckboxItem>
 			{#if column.getIsSorted()}
 				<DropdownMenuItem onclick={onSortRemove}>
-					<X class="mr-2 size-4" />
+					<X class="me-2 size-4" />
 					Remove sort
 				</DropdownMenuItem>
 			{/if}
@@ -266,23 +266,23 @@
 
 			{#if isPinnedLeft}
 				<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={onUnpin}>
-					<PinOff class="mr-2 size-4" />
+					<PinOff class="me-2 size-4" />
 					Unpin from left
 				</DropdownMenuItem>
 			{:else}
 				<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={onLeftPin}>
-					<Pin class="mr-2 size-4" />
+					<Pin class="me-2 size-4" />
 					Pin to left
 				</DropdownMenuItem>
 			{/if}
 			{#if isPinnedRight}
 				<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={onUnpin}>
-					<PinOff class="mr-2 size-4" />
+					<PinOff class="me-2 size-4" />
 					Unpin from right
 				</DropdownMenuItem>
 			{:else}
 				<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={onRightPin}>
-					<Pin class="mr-2 size-4" />
+					<Pin class="me-2 size-4" />
 					Pin to right
 				</DropdownMenuItem>
 			{/if}
@@ -290,11 +290,11 @@
 		{#if column.getCanHide()}
 			<DropdownMenuSeparator />
 			<DropdownMenuCheckboxItem
-				class="relative pr-8 pl-2 [&>span:first-child]:right-2 [&>span:first-child]:left-auto [&_svg]:text-muted-foreground"
+				class="relative ltr:pr-8 ltr:pl-2 rtl:pr-2 rtl:pl-8 [&>span:first-child]:ltr:right-2 [&>span:first-child]:ltr:left-auto [&>span:first-child]:rtl:right-auto [&>span:first-child]:rtl:left-2 [&_svg]:text-muted-foreground"
 				checked={!column.getIsVisible()}
 				onCheckedChange={() => column.toggleVisibility(false)}
 			>
-				<EyeOff class="mr-2 size-4" />
+				<EyeOff class="me-2 size-4" />
 				Hide column
 			</DropdownMenuCheckboxItem>
 		{/if}
@@ -313,7 +313,7 @@
 		aria-valuemax={defaultColumnDef.maxSize}
 		tabindex={0}
 		class={cn(
-			'-right-px absolute top-0 z-50 h-full w-1 cursor-col-resize touch-none select-none bg-border transition-opacity after:absolute after:inset-y-0 after:-left-1 after:h-full after:w-3 after:content-[\'\'] hover:bg-primary focus:bg-primary focus:outline-none',
+			'-end-px absolute top-0 z-50 h-full w-1 cursor-col-resize touch-none select-none bg-border transition-opacity after:absolute after:inset-y-0 after:-start-1 after:h-full after:w-3 after:content-[\'\'] hover:bg-primary focus:bg-primary focus:outline-none',
 			isColumnResizing ? 'bg-primary opacity-100' : 'opacity-0 hover:opacity-100'
 		)}
 		ondblclick={onResizerDoubleClick}

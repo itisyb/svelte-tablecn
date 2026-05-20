@@ -563,6 +563,7 @@ export function useDataGrid<TData extends RowData>(
 
 		let newRowIndex = rowIndex;
 		let newColumnId = columnId;
+		const isRtl = getDir() === 'rtl';
 
 		switch (direction) {
 			case 'up':
@@ -622,13 +623,26 @@ export function useDataGrid<TData extends RowData>(
 				break;
 			}
 			case 'pageleft':
-				if (currentColIndex > 0) {
+				if (isRtl) {
+					if (currentColIndex < navigableColumnIds.length - 1) {
+						const targetIndex = Math.min(
+							navigableColumnIds.length - 1,
+							currentColIndex + HORIZONTAL_PAGE_SIZE
+						);
+						newColumnId = navigableColumnIds[targetIndex] ?? columnId;
+					}
+				} else if (currentColIndex > 0) {
 					const targetIndex = Math.max(0, currentColIndex - HORIZONTAL_PAGE_SIZE);
 					newColumnId = navigableColumnIds[targetIndex] ?? columnId;
 				}
 				break;
 			case 'pageright':
-				if (currentColIndex < navigableColumnIds.length - 1) {
+				if (isRtl) {
+					if (currentColIndex > 0) {
+						const targetIndex = Math.max(0, currentColIndex - HORIZONTAL_PAGE_SIZE);
+						newColumnId = navigableColumnIds[targetIndex] ?? columnId;
+					}
+				} else if (currentColIndex < navigableColumnIds.length - 1) {
 					const targetIndex = Math.min(
 						navigableColumnIds.length - 1,
 						currentColIndex + HORIZONTAL_PAGE_SIZE
@@ -1679,13 +1693,26 @@ export function useDataGrid<TData extends RowData>(
 				break;
 			}
 			case 'pageleft':
-				if (currentColIndex > 0) {
+				if (isRtl) {
+					if (currentColIndex < navigableColumnIds.length - 1) {
+						const targetIndex = Math.min(
+							navigableColumnIds.length - 1,
+							currentColIndex + HORIZONTAL_PAGE_SIZE
+						);
+						newColumnId = navigableColumnIds[targetIndex] ?? null;
+					}
+				} else if (currentColIndex > 0) {
 					const targetIndex = Math.max(0, currentColIndex - HORIZONTAL_PAGE_SIZE);
 					newColumnId = navigableColumnIds[targetIndex] ?? null;
 				}
 				break;
 			case 'pageright':
-				if (currentColIndex < navigableColumnIds.length - 1) {
+				if (isRtl) {
+					if (currentColIndex > 0) {
+						const targetIndex = Math.max(0, currentColIndex - HORIZONTAL_PAGE_SIZE);
+						newColumnId = navigableColumnIds[targetIndex] ?? null;
+					}
+				} else if (currentColIndex < navigableColumnIds.length - 1) {
 					const targetIndex = Math.min(
 						navigableColumnIds.length - 1,
 						currentColIndex + HORIZONTAL_PAGE_SIZE
