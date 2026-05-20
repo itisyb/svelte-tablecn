@@ -31,7 +31,7 @@ export function parseRangeFilterValue(value: unknown, fallback: RangeValue): Ran
 			rawMax === '' || rawMax === undefined ? fallback[1] : Number(rawMax);
 
 		if (!Number.isNaN(min) && !Number.isNaN(max)) {
-			return [min, max];
+			return [Math.min(min, max), Math.max(min, max)];
 		}
 	}
 
@@ -46,7 +46,17 @@ export function getRangeStep(min: number, max: number): number {
 }
 
 export function formatRangeValue(value: number): string {
-	return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+	return value.toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+export function isCompleteRangeFilterValue(value: unknown): boolean {
+	if (!Array.isArray(value) || value.length < 2) {
+		return false;
+	}
+
+	const min = coerceRangeNumber(value[0]);
+	const max = coerceRangeNumber(value[1]);
+	return min !== undefined && max !== undefined && min <= max;
 }
 
 export function coerceRangeNumber(value: unknown): number | undefined {

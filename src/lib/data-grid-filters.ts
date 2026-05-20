@@ -180,8 +180,11 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 		}
 
 		if (operator === 'notEquals') {
-			if (typeof cellValue === 'number' && typeof value === 'number') {
-				return cellValue !== value;
+			if (typeof cellValue === 'number') {
+				const numValue = typeof value === 'number' ? value : Number(value);
+				if (!Number.isNaN(numValue)) {
+					return cellValue !== numValue;
+				}
 			}
 			if (cellValue instanceof Date && typeof value === 'string') {
 				const cellDate = new Date(cellValue);
@@ -288,6 +291,10 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 				);
 			}
 			return !value.some((fv) => String(cellValue) === String(fv));
+		}
+
+		if (operator === 'between') {
+			return false;
 		}
 
 		return true;

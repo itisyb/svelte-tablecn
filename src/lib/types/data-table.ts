@@ -13,6 +13,7 @@ import type {
 	Updater
 } from '@tanstack/table-core';
 import type { Component } from 'svelte';
+import { isCompleteRangeFilterValue } from '$lib/data-table-range-utils.js';
 
 // Re-export filter operator types from data-grid to avoid duplication
 import type { FilterOperator as FilterOperatorType } from './data-grid.js';
@@ -280,6 +281,10 @@ export function getValidFilters<TData>(
 
 		if (Array.isArray(filter.value) && filter.value.length === 0) {
 			return false;
+		}
+
+		if (filter.operator === 'between') {
+			return isCompleteRangeFilterValue(filter.value);
 		}
 
 		return true;

@@ -103,43 +103,43 @@
 	});
 </script>
 
-<Popover bind:open>
-	<PopoverTrigger>
-		{#snippet child({ props })}
-			<Button
-				{...props}
-				aria-label={`Filter ${title ?? 'column'}`}
-				variant="outline"
-				size="sm"
-				class="border-dashed font-normal"
-			>
-				{#if hasActiveFilter}
-					<div
-						role="button"
-						tabindex="0"
-						aria-label={`Clear ${title ?? 'column'} filter`}
-						class="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-						onclick={clearFilter}
-						onkeydown={(event) => {
-							if (event.key === 'Enter' || event.key === ' ') {
-								event.preventDefault();
-								clearFilter();
-							}
-						}}
-					>
-						<XCircle class="size-4" />
-					</div>
-				{:else}
-					<PlusCircle class="size-4" />
-				{/if}
-				{title}
-				{#if displayLabel}
-					<Separator orientation="vertical" class="mx-0.5 data-[orientation=vertical]:h-4" />
-					<span class="max-w-40 truncate text-muted-foreground text-xs">{displayLabel}</span>
-				{/if}
-			</Button>
-		{/snippet}
-	</PopoverTrigger>
+<div class="inline-flex items-center">
+	{#if hasActiveFilter}
+		<Button
+			type="button"
+			variant="outline"
+			size="sm"
+			class="h-8 rounded-r-none border-dashed border-r-0 px-2"
+			aria-label={`Clear ${title ?? 'column'} filter`}
+			onclick={clearFilter}
+		>
+			<XCircle class="size-4" />
+		</Button>
+	{/if}
+	<Popover bind:open>
+		<PopoverTrigger>
+			{#snippet child({ props })}
+				<Button
+					{...props}
+					aria-label={`Filter ${title ?? 'column'}`}
+					variant="outline"
+					size="sm"
+					class={cn(
+						'border-dashed font-normal',
+						hasActiveFilter && 'rounded-l-none'
+					)}
+				>
+					{#if !hasActiveFilter}
+						<PlusCircle class="size-4" />
+					{/if}
+					{title}
+					{#if displayLabel}
+						<Separator orientation="vertical" class="mx-0.5 data-[orientation=vertical]:h-4" />
+						<span class="max-w-40 truncate text-muted-foreground text-xs">{displayLabel}</span>
+					{/if}
+				</Button>
+			{/snippet}
+		</PopoverTrigger>
 	<PopoverContent align="start" class="flex w-auto min-w-72 flex-col gap-4">
 		<div class="flex flex-col gap-3">
 			<p class="font-medium leading-none">{title}</p>
@@ -207,4 +207,5 @@
 		</div>
 		<Button variant="outline" size="sm" class="h-8" onclick={() => clearFilter()}>Clear</Button>
 	</PopoverContent>
-</Popover>
+	</Popover>
+</div>
