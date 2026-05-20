@@ -16,17 +16,15 @@
 		useDataGridUndoRedo,
 		getFilterFn,
 	} from '$lib';
+	import { generateId } from '$lib/id.js';
 	import {
 		departments,
-		generateDemoPerson,
 		scheduleDemoPeopleLoad,
 		skills,
 		statuses,
 		type DemoPerson
 	} from '$lib/demo/person-data.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import Plus from '@lucide/svelte/icons/plus';
 
 	interface Props {
 		height: number;
@@ -186,9 +184,13 @@
 		}
 	];
 
+	function createBlankRow(): DemoPerson {
+		return { id: generateId() };
+	}
+
 	function onRowAdd() {
 		const newRowIndex = data.length;
-		const newRow = generateDemoPerson(newRowIndex + 1);
+		const newRow = createBlankRow();
 		const nextData = [...data, newRow];
 		data = nextData;
 		onDataChange(nextData);
@@ -197,10 +199,10 @@
 	}
 
 	function onRowsAdd(count: number) {
-		const newRows = Array.from({ length: count }, (_, index) =>
-			generateDemoPerson(data.length + index + 1)
-		);
-		data = [...data, ...newRows];
+		const newRows = Array.from({ length: count }, () => createBlankRow());
+		const nextData = [...data, ...newRows];
+		data = nextData;
+		onDataChange(nextData);
 		trackRowsAdd(newRows);
 	}
 
@@ -293,12 +295,6 @@
 			{/if}
 		</div>
 		<div class="flex items-center gap-2">
-			{#if addRow}
-				<Button variant="outline" size="sm" disabled={isLoading} onclick={() => void addRow()}>
-					<Plus class="size-4" />
-					Add row
-				</Button>
-			{/if}
 			<DataGridFilterMenu {table} />
 			<DataGridSortMenu {table} />
 			<DataGridRowHeightMenu {table} />

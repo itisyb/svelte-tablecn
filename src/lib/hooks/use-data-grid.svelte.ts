@@ -1183,16 +1183,7 @@ export function useDataGrid<TData extends RowData>(
 			void Promise.resolve(onRowAddProp())
 				.then(async (result) => {
 					if (result === null) return;
-
-					clearCellSelection();
-
-					const targetRowIndex = result?.rowIndex ?? initialRowCount;
-					const targetColumnId = result?.columnId ?? currentColumnId;
-
-					await scrollToRow({
-						rowIndex: targetRowIndex,
-						columnId: targetColumnId
-					});
+					await focusAddedRow(result, initialRowCount, currentColumnId);
 				})
 				.catch(() => {
 					// Callback threw; skip scroll/focus
@@ -1413,6 +1404,34 @@ export function useDataGrid<TData extends RowData>(
 	// Row Add Handler
 	// ========================================
 
+	async function focusAddedRow(
+		result: Partial<CellPosition> | null | void,
+		initialRowCount: number,
+		defaultColumnId?: string
+	) {
+		syncTableFromData();
+
+		const rows = table.getRowModel().rows;
+		if (result?.rowId && !rows.some((row) => row.id === result.rowId)) {
+			toast.info('Row added but is hidden by the current filter');
+			return;
+		}
+
+		clearCellSelection();
+
+		const targetRowIndex = resolveDisplayRowIndex(result, result?.rowIndex ?? initialRowCount);
+		const targetColumnId = result?.columnId ?? defaultColumnId ?? getFirstNavigableColumnId();
+		if (!targetColumnId) return;
+
+		await scrollToRow({
+			rowIndex: targetRowIndex,
+			rowId: result?.rowId,
+			columnId: targetColumnId
+		});
+
+		startEditing(targetRowIndex, targetColumnId);
+	}
+
 	async function handleRowAdd(event?: MouseEvent) {
 		if (readOnly || !onRowAddProp) return;
 
@@ -1429,24 +1448,7 @@ export function useDataGrid<TData extends RowData>(
 
 		if (result === null || event?.defaultPrevented) return;
 
-		syncTableFromData();
-
-		const rows = table.getRowModel().rows;
-		if (result?.rowId && !rows.some((row) => row.id === result.rowId)) {
-			toast.info('Row added but is hidden by the current filter');
-			return;
-		}
-
-		clearCellSelection();
-
-		const targetRowIndex = resolveDisplayRowIndex(result, result?.rowIndex ?? initialRowCount);
-		const targetColumnId = result?.columnId;
-
-		await scrollToRow({
-			rowIndex: targetRowIndex,
-			rowId: result?.rowId,
-			columnId: targetColumnId
-		});
+		await focusAddedRow(result, initialRowCount);
 	}
 
 	// ========================================
