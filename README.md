@@ -6,6 +6,8 @@ A powerful, feature-rich data grid component for Svelte 5. This is a port of [ta
 
 [Live Demo](https://svelte-tablecn.vercel.app)
 
+See [CHANGELOG.md](./CHANGELOG.md) for release notes.
+
 ## Features
 
 - Cell editing with multiple cell types (text, number, date, select, multi-select, checkbox, URL, file)
