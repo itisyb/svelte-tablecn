@@ -201,7 +201,10 @@
 <svelte:window onmouseup={handleWindowMouseUp} />
 
 <TooltipProvider>
-	<div data-slot="grid-wrapper" class={cn('relative flex w-full flex-col', className)}>
+	<div
+		data-slot="grid-wrapper"
+		class={cn('relative flex w-full min-w-0 max-w-full flex-col', className)}
+	>
 		{#if searchState}
 			<DataGridSearch
 				searchOpen={searchState.searchOpen}
@@ -228,7 +231,7 @@
 			data-slot="grid"
 			tabindex={0}
 			bind:this={dataGridRef}
-			class="relative grid select-none overflow-auto rounded-md border focus:outline-none"
+			class="relative grid w-full min-w-0 max-w-full select-none overflow-auto rounded-md border focus:outline-none"
 			style="{columnSizeStyle}; max-height: {height}px;"
 			oncontextmenu={onGridContextMenu}
 			onmouseup={handleGridMouseUp}
