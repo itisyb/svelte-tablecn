@@ -6,7 +6,8 @@
 		Select,
 		SelectContent,
 		SelectItem,
-		SelectTrigger
+		SelectTrigger,
+		SelectValue
 	} from '$lib/components/ui/select/index.js';
 
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
@@ -23,6 +24,9 @@
 	let { table, pageSizeOptions = [10, 20, 30, 40, 50], class: className }: Props = $props();
 
 	const pageSize = $derived(`${table.getState().pagination.pageSize}`);
+	const pageSizeItems = $derived(
+		pageSizeOptions.map((size) => ({ value: `${size}`, label: `${size}` }))
+	);
 	const selectedCount = $derived(table.getFilteredSelectedRowModel().rows.length);
 	const filteredCount = $derived(table.getFilteredRowModel().rows.length);
 	const pageIndex = $derived(table.getState().pagination.pageIndex);
@@ -44,12 +48,17 @@
 			<Select
 				type="single"
 				value={pageSize}
-				onValueChange={(value) => table.setPageSize(Number(value))}
+				items={pageSizeItems}
+				onValueChange={(value) => {
+					if (value) table.setPageSize(Number(value));
+				}}
 			>
-				<SelectTrigger class="h-8 w-18 data-size:h-8" />
+				<SelectTrigger class="h-8 w-[4.5rem] data-size:h-8">
+					<SelectValue placeholder={pageSize} />
+				</SelectTrigger>
 				<SelectContent side="top">
 					{#each pageSizeOptions as option (option)}
-						<SelectItem value={`${option}`}>{option}</SelectItem>
+						<SelectItem value={`${option}`} label={`${option}`}>{option}</SelectItem>
 					{/each}
 				</SelectContent>
 			</Select>

@@ -22,6 +22,7 @@ export {
 	SelectLabel,
 	SelectSeparator,
 	SelectTrigger,
+	SelectValue,
 	SelectScrollDownButton,
 	SelectScrollUpButton,
 	SelectGroupHeading
