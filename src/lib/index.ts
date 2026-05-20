@@ -38,7 +38,8 @@ export {
 	DataGridViewMenu,
 	DataGridRowHeightMenu,
 	DataGridKeyboardShortcuts,
-	DataGridRenderCount
+	DataGridRenderCount,
+	DataGridActionBar
 } from './components/data-grid';
 
 // Data Grid filter utilities
@@ -83,6 +84,15 @@ export {
 } from './components/data-grid/cells';
 
 // UI Components
+export {
+	ActionBar,
+	ActionBarSelection,
+	ActionBarGroup,
+	ActionBarItem,
+	ActionBarClose,
+	ActionBarSeparator
+} from './components/ui/action-bar';
+export { exportTableToCSV } from './export';
 export { Button, buttonVariants } from './components/ui/button';
 export { Input } from './components/ui/input';
 export { Checkbox } from './components/ui/checkbox';
