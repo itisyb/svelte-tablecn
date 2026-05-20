@@ -69,7 +69,6 @@ With `enableAdvancedFilter` and `manualFiltering: false`, `useDataTable` pre-fil
 1. **No `$effect` that writes state derived from the same state** (e.g. syncing `filterItems` from `table.getState()` without a snapshot guard).
 2. **Do not destructure `useDataTable()`** — `const { columnFilters } = useDataTable()` freezes the initial `[]` and breaks filters. Use `const dataTable = useDataTable()` and `dataTable.table` in templates.
 3. **Pass `dataTable.setColumnFilters` into filter components** — updates Svelte `$state` directly; the table syncs via `$effect.pre`.
-3. **Controlled table handlers must not call `notifyTableUpdate`** — `$effect.pre` already syncs after parent `$state` changes.
 4. **URL sync** (`useDataTable`) uses snapshots + `isApplyingQueryState` so `pushState` does not echo back into filters.
 5. Prefer **`$effect.pre`** for syncing into non-Svelte systems; use **`untrack`** when reading for side effects only.
 
