@@ -4,6 +4,7 @@
 export const OVERSCAN = 3;
 export const VIEWPORT_OFFSET = 1;
 export const SCROLL_SYNC_RETRY_COUNT = 16;
+export const HORIZONTAL_PAGE_SIZE = 5;
 
 // Column sizing
 export const MIN_COLUMN_SIZE = 60;
