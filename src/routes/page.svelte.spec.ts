@@ -54,7 +54,7 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Basic Table' }).click();
 
 		await expect
-			.element(page.getByLabelText('Filter Salary').getByText('50000 - 90000'))
+			.element(page.getByLabelText('Filter Salary').getByText('50,000 - 90,000 $'))
 			.toBeInTheDocument();
 
 		window.history.replaceState({}, '', '/');

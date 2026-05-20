@@ -165,8 +165,11 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 		}
 
 		if (operator === 'equals') {
-			if (typeof cellValue === 'number' && typeof value === 'number') {
-				return cellValue === value;
+			if (typeof cellValue === 'number') {
+				const numValue = typeof value === 'number' ? value : Number(value);
+				if (!Number.isNaN(numValue)) {
+					return cellValue === numValue;
+				}
 			}
 			if (cellValue instanceof Date && typeof value === 'string') {
 				const cellDate = new Date(cellValue);
@@ -196,25 +199,34 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 			return cellValueStr.endsWith(filterValueStr);
 		}
 
-		if (typeof cellValue === 'number' && typeof value === 'number') {
-			if (operator === 'greaterThan') {
-				return cellValue > value;
+		if (typeof cellValue === 'number') {
+			const numValue =
+				typeof value === 'number' ? value : value === undefined ? Number.NaN : Number(value);
+			const numValue2 =
+				typeof value2 === 'number'
+					? value2
+					: value2 === undefined
+						? Number.NaN
+						: Number(value2);
+
+			if (operator === 'greaterThan' && !Number.isNaN(numValue)) {
+				return cellValue > numValue;
 			}
 
-			if (operator === 'greaterThanOrEqual') {
-				return cellValue >= value;
+			if (operator === 'greaterThanOrEqual' && !Number.isNaN(numValue)) {
+				return cellValue >= numValue;
 			}
 
-			if (operator === 'lessThan') {
-				return cellValue < value;
+			if (operator === 'lessThan' && !Number.isNaN(numValue)) {
+				return cellValue < numValue;
 			}
 
-			if (operator === 'lessThanOrEqual') {
-				return cellValue <= value;
+			if (operator === 'lessThanOrEqual' && !Number.isNaN(numValue)) {
+				return cellValue <= numValue;
 			}
 
-			if (operator === 'between' && typeof value2 === 'number') {
-				return cellValue >= value && cellValue <= value2;
+			if (operator === 'between' && !Number.isNaN(numValue) && !Number.isNaN(numValue2)) {
+				return cellValue >= numValue && cellValue <= numValue2;
 			}
 		}
 

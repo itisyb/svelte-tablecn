@@ -6,15 +6,18 @@ import { getFilterFn } from '$lib/data-grid-filters.js';
 import type { FilterValue } from '$lib/types/data-grid.js';
 import type { ExtendedColumnFilter, JoinOperator } from '$lib/types/data-table.js';
 import { getValidFilters } from '$lib/types/data-table.js';
+import { coerceRangeNumber } from '$lib/data-table-range-utils.js';
 
 function toFilterValue<TData>(filter: ExtendedColumnFilter<TData>): FilterValue {
 	const values = Array.isArray(filter.value) ? filter.value : [filter.value];
 
 	if (filter.operator === 'between' && values.length >= 2) {
+		const min = coerceRangeNumber(values[0]);
+		const max = coerceRangeNumber(values[1]);
 		return {
 			operator: filter.operator,
-			value: values[0],
-			value2: values[1]
+			value: min ?? values[0],
+			value2: max ?? values[1]
 		};
 	}
 

@@ -348,6 +348,7 @@
 						}}
 						column={table.getColumn(filter.id)!}
 						inputId={filterKey}
+						showSlider={false}
 						onFilterUpdate={(nextFilterId, updates) => updateFilter(nextFilterId, updates)}
 						class="size-full max-w-28 gap-0 **:data-[slot='range-min']:border-r-0 [&_input]:rounded-none [&_input]:px-1.5"
 					/>

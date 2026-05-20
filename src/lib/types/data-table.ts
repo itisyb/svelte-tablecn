@@ -236,8 +236,9 @@ export function getDefaultFilterOperator(variant: FilterVariant): FilterOperator
 		case 'text':
 			return 'contains';
 		case 'number':
-		case 'range':
 			return 'equals';
+		case 'range':
+			return 'between';
 		case 'date':
 		case 'dateRange':
 			return 'equals';

@@ -198,7 +198,8 @@
 			meta: {
 				label: 'Salary',
 				variant: 'range',
-				range: [40000, 150000]
+				range: [40000, 150000],
+				unit: '$'
 			}
 		},
 		{
