@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData">
-	import type { ColumnFilter, Table } from '@tanstack/table-core';
+	import type { ColumnFilter, ColumnFiltersState, Table, Updater } from '@tanstack/table-core';
 	import type { Component } from 'svelte';
 	import type {
 		DataTableOption,
@@ -48,7 +48,7 @@
 
 	interface Props {
 		table: Table<TData>;
-		columnFilters?: FilterItem[];
+		setColumnFilters?: (updater: Updater<ColumnFiltersState>) => void;
 		disabled?: boolean;
 		align?: 'start' | 'center' | 'end';
 		class?: string;
@@ -56,24 +56,30 @@
 
 	let {
 		table,
-		columnFilters: columnFiltersProp,
+		setColumnFilters: setColumnFiltersProp,
 		disabled = false,
 		align = 'start',
 		class: className
 	}: Props = $props();
+
+	function setColumnFilters(updater: Updater<ColumnFiltersState>) {
+		if (setColumnFiltersProp) {
+			setColumnFiltersProp(updater);
+			return;
+		}
+		table.setColumnFilters(updater);
+	}
 
 	let open = $state(false);
 	let selectedColumnId = $state<string | null>(null);
 	let draftValue = $state('');
 	let draftSecondaryValue = $state('');
 
-	const filters = $derived(
-		columnFiltersProp ?? (table.getState().columnFilters as FilterItem[])
-	);
+	const filters = $derived(table.getState().columnFilters as FilterItem[]);
 	const columns = $derived.by((): AvailableColumn[] => {
 		return table
 			.getAllColumns()
-			.filter((column) => column.getCanFilter())
+			.filter((column) => column.columnDef.enableColumnFilter)
 			.map((column) => ({
 				id: column.id,
 				label: column.columnDef.meta?.label ?? column.id,
@@ -131,7 +137,7 @@
 	}
 
 	function updateFilter(filterKey: string, updates: Partial<FilterItem>) {
-		table.setColumnFilters((prevFilters) =>
+		setColumnFilters((prevFilters) =>
 			(prevFilters as FilterItem[]).map((filter, index) =>
 				getFilterKey(filter, index) === filterKey ? { ...filter, ...updates } : filter
 			)
@@ -139,7 +145,7 @@
 	}
 
 	function removeFilter(filterKey: string) {
-		table.setColumnFilters((prevFilters) =>
+		setColumnFilters((prevFilters) =>
 			(prevFilters as FilterItem[]).filter(
 				(filter, index) => getFilterKey(filter, index) !== filterKey
 			)
@@ -147,7 +153,7 @@
 	}
 
 	function resetFilters() {
-		table.setColumnFilters([]);
+		setColumnFilters([]);
 	}
 
 	function resetDraft() {
@@ -181,7 +187,7 @@
 			return;
 		}
 
-		table.setColumnFilters((prevFilters) => [
+		setColumnFilters((prevFilters) => [
 			...prevFilters,
 			{
 				id: castColumnId(column.id),

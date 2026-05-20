@@ -56,7 +56,8 @@ export function createSvelteTable<TData extends RowData>(
 	): (updater: Updater) => void {
 		return (updater) => {
 			handler?.(updater);
-			// Parent $state is synced in $effect.pre — avoid double notify per change.
+			// Notify subscribers immediately; $effect.pre syncs options before paint.
+			notifyTableUpdate?.();
 		};
 	}
 

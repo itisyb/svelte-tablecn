@@ -13,6 +13,7 @@ import {
 	type PaginationState,
 	type RowSelectionState,
 	type SortingState,
+	type Updater,
 	type VisibilityState
 } from '@tanstack/table-core';
 import { DATA_TABLE_DEFAULTS, DEFAULT_DATA_TABLE_QUERY_KEYS } from '$lib/config/data-table.js';
@@ -498,6 +499,8 @@ export function useDataTable<TData>(
 		},
 		enableRowSelection,
 		enableMultiSort,
+		enableFilters: true,
+		enableColumnFilters: true,
 		onRowSelectionChange: (updater) => {
 			rowSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
 		},
@@ -559,8 +562,10 @@ export function useDataTable<TData>(
 		setSorting: (value) => {
 			sorting = value;
 		},
-		setColumnFilters: (value) => {
-			columnFilters = value;
+		setColumnFilters: (updater) => {
+			const next =
+				typeof updater === 'function' ? updater(columnFilters) : updater;
+			columnFilters = ensureFilterIds<TData>(next);
 		},
 		setColumnVisibility: (value) => {
 			columnVisibility = value;

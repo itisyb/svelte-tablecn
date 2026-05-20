@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { ColumnDef, FilterFn } from '@tanstack/table-core';
-	import type { ExtendedColumnFilter } from '$lib/types/data-table.js';
 	import {
 		DataTable,
 		DataTableAdvancedToolbar,
@@ -251,7 +250,8 @@
 				: 'Command filter menu (tablecn commandFilters): compact popover filters with operators, synced to the URL.'
 			: 'Basic mode showcases per-column toolbar filters (tablecn default toolbar), client-side sort/filter, and faceted controls.';
 
-	const { table, columnFilters, joinOperator } = useDataTable({
+	// Keep the hook return object — destructuring breaks getter reactivity in Svelte 5.
+	const dataTable = useDataTable({
 		data: () => rows,
 		columns,
 		getRowId: (row) => row.id,
@@ -274,28 +274,27 @@
 	</div>
 
 	{#if mode === 'basic'}
-		<DataTable {table}>
+		<DataTable table={dataTable.table}>
 			{#snippet children()}
-				<DataTableToolbar {table} />
+				<DataTableToolbar table={dataTable.table} />
 			{/snippet}
 		</DataTable>
 	{:else}
-		<DataTable {table}>
+		<DataTable table={dataTable.table}>
 			{#snippet children()}
-				<DataTableAdvancedToolbar {table}>
+				<DataTableAdvancedToolbar table={dataTable.table}>
 					{#snippet children()}
-						<DataTableSortList {table} align="start" />
+						<DataTableSortList table={dataTable.table} align="start" />
 						{#if advancedFilterUi === 'advancedFilters'}
 							<DataTableFilterList
-								{table}
-								columnFilters={columnFilters as ExtendedColumnFilter<Person>[]}
-								{joinOperator}
+								table={dataTable.table}
+								setColumnFilters={dataTable.setColumnFilters}
 								align="start"
 							/>
 						{:else}
 							<DataTableFilterMenu
-								{table}
-								columnFilters={columnFilters as ExtendedColumnFilter<Person>[]}
+								table={dataTable.table}
+								setColumnFilters={dataTable.setColumnFilters}
 								align="start"
 							/>
 						{/if}

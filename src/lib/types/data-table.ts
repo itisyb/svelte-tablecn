@@ -9,7 +9,8 @@ import type {
 	VisibilityState,
 	PaginationState,
 	RowSelectionState,
-	RowData
+	RowData,
+	Updater
 } from '@tanstack/table-core';
 import type { Component } from 'svelte';
 
@@ -193,7 +194,7 @@ export interface UseDataTableReturn<TData> {
 	joinOperator: JoinOperator;
 	// Setters
 	setSorting: (sorting: SortingState) => void;
-	setColumnFilters: (filters: ColumnFiltersState) => void;
+	setColumnFilters: (updater: Updater<ColumnFiltersState>) => void;
 	setColumnVisibility: (visibility: VisibilityState) => void;
 	setRowSelection: (selection: RowSelectionState) => void;
 	setPagination: (pagination: PaginationState) => void;

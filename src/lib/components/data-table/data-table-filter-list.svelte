@@ -1,5 +1,11 @@
 <script lang="ts" generics="TData">
-	import type { Column, ColumnFilter, ColumnFiltersState, Table } from '@tanstack/table-core';
+	import type {
+		Column,
+		ColumnFilter,
+		ColumnFiltersState,
+		Table,
+		Updater
+	} from '@tanstack/table-core';
 	import type { Component } from 'svelte';
 	import type {
 		DataTableOption,
@@ -53,9 +59,8 @@
 
 	interface Props {
 		table: Table<TData>;
-		/** Prefer passing from useDataTable — avoids re-reading table state every sync */
-		columnFilters?: FilterItem[];
-		joinOperator?: JoinOperator;
+		/** Pass `dataTable.setColumnFilters` from useDataTable — keeps Svelte state in sync */
+		setColumnFilters?: (updater: Updater<ColumnFiltersState>) => void;
 		disabled?: boolean;
 		align?: 'start' | 'center' | 'end';
 		class?: string;
@@ -63,18 +68,23 @@
 
 	let {
 		table,
-		columnFilters: columnFiltersProp,
-		joinOperator: joinOperatorProp,
+		setColumnFilters: setColumnFiltersProp,
 		disabled = false,
 		align = 'start',
 		class: className
 	}: Props = $props();
 
+	function setColumnFilters(updater: Updater<ColumnFiltersState>) {
+		if (setColumnFiltersProp) {
+			setColumnFiltersProp(updater);
+			return;
+		}
+		table.setColumnFilters(updater);
+	}
+
 	let open = $state(false);
-	const columnFilters = $derived(
-		columnFiltersProp ?? (table.getState().columnFilters as FilterItem[])
-	);
-	const joinOperator = $derived(joinOperatorProp ?? table.options.meta?.joinOperator ?? 'and');
+	const columnFilters = $derived(table.getState().columnFilters as FilterItem[]);
+	const joinOperator = $derived(table.options.meta?.joinOperator ?? 'and');
 	let isDragging = $state(false);
 	let dragItems = $state<FilterItem[]>([]);
 	const listFilters = $derived(isDragging ? dragItems : columnFilters);
@@ -82,7 +92,7 @@
 	const columns = $derived.by((): AvailableColumn[] => {
 		return table
 			.getAllColumns()
-			.filter((column) => column.getCanFilter())
+			.filter((column) => column.columnDef.enableColumnFilter)
 			.map((column) => ({
 				id: column.id,
 				label: column.columnDef.meta?.label ?? column.id,
@@ -143,7 +153,7 @@
 	}
 
 	function updateFilter(filterKey: string, updates: Partial<FilterItem>) {
-		table.setColumnFilters((prevFilters) =>
+		setColumnFilters((prevFilters) =>
 			(prevFilters as FilterItem[]).map((filter, index) =>
 				matchesFilter(filter, filterKey, index) ? { ...filter, ...updates } : filter
 			)
@@ -151,7 +161,7 @@
 	}
 
 	function removeFilter(filterKey: string) {
-		table.setColumnFilters((prevFilters) =>
+		setColumnFilters((prevFilters) =>
 			(prevFilters as FilterItem[]).filter(
 				(filter, index) => !matchesFilter(filter, filterKey, index)
 			)
@@ -162,7 +172,7 @@
 		const firstColumn = columns[0];
 		if (!firstColumn) return;
 
-		table.setColumnFilters((prevFilters) => [
+		setColumnFilters((prevFilters) => [
 			...prevFilters,
 			{
 				id: firstColumn.id,
@@ -175,7 +185,7 @@
 	}
 
 	function resetFilters() {
-		table.setColumnFilters(table.initialState.columnFilters ?? []);
+		setColumnFilters([]);
 		table.options.meta?.setJoinOperator?.('and');
 	}
 
@@ -220,7 +230,7 @@
 		const cleanItems = event.detail.items.filter(
 			(item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]
 		);
-		table.setColumnFilters(cleanItems as ColumnFiltersState);
+		setColumnFilters(cleanItems as ColumnFiltersState);
 	}
 </script>
 
