@@ -244,12 +244,13 @@
 		}
 	];
 
-	const description =
+	const description = $derived.by(() =>
 		mode === 'advanced'
 			? advancedFilterUi === 'advancedFilters'
-				? 'Advanced list UI (tablecn advancedFilters): multi-rule filters with AND/OR, drag reorder, and URL-synced filters + joinOperator.'
-				: 'Command filter menu (tablecn commandFilters): compact popover filters with operators, synced to the URL.'
-			: 'Basic mode showcases per-column toolbar filters (tablecn default toolbar), client-side sort/filter, and faceted controls.';
+				? `Advanced list UI (tablecn advancedFilters): multi-rule filters with AND/OR, drag reorder, and URL-synced filters + joinOperator. Showing ${rows.length} demo rows (10 per page).`
+				: `Command filter menu (tablecn commandFilters): compact popover filters with operators, synced to the URL. Showing ${rows.length} demo rows (10 per page).`
+			: `Basic mode showcases per-column toolbar filters (tablecn default toolbar), client-side sort/filter, and faceted controls. Showing ${rows.length} demo rows (10 per page).`
+	);
 
 	// Keep the hook return object — destructuring breaks getter reactivity in Svelte 5.
 	const dataTable = useDataTable({

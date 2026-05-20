@@ -16,6 +16,8 @@
 	type TableMode = 'basic' | 'advanced';
 	type AdvancedFilterUi = 'advancedFilters' | 'commandFilters';
 
+	const GRID_DEMO_ROW_COUNT = 10_000;
+
 	let demoMode = $state<DemoMode>('grid');
 	let tableMode = $state<TableMode>('basic');
 	let advancedFilterUi = $state<AdvancedFilterUi>('commandFilters');
@@ -54,21 +56,31 @@
 				<ModeToggle />
 			</div>
 		</div>
-		<div class="flex flex-wrap items-center gap-2">
-			<Button
-				variant={demoMode === 'grid' ? 'default' : 'outline'}
-				size="sm"
-				onclick={() => (demoMode = 'grid')}
-			>
-				Data Grid Demo
-			</Button>
-			<Button
-				variant={demoMode === 'table' ? 'default' : 'outline'}
-				size="sm"
-				onclick={() => (demoMode = 'table')}
-			>
-				Data Table Demo
-			</Button>
+		<div class="flex flex-col gap-1">
+			<div class="flex flex-wrap items-center gap-2">
+				<Button
+					variant={demoMode === 'grid' ? 'default' : 'outline'}
+					size="sm"
+					onclick={() => (demoMode = 'grid')}
+				>
+					Data Grid Demo
+				</Button>
+				<Button
+					variant={demoMode === 'table' ? 'default' : 'outline'}
+					size="sm"
+					onclick={() => (demoMode = 'table')}
+				>
+					Data Table Demo
+				</Button>
+			</div>
+			<p class="text-muted-foreground text-xs">
+				{#if demoMode === 'grid'}
+					Grid: {GRID_DEMO_ROW_COUNT.toLocaleString('en-US')} rows (virtualized, no pagination). Add row via the footer or
+					toolbar — count can go past 10k.
+				{:else}
+					Table: {tableRows.length} rows with pagination (10 per page by default) — not the full grid dataset.
+				{/if}
+			</p>
 		</div>
 	</div>
 

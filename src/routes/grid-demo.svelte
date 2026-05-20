@@ -19,11 +19,12 @@
 	import {
 		departments,
 		generateDemoPerson,
-		generateDemoPeople,
+		scheduleDemoPeopleLoad,
 		skills,
 		statuses,
 		type DemoPerson
 	} from '$lib/demo/person-data.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Plus from '@lucide/svelte/icons/plus';
 
@@ -33,19 +34,21 @@
 
 	let { height }: Props = $props();
 
+	/** Demo seed size only — the grid virtualizes any length; there is no 10k engine cap. */
 	const DEMO_ROW_COUNT = 10_000;
 
 	let data = $state<DemoPerson[]>([]);
 	let isLoading = $state(true);
 
-	onMount(() => {
-		// Full 10k dataset for virtualization demo (defer one frame so shell paints first).
-		const timeoutId = window.setTimeout(() => {
-			data = generateDemoPeople(DEMO_ROW_COUNT);
-			isLoading = false;
-		}, 0);
+	const rowCountLabel = $derived(
+		isLoading ? `Loading ${DEMO_ROW_COUNT.toLocaleString('en-US')}…` : `${data.length.toLocaleString('en-US')} rows`
+	);
 
-		return () => clearTimeout(timeoutId);
+	onMount(() => {
+		return scheduleDemoPeopleLoad(DEMO_ROW_COUNT, (people) => {
+			data = people;
+			isLoading = false;
+		});
 	});
 
 	const { trackRowsAdd, trackRowsDelete } = useDataGridUndoRedo({
@@ -264,12 +267,20 @@
 </script>
 
 <div class="flex flex-col gap-4">
-	<div role="toolbar" aria-orientation="horizontal" class="flex items-center justify-between">
-		<DataGridKeyboardShortcuts
-			enableSearch={!!dataGridProps.searchState}
-			enableUndoRedo
-			enablePaste
-		/>
+	<div role="toolbar" aria-orientation="horizontal" class="flex flex-wrap items-center justify-between gap-2">
+		<div class="flex flex-wrap items-center gap-2">
+			<DataGridKeyboardShortcuts
+				enableSearch={!!dataGridProps.searchState}
+				enableUndoRedo
+				enablePaste
+			/>
+			<Badge variant="secondary" class="font-mono tabular-nums">{rowCountLabel}</Badge>
+			{#if !isLoading}
+				<span class="text-muted-foreground text-xs">
+					All rows are in memory; virtualization only renders the visible window.
+				</span>
+			{/if}
+		</div>
 		<div class="flex items-center gap-2">
 			{#if addRow}
 				<Button variant="outline" size="sm" onclick={() => addRow()}>
