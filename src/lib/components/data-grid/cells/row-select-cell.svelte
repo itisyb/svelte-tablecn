@@ -40,14 +40,17 @@
 	const rowSelection = $derived(table.getState().rowSelection);
 	const isSelected = $derived(rowSelection[row.id] ?? false);
 	const meta = $derived(table.options.meta);
-	const rowNumber = $derived(enableRowMarkers || readOnly ? rowIndex + 1 : undefined);
+	const rowNumber = $derived.by(() => {
+		if (!enableRowMarkers && !readOnly) return undefined;
+		return meta?.getVisualRowIndex?.(row.id) ?? rowIndex + 1;
+	});
 	const hitboxClass = $derived(getHitboxSizeClass(hitboxSize));
 
 	function handleCheckedChange(checked: boolean | 'indeterminate') {
 		const nextSelected = checked === true || checked === 'indeterminate';
 		const onRowSelect = meta?.onRowSelect;
 		if (onRowSelect) {
-			onRowSelect(rowIndex, nextSelected, false);
+			onRowSelect(row.id, nextSelected, false);
 		} else {
 			row.toggleSelected(nextSelected);
 		}
@@ -58,7 +61,7 @@
 			event.preventDefault();
 			const onRowSelect = meta?.onRowSelect;
 			if (onRowSelect) {
-				onRowSelect(rowIndex, !isSelected, true);
+				onRowSelect(row.id, !isSelected, true);
 			}
 		}
 	}

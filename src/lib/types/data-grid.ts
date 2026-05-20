@@ -9,6 +9,8 @@ import type { Snippet, Component } from 'svelte';
 // Base Types
 // ============================================
 
+export type Direction = 'ltr' | 'rtl';
+
 export interface Option {
 	label: string;
 	value: string;
@@ -112,10 +114,14 @@ export type NavigationDirection =
 	| 'right'
 	| 'home'
 	| 'end'
+	| 'ctrl+up'
+	| 'ctrl+down'
 	| 'ctrl+home'
 	| 'ctrl+end'
 	| 'pageup'
-	| 'pagedown';
+	| 'pagedown'
+	| 'pageleft'
+	| 'pageright';
 
 // ============================================
 // Search Types
@@ -262,7 +268,8 @@ declare module '@tanstack/table-core' {
 		activeSearchMatch?: CellPosition | null;
 		rowHeight?: RowHeightValue;
 		onRowHeightChange?: (value: RowHeightValue) => void;
-		onRowSelect?: (rowIndex: number, checked: boolean, shiftKey: boolean) => void;
+		getVisualRowIndex?: (rowId: string) => number | undefined;
+		onRowSelect?: (rowId: string, checked: boolean, shiftKey: boolean) => void;
 		onDataUpdate?: (params: UpdateCell | UpdateCell[]) => void;
 		onRowsDelete?: (rowIndices: number[]) => void | Promise<void>;
 		onColumnClick?: (columnId: string) => void;
@@ -297,6 +304,7 @@ declare module '@tanstack/table-core' {
 		onPasteDialogOpenChange?: (open: boolean) => void;
 		onPasteWithExpansion?: () => void;
 		onPasteWithoutExpansion?: () => void;
+		onSelectionClear?: () => void;
 	}
 }
 
@@ -330,6 +338,7 @@ export interface DataGridProps<TData> {
 	rowHeight?: RowHeightValue;
 	autoFocus?: boolean | { rowIndex?: number; columnId?: string };
 	enableColumnSelection?: boolean;
+	enableSingleCellSelection?: boolean;
 	enableSearch?: boolean;
 	enablePaste?: boolean;
 	overscan?: number;
