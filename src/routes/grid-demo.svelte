@@ -272,8 +272,6 @@
 		enableColumnSelection: true
 	});
 
-	let stretchColumnsEnabled = $state(false);
-
 	const displayedRowCount = $derived(isLoading ? 0 : table.getRowModel().rows.length);
 
 	const rowCountLabel = $derived.by(() => {
@@ -394,15 +392,6 @@
 			<DataGridSortMenu {table} {dir} />
 			<DataGridRowHeightMenu {table} />
 			<DataGridViewMenu {table} {dir} />
-			<Button
-				variant={stretchColumnsEnabled ? 'default' : 'outline'}
-				size="sm"
-				onclick={() => {
-					stretchColumnsEnabled = !stretchColumnsEnabled;
-				}}
-			>
-				Stretch
-			</Button>
 		</div>
 	</div>
 
@@ -419,7 +408,6 @@
 			{table}
 			{height}
 			{dir}
-			stretchColumns={stretchColumnsEnabled}
 		/>
 		<DataGridActionBar
 			{table}
