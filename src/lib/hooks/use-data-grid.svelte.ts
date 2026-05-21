@@ -383,6 +383,51 @@ export function useDataGrid<TData extends RowData>(
 		}
 	}
 
+	/** Re-key selection to row-model positions (0..n-1) after filter/sort; drops hidden rows. */
+	function syncSelectionToRowModel() {
+		const rows = table.getRowModel().rows;
+		if (!rows.length) {
+			if (selectionState.selectedCells.size > 0) {
+				onSelectionClear();
+			}
+			return;
+		}
+
+		const visibleIds = new Set(rows.map((r) => r.id));
+		const prunedRowSelection: RowSelectionState = {};
+		for (const [rowId, selected] of Object.entries(rowSelection)) {
+			if (selected && visibleIds.has(rowId)) {
+				prunedRowSelection[rowId] = true;
+			}
+		}
+		if (Object.keys(prunedRowSelection).length !== Object.keys(rowSelection).length) {
+			rowSelection = prunedRowSelection;
+		}
+
+		const newSelected = new Set<string>();
+		for (const key of selectionState.selectedCells) {
+			const { rowIndex, columnId } = parseCellKey(key);
+			const row =
+				rows[rowIndex] ?? rows.find((r) => r.index === rowIndex);
+			if (!row || !visibleIds.has(row.id)) continue;
+			const pos = rows.findIndex((r) => r.id === row.id);
+			if (pos !== -1) {
+				newSelected.add(getCellKey(pos, columnId));
+			}
+		}
+
+		if (
+			newSelected.size !== selectionState.selectedCells.size ||
+			[...newSelected].some((k) => !selectionState.selectedCells.has(k))
+		) {
+			syncSelectedCellsSet(newSelected);
+			selectionState = {
+				...selectionState,
+				selectedCells: newSelected
+			};
+		}
+	}
+
 	// Track last clicked row for shift-click selection
 	let lastClickedRowId = $state<string | null>(null);
 
@@ -926,9 +971,16 @@ export function useDataGrid<TData extends RowData>(
 			};
 		}
 
-		rowSelection = newRowSelection;
+		const visibleIds = new Set(rows.map((r) => r.id));
+		const prunedRowSelection: RowSelectionState = {};
+		for (const [id, sel] of Object.entries(newRowSelection)) {
+			if (sel && visibleIds.has(id)) {
+				prunedRowSelection[id] = true;
+			}
+		}
+		rowSelection = prunedRowSelection;
 
-		const selectedRows = Object.keys(newRowSelection).filter((key) => newRowSelection[key]);
+		const selectedRows = Object.keys(prunedRowSelection);
 		const newSelectedCells = new Set<string>();
 		const allColumnIds = table.getAllColumns().map((col) => col.id);
 
@@ -2248,8 +2300,10 @@ export function useDataGrid<TData extends RowData>(
 			prevDataRef = currentData;
 			prevColumnVisibility = { ...columnVisibility };
 		}
-		if (!isSortingStateEqual(sorting, prevSorting)) prevSorting = [...sorting];
-		if (!isColumnFiltersStateEqual(columnFilters, prevColumnFilters)) prevColumnFilters = [...columnFilters];
+		const sortingChanged = !isSortingStateEqual(sorting, prevSorting);
+		const filtersChanged = !isColumnFiltersStateEqual(columnFilters, prevColumnFilters);
+		if (sortingChanged) prevSorting = [...sorting];
+		if (filtersChanged) prevColumnFilters = [...columnFilters];
 
 		// Update table with current state
 		table.setOptions((prev) => ({
@@ -2266,6 +2320,10 @@ export function useDataGrid<TData extends RowData>(
 		// Notify any subscribers that table data has changed
 		// This triggers re-runs of effects/derived that called subscribeToTable()
 		notifyTableUpdate?.();
+
+		if (sortingChanged || filtersChanged) {
+			syncSelectionToRowModel();
+		}
 	});
 
 	// ========================================

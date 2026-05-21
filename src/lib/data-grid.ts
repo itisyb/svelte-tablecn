@@ -1,6 +1,13 @@
-import type { Column, Table, RowData } from '@tanstack/table-core';
+import type { Column, Row, Table, RowData } from '@tanstack/table-core';
 import type { CellOpts, Direction } from '$lib/types/data-grid.js';
 import { VIEWPORT_OFFSET } from '$lib/config/data-grid.js';
+
+/** Index in the current row model (filtered/sorted), not TanStack's preserved core `row.index`. */
+export function getRowModelPosition<TData>(table: Table<TData>, row: Row<TData>): number {
+	const rows = table.getRowModel().rows;
+	const position = rows.findIndex((r) => r.id === row.id);
+	return position === -1 ? row.index : position;
+}
 
 export function getColumnBorderVisibility<TData>(params: {
 	column: Column<TData, unknown>;

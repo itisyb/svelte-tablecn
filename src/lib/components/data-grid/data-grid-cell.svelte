@@ -1,6 +1,7 @@
 <script lang="ts" generics="TData">
 	import type { Cell, Table } from '@tanstack/table-core';
 	import type { SvelteSet } from 'svelte/reactivity';
+	import { getRowModelPosition } from '$lib/data-grid.js';
 	import { getCellKey, getCellValueKey } from '$lib/types/data-grid.js';
 
 	// Cell variant imports
@@ -26,7 +27,7 @@
 
 	let { cell, table, selectedCellsSet, selectionVersion = 0 }: Props = $props();
 
-	const rowIndex = $derived(cell.row.index);
+	const rowIndex = $derived(getRowModelPosition(table, cell.row));
 	const columnId = $derived(cell.column.id);
 	const rowId = $derived(cell.row.id);
 
