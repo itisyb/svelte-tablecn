@@ -93,7 +93,7 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		const contentRadius = Number.parseFloat(contentStyle.borderTopLeftRadius);
-		expect(contentRadius).toBeLessThanOrEqual(6);
+		expect(contentRadius).toBeLessThanOrEqual(4);
 
 		let bubbledToGrid = false;
 		const onGridKeyDown = () => {
