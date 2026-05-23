@@ -118,7 +118,6 @@
 				sideOffset={-14}
 				customAnchor={wrapperRef}
 				style={contentStyle}
-				class="w-(--bits-select-anchor-width) min-w-(--bits-select-anchor-width) rounded-sm"
 			>
 				{#each options as option (option.value)}
 					<SelectItem value={option.value} label={option.label}>

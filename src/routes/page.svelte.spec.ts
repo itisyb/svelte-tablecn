@@ -82,7 +82,10 @@ describe('/+page.svelte', () => {
 			const wrapperRect = wrapper.getBoundingClientRect();
 			const triggerRect = trigger.getBoundingClientRect();
 			const contentRect = content.getBoundingClientRect();
-			const isPlaced = contentRect.width > 0 && contentRect.height > 0;
+			const isPlaced =
+				contentRect.width > 0 &&
+				contentRect.height > 0 &&
+				Math.round(contentRect.width) >= Math.round(wrapperRect.width);
 
 			return isPlaced ? { wrapperRect, triggerRect, contentRect } : null;
 		});
@@ -95,8 +98,8 @@ describe('/+page.svelte', () => {
 		const contentStyle = getComputedStyle(content);
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
-		const contentRadius = Number.parseFloat(contentStyle.borderTopLeftRadius);
-		expect(contentRadius).toBeLessThanOrEqual(4);
+		expect(content.className).toContain('rounded-md');
+		expect(content.className).not.toContain('rounded-sm');
 
 		let bubbledToGrid = false;
 		const onGridKeyDown = () => {
