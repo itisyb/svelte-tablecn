@@ -24,6 +24,14 @@
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
+	let previousInitialValue = $state<number | undefined>(undefined);
+
+	$effect(() => {
+		if (initialValue === previousInitialValue) return;
+
+		previousInitialValue = initialValue;
+		localEditValue = null;
+	});
 
 	// Display value directly from initialValue (no effect delay)
 	const displayValue = $derived(String(initialValue ?? ''));

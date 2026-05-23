@@ -9,6 +9,7 @@ import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridLongTextCellSyncFixture from './data-grid-long-text-cell-sync-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixture.svelte';
+import DataGridNumberCellSyncFixture from './data-grid-number-cell-sync-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
@@ -201,6 +202,19 @@ describe('/+page.svelte', () => {
 		await waitFor(() => textarea.value === 'External note');
 
 		expect(textarea.value).toBe('External note');
+	});
+
+	it('should sync number editor when the external value changes', async () => {
+		await render(DataGridNumberCellSyncFixture);
+
+		const input = page.getByRole('spinbutton');
+		await expect.element(input).toHaveValue(10);
+
+		await input.fill('99');
+		await expect.element(input).toHaveValue(99);
+
+		await page.getByRole('button', { name: 'External score' }).click();
+		await expect.element(input).toHaveValue(42);
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {
