@@ -377,6 +377,7 @@
 																	: f
 															)
 														);
+														setFieldSelectorOpen(filter.id, false);
 													}}
 												>
 													<span class="truncate">{col.label}</span>

@@ -826,6 +826,7 @@ describe('/+page.svelte', () => {
 
 		expect(dataGridFilterMenuSource).toContain('ms-auto');
 		expect(dataGridFilterMenuSource).not.toContain('ml-auto');
+		expect(dataGridFilterMenuSource).toContain('setFieldSelectorOpen(filter.id, false)');
 	});
 
 	it('should keep filter item when delete is pressed with the operator selector open', async () => {
