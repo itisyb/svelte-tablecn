@@ -644,6 +644,7 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Paste from clipboard' }).click();
 
 		await expect.element(page.getByLabelText('search enabled')).toHaveTextContent('no');
+		await expect.element(page.getByLabelText('read only default')).toHaveTextContent('undefined');
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
 		expect(document.querySelector('[data-slot="grid-search"]')).toBeNull();
 	});

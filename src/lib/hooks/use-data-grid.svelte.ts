@@ -239,7 +239,7 @@ export function useDataGrid<TData extends RowData>(
 		enableSingleCellSelection = false,
 		enableSearch = false,
 		enablePaste = false,
-		readOnly = false,
+		readOnly,
 		overscan = 3,
 		dir: dirProp = 'ltr',
 		getRowId,

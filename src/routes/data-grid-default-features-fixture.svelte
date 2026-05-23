@@ -41,4 +41,5 @@
 <Button onclick={pasteFromClipboard}>Paste from clipboard</Button>
 <DataGrid {...dataGridProps} {table} height={160} />
 <output aria-label="search enabled">{dataGridProps.searchState ? 'yes' : 'no'}</output>
+<output aria-label="read only default">{table.options.meta?.readOnly === undefined ? 'undefined' : 'set'}</output>
 <output aria-label="first name">{data[0]?.name}</output>
