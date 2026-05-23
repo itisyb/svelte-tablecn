@@ -100,7 +100,7 @@
 		>
 			<SelectTrigger
 				bind:ref={triggerRef}
-				class="size-full w-full justify-start border-none p-0 text-start shadow-none focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
+				class="size-full min-h-0 w-full justify-start border-none p-0 text-start shadow-none data-[size=default]:h-full data-[size=sm]:h-full focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
 			>
 				{displayLabel}
 			</SelectTrigger>
