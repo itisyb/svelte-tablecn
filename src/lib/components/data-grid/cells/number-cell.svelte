@@ -43,7 +43,6 @@
 	$effect(() => {
 		if (isEditing && inputRef) {
 			inputRef.focus();
-			inputRef.select();
 		}
 	});
 

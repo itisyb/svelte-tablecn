@@ -1,5 +1,5 @@
 import { page } from 'vitest/browser';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
 import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
@@ -274,6 +274,21 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'External score' }).click();
 		await expect.element(input).toHaveValue(42);
+	});
+
+	it('should focus number editor without selecting the value', async () => {
+		const selectSpy = vi.spyOn(HTMLInputElement.prototype, 'select');
+
+		try {
+			await render(DataGridNumberCellSyncFixture);
+
+			const input = await waitFor(() => document.querySelector<HTMLInputElement>('input[type="number"]'));
+			await waitFor(() => document.activeElement === input);
+
+			expect(selectSpy).not.toHaveBeenCalled();
+		} finally {
+			selectSpy.mockRestore();
+		}
 	});
 
 	it('should sync short text editor when the external value changes', async () => {
