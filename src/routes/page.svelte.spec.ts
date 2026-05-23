@@ -7,6 +7,7 @@ import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
 import DataGridCtrlShiftEdgeFixture from './data-grid-ctrl-shift-edge-fixture.svelte';
 import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svelte';
+import DataGridDataUpdateFixture from './data-grid-data-update-fixture.svelte';
 import DataGridDefaultFeaturesFixture from './data-grid-default-features-fixture.svelte';
 import DataGridEditingMetaFixture from './data-grid-editing-meta-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
@@ -1247,6 +1248,15 @@ describe('/+page.svelte', () => {
 
 		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('none');
 		await expect.element(page.getByLabelText('hook editing cell', { exact: true })).toHaveTextContent('none');
+	});
+
+	it('should notify data changes for non-empty missing-row updates like the original grid', async () => {
+		await render(DataGridDataUpdateFixture);
+
+		await page.getByRole('button', { name: 'Update missing row' }).click();
+
+		await expect.element(page.getByLabelText('change count')).toHaveTextContent('1');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
 	});
 
 	it('should hide row mutation shortcuts unless enabled', async () => {

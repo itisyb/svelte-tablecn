@@ -2160,7 +2160,6 @@ export function useDataGrid<TData extends RowData>(
 		const rows = table.getRowModel().rows;
 		const currentData = getData();
 		const nextData = onDataChange ? [...currentData] : null;
-		let didApplyUpdate = false;
 
 		function getSourceRowIndex(rowData: TData): number {
 			const directIndex = currentData.indexOf(rowData);
@@ -2186,12 +2185,12 @@ export function useDataGrid<TData extends RowData>(
 
 			if (nextData) {
 				const sourceRowIndex = getSourceRowIndex(row.original as TData);
-				if (sourceRowIndex === -1) continue;
+				const targetIndex = sourceRowIndex !== -1 ? sourceRowIndex : update.rowIndex;
 
-				const nextRow = nextData[sourceRowIndex];
+				const nextRow = nextData[targetIndex];
 				if (!nextRow) continue;
 
-				nextData[sourceRowIndex] = {
+				nextData[targetIndex] = {
 					...(nextRow as Record<string, unknown>),
 					[update.columnId]: update.value
 				} as TData;
@@ -2201,11 +2200,9 @@ export function useDataGrid<TData extends RowData>(
 				const original = row.original as Record<string, unknown>;
 				original[update.columnId] = update.value;
 			}
-
-			didApplyUpdate = true;
 		}
 
-		if (didApplyUpdate && nextData) {
+		if (nextData) {
 			onDataChange?.(nextData);
 		}
 	}
