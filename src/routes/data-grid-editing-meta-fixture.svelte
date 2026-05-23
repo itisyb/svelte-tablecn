@@ -51,6 +51,10 @@
 		dataGrid.table.options.meta?.onCellEditingStop?.({ direction: 'right' });
 	}
 
+	function clickFirstNameOnce() {
+		dataGrid.table.options.meta?.onCellClick?.(0, 'name');
+	}
+
 	function clickFirstNameTwice() {
 		dataGrid.table.options.meta?.onCellClick?.(0, 'name');
 		dataGrid.table.options.meta?.onCellClick?.(0, 'name');
@@ -73,6 +77,7 @@
 <button type="button" onclick={startSecondName}>Start second name edit</button>
 <button type="button" onclick={stopRight}>Stop right</button>
 <button type="button" onclick={startSecondNameAndStopRight}>Start second name and stop right</button>
+<button type="button" onclick={clickFirstNameOnce}>Click first name once</button>
 <button type="button" onclick={clickFirstNameTwice}>Click first name twice</button>
 <button type="button" onclick={shiftClickScoreRange}>Shift click score range</button>
 <button type="button" onclick={preventedDoubleClick}>Prevented double click</button>

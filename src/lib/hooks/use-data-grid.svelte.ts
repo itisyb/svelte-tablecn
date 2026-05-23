@@ -930,6 +930,22 @@ export function useDataGrid<TData extends RowData>(
 			return;
 		}
 
+		if (selectionState.selectedCells.size > 0 && !selectionState.isSelecting) {
+			const cellKey = getCellKey(rowIndex, columnId);
+			const isClickingSelectedCell = selectionState.selectedCells.has(cellKey);
+
+			if (!isClickingSelectedCell) {
+				onSelectionClear();
+			} else {
+				lastClickedCell = { rowIndex, columnId };
+				focusCell(rowIndex, columnId, { keepAnchor: true });
+				scrollAndFocusCell(rowIndex, columnId);
+				return;
+			}
+		} else if (Object.keys(rowSelection).length > 0 && columnId !== 'select') {
+			onSelectionClear();
+		}
+
 		if (
 			(focusedCell?.rowIndex === rowIndex && focusedCell.columnId === columnId) ||
 			(lastClickedCell?.rowIndex === rowIndex && lastClickedCell.columnId === columnId)
@@ -940,7 +956,8 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		lastClickedCell = { rowIndex, columnId };
-		selectCell(rowIndex, columnId, event);
+		focusCell(rowIndex, columnId, { keepAnchor: true });
+		scrollAndFocusCell(rowIndex, columnId);
 	}
 
 	function selectRange(start: CellPosition, end: CellPosition, keepSelecting = false) {

@@ -1273,6 +1273,16 @@ describe('/+page.svelte', () => {
 		await waitFor(() => page.getByLabelText('meta focused cell', { exact: true }).element().textContent?.trim() === '1:score');
 	});
 
+	it('should focus direct meta cell clicks without selecting like the original grid', async () => {
+		await render(DataGridEditingMetaFixture);
+
+		await page.getByRole('button', { name: 'Click first name once' }).click();
+
+		await expect.element(page.getByLabelText('meta focused cell', { exact: true })).toHaveTextContent('0:name');
+		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('none');
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
+	});
+
 	it('should edit repeated direct meta cell clicks like the original grid', async () => {
 		await render(DataGridEditingMetaFixture);
 
