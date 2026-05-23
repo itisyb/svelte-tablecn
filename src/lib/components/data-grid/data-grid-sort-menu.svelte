@@ -20,6 +20,7 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
+	import { useId } from 'bits-ui';
 
 	// Icons
 	import ArrowDownUp from '@lucide/svelte/icons/arrow-down-up';
@@ -46,6 +47,9 @@
 	let { table, disabled = false, dir = 'ltr', align = 'start', class: className }: Props =
 		$props();
 
+	const id = useId();
+	const labelId = `${id}-label`;
+	const descriptionId = `${id}-description`;
 	let open = $state(false);
 
 	const sorting = $derived(table.getState().sorting);
@@ -208,6 +212,8 @@
 		{/snippet}
 	</PopoverTrigger>
 	<PopoverContent
+		aria-labelledby={labelId}
+		aria-describedby={descriptionId}
 		{dir}
 		{align}
 		class={cn(
@@ -216,10 +222,13 @@
 		)}
 	>
 		<div class="flex flex-col gap-1">
-			<h4 class="font-medium leading-none">
+			<h4 id={labelId} class="font-medium leading-none">
 				{sorting.length > 0 ? 'Sort by' : 'No sorting applied'}
 			</h4>
-			<p class={cn('text-muted-foreground text-sm', sorting.length > 0 && 'sr-only')}>
+			<p
+				id={descriptionId}
+				class={cn('text-muted-foreground text-sm', sorting.length > 0 && 'sr-only')}
+			>
 				{sorting.length > 0
 					? 'Modify sorting to organize your rows.'
 					: 'Add sorting to organize your rows.'}
@@ -239,10 +248,15 @@
 				onfinalize={handleDndFinalize}
 			>
 				{#each sortingItems as sort (sort.id)}
+					{@const sortItemId = `${id}-sort-${sort.id}`}
+					{@const fieldListboxId = `${sortItemId}-field-listbox`}
+					{@const fieldTriggerId = `${sortItemId}-field-trigger`}
+					{@const directionListboxId = `${sortItemId}-direction-listbox`}
 					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 					<li
 						role="listitem"
+						id={sortItemId}
 						tabindex={-1}
 						class="flex items-center gap-2"
 						onkeydown={(event) => onSortItemKeyDown(event, sort.id)}
@@ -255,6 +269,8 @@
 								{#snippet child({ props })}
 									<Button
 										{...props}
+										id={fieldTriggerId}
+										aria-controls={fieldListboxId}
 										variant="outline"
 										size="sm"
 										class="w-44 justify-between rounded font-normal"
@@ -264,7 +280,11 @@
 									</Button>
 								{/snippet}
 							</PopoverTrigger>
-							<PopoverContent class="w-[var(--bits-popover-anchor-width)] p-0">
+							<PopoverContent
+								id={fieldListboxId}
+								{dir}
+								class="w-[var(--bits-popover-anchor-width)] p-0"
+							>
 								<Command>
 									<CommandInput placeholder="Search fields..." />
 									<CommandList>
@@ -290,12 +310,19 @@
 							onOpenChange={(isOpen) => setDirectionSelectorOpen(sort.id, isOpen)}
 							onValueChange={(value: string) => onSortUpdate(sort.id, { desc: value === 'desc' })}
 						>
-							<SelectTrigger class="h-8 w-24 rounded data-size:h-8">
+							<SelectTrigger
+								aria-controls={directionListboxId}
+								size="sm"
+								class="w-24 rounded"
+							>
 								<span data-slot="select-value">
 									{sort.desc ? 'Desc' : 'Asc'}
 								</span>
 							</SelectTrigger>
-							<SelectContent class="min-w-[var(--bits-select-anchor-width)]">
+							<SelectContent
+								id={directionListboxId}
+								class="min-w-[var(--bits-select-anchor-width)]"
+							>
 								{#each SORT_ORDERS as order (order.value)}
 									<SelectItem value={order.value}>
 										{order.label}

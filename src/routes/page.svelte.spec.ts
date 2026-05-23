@@ -30,6 +30,7 @@ import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
 import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
+import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -797,6 +798,43 @@ describe('/+page.svelte', () => {
 
 		await waitFor(() => document.querySelectorAll('[role="listitem"]').length === 1);
 		await expect.element(page.getByRole('heading', { name: 'Sort by' })).toBeInTheDocument();
+	});
+
+	it('should wire sort item controls like the original menu', async () => {
+		await render(DataGridSortMenuFixture);
+
+		await page.getByRole('button', { name: 'Sort 1' }).click();
+
+		const content = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="popover-content"]')
+		);
+		const labelId = content.getAttribute('aria-labelledby');
+		const descriptionId = content.getAttribute('aria-describedby');
+
+		expect(labelId).toBeTruthy();
+		expect(descriptionId).toBeTruthy();
+		expect(document.getElementById(labelId!)?.textContent).toContain('Sort by');
+		expect(document.getElementById(descriptionId!)?.textContent).toContain(
+			'Modify sorting to organize your rows.'
+		);
+
+		const sortItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const fieldTrigger = await waitFor(() => page.getByRole('button', { name: 'Name' }).element());
+		const directionTrigger = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="select-trigger"]')
+		);
+		const fieldListboxId = fieldTrigger.getAttribute('aria-controls');
+		const directionListboxId = directionTrigger.getAttribute('aria-controls');
+
+		expect(sortItem.id).toBeTruthy();
+		expect(fieldTrigger.id).toBeTruthy();
+		expect(fieldListboxId).toBe(`${sortItem.id}-field-listbox`);
+		expect(directionListboxId).toBe(`${sortItem.id}-direction-listbox`);
+
+		expect(dataGridSortMenuSource).toContain('aria-labelledby={labelId}');
+		expect(dataGridSortMenuSource).toContain('aria-describedby={descriptionId}');
+		expect(dataGridSortMenuSource).toContain('aria-controls={fieldListboxId}');
+		expect(dataGridSortMenuSource).toContain('aria-controls={directionListboxId}');
 	});
 
 	it('should remove filter item with delete shortcut', async () => {
