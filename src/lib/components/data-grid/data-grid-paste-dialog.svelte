@@ -62,15 +62,15 @@
 							'relative size-4 shrink-0 appearance-none rounded-full border border-input bg-background shadow-xs outline-none transition-[color,box-shadow]',
 							'text-primary focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50',
 							'disabled:cursor-not-allowed disabled:opacity-50',
-							"checked:before:-translate-x-1/2 checked:before:-translate-y-1/2 checked:before:absolute checked:before:top-1/2 checked:before:left-1/2 checked:before:size-2 checked:before:rounded-full checked:before:bg-primary checked:before:content-['']",
+							"checked:before:-translate-x-1/2 checked:before:-translate-y-1/2 checked:before:absolute checked:before:start-1/2 checked:before:top-1/2 checked:before:size-2 checked:before:rounded-full checked:before:bg-primary checked:before:content-['']",
 							'dark:bg-input/30'
 						)}
 					/>
 					<div class="flex flex-col gap-1">
 						<span class="font-medium text-sm leading-none"> Create new rows </span>
 						<span class="text-muted-foreground text-sm">
-							Add {pasteDialog.rowsNeeded} new row{pasteDialog.rowsNeeded !== 1 ? 's' : ''} to the
-							table and paste all data
+							Add {pasteDialog.rowsNeeded} new row{pasteDialog.rowsNeeded !== 1 ? 's' : ''} to the table
+							and paste all data
 						</span>
 					</div>
 				</label>
@@ -83,7 +83,7 @@
 							'relative size-4 shrink-0 appearance-none rounded-full border border-input bg-background shadow-xs outline-none transition-[color,box-shadow]',
 							'text-primary focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50',
 							'disabled:cursor-not-allowed disabled:opacity-50',
-							"checked:before:-translate-x-1/2 checked:before:-translate-y-1/2 checked:before:absolute checked:before:top-1/2 checked:before:left-1/2 checked:before:size-2 checked:before:rounded-full checked:before:bg-primary checked:before:content-['']",
+							"checked:before:-translate-x-1/2 checked:before:-translate-y-1/2 checked:before:absolute checked:before:start-1/2 checked:before:top-1/2 checked:before:size-2 checked:before:rounded-full checked:before:bg-primary checked:before:content-['']",
 							'dark:bg-input/30'
 						)}
 					/>

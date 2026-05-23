@@ -85,6 +85,23 @@
 		}
 	}
 
+	function onTriggerPointerDown(event: PointerEvent) {
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) return;
+		if (target.hasPointerCapture(event.pointerId)) {
+			target.releasePointerCapture(event.pointerId);
+		}
+
+		if (
+			event.button === 0 &&
+			event.ctrlKey === false &&
+			event.pointerType === 'mouse' &&
+			!(event.target instanceof HTMLInputElement)
+		) {
+			event.preventDefault();
+		}
+	}
+
 	function onClose() {
 		onSearchOpenChange(false);
 	}
@@ -96,7 +113,7 @@
 	<div
 		role="search"
 		data-slot="grid-search"
-		class="fade-in-0 slide-in-from-top-2 absolute top-4 right-4 z-50 flex animate-in flex-col gap-2 rounded-lg border bg-background p-2 shadow-lg"
+		class="fade-in-0 slide-in-from-top-2 absolute top-4 end-4 z-50 flex animate-in flex-col gap-2 rounded-lg border bg-background p-2 shadow-lg"
 	>
 		<div class="flex items-center gap-2">
 			<input
@@ -118,6 +135,7 @@
 					size="icon"
 					class="size-7"
 					onclick={onNavigateToPrevMatch}
+					onpointerdown={onTriggerPointerDown}
 					disabled={searchMatches.length === 0}
 				>
 					<ChevronUp />
@@ -128,6 +146,7 @@
 					size="icon"
 					class="size-7"
 					onclick={onNavigateToNextMatch}
+					onpointerdown={onTriggerPointerDown}
 					disabled={searchMatches.length === 0}
 				>
 					<ChevronDown />

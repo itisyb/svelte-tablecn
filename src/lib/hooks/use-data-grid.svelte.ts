@@ -1311,7 +1311,7 @@ export function useDataGrid<TData extends RowData>(
 		if (!query.trim()) {
 			searchMatches = [];
 			searchMatchSet.clear();
-			matchIndex = 0;
+			matchIndex = -1;
 			return;
 		}
 
@@ -1340,7 +1340,7 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		searchMatches = matches;
-		matchIndex = matches.length > 0 ? 0 : 0;
+		matchIndex = matches.length > 0 ? 0 : -1;
 
 		// Scroll to the first match without moving focus out of the search input.
 		if (matches.length > 0 && matches[0]) {
@@ -2671,10 +2671,22 @@ export function useDataGrid<TData extends RowData>(
 	function handleSearchOpenChange(open: boolean) {
 		searchOpen = open;
 		if (!open) {
+			const currentMatch = matchIndex >= 0 ? searchMatches[matchIndex] : undefined;
 			searchQuery = '';
 			searchMatches = [];
 			searchMatchSet.clear();
-			matchIndex = 0;
+			matchIndex = -1;
+
+			if (currentMatch) {
+				focusedCell = {
+					rowIndex: currentMatch.rowIndex,
+					columnId: currentMatch.columnId
+				};
+			}
+
+			if (dataGridRef && document.activeElement !== dataGridRef) {
+				dataGridRef.focus();
+			}
 		}
 	}
 
