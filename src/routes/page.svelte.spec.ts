@@ -1240,6 +1240,15 @@ describe('/+page.svelte', () => {
 		await waitFor(() => page.getByLabelText('meta focused cell', { exact: true }).element().textContent?.trim() === '1:score');
 	});
 
+	it('should ignore default-prevented direct meta double clicks like the original grid', async () => {
+		await render(DataGridEditingMetaFixture);
+
+		await page.getByRole('button', { name: 'Prevented double click' }).click();
+
+		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('none');
+		await expect.element(page.getByLabelText('hook editing cell', { exact: true })).toHaveTextContent('none');
+	});
+
 	it('should hide row mutation shortcuts unless enabled', async () => {
 		await render(DataGridKeyboardShortcutsDefaultFixture);
 

@@ -273,7 +273,7 @@ declare module '@tanstack/table-core' {
 		onRowsDelete?: (rowIndices: number[]) => void | Promise<void>;
 		onColumnClick?: (columnId: string) => void;
 		onCellClick?: (rowIndex: number, columnId: string, event?: MouseEvent) => void;
-		onCellDoubleClick?: (rowIndex: number, columnId: string) => void;
+			onCellDoubleClick?: (rowIndex: number, columnId: string, event?: MouseEvent) => void;
 		onCellMouseDown?: (rowIndex: number, columnId: string, event: MouseEvent) => void;
 		onCellMouseEnter?: (rowIndex: number, columnId: string, event: MouseEvent) => void;
 		onCellMouseUp?: () => void;

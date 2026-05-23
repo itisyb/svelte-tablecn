@@ -143,10 +143,10 @@
 	}
 
 	function handleDoubleClick(event: MouseEvent) {
-		if (!isEditing) {
-			event.preventDefault();
-			table.options.meta?.onCellDoubleClick?.(rowIndex, columnId);
-		}
+		if (isEditing || event.defaultPrevented) return;
+
+		table.options.meta?.onCellDoubleClick?.(rowIndex, columnId, event);
+		event.preventDefault();
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {

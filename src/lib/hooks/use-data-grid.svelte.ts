@@ -2288,7 +2288,10 @@ export function useDataGrid<TData extends RowData>(
 		getVisualRowIndex,
 		onColumnClick,
 		onCellClick: selectCell,
-		onCellDoubleClick: (ri: number, colId: string) => startEditing(ri, colId),
+		onCellDoubleClick: (ri: number, colId: string, event?: MouseEvent) => {
+			if (event?.defaultPrevented) return;
+			startEditing(ri, colId);
+		},
 		onCellMouseDown,
 		onCellMouseEnter,
 		onCellMouseUp,

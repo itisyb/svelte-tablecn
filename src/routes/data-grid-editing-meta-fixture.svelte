@@ -48,11 +48,18 @@
 		dataGrid.table.options.meta?.onCellEditingStart?.(1, 'name');
 		dataGrid.table.options.meta?.onCellEditingStop?.({ direction: 'right' });
 	}
+
+	function preventedDoubleClick() {
+		const event = new MouseEvent('dblclick', { bubbles: true, cancelable: true });
+		event.preventDefault();
+		dataGrid.table.options.meta?.onCellDoubleClick?.(1, 'name', event);
+	}
 </script>
 
 <button type="button" onclick={startSecondName}>Start second name edit</button>
 <button type="button" onclick={stopRight}>Stop right</button>
 <button type="button" onclick={startSecondNameAndStopRight}>Start second name and stop right</button>
+<button type="button" onclick={preventedDoubleClick}>Prevented double click</button>
 <DataGrid {...dataGrid} height={180} />
 <output aria-label="meta focused cell">
 	{dataGrid.table.options.meta?.focusedCell
