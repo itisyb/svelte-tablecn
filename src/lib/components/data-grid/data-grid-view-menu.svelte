@@ -74,12 +74,13 @@
 				<CommandGroup>
 					{#each columns as column (column.id)}
 						{@const isVisible = isColumnVisible(column.id)}
+						{@const label = column.columnDef.meta?.label ?? column.id}
 						<CommandItem
-							value={column.id}
+							value={label}
 							onSelect={() => column.toggleVisibility(!isVisible)}
 						>
 							<span class="truncate">
-								{column.columnDef.meta?.label ?? column.id}
+								{label}
 							</span>
 							<Check
 								class={cn(

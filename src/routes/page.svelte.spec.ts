@@ -31,6 +31,7 @@ import DataGridShortTextCellSyncFixture from './data-grid-short-text-cell-sync-f
 import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
 import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
+import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 
@@ -934,6 +935,16 @@ describe('/+page.svelte', () => {
 		const trigger = await waitFor(() => page.getByRole('combobox', { name: 'Toggle columns' }));
 
 		await expect.element(trigger).toBeDisabled();
+	});
+
+	it('should search data grid view menu columns by visible label', async () => {
+		await render(DataGridViewMenuSearchFixture);
+
+		await page.getByRole('combobox', { name: 'Toggle columns' }).click();
+		await page.getByPlaceholder('Search columns...').fill('Full Name');
+
+		await expect.element(page.getByRole('option', { name: /Full Name/ })).toBeVisible();
+		await expect.element(page.getByRole('option', { name: /Team/ })).not.toBeInTheDocument();
 	});
 
 	it('should disable the data grid filter and sort menus', async () => {

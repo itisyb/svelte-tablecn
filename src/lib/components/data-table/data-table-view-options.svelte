@@ -61,8 +61,9 @@
 				<CommandGroup>
 					{#each columns as column (column.id)}
 						{@const isVisible = isColumnVisible(column.id)}
-						<CommandItem value={column.id} onSelect={() => column.toggleVisibility(!isVisible)}>
-							<span class="truncate">{column.columnDef.meta?.label ?? column.id}</span>
+						{@const label = column.columnDef.meta?.label ?? column.id}
+						<CommandItem value={label} onSelect={() => column.toggleVisibility(!isVisible)}>
+							<span class="truncate">{label}</span>
 							<Check
 								class={cn('ml-auto size-4 shrink-0', isVisible ? 'opacity-100' : 'opacity-0')}
 							/>
