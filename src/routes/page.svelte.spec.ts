@@ -235,4 +235,40 @@ describe('/+page.svelte', () => {
 
 		expect(trigger.disabled).toBe(true);
 	});
+
+	it('should reset search state when toggled closed from the keyboard shortcut', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true, cancelable: true })
+		);
+
+		const input = await waitFor(() =>
+			document.querySelector<HTMLInputElement>('[data-slot="grid-search"] input')
+		);
+		input.value = 'Engineering';
+		input.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+
+		await waitFor(() => input.value === 'Engineering');
+
+		input.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true, cancelable: true })
+		);
+		await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid-search"]') === null);
+
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true, cancelable: true })
+		);
+
+		const reopenedInput = await waitFor(() =>
+			document.querySelector<HTMLInputElement>('[data-slot="grid-search"] input')
+		);
+		expect(reopenedInput.value).toBe('');
+		expect(document.querySelector<HTMLElement>('[data-slot="grid-search"]')?.textContent).toContain(
+			'Type to search'
+		);
+	});
 });

@@ -1433,7 +1433,7 @@ export function useDataGrid<TData extends RowData>(
 		if ((event.ctrlKey || event.metaKey) && event.key === 'f' && enableSearch) {
 			event.preventDefault();
 			event.stopPropagation();
-			searchOpen = true;
+			handleSearchOpenChange(true);
 			return;
 		}
 
@@ -1529,7 +1529,7 @@ export function useDataGrid<TData extends RowData>(
 			if (editingCell) {
 				stopEditing();
 			} else if (searchOpen) {
-				searchOpen = false;
+				handleSearchOpenChange(false);
 			} else {
 				clearSelection();
 			}
@@ -2585,9 +2585,10 @@ export function useDataGrid<TData extends RowData>(
 				if (isInDataGrid || isInSearchInput || !isInInput) {
 					event.preventDefault();
 					event.stopPropagation();
-					searchOpen = !searchOpen;
+					const nextSearchOpen = !searchOpen;
+					handleSearchOpenChange(nextSearchOpen);
 
-					if (!isInDataGrid && !isInSearchInput && dataGridRef) {
+					if (nextSearchOpen && !isInDataGrid && !isInSearchInput && dataGridRef) {
 						requestAnimationFrame(() => {
 							dataGridRef?.focus();
 						});
