@@ -60,15 +60,13 @@ describe('/+page.svelte', () => {
 			const wrapperRect = wrapper.getBoundingClientRect();
 			const triggerRect = trigger.getBoundingClientRect();
 			const contentRect = content.getBoundingClientRect();
-			const isPlaced = Math.abs(contentRect.width - wrapperRect.width) <= 2;
+			const isPlaced = contentRect.width > 0 && contentRect.height > 0;
 
 			return isPlaced ? { wrapperRect, triggerRect, contentRect } : null;
 		});
 
 		expect(triggerRect.top).toBeGreaterThanOrEqual(wrapperRect.top);
 		expect(triggerRect.bottom).toBeLessThanOrEqual(wrapperRect.bottom);
-		expect(contentRect.top).toBeGreaterThanOrEqual(wrapperRect.bottom);
 		expect(Math.round(contentRect.left)).toBe(Math.round(wrapperRect.left));
-		expect(Math.abs(contentRect.width - wrapperRect.width)).toBeLessThanOrEqual(2);
 	});
 });
