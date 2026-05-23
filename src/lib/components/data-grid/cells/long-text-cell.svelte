@@ -28,6 +28,7 @@
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
+	let pendingChar = $state<string | null>(null);
 
 	// Value for display and tracking - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? initialValue ?? '');
@@ -91,7 +92,29 @@
 			textareaRef.focus();
 			const length = textareaRef.value.length;
 			textareaRef.setSelectionRange(length, length);
+			insertPendingChar();
 		}
+	}
+
+	function insertPendingChar() {
+		const char = pendingChar;
+		pendingChar = null;
+		if (!char) return;
+
+		requestAnimationFrame(() => {
+			const textarea = textareaRef;
+			if (!textarea || document.activeElement !== textarea) return;
+
+			const start = textarea.selectionStart ?? textarea.value.length;
+			const end = textarea.selectionEnd ?? start;
+			const nextValue = textarea.value.slice(0, start) + char + textarea.value.slice(end);
+			const nextCaret = start + char.length;
+
+			textarea.value = nextValue;
+			textarea.setSelectionRange(nextCaret, nextCaret);
+			textarea.scrollTop = textarea.scrollHeight;
+			setTextareaValue(nextValue);
+		});
 	}
 
 	function handleBlur() {
@@ -131,6 +154,19 @@
 		}
 		event.stopPropagation();
 	}
+
+	function handleWrapperKeyDown(event: KeyboardEvent) {
+		if (
+			isFocused &&
+			!isEditing &&
+			!readOnly &&
+			event.key.length === 1 &&
+			!event.ctrlKey &&
+			!event.metaKey
+		) {
+			pendingChar = event.key;
+		}
+	}
 </script>
 
 <DataGridCellWrapper
@@ -142,6 +178,7 @@
 	{isEditing}
 	{isFocused}
 	{isSelected}
+	onkeydown={handleWrapperKeyDown}
 >
 	<span data-slot="grid-cell-content">{value}</span>
 </DataGridCellWrapper>

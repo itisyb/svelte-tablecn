@@ -95,4 +95,32 @@ describe('/+page.svelte', () => {
 		const contentRadius = Number.parseFloat(contentStyle.borderTopLeftRadius);
 		expect(contentRadius).toBeLessThanOrEqual(6);
 	});
+
+	it('should keep the first typed character when opening long text editor', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		await waitFor(() => document.querySelector('[data-slot="grid-row"][data-index="0"]'));
+
+		const notesCell = await waitFor(() => {
+			const row = document.querySelector('[data-slot="grid-row"][data-index="0"]');
+			return row?.querySelectorAll<HTMLElement>('[data-slot="grid-cell"]').item(5);
+		});
+		const wrapper = await waitFor(() =>
+			notesCell.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+		const initialText = wrapper.textContent ?? '';
+
+		wrapper.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		wrapper.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		wrapper.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+		await waitFor(() => wrapper.dataset.focused !== undefined);
+		wrapper.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', bubbles: true, cancelable: true }));
+
+		const textarea = await waitFor(() => document.querySelector<HTMLTextAreaElement>('textarea'));
+		await waitFor(() => textarea.value === `${initialText}z`);
+
+		expect(textarea.value).toBe(`${initialText}z`);
+	});
 });
