@@ -474,8 +474,10 @@ export function getIsInPopover(element: unknown): boolean {
 	return (
 		element.closest('[data-grid-cell-editor]') !== null ||
 		element.closest('[data-grid-popover]') !== null ||
+		element.closest("[data-slot='select-content']") !== null ||
 		element.closest("[data-slot='dropdown-menu-content']") !== null ||
-		element.closest("[data-slot='popover-content']") !== null
+		element.closest("[data-slot='popover-content']") !== null ||
+		element.closest("[data-slot='dialog-content']") !== null
 	);
 }
 

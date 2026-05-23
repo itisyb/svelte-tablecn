@@ -2,6 +2,7 @@ import type { Row } from '@tanstack/table-core';
 import { describe, expect, it } from 'vitest';
 import {
 	getColumnPinningStyle,
+	getIsInPopover,
 	getRowIndicesForDeletion,
 	parsePastedCellValue,
 	parseTsv,
@@ -218,6 +219,28 @@ describe('getColumnPinningStyle', () => {
 			opacity: 1,
 			width: 180
 		});
+	});
+});
+
+describe('getIsInPopover', () => {
+	it('recognizes Svelte select and dialog overlay content', () => {
+		const PreviousElement = globalThis.Element;
+		class TestElement {
+			constructor(private readonly matchingSelector: string) {}
+
+			closest(selector: string) {
+				return selector.includes(this.matchingSelector) ? this : null;
+			}
+		}
+
+		try {
+			globalThis.Element = TestElement as unknown as typeof Element;
+
+			expect(getIsInPopover(new TestElement('select-content'))).toBe(true);
+			expect(getIsInPopover(new TestElement('dialog-content'))).toBe(true);
+		} finally {
+			globalThis.Element = PreviousElement;
+		}
 	});
 });
 
