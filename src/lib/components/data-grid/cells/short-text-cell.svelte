@@ -22,6 +22,14 @@
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
+	let previousInitialValue = $state<string | null>(null);
+
+	$effect(() => {
+		if (initialValue === previousInitialValue) return;
+
+		previousInitialValue = initialValue;
+		localEditValue = null;
+	});
 
 	// The display value is either the local edit (during editing) or the initial value
 	const displayValue = $derived(!isEditing ? (initialValue ?? '') : '');

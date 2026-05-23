@@ -13,6 +13,7 @@ import DataGridNumberCellSyncFixture from './data-grid-number-cell-sync-fixture.
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
+import DataGridShortTextCellSyncFixture from './data-grid-short-text-cell-sync-fixture.svelte';
 import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 
@@ -215,6 +216,21 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'External score' }).click();
 		await expect.element(input).toHaveValue(42);
+	});
+
+	it('should sync short text editor when the external value changes', async () => {
+		await render(DataGridShortTextCellSyncFixture);
+
+		const textbox = page.getByRole('textbox');
+		await expect.element(textbox).toHaveTextContent('Original name');
+
+		const element = textbox.element() as HTMLElement;
+		element.textContent = 'Local name';
+		element.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+		await expect.element(textbox).toHaveTextContent('Local name');
+
+		await page.getByRole('button', { name: 'External name' }).click();
+		await expect.element(textbox).toHaveTextContent('External name');
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {
