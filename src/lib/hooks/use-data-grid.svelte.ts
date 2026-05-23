@@ -352,7 +352,7 @@ export function useDataGrid<TData extends RowData>(
 	let searchOpen = $state(false);
 	let searchQuery = $state('');
 	let searchMatches = $state<CellPosition[]>([]);
-	let matchIndex = $state(0);
+	let matchIndex = $state(-1);
 
 	// SvelteSet for O(1) reactive search match lookups
 	let searchMatchSet = new SvelteSet<string>();

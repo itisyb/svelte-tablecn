@@ -28,6 +28,7 @@ import DataGridRowAddSelectionFixture from './data-grid-row-add-selection-fixtur
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
 import DataGridSelectCellSyncFixture from './data-grid-select-cell-sync-fixture.svelte';
+import DataGridSearchStateFixture from './data-grid-search-state-fixture.svelte';
 import DataGridShortcutsWithoutFocusFixture from './data-grid-shortcuts-without-focus-fixture.svelte';
 import DataGridShortTextCellSyncFixture from './data-grid-short-text-cell-sync-fixture.svelte';
 import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
@@ -1199,6 +1200,12 @@ describe('/+page.svelte', () => {
 		expect(document.querySelector<HTMLElement>('[data-slot="grid-search"]')?.textContent).toContain(
 			'Type to search'
 		);
+	});
+
+	it('should expose the original initial search match index', async () => {
+		await render(DataGridSearchStateFixture);
+
+		await expect.element(page.getByLabelText('initial match index')).toHaveTextContent('-1');
 	});
 
 	it('should hide row mutation shortcuts unless enabled', async () => {
