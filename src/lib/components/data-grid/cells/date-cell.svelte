@@ -80,10 +80,12 @@
 		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
+			event.stopPropagation();
 			localEditValue = null;
 			meta?.onCellEditingStop?.();
-		} else if (!isEditing && isFocused && event.key === 'Tab') {
+		} else if ((isFocused || isEditing) && event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});

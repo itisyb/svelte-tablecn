@@ -94,6 +94,20 @@ describe('/+page.svelte', () => {
 
 		const contentRadius = Number.parseFloat(contentStyle.borderTopLeftRadius);
 		expect(contentRadius).toBeLessThanOrEqual(6);
+
+		let bubbledToGrid = false;
+		const onGridKeyDown = () => {
+			bubbledToGrid = true;
+		};
+		grid.addEventListener('keydown', onGridKeyDown);
+
+		const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+		trigger.dispatchEvent(tabEvent);
+		grid.removeEventListener('keydown', onGridKeyDown);
+
+		expect(tabEvent.defaultPrevented).toBe(true);
+		expect(bubbledToGrid).toBe(false);
+		await waitFor(() => document.querySelector<HTMLElement>('[data-slot="select-content"]') === null);
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {

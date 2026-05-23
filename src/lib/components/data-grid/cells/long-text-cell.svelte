@@ -135,12 +135,15 @@
 	function handleKeyDown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
 			event.preventDefault();
+			event.stopPropagation();
 			handleCancel();
 		} else if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
 			event.preventDefault();
+			event.stopPropagation();
 			handleSave();
 		} else if (event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			const nextValue = value;
 			const meta = table.options.meta;
 			if (nextValue !== initialValue) {

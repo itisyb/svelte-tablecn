@@ -104,11 +104,13 @@
 		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
+			event.stopPropagation();
 			localEditValues = null;
 			setSearchValue('');
 			meta?.onCellEditingStop?.();
-		} else if (!isEditing && isFocused && event.key === 'Tab') {
+		} else if ((isFocused || isEditing) && event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			setSearchValue('');
 			meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
@@ -120,6 +122,7 @@
 		// Handle backspace when input is empty - remove last selected item
 		if (event.key === 'Backspace' && searchValue === '' && selectedValues.length > 0) {
 			event.preventDefault();
+			event.stopPropagation();
 			const lastValue = selectedValues[selectedValues.length - 1];
 			if (lastValue) {
 				removeValue(lastValue);

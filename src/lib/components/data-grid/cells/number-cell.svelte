@@ -59,6 +59,7 @@
 		if (isEditing) {
 			if (event.key === 'Enter') {
 				event.preventDefault();
+				event.stopPropagation();
 				const numValue = value === '' ? null : Number(value);
 				if (numValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: numValue });
@@ -67,6 +68,7 @@
 				meta?.onCellEditingStop?.({ moveToNextRow: true });
 			} else if (event.key === 'Tab') {
 				event.preventDefault();
+				event.stopPropagation();
 				const numValue = value === '' ? null : Number(value);
 				if (numValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: numValue });
@@ -77,6 +79,7 @@
 				});
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
+				event.stopPropagation();
 				localEditValue = null;
 				inputRef?.blur();
 			}

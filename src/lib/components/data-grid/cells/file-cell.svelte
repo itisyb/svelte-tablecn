@@ -418,23 +418,28 @@
 		if (isEditing) {
 			if (event.key === 'Escape') {
 				event.preventDefault();
+				event.stopPropagation();
 				files = [...initialCellValue];
 				setError(null);
 				table.options.meta?.onCellEditingStop?.();
 			} else if (event.key === ' ') {
 				event.preventDefault();
+				event.stopPropagation();
 				handleDropzoneClick();
 			} else if (event.key === 'Tab') {
 				event.preventDefault();
+				event.stopPropagation();
 				table.options.meta?.onCellEditingStop?.({
 					direction: event.shiftKey ? 'left' : 'right'
 				});
 			}
 		} else if (isFocused && event.key === 'Enter') {
 			event.preventDefault();
+			event.stopPropagation();
 			table.options.meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else if (!isEditing && isFocused && event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			table.options.meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});

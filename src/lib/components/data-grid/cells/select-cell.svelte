@@ -69,10 +69,12 @@
 		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
+			event.stopPropagation();
 			localEditValue = null;
 			meta?.onCellEditingStop?.();
-		} else if (!isEditing && isFocused && event.key === 'Tab') {
+		} else if ((isFocused || isEditing) && event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});
@@ -105,6 +107,7 @@
 			<SelectTrigger
 				size="sm"
 				bind:ref={triggerRef}
+				onkeydowncapture={handleWrapperKeyDown}
 				class="size-full min-h-0 w-full items-start border-none p-0 text-start shadow-none data-[size=sm]:h-full focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
 			>
 				<SelectValue />

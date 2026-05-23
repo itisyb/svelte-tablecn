@@ -73,6 +73,7 @@
 		if (isEditing) {
 			if (event.key === 'Enter') {
 				event.preventDefault();
+				event.stopPropagation();
 				const currentValue = value;
 				if (currentValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: currentValue });
@@ -81,6 +82,7 @@
 				meta?.onCellEditingStop?.({ moveToNextRow: true });
 			} else if (event.key === 'Tab') {
 				event.preventDefault();
+				event.stopPropagation();
 				const currentValue = value;
 				if (currentValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: currentValue });
@@ -91,6 +93,7 @@
 				});
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
+				event.stopPropagation();
 				localEditValue = null;
 				cellRef?.blur();
 			}

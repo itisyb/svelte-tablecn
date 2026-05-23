@@ -102,6 +102,7 @@
 		if (isEditing) {
 			if (event.key === 'Enter') {
 				event.preventDefault();
+				event.stopPropagation();
 				const currentValue = getSaveValue();
 				if (!readOnly && currentValue !== initialValue) {
 					meta?.onDataUpdate?.({
@@ -114,6 +115,7 @@
 				meta?.onCellEditingStop?.({ moveToNextRow: true });
 			} else if (event.key === 'Tab') {
 				event.preventDefault();
+				event.stopPropagation();
 				const currentValue = getSaveValue();
 				if (!readOnly && currentValue !== initialValue) {
 					meta?.onDataUpdate?.({
@@ -128,6 +130,7 @@
 				});
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
+				event.stopPropagation();
 				localEditValue = null;
 				cellRef?.blur();
 			}

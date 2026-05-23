@@ -38,6 +38,7 @@
 			handleCheckedChange(!value);
 		} else if (isFocused && event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			table.options.meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});
