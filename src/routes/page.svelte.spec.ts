@@ -1273,6 +1273,26 @@ describe('/+page.svelte', () => {
 		await waitFor(() => page.getByLabelText('meta focused cell', { exact: true }).element().textContent?.trim() === '1:score');
 	});
 
+	it('should edit repeated direct meta cell clicks like the original grid', async () => {
+		await render(DataGridEditingMetaFixture);
+
+		await page.getByRole('button', { name: 'Click first name twice' }).click();
+
+		await expect.element(page.getByLabelText('meta focused cell', { exact: true })).toHaveTextContent('0:name');
+		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('0:name');
+		await expect.element(page.getByLabelText('hook focused cell', { exact: true })).toHaveTextContent('0:name');
+		await expect.element(page.getByLabelText('hook editing cell', { exact: true })).toHaveTextContent('0:name');
+	});
+
+	it('should preserve direct meta Shift+Click ranges like the original grid', async () => {
+		await render(DataGridEditingMetaFixture);
+
+		await page.getByRole('button', { name: 'Shift click score range' }).click();
+
+		await expect.element(page.getByLabelText('shift click prevented')).toHaveTextContent('yes');
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('4');
+	});
+
 	it('should ignore default-prevented direct meta double clicks like the original grid', async () => {
 		await render(DataGridEditingMetaFixture);
 

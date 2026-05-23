@@ -36,6 +36,8 @@
 		getRowId: (row) => row.id
 	});
 
+	let shiftClickPrevented = $state(false);
+
 	function startSecondName() {
 		dataGrid.table.options.meta?.onCellEditingStart?.(1, 'name');
 	}
@@ -49,6 +51,18 @@
 		dataGrid.table.options.meta?.onCellEditingStop?.({ direction: 'right' });
 	}
 
+	function clickFirstNameTwice() {
+		dataGrid.table.options.meta?.onCellClick?.(0, 'name');
+		dataGrid.table.options.meta?.onCellClick?.(0, 'name');
+	}
+
+	function shiftClickScoreRange() {
+		dataGrid.table.options.meta?.onCellClick?.(0, 'name');
+		const event = new MouseEvent('click', { bubbles: true, cancelable: true, shiftKey: true });
+		dataGrid.table.options.meta?.onCellClick?.(1, 'score', event);
+		shiftClickPrevented = event.defaultPrevented;
+	}
+
 	function preventedDoubleClick() {
 		const event = new MouseEvent('dblclick', { bubbles: true, cancelable: true });
 		event.preventDefault();
@@ -59,8 +73,12 @@
 <button type="button" onclick={startSecondName}>Start second name edit</button>
 <button type="button" onclick={stopRight}>Stop right</button>
 <button type="button" onclick={startSecondNameAndStopRight}>Start second name and stop right</button>
+<button type="button" onclick={clickFirstNameTwice}>Click first name twice</button>
+<button type="button" onclick={shiftClickScoreRange}>Shift click score range</button>
 <button type="button" onclick={preventedDoubleClick}>Prevented double click</button>
 <DataGrid {...dataGrid} height={180} />
+<output aria-label="selected cells">{dataGrid.selectedCellsSet.size}</output>
+<output aria-label="shift click prevented">{shiftClickPrevented ? 'yes' : 'no'}</output>
 <output aria-label="meta focused cell">
 	{dataGrid.table.options.meta?.focusedCell
 		? `${dataGrid.table.options.meta.focusedCell.rowIndex}:${dataGrid.table.options.meta.focusedCell.columnId}`

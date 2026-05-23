@@ -19,6 +19,7 @@
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialValue = $derived((cellValue as string) ?? '');
 	let cellRef = $state<HTMLDivElement | null>(null);
+	let wrapperRef = $state<HTMLDivElement | null>(null);
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
@@ -70,7 +71,13 @@
 		}
 	});
 
-	function handleBlur() {
+	function handleBlur(event: FocusEvent) {
+		const relatedTarget = event.relatedTarget;
+		if (relatedTarget instanceof Node && wrapperRef?.contains(relatedTarget)) {
+			requestAnimationFrame(() => cellRef?.focus());
+			return;
+		}
+
 		const currentValue = getCurrentTextValue();
 		const meta = table.options.meta;
 		if (!readOnly && currentValue !== initialValue) {
@@ -123,6 +130,7 @@
 </script>
 
 <DataGridCellWrapper
+	bind:wrapperRef
 	{cell}
 	{table}
 	{rowIndex}

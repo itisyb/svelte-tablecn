@@ -335,6 +335,7 @@ export function useDataGrid<TData extends RowData>(
 	// Cell state
 	let focusedCell = $state<CellPosition | null>(null);
 	let editingCell = $state<CellPosition | null>(null);
+	let lastClickedCell = $state<CellPosition | null>(null);
 	let selectionState = $state<SelectionState>({
 		selectedCells: new Set(),
 		selectionRange: null,
@@ -638,6 +639,7 @@ export function useDataGrid<TData extends RowData>(
 	function blurCell() {
 		focusedCell = null;
 		editingCell = null;
+		lastClickedCell = null;
 
 		const active = document.activeElement;
 		if (dataGridRef && active instanceof HTMLElement && dataGridRef.contains(active)) {
@@ -895,6 +897,52 @@ export function useDataGrid<TData extends RowData>(
 		focusCell(rowIndex, columnId);
 	}
 
+	function onCellClick(rowIndex: number, columnId: string, event?: MouseEvent) {
+		if (event?.button === 2) return;
+
+		if (event?.ctrlKey || event?.metaKey) {
+			event.preventDefault();
+			lastClickedCell = { rowIndex, columnId };
+			const cellKey = getCellKey(rowIndex, columnId);
+			const newSelected = new Set(selectionState.selectedCells);
+
+			if (newSelected.has(cellKey)) {
+				newSelected.delete(cellKey);
+			} else {
+				newSelected.add(cellKey);
+			}
+
+			syncSelectedCellsSet(newSelected);
+			selectionState = {
+				selectedCells: newSelected,
+				selectionRange: null,
+				isSelecting: false
+			};
+			focusCell(rowIndex, columnId, { keepAnchor: true });
+			return;
+		}
+
+		if (event?.shiftKey && focusedCell) {
+			event.preventDefault();
+			lastClickedCell = { rowIndex, columnId };
+			selectRange(focusedCell, { rowIndex, columnId });
+			scrollAndFocusCell(rowIndex, columnId);
+			return;
+		}
+
+		if (
+			(focusedCell?.rowIndex === rowIndex && focusedCell.columnId === columnId) ||
+			(lastClickedCell?.rowIndex === rowIndex && lastClickedCell.columnId === columnId)
+		) {
+			lastClickedCell = { rowIndex, columnId };
+			startEditing(rowIndex, columnId);
+			return;
+		}
+
+		lastClickedCell = { rowIndex, columnId };
+		selectCell(rowIndex, columnId, event);
+	}
+
 	function selectRange(start: CellPosition, end: CellPosition, keepSelecting = false) {
 		const cols = getNavigableColumns();
 		const startColIndex = cols.findIndex((c) => c.id === start.columnId);
@@ -1130,6 +1178,8 @@ export function useDataGrid<TData extends RowData>(
 
 		// Focus the cell element
 		requestAnimationFrame(() => {
+			if (editingCell?.rowIndex === rowIndex && editingCell.columnId === columnId) return;
+
 			const cellElement = cellMapRef.get(cellKey);
 			if (cellElement) {
 				cellElement.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -2287,7 +2337,7 @@ export function useDataGrid<TData extends RowData>(
 		onRowHeightChange: handleRowHeightChange,
 		getVisualRowIndex,
 		onColumnClick,
-		onCellClick: selectCell,
+		onCellClick,
 		onCellDoubleClick: (ri: number, colId: string, event?: MouseEvent) => {
 			if (event?.defaultPrevented) return;
 			startEditing(ri, colId);
