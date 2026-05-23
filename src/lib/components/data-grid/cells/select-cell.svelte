@@ -1,6 +1,7 @@
 <script lang="ts" generics="TData">
 	import type { CellVariantProps } from '$lib/types/data-grid.js';
 	import DataGridCellWrapper from '../data-grid-cell-wrapper.svelte';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import {
 		Select,
 		SelectContent,
@@ -36,7 +37,6 @@
 	// Reference to the SelectTrigger for focus management
 	let triggerRef = $state<HTMLButtonElement | null>(null);
 	let wrapperRef = $state<HTMLDivElement | null>(null);
-	const contentStyle = $derived(wrapperRef ? `width: ${wrapperRef.offsetWidth}px;` : undefined);
 
 	// Focus the trigger when editing starts so typeahead works
 	$effect(() => {
@@ -108,16 +108,24 @@
 				size="sm"
 				bind:ref={triggerRef}
 				onkeydowncapture={handleWrapperKeyDown}
-				class="size-full min-h-0 w-full items-start border-none p-0 text-start shadow-none data-[size=sm]:h-full focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
+				class="size-full min-h-0 !w-full items-start border-none p-0 text-start shadow-none data-[size=sm]:h-full focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
+				style="width: calc(100% - 16px);"
 			>
-				<SelectValue />
+				{#if displayLabel}
+					<Badge variant="secondary" class="whitespace-pre-wrap px-1.5 py-px">
+						<SelectValue />
+					</Badge>
+				{:else}
+					<SelectValue />
+				{/if}
 			</SelectTrigger>
 			<SelectContent
 				data-grid-cell-editor=""
 				align="start"
-				sideOffset={-14}
-				customAnchor={wrapperRef}
-				style={contentStyle}
+				alignOffset={-8}
+				sideOffset={-8}
+				class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"
+				style="min-width: calc(var(--bits-select-anchor-width) + 16px);"
 			>
 				{#each options as option (option.value)}
 					<SelectItem value={option.value} label={option.label}>
@@ -127,8 +135,8 @@
 			</SelectContent>
 		</Select>
 	{:else if displayLabel}
-		<span data-slot="grid-cell-content" class="block size-full truncate text-start"
-			>{displayLabel}</span
-		>
+		<Badge data-slot="grid-cell-content" variant="secondary" class="whitespace-pre-wrap px-1.5 py-px">
+			{displayLabel}
+		</Badge>
 	{/if}
 </DataGridCellWrapper>

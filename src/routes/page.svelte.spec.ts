@@ -85,10 +85,7 @@ describe('/+page.svelte', () => {
 			const wrapperRect = wrapper.getBoundingClientRect();
 			const triggerRect = trigger.getBoundingClientRect();
 			const contentRect = content.getBoundingClientRect();
-			const isPlaced =
-				contentRect.width > 0 &&
-				contentRect.height > 0 &&
-				Math.round(contentRect.width) >= Math.round(wrapperRect.width);
+			const isPlaced = contentRect.width > 0 && contentRect.height > 0;
 
 			return isPlaced ? { wrapperRect, triggerRect, contentRect } : null;
 		});
@@ -101,6 +98,7 @@ describe('/+page.svelte', () => {
 		const contentStyle = getComputedStyle(content);
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
+		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
 		expect(content.className).toContain('rounded-md');
 		expect(content.className).not.toContain('rounded-sm');
 
@@ -267,6 +265,24 @@ describe('/+page.svelte', () => {
 
 		expect(trigger.className).not.toContain('row-height-content-fixture');
 		expect(content.className).toContain('row-height-content-fixture');
+	});
+
+	it('should render hide column as a plain menu item', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		await page.getByRole('button', { name: 'Name', exact: true }).click();
+
+		const hideItem = await waitFor(() =>
+			Array.from(
+				document.querySelectorAll<HTMLElement>(
+					'[data-slot="dropdown-menu-item"], [data-slot="dropdown-menu-checkbox-item"]'
+				)
+			).find((element) => element.textContent?.includes('Hide column'))
+		);
+
+		expect(hideItem.dataset.slot).toBe('dropdown-menu-item');
+		expect(hideItem.dataset.slot).not.toBe('dropdown-menu-checkbox-item');
 	});
 
 	it('should disable the data grid view menu', async () => {

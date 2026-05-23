@@ -297,14 +297,10 @@
 		{/if}
 		{#if column.getCanHide()}
 			<DropdownMenuSeparator />
-			<DropdownMenuCheckboxItem
-				class="relative ltr:pr-8 ltr:pl-2 rtl:pr-2 rtl:pl-8 [&>span:first-child]:ltr:right-2 [&>span:first-child]:ltr:left-auto [&>span:first-child]:rtl:right-auto [&>span:first-child]:rtl:left-2 [&_svg]:text-muted-foreground"
-				checked={!column.getIsVisible()}
-				onCheckedChange={() => column.toggleVisibility(false)}
-			>
+			<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={() => column.toggleVisibility(false)}>
 				<EyeOff class="me-2 size-4" />
 				Hide column
-			</DropdownMenuCheckboxItem>
+			</DropdownMenuItem>
 		{/if}
 	</DropdownMenuContent>
 </DropdownMenu>
