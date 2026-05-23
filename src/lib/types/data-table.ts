@@ -83,7 +83,7 @@ export const NUMBER_OPERATORS: FilterOperatorDef[] = [
 	{ label: 'Less than or equal', value: 'lessThanOrEqual' },
 	{ label: 'Greater than', value: 'greaterThan' },
 	{ label: 'Greater than or equal', value: 'greaterThanOrEqual' },
-	{ label: 'Between', value: 'between' },
+	{ label: 'Between', value: 'isBetween' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
 ];
@@ -93,7 +93,7 @@ export const DATE_OPERATORS: FilterOperatorDef[] = [
 	{ label: 'Does not equal', value: 'notEquals' },
 	{ label: 'Before', value: 'before' },
 	{ label: 'After', value: 'after' },
-	{ label: 'Between', value: 'between' },
+	{ label: 'Between', value: 'isBetween' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
 ];
@@ -239,7 +239,7 @@ export function getDefaultFilterOperator(variant: FilterVariant): FilterOperator
 		case 'number':
 			return 'equals';
 		case 'range':
-			return 'between';
+			return 'isBetween';
 		case 'date':
 		case 'dateRange':
 			return 'equals';
@@ -283,7 +283,7 @@ export function getValidFilters<TData>(
 			return false;
 		}
 
-		if (filter.operator === 'between') {
+		if (filter.operator === 'isBetween') {
 			return isCompleteRangeFilterValue(filter.value);
 		}
 

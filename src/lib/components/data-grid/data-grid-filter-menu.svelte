@@ -133,7 +133,7 @@
 			value: {
 				operator,
 				value: value === '' ? undefined : value,
-				value2: filterValue?.value2
+				endValue: filterValue?.endValue
 			}
 		});
 	}
@@ -345,13 +345,13 @@
 							value={operator}
 							onValueChange={(newOperator: string) => {
 								const currentValue = filterValue?.value;
-								const currentValue2 = filterValue?.value2;
+								const currentEndValue = filterValue?.endValue;
 
 								onFilterUpdate(filter.id, {
 									value: {
 										operator: newOperator as FilterOperator,
 										value: currentValue,
-										value2: currentValue2
+										endValue: currentEndValue
 									}
 								});
 							}}
@@ -373,66 +373,191 @@
 						<div class="min-w-36 flex-1">
 							{#if needsValue}
 								{#if variant === 'number'}
-									<Input
-										type="number"
-										inputmode="numeric"
-										placeholder="Value"
-										value={String(filterValue?.value ?? '')}
-										oninput={(event) => {
-											const val = (event.target as HTMLInputElement).value;
-											const newValue = val === '' ? undefined : Number(val);
-											debouncedFilterUpdate(filter.id, {
-												value: {
-													operator,
-													value: newValue,
-													value2: filterValue?.value2
-												}
-											});
-										}}
-										class="h-8 w-full rounded"
-									/>
+									{#if operator === 'isBetween'}
+										<div class="flex gap-2">
+											<Input
+												type="number"
+												inputmode="numeric"
+												placeholder="Start"
+												value={String(filterValue?.value ?? '')}
+												oninput={(event) => {
+													const val = (event.target as HTMLInputElement).value;
+													const newValue = val === '' ? undefined : Number(val);
+													debouncedFilterUpdate(filter.id, {
+														value: {
+															operator,
+															value: newValue,
+															endValue: filterValue?.endValue
+														}
+													});
+												}}
+												class="h-8 w-full flex-1 rounded"
+											/>
+											<Input
+												type="number"
+												inputmode="numeric"
+												placeholder="End"
+												value={String(filterValue?.endValue ?? '')}
+												oninput={(event) => {
+													const val = (event.target as HTMLInputElement).value;
+													const newValue = val === '' ? undefined : Number(val);
+													debouncedFilterUpdate(filter.id, {
+														value: {
+															operator,
+															value: filterValue?.value,
+															endValue: newValue
+														}
+													});
+												}}
+												class="h-8 w-full flex-1 rounded"
+											/>
+										</div>
+									{:else}
+										<Input
+											type="number"
+											inputmode="numeric"
+											placeholder="Value"
+											value={String(filterValue?.value ?? '')}
+											oninput={(event) => {
+												const val = (event.target as HTMLInputElement).value;
+												const newValue = val === '' ? undefined : Number(val);
+												debouncedFilterUpdate(filter.id, {
+													value: {
+														operator,
+														value: newValue,
+														endValue: filterValue?.endValue
+													}
+												});
+											}}
+											class="h-8 w-full rounded"
+										/>
+									{/if}
 								{:else if variant === 'date'}
 									{@const calendarValue = parseISOToCalendarDate(
 										filterValue?.value as string | undefined
 									)}
-									<Popover>
-										<PopoverTrigger>
-											{#snippet child({ props })}
-												<Button
-													{...props}
-													variant="outline"
-													size="sm"
-													class={cn(
-														'h-8 w-full justify-start rounded font-normal',
-														!calendarValue && 'text-muted-foreground'
-													)}
-												>
-													<CalendarIcon />
-													<span class="truncate">
-														{calendarValue
-															? `${calendarValue.month}/${calendarValue.day}/${calendarValue.year}`
-															: 'Select date'}
-													</span>
-												</Button>
-											{/snippet}
-										</PopoverTrigger>
-										<PopoverContent align="start" class="w-auto p-0">
-											<Calendar
-												type="single"
-												value={calendarValue}
-												onValueChange={(date: DateValue | undefined) => {
-													const newValue = calendarDateToISO(date);
-													onFilterUpdate(filter.id, {
-														value: {
-															operator,
-															value: newValue,
-															value2: filterValue?.value2
-														}
-													});
-												}}
-											/>
-										</PopoverContent>
-									</Popover>
+									{@const endCalendarValue = parseISOToCalendarDate(
+										filterValue?.endValue as string | undefined
+									)}
+									{#if operator === 'isBetween'}
+										<div class="flex gap-2">
+											<Popover>
+												<PopoverTrigger>
+													{#snippet child({ props })}
+														<Button
+															{...props}
+															variant="outline"
+															size="sm"
+															class={cn(
+																'h-8 w-full justify-start rounded font-normal',
+																!calendarValue && 'text-muted-foreground'
+															)}
+														>
+															<CalendarIcon />
+															<span class="truncate">
+																{calendarValue
+																	? `${calendarValue.month}/${calendarValue.day}/${calendarValue.year}`
+																	: 'Start'}
+															</span>
+														</Button>
+													{/snippet}
+												</PopoverTrigger>
+												<PopoverContent align="start" class="w-auto p-0">
+													<Calendar
+														type="single"
+														value={calendarValue}
+														onValueChange={(date: DateValue | undefined) => {
+															const newValue = calendarDateToISO(date);
+															onFilterUpdate(filter.id, {
+																value: {
+																	operator,
+																	value: newValue,
+																	endValue: filterValue?.endValue
+																}
+															});
+														}}
+													/>
+												</PopoverContent>
+											</Popover>
+											<Popover>
+												<PopoverTrigger>
+													{#snippet child({ props })}
+														<Button
+															{...props}
+															variant="outline"
+															size="sm"
+															class={cn(
+																'h-8 w-full justify-start rounded font-normal',
+																!endCalendarValue && 'text-muted-foreground'
+															)}
+														>
+															<CalendarIcon />
+															<span class="truncate">
+																{endCalendarValue
+																	? `${endCalendarValue.month}/${endCalendarValue.day}/${endCalendarValue.year}`
+																	: 'End'}
+															</span>
+														</Button>
+													{/snippet}
+												</PopoverTrigger>
+												<PopoverContent align="start" class="w-auto p-0">
+													<Calendar
+														type="single"
+														value={endCalendarValue}
+														onValueChange={(date: DateValue | undefined) => {
+															const newValue = calendarDateToISO(date);
+															onFilterUpdate(filter.id, {
+																value: {
+																	operator,
+																	value: filterValue?.value,
+																	endValue: newValue
+																}
+															});
+														}}
+													/>
+												</PopoverContent>
+											</Popover>
+										</div>
+									{:else}
+										<Popover>
+											<PopoverTrigger>
+												{#snippet child({ props })}
+													<Button
+														{...props}
+														variant="outline"
+														size="sm"
+														class={cn(
+															'h-8 w-full justify-start rounded font-normal',
+															!calendarValue && 'text-muted-foreground'
+														)}
+													>
+														<CalendarIcon />
+														<span class="truncate">
+															{calendarValue
+																? `${calendarValue.month}/${calendarValue.day}/${calendarValue.year}`
+																: 'Select date'}
+														</span>
+													</Button>
+												{/snippet}
+											</PopoverTrigger>
+											<PopoverContent align="start" class="w-auto p-0">
+												<Calendar
+													type="single"
+													value={calendarValue}
+													onValueChange={(date: DateValue | undefined) => {
+														const newValue = calendarDateToISO(date);
+														onFilterUpdate(filter.id, {
+															value: {
+																operator,
+																value: newValue,
+																endValue: filterValue?.endValue
+															}
+														});
+													}}
+												/>
+											</PopoverContent>
+										</Popover>
+									{/if}
 								{:else if (variant === 'select' || variant === 'multi-select') && selectOptions.length > 0}
 									{#if operator === 'isAnyOf' || operator === 'isNoneOf'}
 										{@const selectedValues = Array.isArray(filterValue?.value)
@@ -480,7 +605,7 @@
 																			value: {
 																				operator,
 																				value: newValues.length > 0 ? newValues : undefined,
-																				value2: filterValue?.value2
+																				endValue: filterValue?.endValue
 																			}
 																		});
 																	}}
@@ -536,7 +661,7 @@
 																			value: {
 																				operator,
 																				value: option.value,
-																				value2: filterValue?.value2
+																				endValue: filterValue?.endValue
 																			}
 																		});
 																	}}

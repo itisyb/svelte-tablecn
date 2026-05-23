@@ -1,3 +1,4 @@
+import type { Row } from '@tanstack/table-core';
 import { describe, expect, it } from 'vitest';
 import {
 	getRowIndicesForDeletion,
@@ -5,6 +6,7 @@ import {
 	parseTsv,
 	serializeCellsToTsv
 } from './data-grid.js';
+import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
 
 describe('parseTsv', () => {
 	it('parses simple multi-row TSV', () => {
@@ -168,5 +170,44 @@ describe('getRowIndicesForDeletion', () => {
 				rows
 			})
 		).toEqual([1]);
+	});
+});
+
+describe('data grid filters', () => {
+	const filterFn = getFilterFn<{ score: number; startedAt: string }>();
+	const row = {
+		getValue: (columnId: string) =>
+			({
+				score: 42,
+				startedAt: '2023-06-15T00:00:00.000Z'
+			})[columnId]
+	} as Pick<Row<{ score: number; startedAt: string }>, 'getValue'> as Row<{
+		score: number;
+		startedAt: string;
+	}>;
+
+	it('uses the upstream isBetween operator for number filters', () => {
+		expect(NUMBER_FILTER_OPERATORS.some((operator) => operator.value === 'isBetween')).toBe(true);
+		expect(
+			filterFn(row, 'score', { operator: 'isBetween', value: 40, endValue: 50 }, () => {})
+		).toBe(true);
+		expect(
+			filterFn(row, 'score', { operator: 'isBetween', value: 1, endValue: 10 }, () => {})
+		).toBe(false);
+	});
+
+	it('uses endValue for date between filters', () => {
+		expect(
+			filterFn(
+				row,
+				'startedAt',
+				{
+					operator: 'isBetween',
+					value: '2023-01-01T00:00:00.000Z',
+					endValue: '2023-12-31T00:00:00.000Z'
+				},
+				() => {}
+			)
+		).toBe(true);
 	});
 });

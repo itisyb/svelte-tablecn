@@ -174,7 +174,7 @@
 	) {
 		updateFilter(filterKey, {
 			value:
-				variant === 'dateRange' || operator === 'between'
+				variant === 'dateRange' || operator === 'isBetween'
 					? isSecondary
 						? [filterValues.primary, value]
 						: [value, filterValues.secondary]
@@ -416,7 +416,7 @@
 
 						<div class={cn('flex-1', variant === 'range' ? 'min-w-52' : 'min-w-36')}>
 							{#if needsValue}
-								{#if variant === 'range' || (variant === 'number' && operator === 'between')}
+								{#if variant === 'range' || (variant === 'number' && operator === 'isBetween')}
 									<DataTableRangeFilter
 										filter={{
 											id: castColumnId(filter.id),
@@ -444,7 +444,7 @@
 									<div
 										class={cn(
 											'grid gap-2',
-											(variant === 'dateRange' || operator === 'between') && 'sm:grid-cols-2'
+											(variant === 'dateRange' || operator === 'isBetween') && 'sm:grid-cols-2'
 										)}
 									>
 										<Input
@@ -456,7 +456,7 @@
 											}
 											class="h-8 w-full rounded"
 										/>
-										{#if variant === 'dateRange' || operator === 'between'}
+										{#if variant === 'dateRange' || operator === 'isBetween'}
 											<Input
 												type="date"
 												bind:value={

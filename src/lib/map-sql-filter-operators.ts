@@ -37,7 +37,7 @@ const UI_TO_SQL: Partial<Record<FilterOperator, SqlFilterOperator>> = {
 	after: 'gt',
 	onOrBefore: 'lte',
 	onOrAfter: 'gte',
-	between: 'isBetween',
+	isBetween: 'isBetween',
 	isEmpty: 'isEmpty',
 	isNotEmpty: 'isNotEmpty',
 	isTrue: 'eq',
@@ -55,7 +55,7 @@ const SQL_TO_UI: Partial<Record<SqlFilterOperator, FilterOperator>> = {
 	lte: 'lessThanOrEqual',
 	gt: 'greaterThan',
 	gte: 'greaterThanOrEqual',
-	isBetween: 'between',
+	isBetween: 'isBetween',
 	isEmpty: 'isEmpty',
 	isNotEmpty: 'isNotEmpty'
 };

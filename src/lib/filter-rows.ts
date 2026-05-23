@@ -11,13 +11,13 @@ import { coerceRangeNumber } from '$lib/data-table-range-utils.js';
 function toFilterValue<TData>(filter: ExtendedColumnFilter<TData>): FilterValue {
 	const values = Array.isArray(filter.value) ? filter.value : [filter.value];
 
-	if (filter.operator === 'between' && values.length >= 2) {
+	if (filter.operator === 'isBetween' && values.length >= 2) {
 		const min = coerceRangeNumber(values[0]);
 		const max = coerceRangeNumber(values[1]);
 		return {
 			operator: filter.operator,
 			value: min ?? values[0],
-			value2: max ?? values[1]
+			endValue: max ?? values[1]
 		};
 	}
 

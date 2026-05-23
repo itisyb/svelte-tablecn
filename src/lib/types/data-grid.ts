@@ -196,7 +196,7 @@ export type NumberFilterOperator =
 	| 'lessThanOrEqual'
 	| 'greaterThan'
 	| 'greaterThanOrEqual'
-	| 'between'
+	| 'isBetween'
 	| 'isEmpty'
 	| 'isNotEmpty';
 
@@ -207,7 +207,7 @@ export type DateFilterOperator =
 	| 'after'
 	| 'onOrBefore'
 	| 'onOrAfter'
-	| 'between'
+	| 'isBetween'
 	| 'isEmpty'
 	| 'isNotEmpty';
 
@@ -231,7 +231,7 @@ export type FilterOperator =
 export interface FilterValue {
 	operator: FilterOperator;
 	value?: string | number | string[];
-	value2?: string | number;
+	endValue?: string | number;
 }
 
 // ============================================

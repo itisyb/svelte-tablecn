@@ -29,7 +29,7 @@ export const DATA_TABLE_NUMERIC_OPERATORS = [
 	{ label: 'Less than or equal', value: 'lessThanOrEqual' },
 	{ label: 'Greater than', value: 'greaterThan' },
 	{ label: 'Greater than or equal', value: 'greaterThanOrEqual' },
-	{ label: 'Between', value: 'between' },
+	{ label: 'Between', value: 'isBetween' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
 ] as const;
@@ -39,7 +39,7 @@ export const DATA_TABLE_DATE_OPERATORS = [
 	{ label: 'Does not equal', value: 'notEquals' },
 	{ label: 'Before', value: 'before' },
 	{ label: 'After', value: 'after' },
-	{ label: 'Between', value: 'between' },
+	{ label: 'Between', value: 'isBetween' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
 ] as const;
