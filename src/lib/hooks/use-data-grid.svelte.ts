@@ -1127,11 +1127,11 @@ export function useDataGrid<TData extends RowData>(
 		}
 	}
 
-	async function pasteFromClipboard() {
+	async function onCellsPaste(expandRows = false) {
 		if (readOnly || !enablePaste) return;
 
 		try {
-			const text = await navigator.clipboard.readText();
+			const text = pasteDialog.clipboardText || (await navigator.clipboard.readText());
 			if (!text.trim()) return;
 
 			const rows = table.getRowModel().rows;
@@ -1147,7 +1147,7 @@ export function useDataGrid<TData extends RowData>(
 			// Check if we need more rows
 			const rowsNeeded = startPos.rowIndex + lines.length - rows.length;
 
-			if (rowsNeeded > 0 && onRowsAdd) {
+			if (rowsNeeded > 0 && !expandRows && (onRowsAdd || onRowAddProp)) {
 				pasteDialog = {
 					open: true,
 					rowsNeeded,
@@ -1156,11 +1156,27 @@ export function useDataGrid<TData extends RowData>(
 				return;
 			}
 
+			if (rowsNeeded > 0 && expandRows) {
+				if (onRowsAdd) {
+					await onRowsAdd(rowsNeeded);
+				} else if (onRowAddProp) {
+					for (let i = 0; i < rowsNeeded; i++) {
+						await onRowAddProp();
+					}
+				}
+				syncTableFromData();
+			}
+
 			// Perform paste
 			performPaste(text, startPos, startColIndex);
+			pasteDialog = { open: false, rowsNeeded: 0, clipboardText: '' };
 		} catch {
 			// Clipboard access denied
 		}
+	}
+
+	async function pasteFromClipboard() {
+		await onCellsPaste(false);
 	}
 
 	function performPaste(text: string, startPos: CellPosition, startColIndex: number) {
@@ -2156,6 +2172,7 @@ export function useDataGrid<TData extends RowData>(
 		onRowsDelete: onRowsDeleteProp ? deleteRowsByIndices : undefined,
 		onCellsCopy: copySelectedCells,
 		onCellsCut: cutSelectedCells,
+		onCellsPaste,
 		onFilesUpload,
 		onFilesDelete,
 		onRowSelect: handleRowSelect,
@@ -2167,23 +2184,8 @@ export function useDataGrid<TData extends RowData>(
 				? { ...pasteDialog, open }
 				: { open: false, rowsNeeded: 0, clipboardText: '' };
 		},
-		onPasteWithExpansion: async () => {
-			if (onRowsAdd) {
-				await onRowsAdd(pasteDialog.rowsNeeded);
-				const cols = getNavigableColumns();
-				const startPos = focusedCell || { rowIndex: 0, columnId: cols[0]?.id || '' };
-				const startColIndex = cols.findIndex((c) => c.id === startPos.columnId);
-				performPaste(pasteDialog.clipboardText, startPos, startColIndex);
-			}
-			pasteDialog = { ...pasteDialog, open: false };
-		},
-		onPasteWithoutExpansion: () => {
-			const cols = getNavigableColumns();
-			const startPos = focusedCell || { rowIndex: 0, columnId: cols[0]?.id || '' };
-			const startColIndex = cols.findIndex((c) => c.id === startPos.columnId);
-			performPaste(pasteDialog.clipboardText, startPos, startColIndex);
-			pasteDialog = { ...pasteDialog, open: false };
-		},
+		onPasteWithExpansion: () => onCellsPaste(true),
+		onPasteWithoutExpansion: () => onCellsPaste(false),
 		onSelectionClear
 	};
 

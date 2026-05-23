@@ -20,6 +20,7 @@
 	const meta = $derived(table.options.meta);
 	const pasteDialog = $derived(meta?.pasteDialog);
 	const onPasteDialogOpenChange = $derived(meta?.onPasteDialogOpenChange);
+	const onCellsPaste = $derived(meta?.onCellsPaste);
 	const onPasteWithExpansion = $derived(meta?.onPasteWithExpansion);
 	const onPasteWithoutExpansion = $derived(meta?.onPasteWithoutExpansion);
 
@@ -30,7 +31,10 @@
 	}
 
 	function onContinue() {
-		if (expandRadioRef?.checked) {
+		const expand = expandRadioRef?.checked ?? false;
+		if (onCellsPaste) {
+			onCellsPaste(expand);
+		} else if (expand) {
 			onPasteWithExpansion?.();
 		} else {
 			onPasteWithoutExpansion?.();

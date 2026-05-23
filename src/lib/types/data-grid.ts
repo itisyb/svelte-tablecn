@@ -285,6 +285,7 @@ declare module '@tanstack/table-core' {
 		}) => void;
 		onCellsCopy?: () => void | Promise<void>;
 		onCellsCut?: () => void | Promise<void>;
+		onCellsPaste?: (expand?: boolean) => void | Promise<void>;
 		onFilesUpload?: (params: {
 			files: File[];
 			rowIndex: number;
@@ -301,7 +302,9 @@ declare module '@tanstack/table-core' {
 		onContextMenuOpenChange?: (open: boolean) => void;
 		pasteDialog?: PasteDialogState;
 		onPasteDialogOpenChange?: (open: boolean) => void;
+		/** @deprecated Use onCellsPaste(true) instead. */
 		onPasteWithExpansion?: () => void;
+		/** @deprecated Use onCellsPaste(false) instead. */
 		onPasteWithoutExpansion?: () => void;
 		onSelectionClear?: () => void;
 	}

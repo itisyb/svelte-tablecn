@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
+import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 
@@ -220,6 +221,14 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Cancel' }).click();
 		await waitFor(() => document.querySelector<HTMLElement>('[role="dialog"]') === null);
+	});
+
+	it('should continue paste expansion through onCellsPaste', async () => {
+		await render(DataGridPasteDialogFixture);
+
+		await page.getByRole('button', { name: 'Continue' }).click();
+
+		await expect.element(page.getByLabelText('paste mode')).toHaveTextContent('expand');
 	});
 
 	it('should render custom data grid cell renderers directly', async () => {
