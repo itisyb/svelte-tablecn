@@ -20,13 +20,11 @@ export function getColumnBorderVisibility<TData>(params: {
 	const { column, nextColumn, isLastColumn } = params;
 
 	const isPinned = column.getIsPinned();
-	const isFirstRightPinnedColumn =
-		isPinned === 'right' && column.getIsFirstColumn('right');
+	const isFirstRightPinnedColumn = isPinned === 'right' && column.getIsFirstColumn('right');
 	const isLastRightPinnedColumn = isPinned === 'right' && column.getIsLastColumn('right');
 
 	const nextIsPinned = nextColumn?.getIsPinned();
-	const isBeforeRightPinned =
-		nextIsPinned === 'right' && nextColumn?.getIsFirstColumn('right');
+	const isBeforeRightPinned = nextIsPinned === 'right' && nextColumn?.getIsFirstColumn('right');
 
 	const showEndBorder = !isBeforeRightPinned && (isLastColumn || !isLastRightPinnedColumn);
 	const showStartBorder = isFirstRightPinnedColumn;
@@ -81,13 +79,120 @@ export function getColumnPinningStyle<TData>(params: {
 	}
 }
 
-export function toPinningStyleString(
-	styles: Record<string, string | number | undefined>
-): string {
+export function toPinningStyleString(styles: Record<string, string | number | undefined>): string {
 	return Object.entries(styles)
 		.filter(([, value]) => value !== undefined)
 		.map(([key, value]) => `${key}: ${value}`)
 		.join('; ');
+}
+
+function countTabs(line: string): number {
+	let count = 0;
+	for (const char of line) {
+		if (char === '\t') count++;
+	}
+	return count;
+}
+
+export function parseTsv(text: string, fallbackColumnCount: number): string[][] {
+	if (text.startsWith('"') || text.includes('\t"')) {
+		const rows: string[][] = [];
+		let currentRow: string[] = [];
+		let currentField = '';
+		let inQuotes = false;
+		let i = 0;
+
+		while (i < text.length) {
+			const char = text[i];
+			const nextChar = text[i + 1];
+
+			if (inQuotes) {
+				if (char === '"' && nextChar === '"') {
+					currentField += '"';
+					i += 2;
+				} else if (char === '"') {
+					inQuotes = false;
+					i++;
+				} else {
+					currentField += char;
+					i++;
+				}
+			} else if (char === '"' && currentField === '') {
+				inQuotes = true;
+				i++;
+			} else if (char === '\t') {
+				currentRow.push(currentField);
+				currentField = '';
+				i++;
+			} else if (char === '\r' && nextChar === '\n') {
+				currentRow.push(currentField);
+				if (currentRow.length > 1 || currentRow.some((field) => field.length > 0)) {
+					rows.push(currentRow);
+				}
+				currentRow = [];
+				currentField = '';
+				i += 2;
+			} else if (char === '\n') {
+				currentRow.push(currentField);
+				if (currentRow.length > 1 || currentRow.some((field) => field.length > 0)) {
+					rows.push(currentRow);
+				}
+				currentRow = [];
+				currentField = '';
+				i++;
+			} else {
+				currentField += char;
+				i++;
+			}
+		}
+
+		currentRow.push(currentField);
+		if (currentRow.length > 1 || currentRow.some((field) => field.length > 0)) {
+			rows.push(currentRow);
+		}
+
+		return rows;
+	}
+
+	const lines = text.split('\n');
+	let maxTabCount = 0;
+	for (const line of lines) {
+		const tabCount = countTabs(line);
+		if (tabCount > maxTabCount) maxTabCount = tabCount;
+	}
+
+	const columnCount = maxTabCount > 0 ? maxTabCount + 1 : fallbackColumnCount;
+	if (columnCount <= 0) return [];
+
+	const expectedTabCount = columnCount - 1;
+	const rows: string[][] = [];
+	let buffer = '';
+	let bufferTabCount = 0;
+
+	for (const line of lines) {
+		const tabCount = countTabs(line);
+
+		if (tabCount === expectedTabCount) {
+			if (buffer && bufferTabCount === expectedTabCount) rows.push(buffer.split('\t'));
+			buffer = '';
+			bufferTabCount = 0;
+			rows.push(line.split('\t'));
+		} else {
+			buffer = buffer ? `${buffer}\n${line}` : line;
+			bufferTabCount += tabCount;
+			if (bufferTabCount === expectedTabCount) {
+				rows.push(buffer.split('\t'));
+				buffer = '';
+				bufferTabCount = 0;
+			}
+		}
+	}
+
+	if (buffer && bufferTabCount === expectedTabCount) rows.push(buffer.split('\t'));
+
+	return rows.length > 0
+		? rows
+		: lines.filter((line) => line.length > 0).map((line) => line.split('\t'));
 }
 
 export function getIsInPopover(element: unknown): boolean {

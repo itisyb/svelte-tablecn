@@ -73,6 +73,7 @@ import {
 	getEmptyCellValue,
 	getIsInPopover,
 	getScrollDirection,
+	parseTsv,
 	scrollCellIntoView
 } from '$lib/data-grid.js';
 import { toast } from 'svelte-sonner';
@@ -1138,8 +1139,7 @@ export function useDataGrid<TData extends RowData>(
 			const rows = table.getRowModel().rows;
 			const cols = getNavigableColumns();
 
-			// Parse clipboard as TSV
-			const lines = text.split('\n').map((line) => line.split('\t'));
+			const lines = parseTsv(text, cols.length);
 
 			// Determine paste target
 			const startPos = focusedCell || { rowIndex: 0, columnId: cols[0]?.id || '' };
@@ -1167,7 +1167,7 @@ export function useDataGrid<TData extends RowData>(
 	function performPaste(text: string, startPos: CellPosition, startColIndex: number) {
 		const rows = table.getRowModel().rows;
 		const cols = getNavigableColumns();
-		const lines = text.split('\n').map((line) => line.split('\t'));
+		const lines = parseTsv(text, cols.length);
 
 		const updates: UpdateCell[] = [];
 
