@@ -5,11 +5,7 @@
 	import { cn } from '$lib/utils.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
-	import {
-		Popover,
-		PopoverContent,
-		PopoverTrigger
-	} from '$lib/components/ui/popover/index.js';
+	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
 	import {
 		Command,
 		CommandEmpty,
@@ -52,12 +48,9 @@
 
 	const sorting = $derived(table.getState().sorting);
 
-	// Create a mutable copy for DnD
-	let sortingItems = $state<ColumnSort[]>([]);
-
-	$effect(() => {
-		sortingItems = [...sorting];
-	});
+	let isDragging = $state(false);
+	let dragSorting = $state<ColumnSort[]>([]);
+	const sortingItems = $derived(isDragging ? dragSorting : sorting);
 
 	const { columnLabels, columns } = $derived.by(() => {
 		const labels = new Map<string, string>();
@@ -94,9 +87,7 @@
 	function onSortUpdate(sortId: string, updates: Partial<ColumnSort>) {
 		table.setSorting((prevSorting: SortingState) => {
 			if (!prevSorting) return prevSorting;
-			return prevSorting.map((sort) =>
-				sort.id === sortId ? { ...sort, ...updates } : sort
-			);
+			return prevSorting.map((sort) => (sort.id === sortId ? { ...sort, ...updates } : sort));
 		});
 	}
 
@@ -137,16 +128,17 @@
 	}
 
 	function handleDndConsider(e: CustomEvent<{ items: ColumnSort[] }>) {
-		sortingItems = e.detail.items;
+		isDragging = true;
+		dragSorting = e.detail.items;
 	}
 
 	function handleDndFinalize(e: CustomEvent<{ items: ColumnSort[] }>) {
-		sortingItems = e.detail.items;
-		// Filter out shadow items and update table sorting
-		const cleanItems = sortingItems.filter((item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
+		isDragging = false;
+		const cleanItems = e.detail.items.filter(
+			(item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]
+		);
 		table.setSorting(cleanItems);
 	}
-
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />

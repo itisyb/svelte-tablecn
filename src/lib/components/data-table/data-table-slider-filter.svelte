@@ -12,7 +12,6 @@
 		parseRangeFilterValue,
 		type RangeValue
 	} from '$lib/data-table-range-utils.js';
-	import { generateId } from '$lib/id.js';
 	import { cn } from '$lib/utils.js';
 
 	import PlusCircle from '@lucide/svelte/icons/plus-circle';
@@ -28,7 +27,7 @@
 	let { table, columnId, column, title }: Props = $props();
 
 	let open = $state(false);
-	const inputId = generateId();
+	const inputId = $props.id();
 
 	const resolvedColumnId = $derived(columnId ?? column?.id);
 	const resolvedColumn = $derived(
@@ -54,14 +53,7 @@
 		return parsed[0] !== bounds.min || parsed[1] !== bounds.max;
 	});
 
-	let range = $state<RangeValue>([0, 100]);
-
-	$effect(() => {
-		const next = parseRangeFilterValue(filterValue, [bounds.min, bounds.max]);
-		if (range[0] !== next[0] || range[1] !== next[1]) {
-			range = [...next];
-		}
-	});
+	let range = $derived(parseRangeFilterValue(filterValue, [bounds.min, bounds.max]));
 
 	function commitRange(next: RangeValue) {
 		range = next;
@@ -124,10 +116,7 @@
 					aria-label={`Filter ${title ?? 'column'}`}
 					variant="outline"
 					size="sm"
-					class={cn(
-						'border-dashed font-normal',
-						hasActiveFilter && 'rounded-l-none'
-					)}
+					class={cn('border-dashed font-normal', hasActiveFilter && 'rounded-l-none')}
 				>
 					{#if !hasActiveFilter}
 						<PlusCircle class="size-4" />
@@ -140,72 +129,72 @@
 				</Button>
 			{/snippet}
 		</PopoverTrigger>
-	<PopoverContent align="start" class="flex w-auto min-w-72 flex-col gap-4">
-		<div class="flex flex-col gap-3">
-			<p class="font-medium leading-none">{title}</p>
-			<div class="flex items-center gap-3">
-				<div class="relative">
-					<Input
-						id="{inputId}-from"
-						type="number"
-						aria-label={`${title ?? 'Column'} minimum`}
-						aria-valuemin={bounds.min}
-						aria-valuemax={bounds.max}
-						inputmode="numeric"
-						placeholder={String(bounds.min)}
-						min={bounds.min}
-						max={bounds.max}
-						value={String(range[0])}
-						oninput={onFromInputChange}
-						class={cn('h-8 w-24', unit && 'pr-8')}
-					/>
-					{#if unit}
-						<span
-							class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm"
-						>
-							{unit}
-						</span>
-					{/if}
+		<PopoverContent align="start" class="flex w-auto min-w-72 flex-col gap-4">
+			<div class="flex flex-col gap-3">
+				<p class="font-medium leading-none">{title}</p>
+				<div class="flex items-center gap-3">
+					<div class="relative">
+						<Input
+							id={`${inputId}-from`}
+							type="number"
+							aria-label={`${title ?? 'Column'} minimum`}
+							aria-valuemin={bounds.min}
+							aria-valuemax={bounds.max}
+							inputmode="numeric"
+							placeholder={String(bounds.min)}
+							min={bounds.min}
+							max={bounds.max}
+							value={String(range[0])}
+							oninput={onFromInputChange}
+							class={cn('h-8 w-24', unit && 'pr-8')}
+						/>
+						{#if unit}
+							<span
+								class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm"
+							>
+								{unit}
+							</span>
+						{/if}
+					</div>
+					<span class="text-muted-foreground text-sm">to</span>
+					<div class="relative">
+						<Input
+							id={`${inputId}-to`}
+							type="number"
+							aria-label={`${title ?? 'Column'} maximum`}
+							aria-valuemin={bounds.min}
+							aria-valuemax={bounds.max}
+							inputmode="numeric"
+							placeholder={String(bounds.max)}
+							min={bounds.min}
+							max={bounds.max}
+							value={String(range[1])}
+							oninput={onToInputChange}
+							class={cn('h-8 w-24', unit && 'pr-8')}
+						/>
+						{#if unit}
+							<span
+								class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm"
+							>
+								{unit}
+							</span>
+						{/if}
+					</div>
 				</div>
-				<span class="text-muted-foreground text-sm">to</span>
-				<div class="relative">
-					<Input
-						id="{inputId}-to"
-						type="number"
-						aria-label={`${title ?? 'Column'} maximum`}
-						aria-valuemin={bounds.min}
-						aria-valuemax={bounds.max}
-						inputmode="numeric"
-						placeholder={String(bounds.max)}
-						min={bounds.min}
-						max={bounds.max}
-						value={String(range[1])}
-						oninput={onToInputChange}
-						class={cn('h-8 w-24', unit && 'pr-8')}
-					/>
-					{#if unit}
-						<span
-							class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm"
-						>
-							{unit}
-						</span>
-					{/if}
+				<Slider
+					type="multiple"
+					min={bounds.min}
+					max={bounds.max}
+					step={bounds.step}
+					value={range}
+					onValueChange={onSliderChange}
+				/>
+				<div class="flex items-center justify-between text-muted-foreground text-xs">
+					<span>{formatRangeValue(bounds.min)}{unit ? ` ${unit}` : ''}</span>
+					<span>{formatRangeValue(bounds.max)}{unit ? ` ${unit}` : ''}</span>
 				</div>
 			</div>
-			<Slider
-				type="multiple"
-				min={bounds.min}
-				max={bounds.max}
-				step={bounds.step}
-				value={range}
-				onValueChange={onSliderChange}
-			/>
-			<div class="flex items-center justify-between text-muted-foreground text-xs">
-				<span>{formatRangeValue(bounds.min)}{unit ? ` ${unit}` : ''}</span>
-				<span>{formatRangeValue(bounds.max)}{unit ? ` ${unit}` : ''}</span>
-			</div>
-		</div>
-		<Button variant="outline" size="sm" class="h-8" onclick={() => clearFilter()}>Clear</Button>
-	</PopoverContent>
+			<Button variant="outline" size="sm" class="h-8" onclick={() => clearFilter()}>Clear</Button>
+		</PopoverContent>
 	</Popover>
 </div>

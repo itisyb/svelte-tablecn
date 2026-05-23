@@ -37,13 +37,12 @@
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialCellValue = $derived((cellValue as FileCellData[]) ?? []);
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
-	let prevCellKey = $state('');
 
-	let files = $state<FileCellData[]>([]);
+	let files = $derived(initialCellValue);
 	let uploadingFiles = $state<Set<string>>(new Set());
 	let isDraggingOver = $state(false);
 	let isDragging = $state(false);
-	let error = $state<string | null>(null);
+	let errorState = $state<{ cellKey: string; message: string } | null>(null);
 	let containerRef = $state<HTMLDivElement | null>(null);
 	let fileInputRef = $state<HTMLInputElement | null>(null);
 	let dropzoneRef = $state<HTMLButtonElement | null>(null);
@@ -57,28 +56,11 @@
 	const multiple = $derived(fileCellOpts?.multiple ?? true);
 
 	const acceptedTypes = $derived(accept ? accept.split(',').map((t) => t.trim()) : null);
+	const error = $derived(errorState?.cellKey === cellKey ? errorState.message : null);
 
-	// Sync with cell value - compare by content, not reference
-	$effect(() => {
-		const cv = initialCellValue;
-		if (!isEditing) {
-			// Only update if arrays differ by content (compare by id)
-			const cvIds = cv.map((f) => f.id).join(',');
-			const filesIds = files.map((f) => f.id).join(',');
-			if (cvIds !== filesIds) {
-				files = [...cv];
-				error = null;
-			}
-		}
-	});
-
-	// Reset error when cell changes
-	$effect(() => {
-		if (prevCellKey !== cellKey) {
-			prevCellKey = cellKey;
-			error = null;
-		}
-	});
+	function setError(message: string | null) {
+		errorState = message ? { cellKey, message } : null;
+	}
 
 	function formatFileSize(bytes: number): string {
 		if (bytes === 0) return '0 B';
@@ -127,14 +109,14 @@
 
 	async function addFiles(newFiles: File[], skipUpload = false) {
 		if (readOnly) return;
-		error = null;
+		setError(null);
 
 		if (maxFiles && files.length + newFiles.length > maxFiles) {
 			const errorMessage = `Maximum ${maxFiles} files allowed`;
-			error = errorMessage;
+			setError(errorMessage);
 			toast.error(errorMessage);
 			setTimeout(() => {
-				error = null;
+				setError(null);
 			}, 2000);
 			return;
 		}
@@ -154,7 +136,7 @@
 		if (rejectedFiles.length > 0) {
 			const firstError = rejectedFiles[0];
 			if (firstError) {
-				error = firstError.reason;
+				setError(firstError.reason);
 
 				const truncatedName =
 					firstError.name.length > 20 ? `${firstError.name.slice(0, 20)}...` : firstError.name;
@@ -170,7 +152,7 @@
 				}
 
 				setTimeout(() => {
-					error = null;
+					setError(null);
 				}, 2000);
 			}
 		}
@@ -251,7 +233,7 @@
 
 	async function removeFile(fileId: string) {
 		if (readOnly) return;
-		error = null;
+		setError(null);
 
 		const fileToRemove = files.find((f) => f.id === fileId);
 		if (!fileToRemove) return;
@@ -282,7 +264,7 @@
 
 	async function clearAll() {
 		if (readOnly) return;
-		error = null;
+		setError(null);
 
 		const rowData = table.options.data[rowIndex];
 		if (table.options.meta?.onFilesDelete && rowData && files.length > 0) {
@@ -396,10 +378,10 @@
 
 	function handleOpenChange(isOpen: boolean) {
 		if (isOpen && !readOnly) {
-			error = null;
+			setError(null);
 			table.options.meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
-			error = null;
+			setError(null);
 			table.options.meta?.onCellEditingStop?.();
 		}
 	}
@@ -420,7 +402,7 @@
 			if (event.key === 'Escape') {
 				event.preventDefault();
 				files = [...initialCellValue];
-				error = null;
+				setError(null);
 				table.options.meta?.onCellEditingStop?.();
 			} else if (event.key === ' ') {
 				event.preventDefault();
@@ -479,7 +461,7 @@
 			<PopoverContent
 				data-grid-cell-editor=""
 				align="start"
-				sideOffset={sideOffset}
+				{sideOffset}
 				class="w-[400px] rounded-none p-0"
 				onkeydown={handleEscapeKeyDown}
 				onOpenAutoFocus={handleOpenAutoFocus}

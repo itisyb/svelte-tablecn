@@ -61,11 +61,6 @@
 		inputRef?.focus();
 	}
 
-	function onInputChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		input = target.value;
-	}
-
 	const shortcutGroups = $derived.by((): ShortcutGroup[] => {
 		const groups: ShortcutGroup[] = [
 			{
@@ -186,18 +181,12 @@
 			open = true;
 		}
 	}
-
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />
 
 <Dialog {open} {onOpenChange}>
-	<DialogContent
-		{dir}
-		class="max-w-2xl px-0"
-		onOpenAutoFocus={onOpenAutoFocus}
-		showCloseButton={false}
-	>
+	<DialogContent {dir} class="max-w-2xl px-0" {onOpenAutoFocus} showCloseButton={false}>
 		<DialogClose class="absolute top-6 right-6">
 			{#snippet child({ props })}
 				<Button {...props} variant="ghost" size="icon" class="size-6">
@@ -213,15 +202,12 @@
 		</DialogHeader>
 		<div class="px-6">
 			<div class="relative">
-				<Search
-					class="-translate-y-1/2 absolute top-1/2 left-3 size-3.5 text-muted-foreground"
-				/>
+				<Search class="-translate-y-1/2 absolute top-1/2 left-3 size-3.5 text-muted-foreground" />
 				<Input
 					bind:ref={inputRef}
 					placeholder="Search shortcuts..."
 					class="h-8 pl-8"
-					value={input}
-					oninput={onInputChange}
+					bind:value={input}
 				/>
 			</div>
 		</div>

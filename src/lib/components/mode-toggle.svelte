@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import {
 		DropdownMenu,
@@ -13,23 +14,17 @@
 	type Theme = 'light' | 'dark' | 'system';
 	let theme = $state<Theme>('system');
 
-	// Initialize theme from localStorage or system preference
-	$effect(() => {
-		if (typeof window === 'undefined') return;
-		
+	onMount(() => {
 		const stored = localStorage.getItem('theme') as Theme | null;
 		if (stored) {
 			theme = stored;
 		}
-		
 		applyTheme(theme);
 	});
 
 	function applyTheme(newTheme: Theme) {
-		if (typeof window === 'undefined') return;
-		
 		const root = document.documentElement;
-		
+
 		if (newTheme === 'system') {
 			const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 			root.classList.toggle('dark', systemPrefersDark);
@@ -50,7 +45,9 @@
 		{#snippet child({ props })}
 			<Button {...props} variant="ghost" size="icon" class="size-8">
 				<Sun class="size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-				<Moon class="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+				<Moon
+					class="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+				/>
 				<span class="sr-only">Toggle theme</span>
 			</Button>
 		{/snippet}

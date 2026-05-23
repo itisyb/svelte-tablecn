@@ -24,19 +24,12 @@
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
-	
+
 	// Display value directly from initialValue (no effect delay)
 	const displayValue = $derived(String(initialValue ?? ''));
-	
+
 	// Value for editing - use localEditValue if set, otherwise displayValue
 	const value = $derived(localEditValue ?? displayValue);
-
-	// Reset local edit value when editing stops
-	$effect(() => {
-		if (!isEditing) {
-			localEditValue = null;
-		}
-	});
 
 	// Focus input when entering edit mode
 	$effect(() => {
@@ -52,6 +45,7 @@
 		if (!readOnly && numValue !== initialValue) {
 			meta?.onDataUpdate?.({ rowIndex, columnId, value: numValue });
 		}
+		localEditValue = null;
 		meta?.onCellEditingStop?.();
 	}
 
@@ -69,6 +63,7 @@
 				if (numValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: numValue });
 				}
+				localEditValue = null;
 				meta?.onCellEditingStop?.({ moveToNextRow: true });
 			} else if (event.key === 'Tab') {
 				event.preventDefault();
@@ -76,6 +71,7 @@
 				if (numValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: numValue });
 				}
+				localEditValue = null;
 				meta?.onCellEditingStop?.({
 					direction: event.shiftKey ? 'left' : 'right'
 				});

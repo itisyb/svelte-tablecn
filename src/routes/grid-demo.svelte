@@ -17,7 +17,7 @@
 		useDataGridUndoRedo,
 		getFilterFn,
 		exportTableToCSV,
-		parseCellKey,
+		parseCellKey
 	} from '$lib';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Download from '@lucide/svelte/icons/download';
@@ -42,12 +42,11 @@
 	let { height }: Props = $props();
 
 	/** Demo seed size only — the grid virtualizes any length; there is no 10k engine cap. */
-	const DEMO_ROW_COUNT = import.meta.env.VITEST ? 200 : 10_000;
+	const DEMO_ROW_COUNT = import.meta.env.MODE === 'test' || import.meta.env.VITEST ? 200 : 10_000;
 
 	let data = $state<DemoPerson[]>([]);
 	let isLoading = $state(true);
 	let dir = $state<Direction>('ltr');
-
 
 	onMount(() => {
 		return scheduleDemoPeopleLoad(DEMO_ROW_COUNT, (people) => {
@@ -251,7 +250,11 @@
 		);
 	}
 
-	const { table, onRowAdd: addRow, ...dataGridProps } = useDataGrid({
+	const {
+		table,
+		onRowAdd: addRow,
+		...dataGridProps
+	} = useDataGrid({
 		columns,
 		data: () => data,
 		dir: () => dir,
@@ -308,9 +311,7 @@
 		tableMeta.onDataUpdate?.(
 			rowIndices.map((rowIndex) => ({ rowIndex, columnId: 'status', value }))
 		);
-		toast.success(
-			`${rowIndices.length} row${rowIndices.length === 1 ? '' : 's'} updated`
-		);
+		toast.success(`${rowIndices.length} row${rowIndices.length === 1 ? '' : 's'} updated`);
 	}
 
 	function onDepartmentUpdate(value: string) {
@@ -323,9 +324,7 @@
 		tableMeta.onDataUpdate?.(
 			rowIndices.map((rowIndex) => ({ rowIndex, columnId: 'department', value }))
 		);
-		toast.success(
-			`${rowIndices.length} row${rowIndices.length === 1 ? '' : 's'} updated`
-		);
+		toast.success(`${rowIndices.length} row${rowIndices.length === 1 ? '' : 's'} updated`);
 	}
 
 	function onBulkDelete() {
@@ -356,7 +355,11 @@
 </script>
 
 <div class="flex flex-col gap-4">
-	<div role="toolbar" aria-orientation="horizontal" class="flex flex-wrap items-center justify-between gap-2">
+	<div
+		role="toolbar"
+		aria-orientation="horizontal"
+		class="flex flex-wrap items-center justify-between gap-2"
+	>
 		<div class="flex flex-wrap items-center gap-2">
 			<DataGridKeyboardShortcuts
 				{dir}
@@ -400,15 +403,11 @@
 			<DataGridSkeletonToolbar actionCount={5} />
 			<DataGridSkeletonGrid />
 		</DataGridSkeleton>
-		<p class="text-center text-muted-foreground text-sm">Loading {DEMO_ROW_COUNT.toLocaleString('en-US')} rows…</p>
+		<p class="text-center text-muted-foreground text-sm">
+			Loading {DEMO_ROW_COUNT.toLocaleString('en-US')} rows…
+		</p>
 	{:else}
-		<DataGrid
-			{...dataGridProps}
-			onRowAdd={addRow}
-			{table}
-			{height}
-			{dir}
-		/>
+		<DataGrid {...dataGridProps} onRowAdd={addRow} {table} {height} {dir} />
 		<DataGridActionBar
 			{table}
 			{tableMeta}
@@ -416,7 +415,7 @@
 			{statusOptions}
 			{departmentOptions}
 			{onStatusUpdate}
-			onDepartmentUpdate={onDepartmentUpdate}
+			{onDepartmentUpdate}
 			onDelete={onBulkDelete}
 		/>
 	{/if}

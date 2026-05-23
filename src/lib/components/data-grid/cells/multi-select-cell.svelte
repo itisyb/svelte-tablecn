@@ -34,35 +34,24 @@
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialCellValue = $derived((cellValue as string[]) ?? []);
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
-	let prevCellKey = $state('');
 
 	// Track local edits separately
 	let localEditValues = $state<string[] | null>(null);
-	
+
 	// Selected values - use localEditValues if set, otherwise initialCellValue
 	const selectedValues = $derived(localEditValues ?? initialCellValue);
-	
-	let searchValue = $state('');
+
+	let searchState = $state<{ cellKey: string; value: string } | null>(null);
+	const searchValue = $derived(searchState?.cellKey === cellKey ? searchState.value : '');
 	let containerRef = $state<HTMLDivElement | null>(null);
 	let inputRef = $state<HTMLInputElement | null>(null);
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const options = $derived(cellOpts?.variant === 'multi-select' ? cellOpts.options : []);
 	const sideOffset = $derived(-(containerRef?.clientHeight ?? 0));
 
-	// Reset local edit value when editing stops
-	$effect(() => {
-		if (!isEditing) {
-			localEditValues = null;
-		}
-	});
-
-	// Reset search when cell changes
-	$effect(() => {
-		if (prevCellKey !== cellKey) {
-			prevCellKey = cellKey;
-			searchValue = '';
-		}
-	});
+	function setSearchValue(value: string) {
+		searchState = value ? { cellKey, value } : null;
+	}
 
 	function handleValueChange(value: string) {
 		if (readOnly) return;
@@ -73,7 +62,7 @@
 
 		localEditValues = newValues;
 		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValues });
-		searchValue = '';
+		setSearchValue('');
 		queueMicrotask(() => inputRef?.focus());
 	}
 
@@ -100,7 +89,8 @@
 		if (isOpen && !readOnly) {
 			meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
-			searchValue = '';
+			localEditValues = null;
+			setSearchValue('');
 			meta?.onCellEditingStop?.();
 		}
 	}
@@ -115,11 +105,11 @@
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
 			localEditValues = null;
-			searchValue = '';
+			setSearchValue('');
 			meta?.onCellEditingStop?.();
 		} else if (!isEditing && isFocused && event.key === 'Tab') {
 			event.preventDefault();
-			searchValue = '';
+			setSearchValue('');
 			meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});
@@ -183,7 +173,7 @@
 			<PopoverContent
 				data-grid-cell-editor=""
 				align="start"
-				sideOffset={sideOffset}
+				{sideOffset}
 				class="w-[300px] rounded-none p-0"
 				onOpenAutoFocus={handleOpenAutoFocus}
 				customAnchor={containerRef}
@@ -211,7 +201,7 @@
 						{/each}
 						<CommandInput
 							bind:ref={inputRef}
-							bind:value={searchValue}
+							bind:value={() => searchValue, setSearchValue}
 							onkeydown={handleInputKeyDown}
 							placeholder="Search..."
 							class="h-auto flex-1 p-0"

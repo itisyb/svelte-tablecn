@@ -1,5 +1,6 @@
 import { browser } from '$app/environment';
 import { goto, pushState, replaceState } from '$app/navigation';
+import { on } from 'svelte/events';
 import {
 	getCoreRowModel,
 	getFacetedMinMaxValues,
@@ -123,6 +124,10 @@ interface FilteredDataCache<TData> {
 	result: TData[];
 }
 
+function toGetter<T>(value: T | (() => T)): () => T {
+	return typeof value === 'function' ? (value as () => T) : () => value;
+}
+
 function getClientFilteredData<TData>(
 	rawData: TData[],
 	columnFilters: ColumnFiltersState,
@@ -130,9 +135,7 @@ function getClientFilteredData<TData>(
 	getColumnVariant: (columnId: string) => FilterVariant,
 	cache: FilteredDataCache<TData> | null
 ): { data: TData[]; cache: FilteredDataCache<TData> | null } {
-	const advancedFilters = getValidFilters(
-		extractAdvancedFilters(columnFilters, getColumnVariant)
-	);
+	const advancedFilters = getValidFilters(extractAdvancedFilters(columnFilters, getColumnVariant));
 
 	if (advancedFilters.length === 0) {
 		return { data: rawData, cache: null };
@@ -140,12 +143,7 @@ function getClientFilteredData<TData>(
 
 	const filtersKey = JSON.stringify(advancedFilters);
 
-	if (
-		cache &&
-		cache.source === rawData &&
-		cache.filtersKey === filtersKey &&
-		cache.join === join
-	) {
+	if (cache && cache.source === rawData && cache.filtersKey === filtersKey && cache.join === join) {
 		return { data: cache.result, cache };
 	}
 
@@ -160,7 +158,7 @@ export function useDataTable<TData>(
 	options: UseDataTableOptions<TData>
 ): UseDataTableReturn<TData> {
 	const {
-		columns,
+		columns: columnsProp,
 		data: dataProp,
 		pageCount = -1,
 		getRowId,
@@ -181,6 +179,10 @@ export function useDataTable<TData>(
 	} = options;
 
 	const getData = typeof dataProp === 'function' ? dataProp : () => dataProp;
+	const getColumns = toGetter(columnsProp);
+	const getEnableAdvancedFilter = toGetter(enableAdvancedFilter);
+	const columns = $derived(getColumns());
+	const advancedFilterEnabled = $derived(getEnableAdvancedFilter());
 	const resolvedQueryKeys: QueryKeys = { ...DEFAULT_DATA_TABLE_QUERY_KEYS, ...queryKeys };
 	const defaultPagination = initialState?.pagination ?? {
 		pageIndex: 0,
@@ -188,10 +190,12 @@ export function useDataTable<TData>(
 	};
 	const defaultSorting = initialState?.sorting ?? [];
 	const defaultJoinOperator: JoinOperator = 'and';
-	const validColumnIds = new Set(columns.map((column) => column.id).filter(Boolean) as string[]);
-	const filterableColumns = columns.filter((column) => column.enableColumnFilter);
-	const sortingStateParser = getSortingStateParser<TData>(validColumnIds);
-	const filtersStateParser = getFiltersStateParser<TData>(validColumnIds);
+	const validColumnIds = $derived(
+		new Set(columns.map((column) => column.id).filter(Boolean) as string[])
+	);
+	const filterableColumns = $derived(columns.filter((column) => column.enableColumnFilter));
+	const sortingStateParser = $derived(getSortingStateParser<TData>(validColumnIds));
+	const filtersStateParser = $derived(getFiltersStateParser<TData>(validColumnIds));
 
 	function getColumnVariant(columnId: string): FilterVariant {
 		return columns.find((column) => column.id === columnId)?.meta?.variant ?? 'text';
@@ -210,7 +214,7 @@ export function useDataTable<TData>(
 			pageSize: Number.isFinite(perPage) && perPage > 0 ? perPage : defaultPagination.pageSize
 		};
 
-		if (enableAdvancedFilter) {
+		if (advancedFilterEnabled) {
 			const filtersParam = searchParams.get(resolvedQueryKeys.filters);
 			const parsedFilters = filtersParam
 				? (filtersStateParser.parse(filtersParam) ?? undefined)
@@ -318,7 +322,7 @@ export function useDataTable<TData>(
 			);
 		}
 
-		if (enableAdvancedFilter) {
+		if (advancedFilterEnabled) {
 			const advancedFilters = extractAdvancedFilters<TData>(columnFilters, getColumnVariant);
 			if (!(clearOnDefault && advancedFilters.length === 0) && advancedFilters.length > 0) {
 				params.set(resolvedQueryKeys.filters, filtersStateParser.serialize(advancedFilters));
@@ -422,10 +426,10 @@ export function useDataTable<TData>(
 			applyQueryStateFromLocation();
 		}
 
-		window.addEventListener('popstate', handlePopState);
+		const removePopState = on(window, 'popstate', handlePopState);
 
 		return () => {
-			window.removeEventListener('popstate', handlePopState);
+			removePopState();
 			if (syncTimeoutId) {
 				clearTimeout(syncTimeoutId);
 			}
@@ -457,7 +461,7 @@ export function useDataTable<TData>(
 		void syncQueryState(delay);
 	});
 
-	const useClientAdvancedFiltering = enableAdvancedFilter && !manualFiltering;
+	const useClientAdvancedFiltering = $derived(advancedFilterEnabled && !manualFiltering);
 	let filteredDataCache: FilteredDataCache<TData> | null = null;
 
 	const tableData = $derived.by(() => {
@@ -482,7 +486,9 @@ export function useDataTable<TData>(
 		get data() {
 			return tableData;
 		},
-		columns,
+		get columns() {
+			return columns;
+		},
 		...(getRowId ? { getRowId } : {}),
 		pageCount,
 		get state() {
@@ -511,8 +517,7 @@ export function useDataTable<TData>(
 			sorting = typeof updater === 'function' ? updater(sorting) : updater;
 		},
 		onColumnFiltersChange: (updater) => {
-			const next =
-				typeof updater === 'function' ? updater(columnFilters) : updater;
+			const next = typeof updater === 'function' ? updater(columnFilters) : updater;
 			columnFilters = ensureFilterIds<TData>(next);
 		},
 		onColumnVisibilityChange: (updater) => {
@@ -527,7 +532,9 @@ export function useDataTable<TData>(
 		getFacetedMinMaxValues: getFacetedMinMaxValues(),
 		manualPagination,
 		manualSorting,
-		manualFiltering: useClientAdvancedFiltering ? true : manualFiltering,
+		get manualFiltering() {
+			return useClientAdvancedFiltering ? true : manualFiltering;
+		},
 		meta: {
 			queryKeys: resolvedQueryKeys,
 			get joinOperator() {
@@ -563,8 +570,7 @@ export function useDataTable<TData>(
 			sorting = value;
 		},
 		setColumnFilters: (updater) => {
-			const next =
-				typeof updater === 'function' ? updater(columnFilters) : updater;
+			const next = typeof updater === 'function' ? updater(columnFilters) : updater;
 			columnFilters = ensureFilterIds<TData>(next);
 		},
 		setColumnVisibility: (value) => {

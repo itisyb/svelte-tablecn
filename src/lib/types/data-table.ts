@@ -159,7 +159,7 @@ declare module '@tanstack/table-core' {
 
 export interface UseDataTableOptions<TData> {
 	data: TData[] | (() => TData[]);
-	columns: ColumnDef<TData, unknown>[];
+	columns: ColumnDef<TData, unknown>[] | (() => ColumnDef<TData, unknown>[]);
 	pageCount?: number;
 	getRowId?: (row: TData, index: number) => string;
 	queryKeys?: Partial<QueryKeys>;
@@ -167,7 +167,7 @@ export interface UseDataTableOptions<TData> {
 	debounceMs?: number;
 	throttleMs?: number;
 	clearOnDefault?: boolean;
-	enableAdvancedFilter?: boolean;
+	enableAdvancedFilter?: boolean | (() => boolean);
 	scroll?: boolean;
 	shallow?: boolean;
 	initialState?: {

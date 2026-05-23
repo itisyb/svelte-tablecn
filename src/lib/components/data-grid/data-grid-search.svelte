@@ -1,12 +1,11 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import type { CellPosition } from '$lib/types/data-grid.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import X from '@lucide/svelte/icons/x';
 
-	// Pass individual values as props - NOT an object with getters
-	// This is the Svelte 5 way: primitive/array props are properly reactive
 	interface Props {
 		searchOpen: boolean;
 		searchQuery: string;
@@ -36,6 +35,12 @@
 	// Debounce timer
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
+	onDestroy(() => {
+		if (debounceTimer) {
+			clearTimeout(debounceTimer);
+		}
+	});
+
 	// Focus input when opening
 	$effect(() => {
 		if (searchOpen && inputRef) {
@@ -43,15 +48,6 @@
 				inputRef?.focus();
 			});
 		}
-	});
-
-	// Cleanup debounce timer on unmount
-	$effect(() => {
-		return () => {
-			if (debounceTimer) {
-				clearTimeout(debounceTimer);
-			}
-		};
 	});
 
 	function handleWindowKeydown(event: KeyboardEvent) {
@@ -63,19 +59,14 @@
 		}
 	}
 
-	function handleInput(event: Event) {
-		const target = event.target as HTMLInputElement;
-		const value = target.value;
-
-		// Update query immediately for UI responsiveness
+	function handleSearchInput(value: string) {
 		onSearchQueryChange(value);
 
-		// Clear previous timer
 		if (debounceTimer) {
 			clearTimeout(debounceTimer);
 		}
 
-		// Debounce the actual search (150ms like React)
+		// Debounce the table scan while keeping the input responsive.
 		debounceTimer = setTimeout(() => {
 			onSearch(value);
 		}, 150);
@@ -117,8 +108,7 @@
 				spellcheck="false"
 				placeholder="Find in table..."
 				class="flex h-8 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm"
-				value={searchQuery}
-				oninput={handleInput}
+				bind:value={() => searchQuery, handleSearchInput}
 				onkeydown={onKeyDown}
 			/>
 			<div class="flex items-center gap-1">
@@ -142,7 +132,13 @@
 				>
 					<ChevronDown />
 				</Button>
-				<Button aria-label="Close search" variant="ghost" size="icon" class="size-7" onclick={onClose}>
+				<Button
+					aria-label="Close search"
+					variant="ghost"
+					size="icon"
+					class="size-7"
+					onclick={onClose}
+				>
 					<X />
 				</Button>
 			</div>

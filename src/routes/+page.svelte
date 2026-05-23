@@ -18,7 +18,9 @@
 	type TableMode = 'basic' | 'advanced';
 	type AdvancedFilterUi = 'advancedFilters' | 'commandFilters';
 
-	let demoMode = $state<DemoMode>(import.meta.env.VITEST ? 'table' : 'grid');
+	const isTestEnvironment = import.meta.env.MODE === 'test' || import.meta.env.VITEST;
+
+	let demoMode = $state<DemoMode>(isTestEnvironment ? 'table' : 'grid');
 	let tableMode = $state<TableMode>('basic');
 	let advancedFilterUi = $state<AdvancedFilterUi>('commandFilters');
 	let showTableSkeleton = $state(false);

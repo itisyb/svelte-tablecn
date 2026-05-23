@@ -27,6 +27,7 @@
  */
 
 import { untrack } from 'svelte';
+import { on } from 'svelte/events';
 import { SvelteSet, SvelteMap, createSubscriber } from 'svelte/reactivity';
 import {
 	createTable,
@@ -47,13 +48,8 @@ import {
 	type ColumnSizingState,
 	type ColumnSizingInfoState
 } from '@tanstack/table-core';
-import {
-	Virtualizer,
-	elementScroll,
-	observeElementOffset,
-	observeElementRect,
-	type VirtualItem
-} from '@tanstack/virtual-core';
+import * as virtualCore from '@tanstack/virtual-core';
+import type { Virtualizer, VirtualItem } from '@tanstack/virtual-core';
 import type {
 	CellPosition,
 	CellRange,
@@ -115,11 +111,7 @@ export interface UseDataGridOptions<TData extends RowData> {
 	onDataChange?: (data: TData[]) => void;
 	onRowAdd?: (
 		event?: MouseEvent
-	) =>
-		| Partial<CellPosition>
-		| null
-		| void
-		| Promise<Partial<CellPosition> | null | void>;
+	) => Partial<CellPosition> | null | void | Promise<Partial<CellPosition> | null | void>;
 	onRowsAdd?: (count: number) => void | Promise<void>;
 	onRowsDelete?: (rows: TData[], rowIndices: number[]) => void | Promise<void>;
 	onPaste?: (updates: UpdateCell[]) => void | Promise<void>;
@@ -196,7 +188,8 @@ const NON_NAVIGABLE_COLUMNS = new Set(['select', 'actions']);
 function isSortingStateEqual(left: SortingState, right: SortingState): boolean {
 	if (left.length !== right.length) return false;
 	for (let i = 0; i < left.length; i++) {
-		const a = left[i]; const b = right[i];
+		const a = left[i];
+		const b = right[i];
 		if (a?.id !== b?.id || a?.desc !== b?.desc) return false;
 	}
 	return true;
@@ -214,7 +207,6 @@ function isVisibilityStateEqual(a: VisibilityState, b: VisibilityState): boolean
 	for (const k of keys) if (a[k] !== b[k]) return false;
 	return true;
 }
-
 
 // ============================================
 // Main Hook
@@ -348,39 +340,12 @@ export function useDataGrid<TData extends RowData>(
 
 	// Helper to sync SvelteSet with regular Set for selection
 	function syncSelectedCellsSet(newCells: Set<string>) {
-		const oldCells = new Set(selectedCellsSet);
-
 		selectedCellsSet.clear();
 		for (const key of newCells) {
 			selectedCellsSet.add(key);
 		}
 		// Increment version to trigger re-renders in cells
 		selectionVersion++;
-
-		// Direct DOM update - bypass Svelte reactivity for selection highlight
-		// This ensures visible cells update immediately
-		if (dataGridRef) {
-			// Remove highlight from cells no longer selected
-			for (const key of oldCells) {
-				if (!newCells.has(key)) {
-					const cellEl = cellMapRef.get(key);
-					if (cellEl) {
-						cellEl.classList.remove('bg-primary/10');
-						cellEl.removeAttribute('data-selected');
-					}
-				}
-			}
-			// Add highlight to newly selected cells
-			for (const key of newCells) {
-				if (!oldCells.has(key)) {
-					const cellEl = cellMapRef.get(key);
-					if (cellEl) {
-						cellEl.classList.add('bg-primary/10');
-						cellEl.setAttribute('data-selected', '');
-					}
-				}
-			}
-		}
 	}
 
 	/** Re-key selection to row-model positions (0..n-1) after filter/sort; drops hidden rows. */
@@ -407,8 +372,7 @@ export function useDataGrid<TData extends RowData>(
 		const newSelected = new Set<string>();
 		for (const key of selectionState.selectedCells) {
 			const { rowIndex, columnId } = parseCellKey(key);
-			const row =
-				rows[rowIndex] ?? rows.find((r) => r.index === rowIndex);
+			const row = rows[rowIndex] ?? rows.find((r) => r.index === rowIndex);
 			if (!row || !visibleIds.has(row.id)) continue;
 			const pos = rows.findIndex((r) => r.id === row.id);
 			if (pos !== -1) {
@@ -435,8 +399,10 @@ export function useDataGrid<TData extends RowData>(
 	let focusGuard = false;
 
 	// Cache visual row index (1-based) by row id for O(1) lookups
-	let visualRowIndexCache: { rows: ReturnType<Table<TData>['getRowModel']>['rows']; map: Map<string, number> } | null =
-		null;
+	let visualRowIndexCache: {
+		rows: ReturnType<Table<TData>['getRowModel']>['rows'];
+		map: Map<string, number>;
+	} | null = null;
 
 	// Virtualizer state
 	let virtualItems = $state<VirtualItem[]>([]);
@@ -597,11 +563,7 @@ export function useDataGrid<TData extends RowData>(
 		editingCell = null;
 
 		const active = document.activeElement;
-		if (
-			dataGridRef &&
-			active instanceof HTMLElement &&
-			dataGridRef.contains(active)
-		) {
+		if (dataGridRef && active instanceof HTMLElement && dataGridRef.contains(active)) {
 			active.blur();
 		}
 	}
@@ -750,8 +712,7 @@ export function useDataGrid<TData extends RowData>(
 					const viewportBottom = containerRect.bottom - VIEWPORT_OFFSET;
 
 					const rowRect = targetRow.getBoundingClientRect();
-					const isFullyVisible =
-						rowRect.top >= viewportTop && rowRect.bottom <= viewportBottom;
+					const isFullyVisible = rowRect.top >= viewportTop && rowRect.bottom <= viewportBottom;
 
 					if (!isFullyVisible) {
 						const isVerticalNavigation =
@@ -1286,12 +1247,14 @@ export function useDataGrid<TData extends RowData>(
 	function clearSelectedCells() {
 		if (readOnly) return;
 
-		const cellsToClear =
-			selectionState.selectedCells.size > 0
-				? selectionState.selectedCells
-				: focusedCell
-					? new Set([getCellKey(focusedCell.rowIndex, focusedCell.columnId)])
-					: new Set<string>();
+		let cellsToClear: Set<string>;
+		if (selectionState.selectedCells.size > 0) {
+			cellsToClear = selectionState.selectedCells;
+		} else if (focusedCell) {
+			cellsToClear = new Set([getCellKey(focusedCell.rowIndex, focusedCell.columnId)]);
+		} else {
+			cellsToClear = new Set();
+		}
 
 		if (cellsToClear.size === 0) return;
 
@@ -1379,7 +1342,7 @@ export function useDataGrid<TData extends RowData>(
 		searchMatches = matches;
 		matchIndex = matches.length > 0 ? 0 : 0;
 
-		// Scroll to first match (like React version - just scroll, don't focus)
+		// Scroll to the first match without moving focus out of the search input.
 		if (matches.length > 0 && matches[0]) {
 			virtualizer?.scrollToIndex(matches[0].rowIndex, { align: 'center' });
 		}
@@ -1605,9 +1568,7 @@ export function useDataGrid<TData extends RowData>(
 					}
 
 					requestAnimationFrame(() => {
-						const cellElement = cellMapRef.get(
-							getCellKey(newPos.rowIndex, newPos.columnId)
-						);
+						const cellElement = cellMapRef.get(getCellKey(newPos.rowIndex, newPos.columnId));
 						if (cellElement) {
 							cellElement.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 							scrollFocusedCellIntoView(newPos.rowIndex, newPos.columnId, direction);
@@ -1638,13 +1599,7 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		// Shift+Enter adds a row (tablecn)
-		if (
-			event.key === 'Enter' &&
-			event.shiftKey &&
-			!readOnly &&
-			onRowAddProp &&
-			focusedCell
-		) {
+		if (event.key === 'Enter' && event.shiftKey && !readOnly && onRowAddProp && focusedCell) {
 			event.preventDefault();
 			event.stopPropagation();
 
@@ -1898,8 +1853,7 @@ export function useDataGrid<TData extends RowData>(
 				const viewportBottom = containerRect.bottom - footerHeight - VIEWPORT_OFFSET;
 
 				const rowRect = targetRow.getBoundingClientRect();
-				const isFullyVisible =
-					rowRect.top >= viewportTop && rowRect.bottom <= viewportBottom;
+				const isFullyVisible = rowRect.top >= viewportTop && rowRect.bottom <= viewportBottom;
 
 				if (!isFullyVisible) {
 					if (rowRect.top < viewportTop) {
@@ -2214,8 +2168,7 @@ export function useDataGrid<TData extends RowData>(
 			const newRowSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
 			rowSelection = newRowSelection;
 
-			// Also update selectionState.selectedCells to highlight all cells in selected rows
-			// This matches the React behavior where selecting a row highlights the entire row
+			// Keep cell selection aligned with selected rows so the full row is highlighted.
 			const rows = table.getRowModel().rows;
 			const selectedRows = Object.keys(newRowSelection).filter((key) => newRowSelection[key]);
 			const newSelectedCells = new Set<string>();
@@ -2275,11 +2228,11 @@ export function useDataGrid<TData extends RowData>(
 	});
 
 	// Track previous state to detect changes that require cache clearing
-	let prevSorting = $state<SortingState>([]);
-	let prevColumnFilters = $state<ColumnFiltersState>([]);
-	let prevDataLength = $state<number>(0);
-	let prevDataRef = $state<TData[] | null>(null);
-	let prevColumnVisibility = $state<VisibilityState>({});
+	let prevSorting: SortingState = [];
+	let prevColumnFilters: ColumnFiltersState = [];
+	let prevDataLength = 0;
+	let prevDataRef: TData[] | null = null;
+	let prevColumnVisibility: VisibilityState = {};
 
 	// This is the key to reactivity: update table options in $effect.pre
 	// whenever any of the state values change
@@ -2389,9 +2342,9 @@ export function useDataGrid<TData extends RowData>(
 			getScrollElement: () => dataGridRef ?? ref,
 			estimateSize: () => getRowHeightValue(rowHeight),
 			overscan,
-			observeElementRect,
-			observeElementOffset,
-			scrollToFn: elementScroll,
+			observeElementRect: virtualCore.observeElementRect,
+			observeElementOffset: virtualCore.observeElementOffset,
+			scrollToFn: virtualCore.elementScroll,
 			onChange: handleVirtualizerChange,
 			measureElement: isFirefox
 				? undefined
@@ -2416,7 +2369,9 @@ export function useDataGrid<TData extends RowData>(
 			return;
 		}
 
-		virtualizer = new Virtualizer<HTMLDivElement, Element>(createVirtualizerOptions(ref, rowCount));
+		virtualizer = new virtualCore.Virtualizer<HTMLDivElement, Element>(
+			createVirtualizerOptions(ref, rowCount)
+		);
 		virtualizer._willUpdate();
 		handleVirtualizerChange(virtualizer);
 	});
@@ -2473,12 +2428,10 @@ export function useDataGrid<TData extends RowData>(
 
 	// Setup keyboard handler on data grid element
 	$effect(() => {
-		if (dataGridRef) {
-			dataGridRef.addEventListener('keydown', handleKeyDown);
-			return () => {
-				dataGridRef?.removeEventListener('keydown', handleKeyDown);
-			};
-		}
+		const container = dataGridRef;
+		if (!container) return;
+
+		return on(container, 'keydown', handleKeyDown);
 	});
 
 	// Blur focused cell when clicking outside; keep keyboard target when cell unmounts (virtualization)
@@ -2531,12 +2484,12 @@ export function useDataGrid<TData extends RowData>(
 			});
 		}
 
-		document.addEventListener('pointerdown', onPointerDown, true);
-		gridContainer.addEventListener('focusout', onFocusOut);
+		const removePointerDown = on(document, 'pointerdown', onPointerDown, { capture: true });
+		const removeFocusOut = on(gridContainer, 'focusout', onFocusOut);
 
 		return () => {
-			document.removeEventListener('pointerdown', onPointerDown, true);
-			gridContainer.removeEventListener('focusout', onFocusOut);
+			removePointerDown();
+			removeFocusOut();
 		};
 	});
 
@@ -2571,10 +2524,7 @@ export function useDataGrid<TData extends RowData>(
 			}
 		}
 
-		window.addEventListener('keydown', onGlobalKeyDown, true);
-		return () => {
-			window.removeEventListener('keydown', onGlobalKeyDown, true);
-		};
+		return on(window, 'keydown', onGlobalKeyDown, { capture: true });
 	});
 
 	// Auto-focus on mount

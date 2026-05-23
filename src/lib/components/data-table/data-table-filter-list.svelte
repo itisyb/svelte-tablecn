@@ -160,6 +160,28 @@
 		);
 	}
 
+	function setScalarFilterValue(filterKey: string, value: string | number | undefined) {
+		updateFilter(filterKey, { value: value == null ? '' : String(value) });
+	}
+
+	function setDateFilterValue(
+		filterKey: string,
+		filterValues: ReturnType<typeof getFilterValues>,
+		variant: FilterVariant,
+		operator: FilterOperator,
+		value: string,
+		isSecondary = false
+	) {
+		updateFilter(filterKey, {
+			value:
+				variant === 'dateRange' || operator === 'between'
+					? isSecondary
+						? [filterValues.primary, value]
+						: [value, filterValues.secondary]
+					: value
+		});
+	}
+
 	function removeFilter(filterKey: string) {
 		setColumnFilters((prevFilters) =>
 			(prevFilters as FilterItem[]).filter(
@@ -427,30 +449,28 @@
 									>
 										<Input
 											type="date"
-											value={filterValues.primary}
-											oninput={(event) =>
-												updateFilter(filterKey, {
-													value:
-														variant === 'dateRange' || operator === 'between'
-															? [
-																	(event.currentTarget as HTMLInputElement).value,
-																	filterValues.secondary
-																]
-															: (event.currentTarget as HTMLInputElement).value
-												})}
+											bind:value={
+												() => filterValues.primary,
+												(value) =>
+													setDateFilterValue(filterKey, filterValues, variant, operator, value)
+											}
 											class="h-8 w-full rounded"
 										/>
 										{#if variant === 'dateRange' || operator === 'between'}
 											<Input
 												type="date"
-												value={filterValues.secondary}
-												oninput={(event) =>
-													updateFilter(filterKey, {
-														value: [
-															filterValues.primary,
-															(event.currentTarget as HTMLInputElement).value
-														]
-													})}
+												bind:value={
+													() => filterValues.secondary,
+													(value) =>
+														setDateFilterValue(
+															filterKey,
+															filterValues,
+															variant,
+															operator,
+															value,
+															true
+														)
+												}
 												class="h-8 w-full rounded"
 											/>
 										{/if}
@@ -536,11 +556,9 @@
 								{:else}
 									<Input
 										type="text"
-										value={filterValues.primary}
-										oninput={(event) =>
-											updateFilter(filterKey, {
-												value: (event.currentTarget as HTMLInputElement).value
-											})}
+										bind:value={
+											() => filterValues.primary, (value) => setScalarFilterValue(filterKey, value)
+										}
 										class="h-8 w-full rounded"
 									/>
 								{/if}
