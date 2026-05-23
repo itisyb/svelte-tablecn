@@ -666,6 +666,35 @@ describe('/+page.svelte', () => {
 		await waitFor(() => !focusedCell.hasAttribute('data-focused'));
 	});
 
+	it('should not run grid select-all while a cell editor is active', async () => {
+		await render(DataGridCtrlShiftEdgeFixture);
+
+		const row = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const firstCell = await waitFor(() =>
+			row.querySelectorAll<HTMLElement>('[data-slot="grid-cell-wrapper"]').item(0)
+		);
+
+		firstCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		firstCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		firstCell.click();
+		await waitFor(() => firstCell.hasAttribute('data-focused'));
+		firstCell.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+
+		const editor = await waitFor(() => firstCell.querySelector<HTMLElement>('[contenteditable="true"]'));
+		editor.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 'a',
+				ctrlKey: true,
+				bubbles: true,
+				cancelable: true
+			})
+		);
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
+	});
+
 	it('should extend selection to the row edge with Ctrl+Shift+ArrowLeft', async () => {
 		await render(DataGridCtrlShiftEdgeFixture);
 

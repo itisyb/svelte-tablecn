@@ -1480,6 +1480,9 @@ export function useDataGrid<TData extends RowData>(
 			return;
 		}
 
+		// Cell editors handle their own keyboard events before they bubble to the grid.
+		if (editingCell) return;
+
 		// Delete selected/focused rows
 		if (
 			(event.ctrlKey || event.metaKey) &&
@@ -1561,9 +1564,6 @@ export function useDataGrid<TData extends RowData>(
 			}
 			return;
 		}
-
-		// Don't handle navigation while editing
-		if (editingCell) return;
 
 		// Navigation
 		const isCtrlPressed = event.ctrlKey || event.metaKey;
