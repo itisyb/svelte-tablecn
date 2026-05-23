@@ -6,6 +6,7 @@ import DataGridAutoFocusFixture from './data-grid-auto-focus-fixture.svelte';
 import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
+import DataGridContextMenuSelectionFixture from './data-grid-context-menu-selection-fixture.svelte';
 import DataGridCtrlShiftEdgeFixture from './data-grid-ctrl-shift-edge-fixture.svelte';
 import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svelte';
 import DataGridDataUpdateFixture from './data-grid-data-update-fixture.svelte';
@@ -398,7 +399,7 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Replace files' }).click();
 
 		await waitFor(() => !dropzone.hasAttribute('data-invalid'));
-		await expect.element(page.getByText('server.txt')).toBeInTheDocument();
+		await expect.element(page.getByLabelText('file names')).toHaveTextContent('server.txt');
 	});
 
 	it('should commit local file selection without an artificial upload delay', async () => {
@@ -998,6 +999,18 @@ describe('/+page.svelte', () => {
 
 		expect(document.querySelector('[data-slot="dropdown-menu-trigger"]')).toBeNull();
 		expect(document.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull();
+	});
+
+	it('should stop cell context menu events after selecting the target cell', async () => {
+		await render(DataGridContextMenuSelectionFixture);
+
+		await page.getByRole('button', { name: 'Open first cell context menu' }).click();
+
+		await expect.element(page.getByLabelText('context menu prevented')).toHaveTextContent('yes');
+		await expect.element(page.getByLabelText('context menu stopped')).toHaveTextContent('yes');
+		await expect.element(page.getByLabelText('context menu open')).toHaveTextContent('open');
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('1');
+		await expect.element(page.getByLabelText('focused cell')).toHaveTextContent('0:name');
 	});
 
 	it('should disable the data grid view menu', async () => {

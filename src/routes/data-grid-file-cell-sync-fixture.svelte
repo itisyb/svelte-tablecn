@@ -62,3 +62,4 @@
 	isSelected={false}
 	cellValue={value}
 />
+<output aria-label="file names">{value.map((file) => file.name).join(', ') || 'none'}</output>

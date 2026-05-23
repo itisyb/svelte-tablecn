@@ -1501,6 +1501,7 @@ export function useDataGrid<TData extends RowData>(
 
 	function onCellContextMenu(rowIndex: number, columnId: string, event: MouseEvent) {
 		event.preventDefault();
+		event.stopPropagation();
 
 		// Select cell if not already selected
 		const cellKey = getCellKey(rowIndex, columnId);
