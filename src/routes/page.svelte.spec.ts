@@ -28,6 +28,7 @@ import DataGridShortTextCellSyncFixture from './data-grid-short-text-cell-sync-f
 import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
 import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
+import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -790,6 +791,22 @@ describe('/+page.svelte', () => {
 
 		await waitFor(() => document.querySelector('[role="listitem"]') === null);
 		await expect.element(page.getByRole('heading', { name: 'No filters applied' })).toBeInTheDocument();
+	});
+
+	it('should align filter item controls like the original menu', async () => {
+		await render(DataGridFilterMenuFixture);
+
+		await page.getByRole('button', { name: 'Filter 1' }).click();
+
+		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const valueInput = await waitFor(() =>
+			filterItem.querySelector<HTMLInputElement>('input[placeholder="Value"]')
+		);
+
+		expect(valueInput.parentElement?.className).toContain('max-w-60');
+
+		expect(dataGridFilterMenuSource).toContain('ms-auto');
+		expect(dataGridFilterMenuSource).not.toContain('ml-auto');
 	});
 
 	it('should keep filter item when delete is pressed with the operator selector open', async () => {

@@ -382,7 +382,7 @@
 													<span class="truncate">{col.label}</span>
 													<Check
 														class={cn(
-															'ml-auto',
+															'ms-auto',
 															col.value === filter.id ? 'opacity-100' : 'opacity-0'
 														)}
 													/>
@@ -426,7 +426,7 @@
 							</SelectContent>
 						</Select>
 						<!-- Value input -->
-						<div class="min-w-36 flex-1">
+						<div class="min-w-36 max-w-60 flex-1">
 							{#if needsValue}
 								{#if variant === 'number'}
 									{#if operator === 'isBetween'}
@@ -668,12 +668,12 @@
 																>
 																	<span class="truncate">{option.label}</span>
 																	{#if option.count !== undefined}
-																		<span class="ml-auto font-mono text-xs">
+																		<span class="ms-auto font-mono text-xs">
 																			{option.count}
 																		</span>
 																	{/if}
 																	<Check
-																		class={cn('ml-auto', isSelected ? 'opacity-100' : 'opacity-0')}
+																		class={cn('ms-auto', isSelected ? 'opacity-100' : 'opacity-0')}
 																	/>
 																</CommandItem>
 															{/each}
@@ -724,13 +724,13 @@
 																>
 																	<span class="truncate">{option.label}</span>
 																	{#if option.count !== undefined}
-																		<span class="ml-auto font-mono text-xs">
+																		<span class="ms-auto font-mono text-xs">
 																			{option.count}
 																		</span>
 																	{/if}
 																	<Check
 																		class={cn(
-																			'ml-auto',
+																			'ms-auto',
 																			filterValue?.value === option.value
 																				? 'opacity-100'
 																				: 'opacity-0'
