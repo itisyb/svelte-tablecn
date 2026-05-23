@@ -1147,6 +1147,7 @@ export function useDataGrid<TData extends RowData>(
 			// Determine paste target
 			const startPos = focusedCell || { rowIndex: 0, columnId: cols[0]?.id || '' };
 			const startColIndex = cols.findIndex((c) => c.id === startPos.columnId);
+			if (startColIndex === -1) return;
 
 			// Check if we need more rows
 			const rowsNeeded = startPos.rowIndex + lines.length - rows.length;
@@ -1174,6 +1175,8 @@ export function useDataGrid<TData extends RowData>(
 
 		const updates: UpdateCell[] = [];
 		let cellsSkipped = 0;
+		let endRowIndex = startPos.rowIndex;
+		let endColIndex = startColIndex;
 
 		for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
 			const line = lines[lineIdx];
@@ -1191,9 +1194,13 @@ export function useDataGrid<TData extends RowData>(
 				const { value, shouldSkip } = parsePastedCellValue(line[cellIdx] || '', cellOpts);
 				if (shouldSkip) {
 					cellsSkipped++;
+					endRowIndex = Math.max(endRowIndex, rowIndex);
+					endColIndex = Math.max(endColIndex, colIndex);
 					continue;
 				}
 				updates.push({ rowIndex, columnId: col.id, value });
+				endRowIndex = Math.max(endRowIndex, rowIndex);
+				endColIndex = Math.max(endColIndex, colIndex);
 			}
 		}
 
@@ -1223,6 +1230,15 @@ export function useDataGrid<TData extends RowData>(
 			} else {
 				toast.success(`${updates.length} cell${updates.length !== 1 ? 's' : ''} pasted`);
 			}
+
+			const endColumnId = cols[endColIndex]?.id;
+			if (endColumnId) {
+				selectRange(startPos, { rowIndex: endRowIndex, columnId: endColumnId });
+			}
+
+			requestAnimationFrame(() => {
+				dataGridRef?.focus();
+			});
 		} else if (cellsSkipped > 0) {
 			toast.error(
 				`${cellsSkipped} cell${cellsSkipped !== 1 ? 's' : ''} skipped pasting for invalid data`
