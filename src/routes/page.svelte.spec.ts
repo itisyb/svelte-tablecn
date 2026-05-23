@@ -22,6 +22,7 @@ import DataGridPasteWithoutFocusFixture from './data-grid-paste-without-focus-fi
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
 import DataGridSelectCellSyncFixture from './data-grid-select-cell-sync-fixture.svelte';
+import DataGridShortcutsWithoutFocusFixture from './data-grid-shortcuts-without-focus-fixture.svelte';
 import DataGridShortTextCellSyncFixture from './data-grid-short-text-cell-sync-fixture.svelte';
 import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
 import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte';
@@ -466,6 +467,14 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Paste without focus' }).click();
 
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+	});
+
+	it('should ignore grid shortcuts when no cell is focused', async () => {
+		await render(DataGridShortcutsWithoutFocusFixture);
+
+		await page.getByRole('button', { name: 'Dispatch select all' }).click();
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
 	});
 
 	it('should paste only fitting rows from the paste expansion dialog', async () => {

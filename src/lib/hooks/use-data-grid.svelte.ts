@@ -1480,6 +1480,30 @@ export function useDataGrid<TData extends RowData>(
 			return;
 		}
 
+		// Delete selected/focused rows
+		if (
+			(event.ctrlKey || event.metaKey) &&
+			(event.key === 'Delete' || event.key === 'Backspace') &&
+			!readOnly &&
+			onRowsDeleteProp
+		) {
+			const rowIndices = getRowIndicesForDeletion({
+				rowSelection,
+				selectedCells: selectionState.selectedCells,
+				focusedCell,
+				rows: table.getRowModel().rows
+			});
+
+			if (rowIndices.length > 0) {
+				event.preventDefault();
+				event.stopPropagation();
+				deleteRowsByIndices(rowIndices);
+			}
+			return;
+		}
+
+		if (!focusedCell) return;
+
 		// Copy
 		if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
 			event.preventDefault();
@@ -1501,28 +1525,6 @@ export function useDataGrid<TData extends RowData>(
 			event.preventDefault();
 			event.stopPropagation();
 			pasteFromClipboard();
-			return;
-		}
-
-		// Delete selected/focused rows
-		if (
-			(event.ctrlKey || event.metaKey) &&
-			(event.key === 'Delete' || event.key === 'Backspace') &&
-			!readOnly &&
-			onRowsDeleteProp
-		) {
-			const rowIndices = getRowIndicesForDeletion({
-				rowSelection,
-				selectedCells: selectionState.selectedCells,
-				focusedCell,
-				rows: table.getRowModel().rows
-			});
-
-			if (rowIndices.length > 0) {
-				event.preventDefault();
-				event.stopPropagation();
-				deleteRowsByIndices(rowIndices);
-			}
 			return;
 		}
 
