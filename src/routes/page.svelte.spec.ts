@@ -829,6 +829,8 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('{#if option.count}');
 		expect(dataGridFilterMenuSource).not.toContain('option.count !== undefined');
 		expect(dataGridFilterMenuSource).toContain('setFieldSelectorOpen(filter.id, false)');
+		expect(dataGridFilterMenuSource).toContain('selectedOptionsWithIcons');
+		expect(dataGridFilterMenuSource).toContain('selectedOption.icon');
 	});
 
 	it('should keep filter item when delete is pressed with the operator selector open', async () => {

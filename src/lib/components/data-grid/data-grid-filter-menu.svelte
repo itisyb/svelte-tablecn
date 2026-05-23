@@ -623,6 +623,7 @@
 										{@const selectedOptions = selectOptions.filter((option) =>
 											selectedValues.includes(option.value)
 										)}
+										{@const selectedOptionsWithIcons = selectedOptions.filter((option) => option.icon)}
 										<Popover>
 											<PopoverTrigger>
 												{#snippet child({ props })}
@@ -635,6 +636,18 @@
 														{#if selectedOptions.length === 0}
 															<span class="text-muted-foreground">Select values</span>
 														{:else}
+															{#if selectedOptionsWithIcons.length > 0}
+																<div class="flex items-center -space-x-2 rtl:space-x-reverse">
+																	{#each selectedOptionsWithIcons as selectedOption (selectedOption.value)}
+																		{#if selectedOption.icon}
+																			{@const Icon = selectedOption.icon}
+																			<div class="rounded-full border bg-background p-0.5">
+																				<Icon class="size-3.5" />
+																			</div>
+																		{/if}
+																	{/each}
+																</div>
+															{/if}
 															<span class="truncate">
 																{selectedOptions.length > 1
 																	? `${selectedOptions.length} selected`
@@ -667,6 +680,10 @@
 																		});
 																	}}
 																>
+																	{#if option.icon}
+																		{@const Icon = option.icon}
+																		<Icon />
+																	{/if}
 																	<span class="truncate">{option.label}</span>
 																	{#if option.count}
 																		<span class="ms-auto font-mono text-xs">
@@ -697,6 +714,10 @@
 														class="h-8 w-full justify-start rounded font-normal"
 													>
 														{#if selectedOption}
+															{#if selectedOption.icon}
+																{@const Icon = selectedOption.icon}
+																<Icon />
+															{/if}
 															<span class="truncate">{selectedOption.label}</span>
 														{:else}
 															<span class="text-muted-foreground">Select value</span>
@@ -723,6 +744,10 @@
 																		});
 																	}}
 																>
+																	{#if option.icon}
+																		{@const Icon = option.icon}
+																		<Icon />
+																	{/if}
 																	<span class="truncate">{option.label}</span>
 																	{#if option.count}
 																		<span class="ms-auto font-mono text-xs">
