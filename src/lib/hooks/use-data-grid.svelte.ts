@@ -1624,14 +1624,56 @@ export function useDataGrid<TData extends RowData>(
 				}
 				break;
 			case 'ArrowLeft':
-				if (isCtrlPressed && !shiftKey) {
+				if (isCtrlPressed && shiftKey && focusedCell) {
+					const navigableColumnIds = getNavigableColumnIds();
+					const selectionEdge = selectionState.selectionRange?.end ?? focusedCell;
+					const selectionStart = selectionState.selectionRange?.start ?? focusedCell;
+					const targetColumnId =
+						getDir() === 'rtl'
+							? navigableColumnIds[navigableColumnIds.length - 1]
+							: navigableColumnIds[0];
+
+					if (targetColumnId) {
+						selectRange(selectionStart, {
+							rowIndex: selectionEdge.rowIndex,
+							columnId: targetColumnId
+						});
+						scrollFocusedCellIntoView(selectionEdge.rowIndex, targetColumnId, 'home');
+						dataGridRef?.focus();
+					}
+
+					event.preventDefault();
+					event.stopPropagation();
+					return;
+				} else if (isCtrlPressed && !shiftKey) {
 					direction = 'home';
 				} else {
 					direction = 'left';
 				}
 				break;
 			case 'ArrowRight':
-				if (isCtrlPressed && !shiftKey) {
+				if (isCtrlPressed && shiftKey && focusedCell) {
+					const navigableColumnIds = getNavigableColumnIds();
+					const selectionEdge = selectionState.selectionRange?.end ?? focusedCell;
+					const selectionStart = selectionState.selectionRange?.start ?? focusedCell;
+					const targetColumnId =
+						getDir() === 'rtl'
+							? navigableColumnIds[0]
+							: navigableColumnIds[navigableColumnIds.length - 1];
+
+					if (targetColumnId) {
+						selectRange(selectionStart, {
+							rowIndex: selectionEdge.rowIndex,
+							columnId: targetColumnId
+						});
+						scrollFocusedCellIntoView(selectionEdge.rowIndex, targetColumnId, 'end');
+						dataGridRef?.focus();
+					}
+
+					event.preventDefault();
+					event.stopPropagation();
+					return;
+				} else if (isCtrlPressed && !shiftKey) {
 					direction = 'end';
 				} else {
 					direction = 'right';

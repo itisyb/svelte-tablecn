@@ -5,6 +5,7 @@ import Page from './+page.svelte';
 import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
+import DataGridCtrlShiftEdgeFixture from './data-grid-ctrl-shift-edge-fixture.svelte';
 import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridFileCellSyncFixture from './data-grid-file-cell-sync-fixture.svelte';
@@ -475,6 +476,35 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Dispatch select all' }).click();
 
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
+	});
+
+	it('should extend selection to the row edge with Ctrl+Shift+ArrowLeft', async () => {
+		await render(DataGridCtrlShiftEdgeFixture);
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		const row = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const lastCell = await waitFor(() =>
+			row.querySelectorAll<HTMLElement>('[data-slot="grid-cell-wrapper"]').item(2)
+		);
+
+		lastCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		lastCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		lastCell.click();
+		await waitFor(() => lastCell.hasAttribute('data-focused'));
+
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 'ArrowLeft',
+				ctrlKey: true,
+				shiftKey: true,
+				bubbles: true,
+				cancelable: true
+			})
+		);
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('3');
 	});
 
 	it('should paste only fitting rows from the paste expansion dialog', async () => {
