@@ -68,5 +68,7 @@ describe('/+page.svelte', () => {
 		expect(triggerRect.top).toBeGreaterThanOrEqual(wrapperRect.top);
 		expect(triggerRect.bottom).toBeLessThanOrEqual(wrapperRect.bottom);
 		expect(Math.round(contentRect.left)).toBe(Math.round(wrapperRect.left));
+		expect(Math.round(contentRect.top)).toBeGreaterThanOrEqual(Math.round(wrapperRect.bottom));
+		expect(Math.round(contentRect.width)).toBe(Math.round(wrapperRect.width));
 	});
 });
