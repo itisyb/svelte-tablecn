@@ -1,6 +1,7 @@
 import type { Row } from '@tanstack/table-core';
 import { describe, expect, it } from 'vitest';
 import {
+	getColumnPinningStyle,
 	getRowIndicesForDeletion,
 	parsePastedCellValue,
 	parseTsv,
@@ -196,6 +197,26 @@ describe('getDataGridSelectColumn', () => {
 			readOnly: false,
 			hitboxSize: 'default',
 			debug: false
+		});
+	});
+});
+
+describe('getColumnPinningStyle', () => {
+	it('includes the column size like upstream', () => {
+		const column = {
+			getIsPinned: () => false,
+			getIsLastColumn: () => false,
+			getIsFirstColumn: () => false,
+			getStart: () => 0,
+			getAfter: () => 0,
+			getSize: () => 180
+		} as never;
+
+		expect(getColumnPinningStyle({ column })).toMatchObject({
+			position: 'relative',
+			background: 'var(--background)',
+			opacity: 1,
+			width: 180
 		});
 	});
 });
