@@ -861,6 +861,8 @@ export function useDataGrid<TData extends RowData>(
 	// ========================================
 
 	function selectCell(rowIndex: number, columnId: string, event?: MouseEvent) {
+		if (event?.button === 2) return;
+
 		const cellKey = getCellKey(rowIndex, columnId);
 
 		if (event?.ctrlKey || event?.metaKey) {

@@ -1013,6 +1013,16 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('focused cell')).toHaveTextContent('0:name');
 	});
 
+	it('should ignore right-click cell clicks like the original grid', async () => {
+		await render(DataGridContextMenuSelectionFixture);
+
+		await page.getByRole('button', { name: 'Right click first cell via meta' }).click();
+
+		await expect.element(page.getByLabelText('cell click prevented')).toHaveTextContent('no');
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
+		await expect.element(page.getByLabelText('focused cell')).toHaveTextContent('none');
+	});
+
 	it('should disable the data grid view menu', async () => {
 		await render(DataGridViewMenuFixture);
 
