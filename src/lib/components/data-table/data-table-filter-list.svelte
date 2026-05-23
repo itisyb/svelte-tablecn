@@ -284,7 +284,7 @@
 	</PopoverTrigger>
 	<PopoverContent
 		{align}
-		class="flex w-full max-w-[var(--radix-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]"
+		class="flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]"
 	>
 		<div class="flex flex-col gap-1">
 			<h4 class="font-medium leading-none">
@@ -328,7 +328,7 @@
 									<SelectTrigger size="sm" class="rounded lowercase">
 										<span data-slot="select-value">{joinOperator}</span>
 									</SelectTrigger>
-									<SelectContent class="min-w-[var(--radix-select-trigger-width)] lowercase">
+									<SelectContent class="min-w-[var(--bits-select-anchor-width)] lowercase">
 										<SelectItem value="and">and</SelectItem>
 										<SelectItem value="or">or</SelectItem>
 									</SelectContent>

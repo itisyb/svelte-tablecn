@@ -243,7 +243,7 @@
 	<PopoverContent
 		{dir}
 		{align}
-		class="flex w-full max-w-[var(--radix-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]"
+		class="flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]"
 	>
 		<div class="flex flex-col gap-1">
 			<h4 class="font-medium leading-none">

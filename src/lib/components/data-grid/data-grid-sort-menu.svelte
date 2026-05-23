@@ -170,7 +170,7 @@
 	<PopoverContent
 		{dir}
 		{align}
-		class="flex w-full max-w-[var(--radix-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[380px]"
+		class="flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[380px]"
 	>
 		<div class="flex flex-col gap-1">
 			<h4 class="font-medium leading-none">
@@ -210,7 +210,7 @@
 									</Button>
 								{/snippet}
 							</PopoverTrigger>
-							<PopoverContent class="w-[var(--radix-popover-trigger-width)] p-0">
+							<PopoverContent class="w-[var(--bits-popover-anchor-width)] p-0">
 								<Command>
 									<CommandInput placeholder="Search fields..." />
 									<CommandList>
@@ -239,7 +239,7 @@
 									{sort.desc ? 'Desc' : 'Asc'}
 								</span>
 							</SelectTrigger>
-							<SelectContent class="min-w-[var(--radix-select-trigger-width)]">
+							<SelectContent class="min-w-[var(--bits-select-anchor-width)]">
 								{#each SORT_ORDERS as order (order.value)}
 									<SelectItem value={order.value}>
 										{order.label}

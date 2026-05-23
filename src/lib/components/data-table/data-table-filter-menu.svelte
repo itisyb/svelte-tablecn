@@ -583,7 +583,7 @@
 		</PopoverTrigger>
 		<PopoverContent
 			{align}
-			class="w-full max-w-[var(--radix-popover-content-available-width)] p-0 sm:w-80"
+			class="w-full max-w-[var(--bits-popover-content-available-width)] p-0 sm:w-80"
 		>
 			{#if !selectedColumn}
 				<Command>
