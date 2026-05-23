@@ -6,13 +6,14 @@
 		name: string;
 	};
 
+	let { open = true }: { open?: boolean } = $props();
 	let gridRef = $state<HTMLDivElement | null>(null);
 
-	const table = {
+	const table = $derived({
 		options: {
 			meta: {
 				contextMenu: {
-					open: true,
+					open,
 					x: 20,
 					y: 20
 				},
@@ -41,7 +42,7 @@
 				}
 			}
 		]
-	} as unknown as Table<Row>;
+	} as unknown as Table<Row>);
 </script>
 
 <div bind:this={gridRef} role="grid" tabindex={0}></div>

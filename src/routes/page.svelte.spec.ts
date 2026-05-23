@@ -299,6 +299,13 @@ describe('/+page.svelte', () => {
 		expect(deleteRowsItem.className).toContain('data-[variant=destructive]:text-destructive');
 	});
 
+	it('should not render context menu trigger when closed', async () => {
+		await render(DataGridContextMenuFixture, { open: false });
+
+		expect(document.querySelector('[data-slot="dropdown-menu-trigger"]')).toBeNull();
+		expect(document.querySelector('[data-slot="dropdown-menu-content"]')).toBeNull();
+	});
+
 	it('should disable the data grid view menu', async () => {
 		await render(DataGridViewMenuFixture);
 

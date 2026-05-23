@@ -98,7 +98,7 @@
 	}
 </script>
 
-{#if contextMenu}
+{#if contextMenu?.open}
 	<DropdownMenu open={contextMenu.open} onOpenChange={onContextMenuOpenChange}>
 		<DropdownMenuTrigger style={triggerStyle}></DropdownMenuTrigger>
 		<DropdownMenuContent
