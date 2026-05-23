@@ -1505,7 +1505,7 @@ export function useDataGrid<TData extends RowData>(
 		if (!focusedCell) return;
 
 		// Copy
-		if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
+		if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key === 'c') {
 			event.preventDefault();
 			event.stopPropagation();
 			copySelectedCells();
@@ -1513,7 +1513,7 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		// Cut
-		if ((event.ctrlKey || event.metaKey) && event.key === 'x') {
+		if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key === 'x' && !readOnly) {
 			event.preventDefault();
 			event.stopPropagation();
 			cutSelectedCells();
@@ -1521,7 +1521,7 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		// Paste
-		if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
+		if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key === 'v' && enablePaste && !readOnly) {
 			event.preventDefault();
 			event.stopPropagation();
 			pasteFromClipboard();
@@ -1529,7 +1529,7 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		// Select all
-		if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
+		if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key === 'a') {
 			event.preventDefault();
 			event.stopPropagation();
 			selectAll();

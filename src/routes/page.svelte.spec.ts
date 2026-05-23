@@ -18,6 +18,7 @@ import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixtur
 import DataGridNumberCellSyncFixture from './data-grid-number-cell-sync-fixture.svelte';
 import DataGridOutsideSelectionFixture from './data-grid-outside-selection-fixture.svelte';
 import DataGridPasteDelayedRowsFixture from './data-grid-paste-delayed-rows-fixture.svelte';
+import DataGridPasteDisabledFixture from './data-grid-paste-disabled-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridPasteFitExistingFixture from './data-grid-paste-fit-existing-fixture.svelte';
 import DataGridPasteWithoutFocusFixture from './data-grid-paste-without-focus-fixture.svelte';
@@ -547,6 +548,43 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Paste without focus' }).click();
 
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+	});
+
+	it('should not intercept clipboard paste when paste is disabled', async () => {
+		await render(DataGridPasteDisabledFixture);
+
+		let readCount = 0;
+		Object.defineProperty(navigator, 'clipboard', {
+			value: {
+				readText: async () => {
+					readCount++;
+					return 'Grace';
+				}
+			},
+			configurable: true
+		});
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		const firstCell = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+
+		firstCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		firstCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		firstCell.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+		await waitFor(() => firstCell.dataset.focused !== undefined);
+
+		const pasteEvent = new KeyboardEvent('keydown', {
+			key: 'v',
+			ctrlKey: true,
+			bubbles: true,
+			cancelable: true
+		});
+		grid.dispatchEvent(pasteEvent);
+
+		expect(pasteEvent.defaultPrevented).toBe(false);
+		expect(readCount).toBe(0);
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
 	});
 
