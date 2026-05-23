@@ -40,6 +40,7 @@
 
 	let files = $derived(initialCellValue);
 	let uploadingFiles = $state<Set<string>>(new Set());
+	let deletingFiles = $state<Set<string>>(new Set());
 	let isDraggingOver = $state(false);
 	let isDragging = $state(false);
 	let errorState = $state<{ cellKey: string; message: string } | null>(null);
@@ -57,6 +58,9 @@
 
 	const acceptedTypes = $derived(accept ? accept.split(',').map((t) => t.trim()) : null);
 	const error = $derived(errorState?.cellKey === cellKey ? errorState.message : null);
+	const isUploading = $derived(uploadingFiles.size > 0);
+	const isDeleting = $derived(deletingFiles.size > 0);
+	const isPending = $derived(isUploading || isDeleting);
 
 	function setError(message: string | null) {
 		errorState = message ? { cellKey, message } : null;
@@ -108,7 +112,7 @@
 	}
 
 	async function addFiles(newFiles: File[], skipUpload = false) {
-		if (readOnly) return;
+		if (readOnly || isPending) return;
 		setError(null);
 
 		if (maxFiles && files.length + newFiles.length > maxFiles) {
@@ -232,11 +236,13 @@
 	}
 
 	async function removeFile(fileId: string) {
-		if (readOnly) return;
+		if (readOnly || isPending) return;
 		setError(null);
 
 		const fileToRemove = files.find((f) => f.id === fileId);
 		if (!fileToRemove) return;
+
+		deletingFiles = new Set(deletingFiles).add(fileId);
 
 		const rowData = table.options.data[rowIndex];
 		if (table.options.meta?.onFilesDelete && rowData) {
@@ -249,6 +255,9 @@
 				});
 			} catch (err) {
 				toast.error(err instanceof Error ? err.message : `Failed to delete ${fileToRemove.name}`);
+				const nextDeleting = new Set(deletingFiles);
+				nextDeleting.delete(fileId);
+				deletingFiles = nextDeleting;
 				return;
 			}
 		}
@@ -259,24 +268,31 @@
 
 		const updatedFiles = files.filter((f) => f.id !== fileId);
 		files = updatedFiles;
+		const nextDeleting = new Set(deletingFiles);
+		nextDeleting.delete(fileId);
+		deletingFiles = nextDeleting;
 		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: updatedFiles });
 	}
 
 	async function clearAll() {
-		if (readOnly) return;
+		if (readOnly || isPending) return;
 		setError(null);
+
+		const fileIds = files.map((f) => f.id);
+		deletingFiles = new Set(fileIds);
 
 		const rowData = table.options.data[rowIndex];
 		if (table.options.meta?.onFilesDelete && rowData && files.length > 0) {
 			try {
 				await table.options.meta.onFilesDelete({
-					fileIds: files.map((f) => f.id),
+					fileIds,
 					rowIndex,
 					columnId,
 					row: rowData
 				});
 			} catch (err) {
 				toast.error(err instanceof Error ? err.message : 'Failed to delete files');
+				deletingFiles = new Set();
 				return;
 			}
 		}
@@ -287,6 +303,7 @@
 			}
 		}
 		files = [];
+		deletingFiles = new Set();
 		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: [] });
 	}
 
@@ -407,6 +424,11 @@
 			} else if (event.key === ' ') {
 				event.preventDefault();
 				handleDropzoneClick();
+			} else if (event.key === 'Tab') {
+				event.preventDefault();
+				table.options.meta?.onCellEditingStop?.({
+					direction: event.shiftKey ? 'left' : 'right'
+				});
 			}
 		} else if (isFocused && event.key === 'Enter') {
 			event.preventDefault();
@@ -472,9 +494,12 @@
 					<button
 						type="button"
 						aria-label="Drop files here or click to browse"
+						aria-disabled={isPending}
 						data-dragging={isDragging ? '' : undefined}
 						data-invalid={error ? '' : undefined}
-						class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed p-6 outline-none transition-colors hover:bg-accent/30 focus-visible:border-ring/50 data-[dragging]:border-primary/30 data-[invalid]:border-destructive data-[dragging]:bg-accent/30 data-[invalid]:ring-destructive/20"
+						data-disabled={isPending ? '' : undefined}
+						tabindex={isDragging || isPending ? -1 : 0}
+						class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed p-6 outline-none transition-colors hover:bg-accent/30 focus-visible:border-ring/50 data-[dragging]:border-primary/30 data-[invalid]:border-destructive data-[dragging]:bg-accent/30 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[invalid]:ring-destructive/20"
 						bind:this={dropzoneRef}
 						onclick={handleDropzoneClick}
 						ondragenter={handleDropzoneDragEnter}
@@ -519,6 +544,7 @@
 									size="sm"
 									class="h-6 text-muted-foreground text-xs"
 									onclick={clearAll}
+									disabled={isPending}
 								>
 									Clear all
 								</Button>
@@ -526,11 +552,23 @@
 							<div class="max-h-[200px] space-y-1 overflow-y-auto">
 								{#each files as file (file.id)}
 									{@const FileIcon = getFileIcon(file.type)}
-									<div class="flex items-center gap-2 rounded-md border bg-muted/50 px-2 py-1.5">
+									{@const isFileUploading = uploadingFiles.has(file.id)}
+									{@const isFileDeleting = deletingFiles.has(file.id)}
+									{@const isFilePending = isFileUploading || isFileDeleting}
+									<div
+										data-pending={isFilePending ? '' : undefined}
+										class="flex items-center gap-2 rounded-md border bg-muted/50 px-2 py-1.5 data-[pending]:opacity-60"
+									>
 										<FileIcon class="size-4 shrink-0 text-muted-foreground" />
 										<div class="flex-1 overflow-hidden">
 											<p class="truncate text-sm">{file.name}</p>
-											<p class="text-muted-foreground text-xs">{formatFileSize(file.size)}</p>
+											<p class="text-muted-foreground text-xs">
+												{isFileUploading
+													? 'Uploading...'
+													: isFileDeleting
+														? 'Deleting...'
+														: formatFileSize(file.size)}
+											</p>
 										</div>
 										<Button
 											type="button"
@@ -538,6 +576,7 @@
 											size="icon"
 											class="size-5 rounded-sm"
 											onclick={() => removeFile(file.id)}
+											disabled={isPending}
 										>
 											<X class="size-3" />
 										</Button>
