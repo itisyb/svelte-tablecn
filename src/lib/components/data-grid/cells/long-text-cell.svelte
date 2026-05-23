@@ -25,19 +25,12 @@
 
 	// Track timeout for debounced save
 	let saveTimeoutId: ReturnType<typeof setTimeout> | null = null;
-	
+
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
-	
+
 	// Value for display and tracking - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? initialValue ?? '');
-
-	// Reset local edit value when editing stops
-	$effect(() => {
-		if (!isEditing) {
-			localEditValue = null;
-		}
-	});
 
 	// Debounced auto-save (300ms delay)
 	function debouncedSave(newValue: string) {
@@ -52,14 +45,16 @@
 	}
 
 	function handleSave() {
+		const nextValue = value;
 		if (saveTimeoutId) {
 			clearTimeout(saveTimeoutId);
 			saveTimeoutId = null;
 		}
 		const meta = table.options.meta;
-		if (!readOnly && value !== initialValue) {
-			meta?.onDataUpdate?.({ rowIndex, columnId, value });
+		if (!readOnly && nextValue !== initialValue) {
+			meta?.onDataUpdate?.({ rowIndex, columnId, value: nextValue });
 		}
+		localEditValue = null;
 		meta?.onCellEditingStop?.();
 	}
 
@@ -81,9 +76,11 @@
 		if (isOpen && !readOnly) {
 			meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
-			if (!readOnly && value !== initialValue) {
-				meta?.onDataUpdate?.({ rowIndex, columnId, value });
+			const nextValue = value;
+			if (!readOnly && nextValue !== initialValue) {
+				meta?.onDataUpdate?.({ rowIndex, columnId, value: nextValue });
 			}
+			localEditValue = null;
 			meta?.onCellEditingStop?.();
 		}
 	}
@@ -98,16 +95,16 @@
 	}
 
 	function handleBlur() {
+		const nextValue = value;
 		const meta = table.options.meta;
-		if (!readOnly && value !== initialValue) {
-			meta?.onDataUpdate?.({ rowIndex, columnId, value });
+		if (!readOnly && nextValue !== initialValue) {
+			meta?.onDataUpdate?.({ rowIndex, columnId, value: nextValue });
 		}
+		localEditValue = null;
 		meta?.onCellEditingStop?.();
 	}
 
-	function handleInput(event: Event) {
-		const target = event.currentTarget as HTMLTextAreaElement;
-		const newValue = target.value;
+	function setTextareaValue(newValue: string) {
 		localEditValue = newValue;
 		debouncedSave(newValue);
 	}
@@ -121,10 +118,12 @@
 			handleSave();
 		} else if (event.key === 'Tab') {
 			event.preventDefault();
+			const nextValue = value;
 			const meta = table.options.meta;
-			if (value !== initialValue) {
-				meta?.onDataUpdate?.({ rowIndex, columnId, value });
+			if (nextValue !== initialValue) {
+				meta?.onDataUpdate?.({ rowIndex, columnId, value: nextValue });
 			}
+			localEditValue = null;
 			meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});
@@ -153,7 +152,7 @@
 			data-grid-cell-editor=""
 			align="start"
 			side="bottom"
-			sideOffset={sideOffset}
+			{sideOffset}
 			class="w-[400px] rounded-none p-0"
 			onOpenAutoFocus={handleOpenAutoFocus}
 			customAnchor={containerRef}
@@ -162,9 +161,8 @@
 				bind:ref={textareaRef}
 				placeholder="Enter text..."
 				class="min-h-[150px] resize-none rounded-none border-0 shadow-none focus-visible:ring-0"
-				{value}
+				bind:value={() => value, setTextareaValue}
 				onblur={handleBlur}
-				oninput={handleInput}
 				onkeydown={handleKeyDown}
 			/>
 		</PopoverContent>

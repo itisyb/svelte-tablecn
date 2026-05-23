@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { on } from 'svelte/events';
 	import { cn, type WithElementRef } from '$lib/utils.js';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import {
@@ -50,8 +51,7 @@
 			}
 		}
 
-		document.addEventListener('keydown', onKeyDown);
-		return () => document.removeEventListener('keydown', onKeyDown);
+		return on(document, 'keydown', onKeyDown);
 	});
 
 	const positionStyle = $derived.by(() => {

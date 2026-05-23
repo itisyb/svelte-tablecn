@@ -1,5 +1,4 @@
 // Data Grid Types for TableCN-Svelte
-// Exact port of TableCN React types for Svelte 5
 
 import type { ColumnDef, Table, Row, Cell, Column, RowData } from '@tanstack/table-core';
 import type { SvelteSet, SvelteMap } from 'svelte/reactivity';
@@ -348,11 +347,7 @@ export interface DataGridProps<TData> {
 	onDataChange?: (data: TData[]) => void;
 	onRowAdd?: (
 		event?: MouseEvent
-	) =>
-		| Partial<CellPosition>
-		| null
-		| void
-		| Promise<Partial<CellPosition> | null | void>;
+	) => Partial<CellPosition> | null | void | Promise<Partial<CellPosition> | null | void>;
 	onRowsAdd?: (count: number) => void | Promise<void>;
 	onRowsDelete?: (rows: TData[], rowIndices: number[]) => void | Promise<void>;
 	onPaste?: (updates: UpdateCell[]) => void | Promise<void>;

@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { on } from 'svelte/events';
 import { toast } from 'svelte-sonner';
 
 const DEFAULT_MAX_HISTORY = 100;
@@ -367,10 +368,7 @@ export function useDataGridUndoRedo<TData>(
 			}
 		}
 
-		window.addEventListener('keydown', handleKeyDown);
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-		};
+		return on(window, 'keydown', handleKeyDown);
 	});
 
 	return {

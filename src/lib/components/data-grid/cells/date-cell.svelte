@@ -21,19 +21,13 @@
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialValue = $derived((cellValue as string) ?? '');
 	let containerRef = $state<HTMLDivElement | null>(null);
+	let popoverRef = $state<HTMLDivElement | null>(null);
 
 	// Track local edits separately
 	let localEditValue = $state<string | null>(null);
-	
+
 	// Value for display - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? initialValue ?? '');
-
-	// Reset local edit value when editing stops
-	$effect(() => {
-		if (!isEditing) {
-			localEditValue = null;
-		}
-	});
 
 	// Parse value to DateValue for calendar
 	const selectedDate = $derived.by((): DateValue | undefined => {
@@ -73,6 +67,7 @@
 		if (isOpen && !readOnly) {
 			meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
+			localEditValue = null;
 			meta?.onCellEditingStop?.();
 		}
 	}
@@ -96,13 +91,12 @@
 		// Focus the selected day, or today, or first day of month
 		// Use setTimeout to ensure calendar is fully rendered
 		setTimeout(() => {
-			const popover = document.querySelector('[data-grid-cell-editor]');
-			if (!popover) return;
+			if (!popoverRef) return;
 			// Target the Calendar.Day element with data-calendar-day attribute
 			const target =
-				popover.querySelector<HTMLElement>('[data-calendar-day][data-selected]') ??
-				popover.querySelector<HTMLElement>('[data-calendar-day][data-today]') ??
-				popover.querySelector<HTMLElement>('[data-calendar-day]');
+				popoverRef.querySelector<HTMLElement>('[data-calendar-day][data-selected]') ??
+				popoverRef.querySelector<HTMLElement>('[data-calendar-day][data-today]') ??
+				popoverRef.querySelector<HTMLElement>('[data-calendar-day]');
 			target?.focus();
 		}, 0);
 	}
@@ -125,6 +119,7 @@
 {#if isEditing}
 	<PopoverPrimitive.Root open={isEditing} onOpenChange={handleOpenChange}>
 		<PopoverContent
+			bind:ref={popoverRef}
 			data-grid-cell-editor=""
 			align="start"
 			alignOffset={-8}

@@ -1,6 +1,12 @@
 <script lang="ts" generics="TData">
 	import type { Table, ColumnFilter, Column } from '@tanstack/table-core';
-	import type { Direction, Option, FilterOperator, FilterValue, CellSelectOption } from '$lib/types/data-grid.js';
+	import type {
+		Direction,
+		Option,
+		FilterOperator,
+		FilterValue,
+		CellSelectOption
+	} from '$lib/types/data-grid.js';
 	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { getDefaultOperator, getOperatorsForVariant } from '$lib/data-grid-filters.js';
@@ -8,11 +14,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
-	import {
-		Popover,
-		PopoverContent,
-		PopoverTrigger
-	} from '$lib/components/ui/popover/index.js';
+	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
 	import {
 		Command,
 		CommandEmpty,
@@ -54,12 +56,9 @@
 
 	const columnFilters = $derived(table.getState().columnFilters);
 
-	// Create a mutable copy for DnD
-	let filterItems = $state<ColumnFilter[]>([]);
-
-	$effect(() => {
-		filterItems = [...columnFilters];
-	});
+	let isDragging = $state(false);
+	let dragItems = $state<ColumnFilter[]>([]);
+	const filterItems = $derived(isDragging ? dragItems : columnFilters);
 
 	const { columnLabels, columns, columnVariants } = $derived.by(() => {
 		const labels = new Map<string, string>();
@@ -120,10 +119,27 @@
 		250
 	);
 
+	function getTextFilterValue(filterValue: FilterValue | undefined) {
+		return (filterValue?.value as string | undefined) ?? '';
+	}
+
+	function setTextFilterValue(
+		filterId: string,
+		operator: FilterOperator,
+		filterValue: FilterValue | undefined,
+		value: string
+	) {
+		debouncedFilterUpdate(filterId, {
+			value: {
+				operator,
+				value: value === '' ? undefined : value,
+				value2: filterValue?.value2
+			}
+		});
+	}
+
 	function onFilterRemove(filterId: string) {
-		table.setColumnFilters((prevFilters) =>
-			prevFilters.filter((item) => item.id !== filterId)
-		);
+		table.setColumnFilters((prevFilters) => prevFilters.filter((item) => item.id !== filterId));
 	}
 
 	function onFiltersReset() {
@@ -157,13 +173,15 @@
 	}
 
 	function handleDndConsider(e: CustomEvent<{ items: ColumnFilter[] }>) {
-		filterItems = e.detail.items;
+		isDragging = true;
+		dragItems = e.detail.items;
 	}
 
 	function handleDndFinalize(e: CustomEvent<{ items: ColumnFilter[] }>) {
-		filterItems = e.detail.items;
-		// Filter out shadow items and update table filters
-		const cleanItems = filterItems.filter((item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
+		isDragging = false;
+		const cleanItems = e.detail.items.filter(
+			(item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]
+		);
 		table.setColumnFilters(cleanItems);
 	}
 
@@ -194,7 +212,6 @@
 		if (!date) return undefined;
 		return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}T00:00:00.000Z`;
 	}
-
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />
@@ -375,7 +392,9 @@
 										class="h-8 w-full rounded"
 									/>
 								{:else if variant === 'date'}
-									{@const calendarValue = parseISOToCalendarDate(filterValue?.value as string | undefined)}
+									{@const calendarValue = parseISOToCalendarDate(
+										filterValue?.value as string | undefined
+									)}
 									<Popover>
 										<PopoverTrigger>
 											{#snippet child({ props })}
@@ -416,7 +435,9 @@
 									</Popover>
 								{:else if (variant === 'select' || variant === 'multi-select') && selectOptions.length > 0}
 									{#if operator === 'isAnyOf' || operator === 'isNoneOf'}
-										{@const selectedValues = Array.isArray(filterValue?.value) ? filterValue.value : []}
+										{@const selectedValues = Array.isArray(filterValue?.value)
+											? filterValue.value
+											: []}
 										{@const selectedOptions = selectOptions.filter((option) =>
 											selectedValues.includes(option.value)
 										)}
@@ -481,7 +502,9 @@
 											</PopoverContent>
 										</Popover>
 									{:else}
-										{@const selectedOption = selectOptions.find((opt) => opt.value === (filterValue?.value as string))}
+										{@const selectedOption = selectOptions.find(
+											(opt) => opt.value === (filterValue?.value as string)
+										)}
 										<Popover>
 											<PopoverTrigger>
 												{#snippet child({ props })}
@@ -527,7 +550,9 @@
 																	<Check
 																		class={cn(
 																			'ml-auto',
-																			filterValue?.value === option.value ? 'opacity-100' : 'opacity-0'
+																			filterValue?.value === option.value
+																				? 'opacity-100'
+																				: 'opacity-0'
 																		)}
 																	/>
 																</CommandItem>
@@ -543,18 +568,10 @@
 										type="text"
 										placeholder="Value"
 										class="h-8 w-full rounded"
-										value={(filterValue?.value as string | undefined) ?? ''}
-										oninput={(event) => {
-											const val = (event.target as HTMLInputElement).value;
-											const newValue = val === '' ? undefined : val;
-											debouncedFilterUpdate(filter.id, {
-												value: {
-													operator,
-													value: newValue,
-													value2: filterValue?.value2
-												}
-											});
-										}}
+										bind:value={
+											() => getTextFilterValue(filterValue),
+											(value) => setTextFilterValue(filter.id, operator, filterValue, value)
+										}
 									/>
 								{/if}
 							{:else}

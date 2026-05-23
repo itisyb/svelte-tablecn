@@ -4,9 +4,9 @@ import {
 	type TableOptions,
 	type TableOptionsResolved,
 	type TableState,
-	createTable,
-} from "@tanstack/table-core";
-import { createSubscriber } from "svelte/reactivity";
+	createTable
+} from '@tanstack/table-core';
+import { createSubscriber } from 'svelte/reactivity';
 
 /**
  * Bridges TanStack Table (external reactive system) to Svelte 5.
@@ -27,12 +27,9 @@ export function createSvelteTable<TData extends RowData>(
 			state: {},
 			onStateChange() {},
 			renderFallbackValue: null,
-			mergeOptions: (
-				defaultOptions: TableOptions<TData>,
-				opts: Partial<TableOptions<TData>>
-			) => {
+			mergeOptions: (defaultOptions: TableOptions<TData>, opts: Partial<TableOptions<TData>>) => {
 				return mergeObjects(defaultOptions, opts);
-			},
+			}
 		},
 		options
 	);
@@ -42,7 +39,8 @@ export function createSvelteTable<TData extends RowData>(
 
 	let notifyTableUpdate: (() => void) | null = null;
 	let lastDataRef: TData[] | null = null;
-	let lastStateKey = "";
+	let lastColumnsRef: TableOptions<TData>['columns'] | null = null;
+	let lastStateKey = '';
 
 	const subscribe = createSubscriber((update) => {
 		notifyTableUpdate = update;
@@ -67,7 +65,7 @@ export function createSvelteTable<TData extends RowData>(
 	const onPaginationChange = wrapControlledChange(options.onPaginationChange);
 	const onColumnVisibilityChange = wrapControlledChange(options.onColumnVisibilityChange);
 	const onRowSelectionChange = wrapControlledChange(options.onRowSelectionChange);
-	const onStateChange: NonNullable<TableOptions<TData>["onStateChange"]> = (updater) => {
+	const onStateChange: NonNullable<TableOptions<TData>['onStateChange']> = (updater) => {
 		if (updater instanceof Function) {
 			state = updater(state as TableState);
 		} else {
@@ -80,13 +78,13 @@ export function createSvelteTable<TData extends RowData>(
 
 	function readReactiveData(): TData[] {
 		const data = options.data as TData[] | (() => TData[]);
-		return typeof data === "function" ? data() : data;
+		return typeof data === 'function' ? data() : data;
 	}
 
 	function readReactiveState(): Partial<TableState> | undefined {
 		const tableState = options.state;
 		if (tableState === undefined) return undefined;
-		return typeof tableState === "function"
+		return typeof tableState === 'function'
 			? (tableState as () => Partial<TableState>)()
 			: tableState;
 	}
@@ -100,20 +98,25 @@ export function createSvelteTable<TData extends RowData>(
 				onPaginationChange,
 				onColumnVisibilityChange,
 				onRowSelectionChange,
-				onStateChange,
+				onStateChange
 			});
 		});
 	}
 
 	$effect.pre(() => {
 		const data = readReactiveData();
+		const columns = options.columns;
 		const stateKey = JSON.stringify({
+			manualFiltering: options.manualFiltering,
+			manualPagination: options.manualPagination,
+			manualSorting: options.manualSorting,
 			pageCount: options.pageCount,
-			state: readReactiveState(),
+			state: readReactiveState()
 		});
 
-		if (data === lastDataRef && stateKey === lastStateKey) return;
+		if (data === lastDataRef && columns === lastColumnsRef && stateKey === lastStateKey) return;
 		lastDataRef = data;
+		lastColumnsRef = columns;
 		lastStateKey = stateKey;
 
 		syncOptions();
@@ -126,12 +129,12 @@ export function createSvelteTable<TData extends RowData>(
 
 			const value = Reflect.get(target, prop, receiver);
 
-			if (typeof value === "function") {
+			if (typeof value === 'function') {
 				return value.bind(target);
 			}
 
 			return value;
-		},
+		}
 	});
 }
 
@@ -151,7 +154,7 @@ export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
 	...sources: Sources
 ): Intersection<{ [K in keyof Sources]: Sources[K] }> {
 	const resolve = <T extends object>(src: MaybeThunk<T>): T | undefined =>
-		typeof src === "function" ? (src() ?? undefined) : src;
+		typeof src === 'function' ? (src() ?? undefined) : src;
 
 	const findSourceWithKey = (key: PropertyKey) => {
 		for (let i = sources.length - 1; i >= 0; i--) {
@@ -194,8 +197,8 @@ export function mergeObjects<Sources extends readonly MaybeThunk<any>[]>(
 				enumerable: true,
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				value: (src as any)[key],
-				writable: true,
+				writable: true
 			};
-		},
+		}
 	}) as Intersection<{ [K in keyof Sources]: Sources[K] }>;
 }

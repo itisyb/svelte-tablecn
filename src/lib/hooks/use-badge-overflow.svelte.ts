@@ -1,6 +1,4 @@
 /**
- * useBadgeOverflow - Svelte 5 port of TableCN's useBadgeOverflow hook
- * 
  * Calculates how many badge items can fit in a container across multiple lines,
  * by actually measuring badge widths in the DOM and caching results.
  */
@@ -103,11 +101,15 @@ export interface UseBadgeOverflowReturn<T> {
  * Calculates which badges fit in a container with proper overflow handling.
  * Uses actual DOM measurement for accurate badge width calculation.
  */
-export function useBadgeOverflow<T>(
-	options: () => UseBadgeOverflowOptions<T>
-): { readonly value: UseBadgeOverflowReturn<T> } {
+export function useBadgeOverflow<T>(options: () => UseBadgeOverflowOptions<T>): {
+	readonly value: UseBadgeOverflowReturn<T>;
+} {
 	let containerWidth = $state(0);
-	let resizeObserver: ResizeObserver | null = null;
+	let result = $state<UseBadgeOverflowReturn<T>>({
+		visibleItems: [],
+		hiddenCount: 0,
+		containerWidth: 0
+	});
 
 	// Setup resize observer when containerRef changes
 	$effect(() => {
@@ -128,17 +130,15 @@ export function useBadgeOverflow<T>(
 
 		measureWidth();
 
-		resizeObserver = new ResizeObserver(measureWidth);
+		const resizeObserver = new ResizeObserver(measureWidth);
 		resizeObserver.observe(container);
 
 		return () => {
-			resizeObserver?.disconnect();
-			resizeObserver = null;
+			resizeObserver.disconnect();
 		};
 	});
 
-	// Calculate visible items based on container width
-	const result = $derived.by((): UseBadgeOverflowReturn<T> => {
+	$effect(() => {
 		const opts = options();
 		const {
 			items,
@@ -153,7 +153,8 @@ export function useBadgeOverflow<T>(
 		} = opts;
 
 		if (!containerWidth || items.length === 0) {
-			return { visibleItems: items, hiddenCount: 0, containerWidth };
+			result = { visibleItems: items, hiddenCount: 0, containerWidth };
+			return;
 		}
 
 		let currentLineWidth = 0;
@@ -190,7 +191,7 @@ export function useBadgeOverflow<T>(
 			}
 		}
 
-		return {
+		result = {
 			visibleItems: visible,
 			hiddenCount: Math.max(0, items.length - visible.length),
 			containerWidth
@@ -199,7 +200,10 @@ export function useBadgeOverflow<T>(
 
 	return {
 		get value() {
-			return result;
+			if (containerWidth) return result;
+
+			const { items } = options();
+			return { visibleItems: items, hiddenCount: 0, containerWidth };
 		}
 	};
 }

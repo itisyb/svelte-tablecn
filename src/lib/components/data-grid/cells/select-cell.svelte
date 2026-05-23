@@ -35,13 +35,6 @@
 	// Reference to the SelectTrigger for focus management
 	let triggerRef = $state<HTMLButtonElement | null>(null);
 
-	// Reset local edit value when editing stops
-	$effect(() => {
-		if (!isEditing) {
-			localEditValue = null;
-		}
-	});
-
 	// Focus the trigger when editing starts so typeahead works
 	$effect(() => {
 		if (isEditing && triggerRef) {
@@ -64,6 +57,7 @@
 		if (isOpen && !readOnly) {
 			meta?.onCellEditingStart?.(rowIndex, columnId);
 		} else {
+			localEditValue = null;
 			meta?.onCellEditingStop?.();
 		}
 	}
@@ -83,7 +77,6 @@
 	}
 
 	const displayLabel = $derived(options.find((opt) => opt.value === value)?.label ?? value);
-
 </script>
 
 <DataGridCellWrapper
@@ -126,6 +119,8 @@
 			</SelectContent>
 		</Select>
 	{:else}
-		<span data-slot="grid-cell-content" class="block size-full truncate text-start">{displayLabel}</span>
+		<span data-slot="grid-cell-content" class="block size-full truncate text-start"
+			>{displayLabel}</span
+		>
 	{/if}
 </DataGridCellWrapper>

@@ -44,23 +44,15 @@
 		children
 	}: Props = $props();
 
-	let internalRef = $state<HTMLDivElement | null>(null);
 	// Track if cell was focused BEFORE mousedown (to prevent single-click opening edit)
 	let wasFocusedOnMouseDown = $state(false);
-
-	// Sync internal ref to bindable prop
-	$effect(() => {
-		if (internalRef) {
-			wrapperRef = internalRef;
-		}
-	});
 
 	// Register/unregister cell in cellMapRef
 	$effect(() => {
 		const meta = table.options.meta;
-		if (internalRef && meta?.cellMapRef) {
+		if (wrapperRef && meta?.cellMapRef) {
 			const cellKey = getCellKey(rowIndex, columnId);
-			meta.cellMapRef.set(cellKey, internalRef);
+			meta.cellMapRef.set(cellKey, wrapperRef);
 
 			return () => {
 				table.options.meta?.cellMapRef?.delete(cellKey);
@@ -70,24 +62,8 @@
 
 	// Compute cellKey reactively for virtualization
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
-	
-	// Direct DOM update for selection state - bypasses Svelte reactivity issues
-	// This runs whenever isSelected, isFocused, isEditing props change OR when the element mounts
-	$effect(() => {
-		const el = internalRef; // Read internalRef to create dependency
-		if (el) {
-			// Only show selection highlight when not focused and not editing
-			const showHighlight = isSelected && !isFocused && !isEditing;
-			if (showHighlight) {
-				el.setAttribute('data-selected', '');
-				el.classList.add('bg-primary/10');
-			} else {
-				el.removeAttribute('data-selected');
-				el.classList.remove('bg-primary/10');
-			}
-		}
-	});
-	
+	const showSelectionHighlight = $derived(isSelected && !isFocused && !isEditing);
+
 	const isSearchMatch = $derived.by(() => {
 		const meta = table.options.meta;
 		// Direct SvelteSet.has() - Svelte tracks this specific key
@@ -106,7 +82,7 @@
 	const getGridDir = getContext<GridDirGetter>(GRID_DIR_CONTEXT_KEY);
 	const dir = $derived(getGridDir?.() ?? 'ltr');
 
-	// Compute cell classes - selection highlight is handled via $effect DOM manipulation
+	// Compute cell classes declaratively from reactive table state.
 	const cellClasses = $derived(
 		cn(
 			'size-full px-2 py-1.5 text-sm outline-none has-data-[slot=checkbox]:pt-2.5',
@@ -115,6 +91,7 @@
 				'ring-1 ring-ring ring-inset': isFocused,
 				'bg-yellow-100 dark:bg-yellow-900/30': isSearchMatch && !isActiveSearchMatch,
 				'bg-orange-200 dark:bg-orange-900/50': isActiveSearchMatch,
+				'bg-primary/10': showSelectionHighlight,
 				'cursor-default': !isEditing,
 				'**:data-[slot=grid-cell-content]:line-clamp-1': !isEditing && rowHeight === 'short',
 				'**:data-[slot=grid-cell-content]:line-clamp-2': !isEditing && rowHeight === 'medium',
@@ -226,11 +203,12 @@
 </script>
 
 <div
-	bind:this={internalRef}
+	bind:this={wrapperRef}
 	role="button"
 	data-slot="grid-cell-wrapper"
 	data-editing={isEditing ? '' : undefined}
 	data-focused={isFocused ? '' : undefined}
+	data-selected={showSelectionHighlight ? '' : undefined}
 	{dir}
 	tabindex={isFocused && !isEditing ? 0 : -1}
 	class={cellClasses}

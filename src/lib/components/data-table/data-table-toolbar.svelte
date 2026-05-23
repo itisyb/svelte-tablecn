@@ -27,6 +27,15 @@
 		return table.getState().columnFilters.find((filter) => filter.id === columnId)?.value;
 	}
 
+	function getColumnStringFilterValue(columnId: string): string {
+		const value = getColumnFilterValue(columnId);
+		return typeof value === 'string' ? value : '';
+	}
+
+	function setColumnStringFilterValue(column: Column<TData>, value: string) {
+		column.setFilterValue(value);
+	}
+
 	function onReset() {
 		table.resetColumnFilters();
 	}
@@ -53,11 +62,10 @@
 			{#if variant === 'text'}
 				<Input
 					placeholder={meta?.placeholder ?? label}
-					value={typeof getColumnFilterValue(column.id) === 'string'
-						? (getColumnFilterValue(column.id) as string)
-						: ''}
-					oninput={(event) =>
-						column.setFilterValue((event.currentTarget as HTMLInputElement).value)}
+					bind:value={
+						() => getColumnStringFilterValue(column.id),
+						(value) => setColumnStringFilterValue(column, value)
+					}
 					class="h-8 w-40 lg:w-56"
 				/>
 			{:else if variant === 'number'}

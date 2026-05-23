@@ -144,6 +144,28 @@
 		);
 	}
 
+	function setScalarFilterValue(filterKey: string, value: string | number | undefined) {
+		updateFilter(filterKey, { value: value == null ? '' : String(value) });
+	}
+
+	function setDateFilterValue(
+		filterKey: string,
+		filterValues: ReturnType<typeof getFilterValues>,
+		variant: FilterVariant,
+		operator: FilterOperator,
+		value: string,
+		isSecondary = false
+	) {
+		updateFilter(filterKey, {
+			value:
+				variant === 'dateRange' || operator === 'between'
+					? isSecondary
+						? [filterValues.primary, value]
+						: [value, filterValues.secondary]
+					: value
+		});
+	}
+
 	function removeFilter(filterKey: string) {
 		setColumnFilters((prevFilters) =>
 			(prevFilters as FilterItem[]).filter(
@@ -160,6 +182,22 @@
 		selectedColumnId = null;
 		draftValue = '';
 		draftSecondaryValue = '';
+	}
+
+	function getDraftValue() {
+		return draftValue;
+	}
+
+	function setDraftValue(value: string | number | undefined) {
+		draftValue = value == null ? '' : String(value);
+	}
+
+	function getDraftSecondaryValue() {
+		return draftSecondaryValue;
+	}
+
+	function setDraftSecondaryValue(value: string | number | undefined) {
+		draftSecondaryValue = value == null ? '' : String(value);
 	}
 
 	function onOpenChange(nextOpen: boolean) {
@@ -462,24 +500,20 @@
 					>
 						<Input
 							type="date"
-							value={filterValues.primary}
-							oninput={(event) =>
-								updateFilter(filterKey, {
-									value:
-										variant === 'dateRange' || operator === 'between'
-											? [(event.currentTarget as HTMLInputElement).value, filterValues.secondary]
-											: (event.currentTarget as HTMLInputElement).value
-								})}
+							bind:value={
+								() => filterValues.primary,
+								(value) => setDateFilterValue(filterKey, filterValues, variant, operator, value)
+							}
 							class="h-full rounded-none px-1.5"
 						/>
 						{#if variant === 'dateRange' || operator === 'between'}
 							<Input
 								type="date"
-								value={filterValues.secondary}
-								oninput={(event) =>
-									updateFilter(filterKey, {
-										value: [filterValues.primary, (event.currentTarget as HTMLInputElement).value]
-									})}
+								bind:value={
+									() => filterValues.secondary,
+									(value) =>
+										setDateFilterValue(filterKey, filterValues, variant, operator, value, true)
+								}
 								class="h-full rounded-none px-1.5"
 							/>
 						{/if}
@@ -487,9 +521,9 @@
 				{:else}
 					<Input
 						type="text"
-						value={filterValues.primary}
-						oninput={(event) =>
-							updateFilter(filterKey, { value: (event.currentTarget as HTMLInputElement).value })}
+						bind:value={
+							() => filterValues.primary, (value) => setScalarFilterValue(filterKey, value)
+						}
 						class="h-full w-28 rounded-none px-1.5"
 					/>
 				{/if}
@@ -624,16 +658,12 @@
 								<div class="grid gap-2 sm:grid-cols-2">
 									<Input
 										type={selectedColumn.variant === 'range' ? 'number' : 'date'}
-										value={draftValue}
-										oninput={(event) =>
-											(draftValue = (event.currentTarget as HTMLInputElement).value)}
+										bind:value={getDraftValue, setDraftValue}
 										placeholder="From"
 									/>
 									<Input
 										type={selectedColumn.variant === 'range' ? 'number' : 'date'}
-										value={draftSecondaryValue}
-										oninput={(event) =>
-											(draftSecondaryValue = (event.currentTarget as HTMLInputElement).value)}
+										bind:value={getDraftSecondaryValue, setDraftSecondaryValue}
 										placeholder="To"
 									/>
 								</div>
@@ -644,9 +674,7 @@
 										: selectedColumn.variant === 'date'
 											? 'date'
 											: 'text'}
-									value={draftValue}
-									oninput={(event) =>
-										(draftValue = (event.currentTarget as HTMLInputElement).value)}
+									bind:value={getDraftValue, setDraftValue}
 									placeholder={selectedColumn.variant === 'number'
 										? 'Enter number...'
 										: 'Enter value...'}

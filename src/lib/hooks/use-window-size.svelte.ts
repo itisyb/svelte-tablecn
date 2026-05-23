@@ -1,10 +1,9 @@
 /**
- * useWindowSize - Svelte 5 port of the React useWindowSize hook
- * 
  * Returns reactive window dimensions that update on resize
  */
 
 import { browser } from '$app/environment';
+import { on } from 'svelte/events';
 
 interface WindowSize {
 	width: number;
@@ -42,10 +41,10 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
 			}, 150);
 		}
 
-		window.addEventListener('resize', onResize);
+		const removeResize = on(window, 'resize', onResize);
 
 		return () => {
-			window.removeEventListener('resize', onResize);
+			removeResize();
 			if (timeoutId) {
 				clearTimeout(timeoutId);
 			}

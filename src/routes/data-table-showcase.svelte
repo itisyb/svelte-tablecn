@@ -133,7 +133,7 @@
 		};
 	}
 
-	const columns: ColumnDef<Person>[] = [
+	const columns = $derived.by((): ColumnDef<Person>[] => [
 		{
 			id: 'name',
 			accessorKey: 'name',
@@ -242,7 +242,7 @@
 				variant: 'date'
 			}
 		}
-	];
+	]);
 
 	const description = $derived.by(() =>
 		mode === 'advanced'
@@ -255,9 +255,9 @@
 	// Keep the hook return object — destructuring breaks getter reactivity in Svelte 5.
 	const dataTable = useDataTable({
 		data: () => rows,
-		columns,
+		columns: () => columns,
 		getRowId: (row) => row.id,
-		enableAdvancedFilter: mode === 'advanced',
+		enableAdvancedFilter: () => mode === 'advanced',
 		// Demo uses client-side filtering so URL + UI stay in sync with local rows
 		manualFiltering: false,
 		clearOnDefault: true,

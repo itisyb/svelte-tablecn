@@ -1,4 +1,3 @@
-// Data Grid components - TableCN Svelte 5 Port
 export { default as DataGrid } from './data-grid.svelte';
 export { default as DataGridCell } from './data-grid-cell.svelte';
 export { default as DataGridRow } from './data-grid-row.svelte';
