@@ -1396,7 +1396,28 @@ export function useDataGrid<TData extends RowData>(
 		if ((event.ctrlKey || event.metaKey) && event.key === 'f' && enableSearch) {
 			event.preventDefault();
 			event.stopPropagation();
-			searchOpen = !searchOpen;
+			searchOpen = true;
+			return;
+		}
+
+		if (enableSearch && searchOpen && !editingCell) {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+				event.stopPropagation();
+				if (event.shiftKey) {
+					navigateToPrevMatch();
+				} else {
+					navigateToNextMatch();
+				}
+				return;
+			}
+
+			if (event.key === 'Escape') {
+				event.preventDefault();
+				event.stopPropagation();
+				handleSearchOpenChange(false);
+				return;
+			}
 			return;
 		}
 
