@@ -8,6 +8,8 @@ import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte'
 import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridFileCellSyncFixture from './data-grid-file-cell-sync-fixture.svelte';
+import DataGridKeyboardShortcutsDefaultFixture from './data-grid-keyboard-shortcuts-default-fixture.svelte';
+import DataGridKeyboardShortcutsEnabledFixture from './data-grid-keyboard-shortcuts-enabled-fixture.svelte';
 import DataGridLongTextCellSyncFixture from './data-grid-long-text-cell-sync-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixture.svelte';
@@ -610,6 +612,26 @@ describe('/+page.svelte', () => {
 		expect(document.querySelector<HTMLElement>('[data-slot="grid-search"]')?.textContent).toContain(
 			'Type to search'
 		);
+	});
+
+	it('should hide row mutation shortcuts unless enabled', async () => {
+		await render(DataGridKeyboardShortcutsDefaultFixture);
+
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', ctrlKey: true, bubbles: true }));
+
+		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
+		expect(document.body.textContent).not.toContain('Insert row below');
+		expect(document.body.textContent).not.toContain('Delete selected rows');
+	});
+
+	it('should show row mutation shortcuts when enabled', async () => {
+		await render(DataGridKeyboardShortcutsEnabledFixture);
+
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', ctrlKey: true, bubbles: true }));
+
+		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
+		expect(document.body.textContent).toContain('Insert row below');
+		expect(document.body.textContent).toContain('Delete selected rows');
 	});
 
 	it('should not wrap horizontal arrow navigation across rows', async () => {

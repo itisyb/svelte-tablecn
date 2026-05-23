@@ -366,6 +366,8 @@
 				enableSearch={!!dataGridProps.searchState}
 				enableUndoRedo
 				enablePaste
+				enableRowAdd
+				enableRowsDelete
 			/>
 			<Badge variant="secondary" class="font-mono tabular-nums">{rowCountLabel}</Badge>
 		</div>

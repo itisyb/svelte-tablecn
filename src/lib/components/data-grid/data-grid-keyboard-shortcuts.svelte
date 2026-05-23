@@ -33,13 +33,17 @@
 		enableSearch?: boolean;
 		enableUndoRedo?: boolean;
 		enablePaste?: boolean;
+		enableRowAdd?: boolean;
+		enableRowsDelete?: boolean;
 	}
 
 	let {
 		dir = 'ltr',
 		enableSearch = false,
 		enableUndoRedo = false,
-		enablePaste = false
+		enablePaste = false,
+		enableRowAdd = false,
+		enableRowsDelete = false
 	}: Props = $props();
 
 	let open = $state(false);
@@ -71,21 +75,28 @@
 					{ keys: ['Shift', 'Tab'], description: 'Move to previous cell' },
 					{ keys: ['Home'], description: 'Move to first column' },
 					{ keys: ['End'], description: 'Move to last column' },
+					{ keys: [modKey, '↑'], description: 'Move to first row (same column)' },
+					{ keys: [modKey, '↓'], description: 'Move to last row (same column)' },
+					{ keys: [modKey, '←'], description: 'Move to first column (same row)' },
+					{ keys: [modKey, '→'], description: 'Move to last column (same row)' },
 					{ keys: [modKey, 'Home'], description: 'Move to first cell' },
 					{ keys: [modKey, 'End'], description: 'Move to last cell' },
-					{ keys: [modKey, '↑'], description: 'Move to first row in column' },
-					{ keys: [modKey, '↓'], description: 'Move to last row in column' },
-					{ keys: ['Alt', 'PgUp'], description: 'Scroll left one page' },
-					{ keys: ['Alt', 'PgDn'], description: 'Scroll right one page' },
 					{ keys: ['PgUp'], description: 'Move up one page' },
-					{ keys: ['PgDn'], description: 'Move down one page' }
+					{ keys: ['PgDn'], description: 'Move down one page' },
+					{ keys: ['⌥', '↑'], description: 'Scroll up one page' },
+					{ keys: ['⌥', '↓'], description: 'Scroll down one page' },
+					{ keys: ['⌥', 'PgUp'], description: 'Scroll left one page of columns' },
+					{ keys: ['⌥', 'PgDn'], description: 'Scroll right one page of columns' }
 				]
 			},
 			{
 				title: 'Selection',
 				shortcuts: [
 					{ keys: ['Shift', '↑↓←→'], description: 'Extend selection' },
-					{ keys: [modKey, 'Shift', '↑↓'], description: 'Extend selection to grid edge' },
+					{ keys: [modKey, 'Shift', '↑'], description: 'Select to top of table' },
+					{ keys: [modKey, 'Shift', '↓'], description: 'Select to bottom of table' },
+					{ keys: [modKey, 'Shift', '←'], description: 'Select to first column' },
+					{ keys: [modKey, 'Shift', '→'], description: 'Select to last column' },
 					{ keys: [modKey, 'A'], description: 'Select all cells' },
 					{ keys: [modKey, 'Click'], description: 'Toggle cell selection' },
 					{ keys: ['Shift', 'Click'], description: 'Select range' },
@@ -96,17 +107,33 @@
 
 		const editingShortcuts: ShortcutGroup['shortcuts'] = [
 			{ keys: ['Enter'], description: 'Start editing cell' },
-			{ keys: ['Shift', 'Enter'], description: 'Add row' },
 			{ keys: ['F2'], description: 'Start editing cell' },
-			{ keys: ['Double Click'], description: 'Start editing cell' },
-			{ keys: [modKey, 'C'], description: 'Copy selected cells' },
-			{ keys: [modKey, 'X'], description: 'Cut selected cells' },
-			{ keys: ['Delete'], description: 'Clear selected cells' },
-			{ keys: ['Backspace'], description: 'Clear selected cells' }
+			{ keys: ['Double Click'], description: 'Start editing cell' }
 		];
 
+		if (enableRowAdd) {
+			editingShortcuts.push({ keys: ['Shift', 'Enter'], description: 'Insert row below' });
+		}
+
+		editingShortcuts.push(
+			{ keys: [modKey, 'C'], description: 'Copy selected cells' },
+			{ keys: [modKey, 'X'], description: 'Cut selected cells' },
+		);
+
 		if (enablePaste) {
-			editingShortcuts.splice(5, 0, { keys: [modKey, 'V'], description: 'Paste cells' });
+			editingShortcuts.push({ keys: [modKey, 'V'], description: 'Paste cells' });
+		}
+
+		editingShortcuts.push(
+			{ keys: ['Delete'], description: 'Clear selected cells' },
+			{ keys: ['Backspace'], description: 'Clear selected cells' }
+		);
+
+		if (enableRowsDelete) {
+			editingShortcuts.push(
+				{ keys: [modKey, 'Backspace'], description: 'Delete selected rows' },
+				{ keys: [modKey, 'Delete'], description: 'Delete selected rows' }
+			);
 		}
 
 		if (enableUndoRedo) {
@@ -187,7 +214,7 @@
 
 <Dialog {open} {onOpenChange}>
 	<DialogContent {dir} class="max-w-2xl px-0" {onOpenAutoFocus} showCloseButton={false}>
-		<DialogClose class="absolute top-6 right-6">
+		<DialogClose class="absolute top-6 end-6">
 			{#snippet child({ props })}
 				<Button {...props} variant="ghost" size="icon" class="size-6">
 					<X />
@@ -202,11 +229,11 @@
 		</DialogHeader>
 		<div class="px-6">
 			<div class="relative">
-				<Search class="-translate-y-1/2 absolute top-1/2 left-3 size-3.5 text-muted-foreground" />
+				<Search class="-translate-y-1/2 absolute top-1/2 start-3 size-3.5 text-muted-foreground" />
 				<Input
 					bind:ref={inputRef}
 					placeholder="Search shortcuts..."
-					class="h-8 pl-8"
+					class="h-8 ps-8"
 					bind:value={input}
 				/>
 			</div>
