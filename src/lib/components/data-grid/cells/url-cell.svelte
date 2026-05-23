@@ -49,7 +49,7 @@
 	}
 
 	function getSaveValue() {
-		return value.trim();
+		return (cellRef?.textContent ?? value).trim();
 	}
 
 	function moveCaretToEnd() {

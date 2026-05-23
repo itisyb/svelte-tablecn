@@ -26,6 +26,7 @@
 </script>
 
 <button type="button" onclick={() => (value = 'https://external.example')}>External URL</button>
+<output aria-label="saved url">{value}</output>
 
 <UrlCell
 	{cell}

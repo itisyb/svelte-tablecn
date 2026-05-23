@@ -47,6 +47,10 @@
 		}
 	}
 
+	function getCurrentTextValue() {
+		return cellRef?.textContent ?? value;
+	}
+
 	function moveCaretToEnd() {
 		if (!cellRef?.textContent) return;
 
@@ -67,7 +71,7 @@
 	});
 
 	function handleBlur() {
-		const currentValue = value;
+		const currentValue = getCurrentTextValue();
 		const meta = table.options.meta;
 		if (!readOnly && currentValue !== initialValue) {
 			meta?.onDataUpdate?.({ rowIndex, columnId, value: currentValue });
@@ -82,7 +86,7 @@
 			if (event.key === 'Enter') {
 				event.preventDefault();
 				event.stopPropagation();
-				const currentValue = value;
+				const currentValue = getCurrentTextValue();
 				if (currentValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: currentValue });
 				}
@@ -91,7 +95,7 @@
 			} else if (event.key === 'Tab') {
 				event.preventDefault();
 				event.stopPropagation();
-				const currentValue = value;
+				const currentValue = getCurrentTextValue();
 				if (currentValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: currentValue });
 				}

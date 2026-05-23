@@ -26,6 +26,7 @@
 </script>
 
 <button type="button" onclick={() => (value = 'External name')}>External name</button>
+<output aria-label="saved name">{value}</output>
 
 <ShortTextCell
 	{cell}

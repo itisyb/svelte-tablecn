@@ -309,6 +309,17 @@ describe('/+page.svelte', () => {
 		await expect.element(textbox).toHaveTextContent('External name');
 	});
 
+	it('should commit short text from the current editable DOM value', async () => {
+		await render(DataGridShortTextCellSyncFixture);
+
+		const textbox = page.getByRole('textbox');
+		const element = textbox.element() as HTMLElement;
+		element.textContent = 'Committed name';
+		element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+		await expect.element(page.getByLabelText('saved name')).toHaveTextContent('Committed name');
+	});
+
 	it('should sync URL editor when the external value changes', async () => {
 		await render(DataGridUrlCellSyncFixture);
 
@@ -322,6 +333,19 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'External URL' }).click();
 		await expect.element(textbox).toHaveTextContent('https://external.example');
+	});
+
+	it('should commit URL from the current editable DOM value', async () => {
+		await render(DataGridUrlCellSyncFixture);
+
+		const textbox = page.getByRole('textbox');
+		const element = textbox.element() as HTMLElement;
+		element.textContent = 'https://committed.example';
+		element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+		await expect
+			.element(page.getByLabelText('saved url'))
+			.toHaveTextContent('https://committed.example');
 	});
 
 	it('should sync select editor when the external value changes', async () => {
