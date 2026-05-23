@@ -7,6 +7,7 @@ import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
 import DataGridCtrlShiftEdgeFixture from './data-grid-ctrl-shift-edge-fixture.svelte';
 import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svelte';
+import DataGridDefaultFeaturesFixture from './data-grid-default-features-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridFileCellLocalFixture from './data-grid-file-cell-local-fixture.svelte';
 import DataGridFileCellSyncFixture from './data-grid-file-cell-sync-fixture.svelte';
@@ -616,6 +617,35 @@ describe('/+page.svelte', () => {
 		expect(pasteEvent.defaultPrevented).toBe(false);
 		expect(readCount).toBe(0);
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+	});
+
+	it('should keep search and paste disabled by default like the original grid', async () => {
+		await render(DataGridDefaultFeaturesFixture);
+
+		Object.defineProperty(navigator, 'clipboard', {
+			configurable: true,
+			value: {
+				readText: async () => 'Grace'
+			}
+		});
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		const nameWrapper = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+
+		nameWrapper.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		nameWrapper.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		nameWrapper.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true, cancelable: true })
+		);
+		await page.getByRole('button', { name: 'Paste from clipboard' }).click();
+
+		await expect.element(page.getByLabelText('search enabled')).toHaveTextContent('no');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+		expect(document.querySelector('[data-slot="grid-search"]')).toBeNull();
 	});
 
 	it('should ignore grid shortcuts when no cell is focused', async () => {
