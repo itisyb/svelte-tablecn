@@ -8,6 +8,7 @@ import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte'
 import DataGridCtrlShiftEdgeFixture from './data-grid-ctrl-shift-edge-fixture.svelte';
 import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
+import DataGridFileCellLocalFixture from './data-grid-file-cell-local-fixture.svelte';
 import DataGridFileCellSyncFixture from './data-grid-file-cell-sync-fixture.svelte';
 import DataGridKeyboardShortcutsDefaultFixture from './data-grid-keyboard-shortcuts-default-fixture.svelte';
 import DataGridKeyboardShortcutsEnabledFixture from './data-grid-keyboard-shortcuts-enabled-fixture.svelte';
@@ -354,6 +355,24 @@ describe('/+page.svelte', () => {
 
 		await waitFor(() => !dropzone.hasAttribute('data-invalid'));
 		await expect.element(page.getByText('server.txt')).toBeInTheDocument();
+	});
+
+	it('should commit local file selection without an artificial upload delay', async () => {
+		await render(DataGridFileCellLocalFixture);
+
+		const input = await waitFor(() => document.querySelector<HTMLInputElement>('input[type="file"]'));
+		const dataTransfer = new DataTransfer();
+		dataTransfer.items.add(new File(['ok'], 'local.txt', { type: 'text/plain' }));
+		input.files = dataTransfer.files;
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+
+		const committed = await waitFor(
+			() =>
+				document.querySelector<HTMLElement>('[aria-label="file count"]')?.textContent === '1' &&
+				document.querySelector<HTMLElement>('[aria-label="first file"]')?.textContent === 'local.txt',
+			300
+		);
+		expect(committed).toBe(true);
 	});
 
 	it('should sync date editor when the external value changes', async () => {
