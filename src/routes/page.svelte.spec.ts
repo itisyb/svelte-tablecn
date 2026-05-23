@@ -15,6 +15,7 @@ import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
 import DataGridShortTextCellSyncFixture from './data-grid-short-text-cell-sync-fixture.svelte';
 import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
+import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
@@ -231,6 +232,21 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'External name' }).click();
 		await expect.element(textbox).toHaveTextContent('External name');
+	});
+
+	it('should sync URL editor when the external value changes', async () => {
+		await render(DataGridUrlCellSyncFixture);
+
+		const textbox = page.getByRole('textbox');
+		await expect.element(textbox).toHaveTextContent('https://original.example');
+
+		const element = textbox.element() as HTMLElement;
+		element.textContent = 'https://local.example';
+		element.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+		await expect.element(textbox).toHaveTextContent('https://local.example');
+
+		await page.getByRole('button', { name: 'External URL' }).click();
+		await expect.element(textbox).toHaveTextContent('https://external.example');
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {
