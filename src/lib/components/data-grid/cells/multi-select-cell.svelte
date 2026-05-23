@@ -37,6 +37,14 @@
 
 	// Track local edits separately
 	let localEditValues = $state<string[] | null>(null);
+	let previousInitialCellValue = $state<string[] | null>(null);
+
+	$effect(() => {
+		if (initialCellValue === previousInitialCellValue) return;
+
+		previousInitialCellValue = initialCellValue;
+		localEditValues = null;
+	});
 
 	// Selected values - use localEditValues if set, otherwise initialCellValue
 	const selectedValues = $derived(localEditValues ?? initialCellValue);

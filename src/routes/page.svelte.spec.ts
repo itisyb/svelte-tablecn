@@ -7,6 +7,7 @@ import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
+import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
@@ -150,6 +151,39 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'External check' }).click();
 		await expect.element(checkbox).toBeChecked();
+	});
+
+	it('should sync multi-select editor when the external value changes', async () => {
+		await render(DataGridMultiSelectCellFixture);
+
+		function getEditorBadgeTexts() {
+			const editor = document.querySelector<HTMLElement>('[data-grid-cell-editor]');
+			if (!editor) return null;
+
+			return Array.from(editor.querySelectorAll<HTMLElement>('[data-slot="badge"]')).map(
+				(element) => element.textContent?.trim() ?? ''
+			);
+		}
+
+		await waitFor(() => {
+			const badgeTexts = getEditorBadgeTexts();
+			return badgeTexts?.length === 1 && badgeTexts[0] === 'React' ? badgeTexts : null;
+		});
+
+		const vueItem = await waitFor(() =>
+			Array.from(document.querySelectorAll<HTMLElement>('[data-slot="command-item"]')).find(
+				(element) => element.textContent?.includes('Vue')
+			)
+		);
+
+		vueItem.click();
+
+		const syncedBadgeTexts = await waitFor(() => {
+			const badgeTexts = getEditorBadgeTexts();
+			return badgeTexts?.length === 1 && badgeTexts[0] === 'Svelte' ? badgeTexts : null;
+		});
+
+		expect(syncedBadgeTexts).toEqual(['Svelte']);
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {
