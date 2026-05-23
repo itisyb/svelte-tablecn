@@ -34,6 +34,8 @@
 
 	// Reference to the SelectTrigger for focus management
 	let triggerRef = $state<HTMLButtonElement | null>(null);
+	let wrapperRef = $state<HTMLDivElement | null>(null);
+	const contentStyle = $derived(wrapperRef ? `width: ${wrapperRef.offsetWidth}px;` : undefined);
 
 	// Focus the trigger when editing starts so typeahead works
 	$effect(() => {
@@ -80,6 +82,7 @@
 </script>
 
 <DataGridCellWrapper
+	bind:wrapperRef
 	{cell}
 	{table}
 	{rowIndex}
@@ -107,9 +110,10 @@
 			<SelectContent
 				data-grid-cell-editor=""
 				align="start"
-				alignOffset={-8}
-				sideOffset={-8}
-				class="min-w-[calc(var(--bits-select-trigger-width)+16px)]"
+				sideOffset={0}
+				customAnchor={wrapperRef}
+				style={contentStyle}
+				class="w-(--bits-select-anchor-width) min-w-(--bits-select-anchor-width)"
 			>
 				{#each options as option (option.value)}
 					<SelectItem value={option.value} label={option.label}>
