@@ -44,12 +44,16 @@
 
 	function formatDateForDisplay(dateStr: string): string {
 		if (!dateStr) return '';
-		try {
-			const date = new Date(dateStr);
-			return date.toLocaleDateString();
-		} catch {
+
+		const [year, month, day] = dateStr.split('-').map(Number);
+		if (!year || !month || !day) return dateStr;
+
+		const date = new Date(year, month - 1, day);
+		if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
 			return dateStr;
 		}
+
+		return date.toLocaleDateString();
 	}
 
 	function handleDateSelect(date: DateValue | undefined) {

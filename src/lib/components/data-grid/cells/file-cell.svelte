@@ -53,7 +53,7 @@
 	const maxFileSize = $derived(fileCellOpts?.maxFileSize ?? 10 * 1024 * 1024);
 	const maxFiles = $derived(fileCellOpts?.maxFiles ?? 10);
 	const accept = $derived(fileCellOpts?.accept);
-	const multiple = $derived(fileCellOpts?.multiple ?? true);
+	const multiple = $derived(fileCellOpts?.multiple ?? false);
 
 	const acceptedTypes = $derived(accept ? accept.split(',').map((t) => t.trim()) : null);
 	const error = $derived(errorState?.cellKey === cellKey ? errorState.message : null);
@@ -63,10 +63,10 @@
 	}
 
 	function formatFileSize(bytes: number): string {
-		if (bytes === 0) return '0 B';
+		if (bytes <= 0 || !Number.isFinite(bytes)) return '0 B';
 		const k = 1024;
 		const sizes = ['B', 'KB', 'MB', 'GB'];
-		const i = Math.floor(Math.log(bytes) / Math.log(k));
+		const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k)));
 		return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`;
 	}
 
