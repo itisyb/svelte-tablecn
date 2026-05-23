@@ -1265,7 +1265,7 @@ export function useDataGrid<TData extends RowData>(
 	}
 
 	async function onCellsPaste(expandRows = false) {
-		if (readOnly || !enablePaste) return;
+		if (readOnly) return;
 		if (!focusedCell) return;
 
 		try {

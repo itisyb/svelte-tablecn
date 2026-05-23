@@ -632,7 +632,7 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
 	});
 
-	it('should keep search and paste disabled by default like the original grid', async () => {
+	it('should keep search disabled and allow direct meta paste by default like the original grid', async () => {
 		await render(DataGridDefaultFeaturesFixture);
 
 		Object.defineProperty(navigator, 'clipboard', {
@@ -658,7 +658,7 @@ describe('/+page.svelte', () => {
 
 		await expect.element(page.getByLabelText('search enabled')).toHaveTextContent('no');
 		await expect.element(page.getByLabelText('read only default')).toHaveTextContent('undefined');
-		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Grace');
 		expect(document.querySelector('[data-slot="grid-search"]')).toBeNull();
 	});
 
