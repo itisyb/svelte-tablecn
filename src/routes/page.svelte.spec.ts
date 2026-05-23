@@ -50,7 +50,7 @@ describe('/+page.svelte', () => {
 		expect(bodyStyles.contain).toBe('strict');
 	});
 
-	it('should keep select cell editor inside the cell box', async () => {
+	it('should align select cell editor like the original grid', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
 
@@ -87,7 +87,12 @@ describe('/+page.svelte', () => {
 		expect(triggerRect.top).toBeGreaterThanOrEqual(wrapperRect.top);
 		expect(triggerRect.bottom).toBeLessThanOrEqual(wrapperRect.bottom);
 		expect(Math.round(contentRect.left)).toBe(Math.round(wrapperRect.left));
-		expect(Math.round(contentRect.top)).toBeGreaterThanOrEqual(Math.round(wrapperRect.bottom));
-		expect(Math.round(contentRect.width)).toBe(Math.round(wrapperRect.width));
+		expect(Math.round(contentRect.top)).toBeLessThan(Math.round(wrapperRect.bottom));
+
+		const contentStyle = getComputedStyle(content);
+		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
+
+		const contentRadius = Number.parseFloat(contentStyle.borderTopLeftRadius);
+		expect(contentRadius).toBeLessThanOrEqual(6);
 	});
 });

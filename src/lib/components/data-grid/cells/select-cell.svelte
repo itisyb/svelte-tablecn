@@ -105,17 +105,17 @@
 			<SelectTrigger
 				size="sm"
 				bind:ref={triggerRef}
-				class="size-full min-h-0 w-full justify-start border-none p-0 text-start shadow-none data-[size=sm]:h-full focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
+				class="size-full min-h-0 w-full items-start border-none p-0 text-start shadow-none data-[size=sm]:h-full focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
 			>
 				<SelectValue />
 			</SelectTrigger>
 			<SelectContent
 				data-grid-cell-editor=""
 				align="start"
-				sideOffset={0}
+				sideOffset={-14}
 				customAnchor={wrapperRef}
 				style={contentStyle}
-				class="w-(--bits-select-anchor-width) min-w-(--bits-select-anchor-width)"
+				class="w-(--bits-select-anchor-width) min-w-(--bits-select-anchor-width) rounded-md"
 			>
 				{#each options as option (option.value)}
 					<SelectItem value={option.value} label={option.label}>
