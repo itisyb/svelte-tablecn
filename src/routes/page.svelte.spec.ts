@@ -7,6 +7,7 @@ import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
 import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
+import DataGridFileCellSyncFixture from './data-grid-file-cell-sync-fixture.svelte';
 import DataGridLongTextCellSyncFixture from './data-grid-long-text-cell-sync-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixture.svelte';
@@ -264,6 +265,26 @@ describe('/+page.svelte', () => {
 		await waitFor(() => trigger.textContent?.includes('Sales'));
 
 		expect(trigger.textContent).toContain('Sales');
+	});
+
+	it('should clear file cell errors when the external value changes', async () => {
+		await render(DataGridFileCellSyncFixture);
+
+		const input = await waitFor(() => document.querySelector<HTMLInputElement>('input[type="file"]'));
+		const dropzone = await waitFor(() =>
+			document.querySelector<HTMLElement>('[aria-label="Drop files here or click to browse"]')
+		);
+		const dataTransfer = new DataTransfer();
+		dataTransfer.items.add(new File(['too large'], 'large.txt', { type: 'text/plain' }));
+		input.files = dataTransfer.files;
+		input.dispatchEvent(new Event('change', { bubbles: true }));
+
+		await waitFor(() => dropzone.hasAttribute('data-invalid'));
+
+		await page.getByRole('button', { name: 'Replace files' }).click();
+
+		await waitFor(() => !dropzone.hasAttribute('data-invalid'));
+		await expect.element(page.getByText('server.txt')).toBeInTheDocument();
 	});
 
 	it('should sync date editor when the external value changes', async () => {

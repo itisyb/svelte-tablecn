@@ -20,7 +20,7 @@
 	import FileArchive from '@lucide/svelte/icons/file-archive';
 	import FileSpreadsheet from '@lucide/svelte/icons/file-spreadsheet';
 	import Presentation from '@lucide/svelte/icons/presentation';
-	import type { Component } from 'svelte';
+	import { untrack, type Component } from 'svelte';
 
 	let {
 		cell,
@@ -39,6 +39,8 @@
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
 
 	let files = $derived(initialCellValue);
+	let previousInitialCellValue = $state<FileCellData[] | null>(null);
+	let previousCellKey = $state<string | null>(null);
 	let uploadingFiles = $state<Set<string>>(new Set());
 	let deletingFiles = $state<Set<string>>(new Set());
 	let isDraggingOver = $state(false);
@@ -61,6 +63,37 @@
 	const isUploading = $derived(uploadingFiles.size > 0);
 	const isDeleting = $derived(deletingFiles.size > 0);
 	const isPending = $derived(isUploading || isDeleting);
+
+	$effect(() => {
+		if (previousInitialCellValue === null) {
+			previousInitialCellValue = initialCellValue;
+			return;
+		}
+
+		if (initialCellValue === previousInitialCellValue) return;
+
+		for (const file of untrack(() => files)) {
+			if (file.url?.startsWith('blob:')) {
+				URL.revokeObjectURL(file.url);
+			}
+		}
+
+		previousInitialCellValue = initialCellValue;
+		files = initialCellValue;
+		setError(null);
+	});
+
+	$effect(() => {
+		if (previousCellKey === null) {
+			previousCellKey = cellKey;
+			return;
+		}
+
+		if (cellKey === previousCellKey) return;
+
+		previousCellKey = cellKey;
+		setError(null);
+	});
 
 	function setError(message: string | null) {
 		errorState = message ? { cellKey, message } : null;
