@@ -15,6 +15,7 @@ import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixture.svelte';
 import DataGridNumberCellSyncFixture from './data-grid-number-cell-sync-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
+import DataGridPasteFitExistingFixture from './data-grid-paste-fit-existing-fixture.svelte';
 import DataGridPasteWithoutFocusFixture from './data-grid-paste-without-focus-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
@@ -438,6 +439,40 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Paste without focus' }).click();
 
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+	});
+
+	it('should paste only fitting rows from the paste expansion dialog', async () => {
+		await render(DataGridPasteFitExistingFixture);
+
+		Object.defineProperty(navigator, 'clipboard', {
+			value: {
+				readText: async () => 'Grace\nLinus'
+			},
+			configurable: true
+		});
+
+		const firstCell = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+		firstCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		firstCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		firstCell.click();
+		await waitFor(() => firstCell.hasAttribute('data-focused'));
+
+		await page.getByRole('button', { name: 'Paste from clipboard' }).click();
+		await expect.element(page.getByRole('heading', { name: 'Do you want to add more rows?' })).toBeInTheDocument();
+
+		const keepCurrentRows = await waitFor(() =>
+			Array.from(document.querySelectorAll<HTMLInputElement>('input[name="expand-option"]')).find(
+				(input) => input.value === 'no-expand'
+			)
+		);
+		keepCurrentRows.click();
+		await page.getByRole('button', { name: 'Continue' }).click();
+
+		await waitFor(() => document.querySelector('[data-slot="dialog-content"]') === null);
+		await expect.element(page.getByLabelText('row count')).toHaveTextContent('1');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Grace');
 	});
 
 	it('should render custom data grid cell renderers directly', async () => {

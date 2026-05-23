@@ -1148,7 +1148,7 @@ export function useDataGrid<TData extends RowData>(
 			// Check if we need more rows
 			const rowsNeeded = startPos.rowIndex + lines.length - rows.length;
 
-			if (rowsNeeded > 0 && !expandRows && (onRowsAdd || onRowAddProp)) {
+			if (rowsNeeded > 0 && !expandRows && (onRowsAdd || onRowAddProp) && !pasteDialog.clipboardText) {
 				pasteDialog = {
 					open: true,
 					rowsNeeded,
