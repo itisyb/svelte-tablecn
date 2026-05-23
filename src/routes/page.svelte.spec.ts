@@ -13,6 +13,7 @@ import DataGridNumberCellSyncFixture from './data-grid-number-cell-sync-fixture.
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
+import DataGridSelectCellSyncFixture from './data-grid-select-cell-sync-fixture.svelte';
 import DataGridShortTextCellSyncFixture from './data-grid-short-text-cell-sync-fixture.svelte';
 import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
 import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte';
@@ -247,6 +248,20 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'External URL' }).click();
 		await expect.element(textbox).toHaveTextContent('https://external.example');
+	});
+
+	it('should sync select editor when the external value changes', async () => {
+		await render(DataGridSelectCellSyncFixture);
+
+		const trigger = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="select-trigger"]')
+		);
+		await waitFor(() => trigger.textContent?.includes('Engineering'));
+
+		await page.getByRole('option', { name: 'Marketing' }).click();
+		await waitFor(() => trigger.textContent?.includes('Sales'));
+
+		expect(trigger.textContent).toContain('Sales');
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {
