@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
+import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 
@@ -246,6 +247,13 @@ describe('/+page.svelte', () => {
 		const trigger = await waitFor(() => page.getByRole('combobox', { name: 'Toggle columns' }));
 
 		await expect.element(trigger).toBeDisabled();
+	});
+
+	it('should disable the data grid filter and sort menus', async () => {
+		await render(DataGridMenuFixture);
+
+		await expect.element(page.getByRole('button', { name: 'Filter' })).toBeDisabled();
+		await expect.element(page.getByRole('button', { name: 'Sort' })).toBeDisabled();
 	});
 
 	it('should reset search state when toggled closed from the keyboard shortcut', async () => {

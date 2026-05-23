@@ -45,12 +45,14 @@
 
 	interface Props {
 		table: Table<TData>;
+		disabled?: boolean;
 		dir?: Direction;
 		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, dir = 'ltr', align = 'start', class: className }: Props = $props();
+	let { table, disabled = false, dir = 'ltr', align = 'start', class: className }: Props =
+		$props();
 
 	let open = $state(false);
 
@@ -224,8 +226,9 @@
 				{dir}
 				variant="outline"
 				size="sm"
-				class={cn('font-normal', className)}
+				class="font-normal"
 				onkeydown={onTriggerKeyDown}
+				{disabled}
 			>
 				<ListFilter class="text-muted-foreground" />
 				Filter
@@ -243,7 +246,10 @@
 	<PopoverContent
 		{dir}
 		{align}
-		class="flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]"
+		class={cn(
+			'flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]',
+			className
+		)}
 	>
 		<div class="flex flex-col gap-1">
 			<h4 class="font-medium leading-none">
