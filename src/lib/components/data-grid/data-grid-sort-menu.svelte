@@ -52,6 +52,8 @@
 
 	let isDragging = $state(false);
 	let dragSorting = $state<ColumnSort[]>([]);
+	let openFieldSelectors = $state<Set<string>>(new Set());
+	let openDirectionSelectors = $state<Set<string>>(new Set());
 	const sortingItems = $derived(isDragging ? dragSorting : sorting);
 
 	const { columnLabels, columns } = $derived.by(() => {
@@ -142,8 +144,32 @@
 		table.setSorting(cleanItems);
 	}
 
+	function setFieldSelectorOpen(sortId: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openFieldSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(sortId);
+		} else {
+			nextOpenSelectors.delete(sortId);
+		}
+		openFieldSelectors = nextOpenSelectors;
+	}
+
+	function setDirectionSelectorOpen(sortId: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openDirectionSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(sortId);
+		} else {
+			nextOpenSelectors.delete(sortId);
+		}
+		openDirectionSelectors = nextOpenSelectors;
+	}
+
 	function onSortItemKeyDown(event: KeyboardEvent, sortId: string) {
 		if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+			return;
+		}
+
+		if (openFieldSelectors.has(sortId) || openDirectionSelectors.has(sortId)) {
 			return;
 		}
 
@@ -221,7 +247,10 @@
 						class="flex items-center gap-2"
 						onkeydown={(event) => onSortItemKeyDown(event, sort.id)}
 					>
-						<Popover>
+						<Popover
+							open={openFieldSelectors.has(sort.id)}
+							onOpenChange={(isOpen) => setFieldSelectorOpen(sort.id, isOpen)}
+						>
 							<PopoverTrigger>
 								{#snippet child({ props })}
 									<Button
@@ -256,7 +285,9 @@
 						</Popover>
 						<Select
 							type="single"
+							open={openDirectionSelectors.has(sort.id)}
 							value={sort.desc ? 'desc' : 'asc'}
+							onOpenChange={(isOpen) => setDirectionSelectorOpen(sort.id, isOpen)}
 							onValueChange={(value: string) => onSortUpdate(sort.id, { desc: value === 'desc' })}
 						>
 							<SelectTrigger class="h-8 w-24 rounded data-size:h-8">

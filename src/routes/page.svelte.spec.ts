@@ -525,6 +525,25 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByRole('heading', { name: 'No sorting applied' })).toBeInTheDocument();
 	});
 
+	it('should keep sort item when delete is pressed with the direction selector open', async () => {
+		await render(DataGridSortMenuFixture);
+
+		await page.getByRole('button', { name: 'Sort 1' }).click();
+
+		const sortItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const trigger = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="select-trigger"]')
+		);
+		trigger.focus();
+		trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+		await waitFor(() => document.querySelector<HTMLElement>('[data-slot="select-content"]'));
+
+		sortItem.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
+
+		await waitFor(() => document.querySelectorAll('[role="listitem"]').length === 1);
+		await expect.element(page.getByRole('heading', { name: 'Sort by' })).toBeInTheDocument();
+	});
+
 	it('should remove filter item with delete shortcut', async () => {
 		await render(DataGridFilterMenuFixture);
 
@@ -536,6 +555,25 @@ describe('/+page.svelte', () => {
 
 		await waitFor(() => document.querySelector('[role="listitem"]') === null);
 		await expect.element(page.getByRole('heading', { name: 'No filters applied' })).toBeInTheDocument();
+	});
+
+	it('should keep filter item when delete is pressed with the operator selector open', async () => {
+		await render(DataGridFilterMenuFixture);
+
+		await page.getByRole('button', { name: 'Filter 1' }).click();
+
+		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const trigger = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="select-trigger"]')
+		);
+		trigger.focus();
+		trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+		await waitFor(() => document.querySelector<HTMLElement>('[data-slot="select-content"]'));
+
+		filterItem.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
+
+		await waitFor(() => document.querySelectorAll('[role="listitem"]').length === 1);
+		await expect.element(page.getByRole('heading', { name: 'Filter by' })).toBeInTheDocument();
 	});
 
 	it('should reset search state when toggled closed from the keyboard shortcut', async () => {

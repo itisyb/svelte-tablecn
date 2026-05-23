@@ -60,6 +60,8 @@
 
 	let isDragging = $state(false);
 	let dragItems = $state<ColumnFilter[]>([]);
+	let openFieldSelectors = $state<Set<string>>(new Set());
+	let openOperatorSelectors = $state<Set<string>>(new Set());
 	const filterItems = $derived(isDragging ? dragItems : columnFilters);
 
 	const { columnLabels, columns, columnVariants } = $derived.by(() => {
@@ -187,8 +189,32 @@
 		table.setColumnFilters(cleanItems);
 	}
 
+	function setFieldSelectorOpen(filterId: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openFieldSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterId);
+		} else {
+			nextOpenSelectors.delete(filterId);
+		}
+		openFieldSelectors = nextOpenSelectors;
+	}
+
+	function setOperatorSelectorOpen(filterId: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openOperatorSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterId);
+		} else {
+			nextOpenSelectors.delete(filterId);
+		}
+		openOperatorSelectors = nextOpenSelectors;
+	}
+
 	function onFilterItemKeyDown(event: KeyboardEvent, filterId: string) {
 		if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+			return;
+		}
+
+		if (openFieldSelectors.has(filterId) || openOperatorSelectors.has(filterId)) {
 			return;
 		}
 
@@ -308,7 +334,10 @@
 							{/if}
 						</div>
 						<!-- Column selector -->
-						<Popover>
+						<Popover
+							open={openFieldSelectors.has(filter.id)}
+							onOpenChange={(isOpen) => setFieldSelectorOpen(filter.id, isOpen)}
+						>
 							<PopoverTrigger>
 								{#snippet child({ props })}
 									<Button
@@ -367,7 +396,9 @@
 						<!-- Operator selector -->
 						<Select
 							type="single"
+							open={openOperatorSelectors.has(filter.id)}
 							value={operator}
+							onOpenChange={(isOpen) => setOperatorSelectorOpen(filter.id, isOpen)}
 							onValueChange={(newOperator: string) => {
 								const currentValue = filterValue?.value;
 								const currentEndValue = filterValue?.endValue;
