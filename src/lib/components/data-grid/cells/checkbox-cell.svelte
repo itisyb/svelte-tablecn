@@ -24,6 +24,11 @@
 	// Value for display - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? Boolean(initialValue));
 
+	$effect(() => {
+		const _ = initialValue;
+		localEditValue = null;
+	});
+
 	function handleCheckedChange(newValue: boolean | 'indeterminate') {
 		if (readOnly) return;
 		const checked = newValue === true;

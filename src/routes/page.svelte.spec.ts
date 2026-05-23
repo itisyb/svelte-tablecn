@@ -2,6 +2,7 @@ import { page } from 'vitest/browser';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
+import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
@@ -134,6 +135,22 @@ describe('/+page.svelte', () => {
 		expect(hitbox.className).toContain('group relative -my-1.5');
 		expect(hitbox.className).not.toContain('size-full');
 		expect(hitbox.className).not.toContain('px-3 py-1.5');
+	});
+
+	it('should sync checkbox cell when the external value changes', async () => {
+		await render(DataGridCheckboxCellFixture);
+
+		const checkbox = page.getByRole('checkbox');
+		await expect.element(checkbox).not.toBeChecked();
+
+		await checkbox.click();
+		await expect.element(checkbox).toBeChecked();
+
+		await checkbox.click();
+		await expect.element(checkbox).not.toBeChecked();
+
+		await page.getByRole('button', { name: 'External check' }).click();
+		await expect.element(checkbox).toBeChecked();
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {
