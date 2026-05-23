@@ -1129,6 +1129,7 @@ export function useDataGrid<TData extends RowData>(
 
 	async function onCellsPaste(expandRows = false) {
 		if (readOnly || !enablePaste) return;
+		if (!focusedCell) return;
 
 		try {
 			const text = pasteDialog.clipboardText || (await navigator.clipboard.readText());
@@ -1140,7 +1141,7 @@ export function useDataGrid<TData extends RowData>(
 			const lines = parseTsv(text, cols.length);
 
 			// Determine paste target
-			const startPos = focusedCell || { rowIndex: 0, columnId: cols[0]?.id || '' };
+			const startPos = focusedCell;
 			const startColIndex = cols.findIndex((c) => c.id === startPos.columnId);
 			if (startColIndex === -1) return;
 

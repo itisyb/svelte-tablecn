@@ -15,6 +15,7 @@ import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixture.svelte';
 import DataGridNumberCellSyncFixture from './data-grid-number-cell-sync-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
+import DataGridPasteWithoutFocusFixture from './data-grid-paste-without-focus-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
 import DataGridSelectCellSyncFixture from './data-grid-select-cell-sync-fixture.svelte';
@@ -422,6 +423,21 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Continue' }).click();
 
 		await expect.element(page.getByLabelText('paste mode')).toHaveTextContent('expand');
+	});
+
+	it('should ignore paste when no cell is focused', async () => {
+		await render(DataGridPasteWithoutFocusFixture);
+
+		Object.defineProperty(navigator, 'clipboard', {
+			value: {
+				readText: async () => 'Grace'
+			},
+			configurable: true
+		});
+
+		await page.getByRole('button', { name: 'Paste without focus' }).click();
+
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
 	});
 
 	it('should render custom data grid cell renderers directly', async () => {
