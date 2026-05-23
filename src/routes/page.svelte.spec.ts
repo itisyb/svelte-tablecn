@@ -2,6 +2,7 @@ import { page } from 'vitest/browser';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
+import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -213,5 +214,14 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Cancel' }).click();
 		await waitFor(() => document.querySelector<HTMLElement>('[role="dialog"]') === null);
+	});
+
+	it('should render custom data grid cell renderers directly', async () => {
+		await render(DataGridCustomCellFixture);
+
+		const cell = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid-cell"]'));
+
+		expect(cell.textContent?.trim()).toBe('Custom Ada');
+		expect(cell.querySelector('[data-slot="grid-cell-wrapper"]')).toBeNull();
 	});
 });

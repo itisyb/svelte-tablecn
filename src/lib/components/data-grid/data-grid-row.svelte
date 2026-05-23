@@ -15,6 +15,7 @@
 		toPinningStyleString
 	} from '$lib/data-grid.js';
 	import { cn } from '$lib/utils.js';
+	import { FlexRender } from '$lib/table';
 	import DataGridCell from './data-grid-cell.svelte';
 
 	// Use 'any' for VirtualizerReturn to avoid type conflicts between different definitions
@@ -124,6 +125,8 @@
 		{@const pinningStyle = toPinningStyleString(
 			getColumnPinningStyle({ column: cell.column, dir })
 		)}
+		{@const customCell = cell.column.columnDef.cell}
+		{@const hasGridCellVariant = cell.column.columnDef.meta?.cell != null}
 
 		<div
 			role="gridcell"
@@ -139,7 +142,13 @@
 			})}
 			style="{pinningStyle}; width: calc(var(--col-{cell.column.id}-size) * 1px);"
 		>
-			<DataGridCell {cell} {table} {selectedCellsSet} {selectionVersion} />
+			{#if customCell && !hasGridCellVariant}
+				<div class={cn('size-full px-3 py-1.5', isRowSelected && 'bg-primary/10')}>
+					<FlexRender content={customCell} context={cell.getContext()} />
+				</div>
+			{:else}
+				<DataGridCell {cell} {table} {selectedCellsSet} {selectionVersion} />
+			{/if}
 		</div>
 	{/each}
 </div>
