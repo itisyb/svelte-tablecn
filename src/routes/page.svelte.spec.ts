@@ -271,4 +271,36 @@ describe('/+page.svelte', () => {
 			'Type to search'
 		);
 	});
+
+	it('should not wrap horizontal arrow navigation across rows', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		await waitFor(() => document.querySelector('[data-slot="grid-row"][data-index="1"]'));
+
+		const firstRow = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const secondRow = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="1"]')
+		);
+		const firstRowCells = firstRow.querySelectorAll<HTMLElement>('[data-slot="grid-cell"]');
+		const lastCell = firstRowCells.item(firstRowCells.length - 1);
+		const lastWrapper = await waitFor(() =>
+			lastCell.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+
+		lastWrapper.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		lastWrapper.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		lastWrapper.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+		await waitFor(() => lastWrapper.dataset.focused !== undefined);
+
+		lastWrapper.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+		);
+
+		expect(lastWrapper.dataset.focused).toBeDefined();
+		expect(secondRow.querySelector('[data-slot="grid-cell-wrapper"][data-focused]')).toBeNull();
+	});
 });

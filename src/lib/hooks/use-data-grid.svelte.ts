@@ -618,9 +618,6 @@ export function useDataGrid<TData extends RowData>(
 				const prevCol = getNextNavigableColumnId(columnId, 'left');
 				if (prevCol) {
 					newColumnId = prevCol;
-				} else if (rowIndex > 0) {
-					newRowIndex = rowIndex - 1;
-					newColumnId = getLastNavigableColumnId() ?? columnId;
 				}
 				break;
 			}
@@ -628,9 +625,6 @@ export function useDataGrid<TData extends RowData>(
 				const nextCol = getNextNavigableColumnId(columnId, 'right');
 				if (nextCol) {
 					newColumnId = nextCol;
-				} else if (rowIndex < rowCount - 1) {
-					newRowIndex = rowIndex + 1;
-					newColumnId = getFirstNavigableColumnId() ?? columnId;
 				}
 				break;
 			}
