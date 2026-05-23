@@ -826,6 +826,8 @@ describe('/+page.svelte', () => {
 
 		expect(dataGridFilterMenuSource).toContain('ms-auto');
 		expect(dataGridFilterMenuSource).not.toContain('ml-auto');
+		expect(dataGridFilterMenuSource).toContain('{#if option.count}');
+		expect(dataGridFilterMenuSource).not.toContain('option.count !== undefined');
 		expect(dataGridFilterMenuSource).toContain('setFieldSelectorOpen(filter.id, false)');
 	});
 

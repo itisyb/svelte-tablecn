@@ -668,7 +668,7 @@
 																	}}
 																>
 																	<span class="truncate">{option.label}</span>
-																	{#if option.count !== undefined}
+																	{#if option.count}
 																		<span class="ms-auto font-mono text-xs">
 																			{option.count}
 																		</span>
@@ -724,7 +724,7 @@
 																	}}
 																>
 																	<span class="truncate">{option.label}</span>
-																	{#if option.count !== undefined}
+																	{#if option.count}
 																		<span class="ms-auto font-mono text-xs">
 																			{option.count}
 																		</span>
