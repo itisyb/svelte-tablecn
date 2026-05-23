@@ -51,7 +51,7 @@
 </script>
 
 <Select type="single" value={rowHeight} onValueChange={handleValueChange} {disabled}>
-	<SelectTrigger size="sm" {disabled} class="[&_svg:nth-child(2)]:hidden {className}">
+	<SelectTrigger size="sm" {disabled} class="[&_svg:nth-child(2)]:hidden">
 		<span data-slot="select-value" class="flex items-center gap-2">
 			{#if selectedRowHeight}
 				{@const Icon = selectedRowHeight.icon}
@@ -62,7 +62,7 @@
 			{/if}
 		</span>
 	</SelectTrigger>
-	<SelectContent {align}>
+	<SelectContent {align} class={className}>
 		{#each rowHeights as option (option.value)}
 			{@const OptionIcon = option.icon}
 			<SelectItem value={option.value}>

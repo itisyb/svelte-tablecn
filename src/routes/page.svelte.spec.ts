@@ -5,6 +5,7 @@ import Page from './+page.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
+import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 
@@ -248,6 +249,24 @@ describe('/+page.svelte', () => {
 		);
 
 		expect(trigger.disabled).toBe(true);
+	});
+
+	it('should apply row height menu class to select content', async () => {
+		await render(DataGridRowHeightMenuClassFixture);
+
+		const trigger = await waitFor(() =>
+			document.querySelector<HTMLButtonElement>('[data-slot="select-trigger"]')
+		);
+		trigger.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+		trigger.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true }));
+		trigger.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+		const content = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="select-content"]')
+		);
+
+		expect(trigger.className).not.toContain('row-height-content-fixture');
+		expect(content.className).toContain('row-height-content-fixture');
 	});
 
 	it('should disable the data grid view menu', async () => {
