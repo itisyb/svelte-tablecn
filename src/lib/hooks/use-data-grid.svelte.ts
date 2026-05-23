@@ -173,6 +173,9 @@ export interface UseDataGridReturn<TData extends RowData> {
 	// Row add handler
 	onRowAdd?: (event?: MouseEvent) => Promise<void>;
 
+	// Virtual row layout mode
+	adjustLayout: boolean;
+
 	// Setters for refs (for bind:this)
 	setDataGridRef: (el: HTMLDivElement | null) => void;
 	setHeaderRef: (el: HTMLDivElement | null) => void;
@@ -423,6 +426,13 @@ export function useDataGrid<TData extends RowData>(
 	let virtualItems = $state<VirtualItem[]>([]);
 	let totalSize = $state(0);
 	let isScrolling = $state(false);
+	const adjustLayout = $derived.by(() => {
+		const isFirefox =
+			typeof navigator !== 'undefined' && navigator.userAgent.indexOf('Firefox') !== -1;
+		return (
+			isFirefox && ((columnPinning.left?.length ?? 0) > 0 || (columnPinning.right?.length ?? 0) > 0)
+		);
+	});
 
 	// ========================================
 	// Derived values (declared later after table is created)
@@ -2792,6 +2802,9 @@ export function useDataGrid<TData extends RowData>(
 			return getDir();
 		},
 		onRowAdd: onRowAddProp ? handleRowAdd : undefined,
+		get adjustLayout() {
+			return adjustLayout;
+		},
 		setDataGridRef: (el: HTMLDivElement | null) => {
 			dataGridRef = el;
 		},

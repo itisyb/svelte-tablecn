@@ -49,6 +49,7 @@
 		setDataGridRef,
 		setHeaderRef,
 		setFooterRef,
+		adjustLayout,
 		dir = 'ltr',
 		stretchColumns = false,
 		class: className
@@ -355,7 +356,9 @@
 					role="rowgroup"
 					data-slot="grid-body"
 					class="relative grid"
-					style="height: {totalSize}px; min-width: {totalVisibleWidth}px;"
+					style="height: {totalSize}px; min-width: {totalVisibleWidth}px; contain: {adjustLayout
+						? 'layout paint'
+						: 'strict'};"
 				>
 					{#key visibilityKey}
 						{#each virtualItems as virtualItem (virtualItem.key)}
@@ -376,6 +379,7 @@
 									{rowHeight}
 									{focusedCell}
 									{dir}
+									{adjustLayout}
 									{stretchColumns}
 									virtualStart={virtualItem.start}
 								/>

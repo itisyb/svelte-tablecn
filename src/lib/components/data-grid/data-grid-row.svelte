@@ -1,9 +1,19 @@
 <script lang="ts" generics="TData">
-	import type { Row, Table, ColumnPinningState, VisibilityState, ColumnSizingState } from '@tanstack/table-core';
+	import type {
+		Row,
+		Table,
+		ColumnPinningState,
+		VisibilityState,
+		ColumnSizingState
+	} from '@tanstack/table-core';
 	import type { SvelteSet } from 'svelte/reactivity';
 	import type { CellPosition, RowHeightValue, Direction } from '$lib/types/data-grid.js';
 	import { getRowHeightValue } from '$lib/types/data-grid.js';
-	import { getColumnBorderVisibility, getColumnPinningStyle, toPinningStyleString } from '$lib/data-grid.js';
+	import {
+		getColumnBorderVisibility,
+		getColumnPinningStyle,
+		toPinningStyleString
+	} from '$lib/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import DataGridCell from './data-grid-cell.svelte';
 
@@ -28,6 +38,7 @@
 		rowHeight: RowHeightValue;
 		focusedCell: CellPosition | null;
 		dir: Direction;
+		adjustLayout: boolean;
 		stretchColumns: boolean;
 		class?: string;
 	}
@@ -47,6 +58,7 @@
 		rowHeight,
 		focusedCell,
 		dir,
+		adjustLayout,
 		stretchColumns,
 		class: className
 	}: Props = $props();
@@ -67,6 +79,11 @@
 
 	// Row selection is reactive via table state
 	const isRowSelected = $derived(row.getIsSelected());
+	const rowStyle = $derived(
+		adjustLayout
+			? `top: ${virtualStart}px; height: ${getRowHeightValue(rowHeight)}px; content-visibility: auto;`
+			: `transform: translateY(${virtualStart}px); height: ${getRowHeightValue(rowHeight)}px; content-visibility: auto;`
+	);
 
 	// Same column order as header (getVisibleLeafColumns), not row.getVisibleCells() alone.
 	const visibleCells = $derived.by(() => {
@@ -91,8 +108,8 @@
 	bind:this={rowRef}
 	tabindex={-1}
 	{dir}
-	class={cn('absolute inset-x-0 flex w-full border-b', className)}
-	style="top: {virtualStart}px; height: {getRowHeightValue(rowHeight)}px;"
+	class={cn('absolute flex w-full border-b', !adjustLayout && 'will-change-transform', className)}
+	style={rowStyle}
 >
 	{#each visibleCells as cell, colIndex (cell.id)}
 		{@const isCellFocused =
@@ -104,7 +121,9 @@
 			nextColumn: nextCell?.column,
 			isLastColumn
 		})}
-		{@const pinningStyle = toPinningStyleString(getColumnPinningStyle({ column: cell.column, dir }))}
+		{@const pinningStyle = toPinningStyleString(
+			getColumnPinningStyle({ column: cell.column, dir })
+		)}
 
 		<div
 			role="gridcell"

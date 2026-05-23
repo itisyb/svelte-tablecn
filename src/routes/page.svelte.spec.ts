@@ -31,6 +31,25 @@ describe('/+page.svelte', () => {
 		await expect.element(grid).toBeInTheDocument();
 	});
 
+	it('should use transform-based virtual row layout by default', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		const row = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const body = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-body"]')
+		);
+
+		const rowStyles = getComputedStyle(row);
+		const bodyStyles = getComputedStyle(body);
+
+		expect(row.style.transform).toContain('translateY');
+		expect(rowStyles.contentVisibility).toBe('auto');
+		expect(bodyStyles.contain).toBe('strict');
+	});
+
 	it('should keep select cell editor inside the cell box', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
