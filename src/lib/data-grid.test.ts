@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { parsePastedCellValue, parseTsv, serializeCellsToTsv } from './data-grid.js';
+import {
+	getRowIndicesForDeletion,
+	parsePastedCellValue,
+	parseTsv,
+	serializeCellsToTsv
+} from './data-grid.js';
 
 describe('parseTsv', () => {
 	it('parses simple multi-row TSV', () => {
@@ -126,5 +131,42 @@ describe('serializeCellsToTsv', () => {
 			tsvData: 'Tony Hawk\t["Kickflip","Vert"]\nLizzie Armanto\t["Park"]',
 			selectedCells: ['0:name', '0:skills', '1:name', '1:skills']
 		});
+	});
+});
+
+describe('getRowIndicesForDeletion', () => {
+	const rows = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+
+	it('prefers selected rows over selected cells and focus', () => {
+		expect(
+			getRowIndicesForDeletion({
+				rowSelection: { b: true },
+				selectedCells: new Set(['0:name']),
+				focusedCell: { rowIndex: 2, columnId: 'name' },
+				rows
+			})
+		).toEqual([1]);
+	});
+
+	it('falls back to selected cell rows', () => {
+		expect(
+			getRowIndicesForDeletion({
+				rowSelection: {},
+				selectedCells: new Set(['0:name', '2:score']),
+				focusedCell: { rowIndex: 1, columnId: 'name' },
+				rows
+			})
+		).toEqual([0, 2]);
+	});
+
+	it('falls back to the focused row when nothing is selected', () => {
+		expect(
+			getRowIndicesForDeletion({
+				rowSelection: {},
+				selectedCells: new Set(),
+				focusedCell: { rowIndex: 1, columnId: 'name' },
+				rows
+			})
+		).toEqual([1]);
 	});
 });

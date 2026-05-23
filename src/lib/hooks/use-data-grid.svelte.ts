@@ -72,6 +72,7 @@ import {
 import {
 	getEmptyCellValue,
 	getIsInPopover,
+	getRowIndicesForDeletion,
 	getScrollDirection,
 	parsePastedCellValue,
 	parseTsv,
@@ -1250,10 +1251,33 @@ export function useDataGrid<TData extends RowData>(
 		}
 	}
 
-	function deleteSelectedRows() {
+	async function deleteRowsByIndices(rowIndices: number[]) {
 		if (readOnly || !onRowsDeleteProp) return;
+		if (rowIndices.length === 0) return;
 
 		const rows = table.getRowModel().rows;
+		if (rows.length === 0) return;
+
+		const currentFocusedColumn = focusedCell?.columnId ?? getFirstNavigableColumnId();
+		const minDeletedRowIndex = Math.min(...rowIndices);
+		const rowsToDelete = rowIndices.map((idx) => rows[idx]?.original).filter(Boolean) as TData[];
+
+		if (rowsToDelete.length > 0) {
+			await onRowsDeleteProp(rowsToDelete, rowIndices);
+			clearSelection();
+			rowSelection = {};
+			editingCell = null;
+
+			requestAnimationFrame(() => {
+				const currentRows = table.getRowModel().rows;
+				if (currentRows.length > 0 && currentFocusedColumn) {
+					focusCell(Math.min(minDeletedRowIndex, currentRows.length - 1), currentFocusedColumn);
+				}
+			});
+		}
+	}
+
+	function deleteSelectedRows() {
 		const selectedRowIndices = new Set<number>();
 
 		for (const cellKey of selectionState.selectedCells) {
@@ -1261,13 +1285,7 @@ export function useDataGrid<TData extends RowData>(
 			selectedRowIndices.add(rowIndex);
 		}
 
-		const rowIndices = Array.from(selectedRowIndices).sort((a, b) => b - a);
-		const rowsToDelete = rowIndices.map((idx) => rows[idx]?.original).filter(Boolean) as TData[];
-
-		if (rowsToDelete.length > 0) {
-			onRowsDeleteProp(rowsToDelete, rowIndices);
-			clearSelection();
-		}
+		deleteRowsByIndices(Array.from(selectedRowIndices));
 	}
 
 	// ========================================
@@ -1393,6 +1411,28 @@ export function useDataGrid<TData extends RowData>(
 			event.preventDefault();
 			event.stopPropagation();
 			pasteFromClipboard();
+			return;
+		}
+
+		// Delete selected/focused rows
+		if (
+			(event.ctrlKey || event.metaKey) &&
+			(event.key === 'Delete' || event.key === 'Backspace') &&
+			!readOnly &&
+			onRowsDeleteProp
+		) {
+			const rowIndices = getRowIndicesForDeletion({
+				rowSelection,
+				selectedCells: selectionState.selectedCells,
+				focusedCell,
+				rows: table.getRowModel().rows
+			});
+
+			if (rowIndices.length > 0) {
+				event.preventDefault();
+				event.stopPropagation();
+				deleteRowsByIndices(rowIndices);
+			}
 			return;
 		}
 
@@ -2055,11 +2095,7 @@ export function useDataGrid<TData extends RowData>(
 		onCellEditingStart: startEditing,
 		onCellEditingStop: stopEditing,
 		onDataUpdate: handleDataUpdate,
-		onRowsDelete: (rowIndices: number[]) => {
-			const rows = table.getRowModel().rows;
-			const rowsToDelete = rowIndices.map((idx) => rows[idx]?.original).filter(Boolean) as TData[];
-			onRowsDeleteProp?.(rowsToDelete, rowIndices);
-		},
+		onRowsDelete: deleteRowsByIndices,
 		onCellsCopy: copySelectedCells,
 		onCellsCut: cutSelectedCells,
 		onFilesUpload,

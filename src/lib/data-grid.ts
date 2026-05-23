@@ -271,6 +271,32 @@ export function serializeCellsToTsv(params: {
 	return { tsvData, selectedCells: navigableCells };
 }
 
+export function getRowIndicesForDeletion(params: {
+	rowSelection: Record<string, boolean>;
+	selectedCells: Iterable<string>;
+	focusedCell: CellPosition | null;
+	rows: { id: string }[];
+}): number[] {
+	const rowIndices = new Set<number>();
+
+	for (const [rowIndex, row] of params.rows.entries()) {
+		if (params.rowSelection[row.id]) {
+			rowIndices.add(rowIndex);
+		}
+	}
+
+	const selectedCells = Array.from(params.selectedCells);
+	if (rowIndices.size === 0 && selectedCells.length > 0) {
+		for (const cellKey of selectedCells) {
+			rowIndices.add(parseCellKey(cellKey).rowIndex);
+		}
+	} else if (rowIndices.size === 0 && params.focusedCell) {
+		rowIndices.add(params.focusedCell.rowIndex);
+	}
+
+	return Array.from(rowIndices);
+}
+
 export function getIsFileCellData(item: unknown): item is FileCellData {
 	return (
 		!!item &&
