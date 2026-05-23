@@ -6,6 +6,7 @@ import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelt
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
+import DataGridLongTextCellSyncFixture from './data-grid-long-text-cell-sync-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
@@ -184,6 +185,22 @@ describe('/+page.svelte', () => {
 		});
 
 		expect(syncedBadgeTexts).toEqual(['Svelte']);
+	});
+
+	it('should sync long text editor when the external value changes', async () => {
+		await render(DataGridLongTextCellSyncFixture);
+
+		const textarea = await waitFor(() => document.querySelector<HTMLTextAreaElement>('textarea'));
+		await expect.element(page.getByRole('button', { name: 'External note' })).toBeInTheDocument();
+
+		textarea.value = 'Local note';
+		textarea.dispatchEvent(new Event('input', { bubbles: true, cancelable: true }));
+		await waitFor(() => textarea.value === 'Local note');
+
+		await page.getByRole('button', { name: 'External note' }).click();
+		await waitFor(() => textarea.value === 'External note');
+
+		expect(textarea.value).toBe('External note');
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {

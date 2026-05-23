@@ -28,7 +28,15 @@
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
+	let previousInitialValue = $state<string | null>(null);
 	let pendingChar = $state<string | null>(null);
+
+	$effect(() => {
+		if (initialValue === previousInitialValue) return;
+
+		previousInitialValue = initialValue;
+		localEditValue = null;
+	});
 
 	// Value for display and tracking - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? initialValue ?? '');
