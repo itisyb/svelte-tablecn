@@ -30,37 +30,53 @@
 		}
 	];
 
-	const { table, ...dataGridProps } = useDataGrid({
+	const dataGrid = useDataGrid({
 		columns,
 		data,
 		getRowId: (row) => row.id
 	});
 
 	function startSecondName() {
-		table.options.meta?.onCellEditingStart?.(1, 'name');
+		dataGrid.table.options.meta?.onCellEditingStart?.(1, 'name');
 	}
 
 	function stopRight() {
-		table.options.meta?.onCellEditingStop?.({ direction: 'right' });
+		dataGrid.table.options.meta?.onCellEditingStop?.({ direction: 'right' });
 	}
 
 	function startSecondNameAndStopRight() {
-		table.options.meta?.onCellEditingStart?.(1, 'name');
-		table.options.meta?.onCellEditingStop?.({ direction: 'right' });
+		dataGrid.table.options.meta?.onCellEditingStart?.(1, 'name');
+		dataGrid.table.options.meta?.onCellEditingStop?.({ direction: 'right' });
 	}
 </script>
 
 <button type="button" onclick={startSecondName}>Start second name edit</button>
 <button type="button" onclick={stopRight}>Stop right</button>
 <button type="button" onclick={startSecondNameAndStopRight}>Start second name and stop right</button>
-<DataGrid {...dataGridProps} {table} height={180} />
-<output aria-label="focused cell">
-	{table.options.meta?.focusedCell
-		? `${table.options.meta.focusedCell.rowIndex}:${table.options.meta.focusedCell.columnId}`
+<DataGrid {...dataGrid} height={180} />
+<output aria-label="meta focused cell">
+	{dataGrid.table.options.meta?.focusedCell
+		? `${dataGrid.table.options.meta.focusedCell.rowIndex}:${dataGrid.table.options.meta.focusedCell.columnId}`
 		: 'none'}
 </output>
-<output aria-label="editing cell">
-	{table.options.meta?.editingCell
-		? `${table.options.meta.editingCell.rowIndex}:${table.options.meta.editingCell.columnId}`
+<output aria-label="meta editing cell">
+	{dataGrid.table.options.meta?.editingCell
+		? `${dataGrid.table.options.meta.editingCell.rowIndex}:${dataGrid.table.options.meta.editingCell.columnId}`
+		: 'none'}
+</output>
+<output aria-label="hook focused cell">
+	{dataGrid.focusedCell ? `${dataGrid.focusedCell.rowIndex}:${dataGrid.focusedCell.columnId}` : 'none'}
+</output>
+<output aria-label="hook editing cell">
+	{dataGrid.editingCell ? `${dataGrid.editingCell.rowIndex}:${dataGrid.editingCell.columnId}` : 'none'}
+</output>
+<output aria-label="hook table meta focused cell">
+	{dataGrid.tableMeta.focusedCell
+		? `${dataGrid.tableMeta.focusedCell.rowIndex}:${dataGrid.tableMeta.focusedCell.columnId}`
+		: 'none'}
+</output>
+<output aria-label="hook table meta editing cell">
+	{dataGrid.tableMeta.editingCell
+		? `${dataGrid.tableMeta.editingCell.rowIndex}:${dataGrid.tableMeta.editingCell.columnId}`
 		: 'none'}
 </output>

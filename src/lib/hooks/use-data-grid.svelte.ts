@@ -39,6 +39,7 @@ import {
 	type TableOptions,
 	type TableOptionsResolved,
 	type Table,
+	type TableMeta,
 	type SortingState,
 	type ColumnFiltersState,
 	type RowSelectionState,
@@ -150,9 +151,16 @@ export interface UseDataGridReturn<TData extends RowData> {
 
 	// Table instance
 	table: Table<TData>;
+	tableMeta: TableMeta<TData>;
 
 	// Virtualizer
 	rowVirtualizer: VirtualizerReturn;
+	virtualTotalSize: number;
+	virtualItems: VirtualItem[];
+	measureElement: (element: Element | null) => void;
+
+	// Columns
+	columns: ColumnDef<TData, unknown>[];
 
 	// Selection state - exposed as getters for use in $derived
 	selectedCellsSet: SvelteSet<string>;
@@ -164,9 +172,19 @@ export interface UseDataGridReturn<TData extends RowData> {
 
 	// Search state (if enabled)
 	searchState?: SearchState;
+	searchMatchesByRow: Map<number, Set<string>> | null;
+	activeSearchMatch: CellPosition | null;
 
 	// Column size CSS variables
 	columnSizeVars: Record<string, number>;
+
+	// Cell state
+	cellSelectionMap: Map<number, Set<string>> | null;
+	focusedCell: CellPosition | null;
+	editingCell: CellPosition | null;
+	rowHeight: RowHeightValue;
+	contextMenu: ContextMenuState;
+	pasteDialog: PasteDialogState;
 
 	// Text direction (ltr | rtl)
 	dir: Direction;
@@ -507,6 +525,39 @@ export function useDataGrid<TData extends RowData>(
 	function getIsActiveSearchMatch(rowIndex: number, columnId: string): boolean {
 		const activeMatch = searchMatches[matchIndex];
 		return activeMatch?.rowIndex === rowIndex && activeMatch?.columnId === columnId;
+	}
+
+	function getSearchMatchesByRow(): Map<number, Set<string>> | null {
+		if (searchMatches.length === 0) return null;
+
+		const matchesByRow = new Map<number, Set<string>>();
+		for (const match of searchMatches) {
+			let columnSet = matchesByRow.get(match.rowIndex);
+			if (!columnSet) {
+				columnSet = new Set<string>();
+				matchesByRow.set(match.rowIndex, columnSet);
+			}
+			columnSet.add(match.columnId);
+		}
+
+		return matchesByRow;
+	}
+
+	function getCellSelectionMap(): Map<number, Set<string>> | null {
+		if (selectionState.selectedCells.size === 0) return null;
+
+		const selectedByRow = new Map<number, Set<string>>();
+		for (const cellKey of selectionState.selectedCells) {
+			const { rowIndex, columnId } = parseCellKey(cellKey);
+			let columnSet = selectedByRow.get(rowIndex);
+			if (!columnSet) {
+				columnSet = new Set<string>();
+				selectedByRow.set(rowIndex, columnSet);
+			}
+			columnSet.add(columnId);
+		}
+
+		return selectedByRow;
 	}
 
 	function getVisualRowIndex(rowId: string): number | undefined {
@@ -2892,14 +2943,23 @@ export function useDataGrid<TData extends RowData>(
 		get headerRef() {
 			return headerRef;
 		},
-		rowMapRef,
-		get footerRef() {
-			return footerRef;
-		},
-		table: reactiveTable,
-		rowVirtualizer,
-		// Selection state - pass the SvelteSet and a reactive object for version
-		selectedCellsSet,
+			rowMapRef,
+			get footerRef() {
+				return footerRef;
+			},
+			table: reactiveTable,
+			tableMeta: meta,
+			rowVirtualizer,
+			get virtualTotalSize() {
+				return totalSize;
+			},
+			get virtualItems() {
+				return virtualItems;
+			},
+			measureElement: (element: Element | null) => rowVirtualizer.measureElement(element),
+			columns,
+			// Selection state - pass the SvelteSet and a reactive object for version
+			selectedCellsSet,
 		// Wrap selectionVersion in object with getter so components can track it reactively
 		selectionState: {
 			get version() {
@@ -2924,18 +2984,43 @@ export function useDataGrid<TData extends RowData>(
 						return searchQuery;
 					},
 					onSearchOpenChange: handleSearchOpenChange,
-					onSearchQueryChange: handleSearchQueryChange,
-					onSearch: performSearch,
-					onNavigateToNextMatch: navigateToNextMatch,
-					onNavigateToPrevMatch: navigateToPrevMatch
-				}
-			: undefined,
-		get columnSizeVars() {
-			return getColumnSizeVars();
-		},
-		get dir() {
-			return getDir();
-		},
+						onSearchQueryChange: handleSearchQueryChange,
+						onSearch: performSearch,
+						onNavigateToNextMatch: navigateToNextMatch,
+						onNavigateToPrevMatch: navigateToPrevMatch
+					}
+				: undefined,
+			get searchMatchesByRow() {
+				return getSearchMatchesByRow();
+			},
+			get activeSearchMatch() {
+				if (matchIndex < 0 || searchMatches.length === 0) return null;
+				return searchMatches[matchIndex] ?? null;
+			},
+			get columnSizeVars() {
+				return getColumnSizeVars();
+			},
+			get cellSelectionMap() {
+				return getCellSelectionMap();
+			},
+			get focusedCell() {
+				return focusedCell;
+			},
+			get editingCell() {
+				return editingCell;
+			},
+			get rowHeight() {
+				return rowHeight;
+			},
+			get contextMenu() {
+				return contextMenu;
+			},
+			get pasteDialog() {
+				return pasteDialog;
+			},
+			get dir() {
+				return getDir();
+			},
 		onRowAdd: onRowAddProp ? handleRowAdd : undefined,
 		get adjustLayout() {
 			return adjustLayout;

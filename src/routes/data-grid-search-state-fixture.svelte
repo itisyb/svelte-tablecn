@@ -23,7 +23,7 @@
 		}
 	];
 
-	const { table, ...dataGridProps } = useDataGrid({
+	const dataGrid = useDataGrid({
 		columns,
 		data: () => data,
 		onDataChange: (nextData) => {
@@ -32,7 +32,20 @@
 		getRowId: (row) => row.id,
 		enableSearch: true
 	});
+
+	function searchAda() {
+		dataGrid.searchState?.onSearch('Ada');
+	}
 </script>
 
-<DataGrid {...dataGridProps} {table} height={160} />
-<output aria-label="initial match index">{dataGridProps.searchState?.matchIndex}</output>
+<button type="button" onclick={searchAda}>Search Ada</button>
+<DataGrid {...dataGrid} height={160} />
+<output aria-label="initial match index">{dataGrid.searchState?.matchIndex}</output>
+<output aria-label="active search match">
+	{dataGrid.activeSearchMatch
+		? `${dataGrid.activeSearchMatch.rowIndex}:${dataGrid.activeSearchMatch.columnId}`
+		: 'none'}
+</output>
+<output aria-label="search matches by row">
+	{dataGrid.searchMatchesByRow?.get(0)?.has('name') ? 'row0-name' : 'none'}
+</output>

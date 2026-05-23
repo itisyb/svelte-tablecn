@@ -1209,13 +1209,26 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('initial match index')).toHaveTextContent('-1');
 	});
 
+	it('should expose original search result helpers', async () => {
+		await render(DataGridSearchStateFixture);
+
+		await page.getByRole('button', { name: 'Search Ada' }).click();
+
+		await expect.element(page.getByLabelText('active search match')).toHaveTextContent('0:name');
+		await expect.element(page.getByLabelText('search matches by row')).toHaveTextContent('row0-name');
+	});
+
 	it('should focus direct meta editing starts before navigating on stop', async () => {
 		await render(DataGridEditingMetaFixture);
 
 		await page.getByRole('button', { name: 'Start second name edit' }).click();
 
-		await expect.element(page.getByLabelText('focused cell')).toHaveTextContent('1:name');
-		await expect.element(page.getByLabelText('editing cell')).toHaveTextContent('1:name');
+		await expect.element(page.getByLabelText('meta focused cell', { exact: true })).toHaveTextContent('1:name');
+		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('1:name');
+		await expect.element(page.getByLabelText('hook focused cell', { exact: true })).toHaveTextContent('1:name');
+		await expect.element(page.getByLabelText('hook editing cell', { exact: true })).toHaveTextContent('1:name');
+		await expect.element(page.getByLabelText('hook table meta focused cell')).toHaveTextContent('1:name');
+		await expect.element(page.getByLabelText('hook table meta editing cell')).toHaveTextContent('1:name');
 	});
 
 	it('should navigate from the direct meta editing cell on stop', async () => {
@@ -1223,8 +1236,8 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Start second name and stop right' }).click();
 
-		await expect.element(page.getByLabelText('editing cell')).toHaveTextContent('none');
-		await waitFor(() => page.getByLabelText('focused cell').element().textContent?.trim() === '1:score');
+		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('none');
+		await waitFor(() => page.getByLabelText('meta focused cell', { exact: true }).element().textContent?.trim() === '1:score');
 	});
 
 	it('should hide row mutation shortcuts unless enabled', async () => {
