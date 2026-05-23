@@ -2767,15 +2767,19 @@ export function useDataGrid<TData extends RowData>(
 	$effect(() => {
 		if (autoFocus && dataGridRef) {
 			queueMicrotask(() => {
-				dataGridRef?.focus();
-
 				const firstColumnId = getFirstNavigableColumnId();
 				if (firstColumnId) {
 					if (typeof autoFocus === 'object') {
-						focusCell(autoFocus.rowIndex ?? 0, autoFocus.columnId ?? firstColumnId);
-					} else {
-						focusCell(0, firstColumnId);
+						const { rowIndex, columnId } = autoFocus;
+						if (columnId) {
+							dataGridRef?.focus();
+							focusCell(rowIndex ?? 0, columnId);
+						}
+						return;
 					}
+
+					dataGridRef?.focus();
+					focusCell(0, firstColumnId);
 				}
 			});
 		}

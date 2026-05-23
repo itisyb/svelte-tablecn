@@ -2,6 +2,7 @@ import { page } from 'vitest/browser';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
+import DataGridAutoFocusFixture from './data-grid-auto-focus-fixture.svelte';
 import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
@@ -66,6 +67,15 @@ describe('/+page.svelte', () => {
 
 		const grid = page.getByRole('grid', { name: 'Data grid' });
 		await expect.element(grid).toBeInTheDocument();
+	});
+
+	it('should only autofocus object targets with a column id like the original grid', async () => {
+		await render(DataGridAutoFocusFixture);
+
+		await expect.element(page.getByLabelText('default focused cell')).toHaveTextContent('0:name');
+		await expect.element(page.getByLabelText('target focused cell')).toHaveTextContent('1:score');
+		await new Promise((resolve) => setTimeout(resolve, 50));
+		await expect.element(page.getByLabelText('row-only focused cell')).toHaveTextContent('none');
 	});
 
 	it('should use transform-based virtual row layout by default', async () => {
