@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Cell and row selection after filtering: use row-model position (not core `row.index`) so shift-select and counts only include visible rows ([#20](https://github.com/itisyb/svelte-tablecn/issues/20))
+- Click outside the grid clears cell focus (tablecn behavior); no longer re-focuses the cell on `focusout`
 
 ## [0.2.0] - 2026-05-20
 

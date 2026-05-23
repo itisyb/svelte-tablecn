@@ -595,6 +595,15 @@ export function useDataGrid<TData extends RowData>(
 	function blurCell() {
 		focusedCell = null;
 		editingCell = null;
+
+		const active = document.activeElement;
+		if (
+			dataGridRef &&
+			active instanceof HTMLElement &&
+			dataGridRef.contains(active)
+		) {
+			active.blur();
+		}
 	}
 
 	function navigateCell(direction: NavigationDirection) {
@@ -2472,43 +2481,61 @@ export function useDataGrid<TData extends RowData>(
 		}
 	});
 
-	// Restore focus to container when virtualized cells are unmounted
+	// Blur focused cell when clicking outside; keep keyboard target when cell unmounts (virtualization)
 	$effect(() => {
 		const container = dataGridRef;
 		if (!container) return;
 
 		const gridContainer = container;
 
+		function onPointerDown(event: PointerEvent) {
+			if (focusGuard) return;
+			if (!focusedCell && !editingCell) return;
+
+			const target = event.target;
+			if (!(target instanceof Node)) return;
+			if (gridContainer.contains(target)) return;
+			if (getIsInPopover(target)) return;
+
+			blurCell();
+		}
+
 		function onFocusOut(event: FocusEvent) {
 			if (focusGuard) return;
-
 			if (!focusedCell || editingCell) return;
 
 			const relatedTarget = event.relatedTarget;
-			const isFocusMovingOutsideGrid =
-				!relatedTarget || !gridContainer.contains(relatedTarget as Node);
-			const isFocusMovingToPopover = getIsInPopover(relatedTarget);
 
-			if (isFocusMovingOutsideGrid && !isFocusMovingToPopover) {
-				const { rowIndex, columnId } = focusedCell;
-				const cellKey = getCellKey(rowIndex, columnId);
-				const cellElement = cellMapRef.get(cellKey);
+			if (relatedTarget && gridContainer.contains(relatedTarget as Node)) return;
+			if (getIsInPopover(relatedTarget)) return;
 
-				requestAnimationFrame(() => {
-					if (focusGuard) return;
-
-					if (cellElement && document.body.contains(cellElement)) {
-						cellElement.focus();
-					} else {
-						gridContainer.focus();
-					}
-				});
+			// Focus left the grid (toolbar, page chrome, another widget)
+			if (relatedTarget && !gridContainer.contains(relatedTarget as Node)) {
+				blurCell();
+				return;
 			}
+
+			// Focus lost because the cell unmounted — keep model, focus grid for keyboard nav
+			const { rowIndex, columnId } = focusedCell;
+			const cellKey = getCellKey(rowIndex, columnId);
+
+			requestAnimationFrame(() => {
+				if (focusGuard || !focusedCell) return;
+
+				const cellElement = cellMapRef.get(cellKey);
+				if (cellElement && document.body.contains(cellElement)) {
+					return;
+				}
+
+				gridContainer.focus({ preventScroll: true });
+			});
 		}
 
+		document.addEventListener('pointerdown', onPointerDown, true);
 		gridContainer.addEventListener('focusout', onFocusOut);
 
 		return () => {
+			document.removeEventListener('pointerdown', onPointerDown, true);
 			gridContainer.removeEventListener('focusout', onFocusOut);
 		};
 	});
