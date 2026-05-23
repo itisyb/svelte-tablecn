@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
+import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
@@ -349,6 +350,19 @@ describe('/+page.svelte', () => {
 
 		await waitFor(() => document.querySelector('[role="listitem"]') === null);
 		await expect.element(page.getByRole('heading', { name: 'No sorting applied' })).toBeInTheDocument();
+	});
+
+	it('should remove filter item with delete shortcut', async () => {
+		await render(DataGridFilterMenuFixture);
+
+		await page.getByRole('button', { name: 'Filter 1' }).click();
+
+		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		filterItem.focus();
+		filterItem.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
+
+		await waitFor(() => document.querySelector('[role="listitem"]') === null);
+		await expect.element(page.getByRole('heading', { name: 'No filters applied' })).toBeInTheDocument();
 	});
 
 	it('should reset search state when toggled closed from the keyboard shortcut', async () => {

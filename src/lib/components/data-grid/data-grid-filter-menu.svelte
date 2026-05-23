@@ -187,6 +187,17 @@
 		table.setColumnFilters(cleanItems);
 	}
 
+	function onFilterItemKeyDown(event: KeyboardEvent, filterId: string) {
+		if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+			return;
+		}
+
+		if (REMOVE_FILTER_SHORTCUTS.includes(event.key.toLowerCase())) {
+			event.preventDefault();
+			onFilterRemove(filterId);
+		}
+	}
+
 	function getColumnOptions(columnId: string): CellSelectOption[] {
 		const column = table.getColumn(columnId);
 		const cellVariant = column?.columnDef.meta?.cell;
@@ -263,6 +274,7 @@
 		</div>
 		{#if filterItems.length > 0}
 			<ul
+				role="list"
 				class="flex max-h-[400px] flex-col gap-2 overflow-y-auto p-1"
 				use:dragHandleZone={{
 					items: filterItems,
@@ -280,7 +292,14 @@
 					{@const operators = getOperatorsForVariant(variant)}
 					{@const needsValue = !['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(operator)}
 					{@const selectOptions = getColumnOptions(filter.id)}
-					<li class="flex items-center gap-2">
+					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+					<li
+						role="listitem"
+						tabindex={-1}
+						class="flex items-center gap-2"
+						onkeydown={(event) => onFilterItemKeyDown(event, filter.id)}
+					>
 						<div class="min-w-[72px] text-center">
 							{#if index === 0}
 								<span class="text-muted-foreground text-sm">Where</span>
