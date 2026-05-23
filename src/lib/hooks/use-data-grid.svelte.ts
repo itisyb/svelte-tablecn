@@ -1554,8 +1554,10 @@ export function useDataGrid<TData extends RowData>(
 				stopEditing();
 			} else if (searchOpen) {
 				handleSearchOpenChange(false);
+			} else if (selectionState.selectedCells.size > 0 || Object.keys(rowSelection).length > 0) {
+				onSelectionClear();
 			} else {
-				clearSelection();
+				blurCell();
 			}
 			return;
 		}
