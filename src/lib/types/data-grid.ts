@@ -1,6 +1,6 @@
 // Data Grid Types for TableCN-Svelte
 
-import type { ColumnDef, Table, Row, Cell, Column, RowData } from '@tanstack/table-core';
+import type { ColumnDef, Table, Row, Cell, Column, RowData, Updater } from '@tanstack/table-core';
 import type { SvelteSet, SvelteMap } from 'svelte/reactivity';
 import type { Snippet, Component } from 'svelte';
 
@@ -266,7 +266,7 @@ declare module '@tanstack/table-core' {
 		searchMatchSet?: SvelteSet<string>;
 		activeSearchMatch?: CellPosition | null;
 		rowHeight?: RowHeightValue;
-		onRowHeightChange?: (value: RowHeightValue) => void;
+		onRowHeightChange?: (updater: Updater<RowHeightValue>) => void;
 		getVisualRowIndex?: (rowId: string) => number | undefined;
 		onRowSelect?: (rowId: string, checked: boolean, shiftKey: boolean) => void;
 		onDataUpdate?: (params: UpdateCell | UpdateCell[]) => void;

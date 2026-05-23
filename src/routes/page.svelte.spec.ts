@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
+import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -223,5 +224,15 @@ describe('/+page.svelte', () => {
 
 		expect(cell.textContent?.trim()).toBe('Custom Ada');
 		expect(cell.querySelector('[data-slot="grid-cell-wrapper"]')).toBeNull();
+	});
+
+	it('should disable the data grid row height menu', async () => {
+		await render(DataGridRowHeightMenuFixture);
+
+		const trigger = await waitFor(() =>
+			document.querySelector<HTMLButtonElement>('[data-slot="select-trigger"]')
+		);
+
+		expect(trigger.disabled).toBe(true);
 	});
 });

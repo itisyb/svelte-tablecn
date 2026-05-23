@@ -30,11 +30,12 @@
 
 	interface Props {
 		table: Table<TData>;
+		disabled?: boolean;
 		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, align = 'start', class: className }: Props = $props();
+	let { table, disabled = false, align = 'start', class: className }: Props = $props();
 
 	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
 	const onRowHeightChange = $derived(table.options.meta?.onRowHeightChange);
@@ -44,12 +45,13 @@
 	);
 
 	function handleValueChange(value: string) {
+		if (disabled) return;
 		onRowHeightChange?.(value as RowHeightValue);
 	}
 </script>
 
-<Select type="single" value={rowHeight} onValueChange={handleValueChange}>
-	<SelectTrigger size="sm" class="[&_svg:nth-child(2)]:hidden {className}">
+<Select type="single" value={rowHeight} onValueChange={handleValueChange} {disabled}>
+	<SelectTrigger size="sm" {disabled} class="[&_svg:nth-child(2)]:hidden {className}">
 		<span data-slot="select-value" class="flex items-center gap-2">
 			{#if selectedRowHeight}
 				{@const Icon = selectedRowHeight.icon}

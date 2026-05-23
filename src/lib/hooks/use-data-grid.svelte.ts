@@ -46,7 +46,8 @@ import {
 	type ColumnPinningState,
 	type VisibilityState,
 	type ColumnSizingState,
-	type ColumnSizingInfoState
+	type ColumnSizingInfoState,
+	type Updater
 } from '@tanstack/table-core';
 import * as virtualCore from '@tanstack/virtual-core';
 import type { Virtualizer, VirtualItem } from '@tanstack/virtual-core';
@@ -2146,10 +2147,7 @@ export function useDataGrid<TData extends RowData>(
 		// Keep functions for backwards compatibility
 		getIsSearchMatch,
 		getIsActiveSearchMatch,
-		onRowHeightChange: (value: RowHeightValue) => {
-			rowHeight = value;
-			onRowHeightChangeProp?.(value);
-		},
+		onRowHeightChange: handleRowHeightChange,
 		getVisualRowIndex,
 		onColumnClick,
 		onCellClick: selectCell,
@@ -2766,6 +2764,12 @@ export function useDataGrid<TData extends RowData>(
 
 	function handleSearchQueryChange(query: string) {
 		searchQuery = query;
+	}
+
+	function handleRowHeightChange(updater: Updater<RowHeightValue>) {
+		const nextRowHeight = typeof updater === 'function' ? updater(rowHeight) : updater;
+		rowHeight = nextRowHeight;
+		onRowHeightChangeProp?.(nextRowHeight);
 	}
 
 	return {
