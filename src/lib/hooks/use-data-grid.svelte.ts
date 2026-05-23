@@ -113,6 +113,9 @@ export interface UseDataGridOptions<TData extends RowData> {
 		rowSelection?: RowSelectionState;
 	};
 	onDataChange?: (data: TData[]) => void;
+	onSortingChange?: (sorting: SortingState) => void;
+	onColumnFiltersChange?: (columnFilters: ColumnFiltersState) => void;
+	onRowSelectionChange?: (rowSelection: RowSelectionState) => void;
 	onRowAdd?: (
 		event?: MouseEvent
 	) => Partial<CellPosition> | null | void | Promise<Partial<CellPosition> | null | void>;
@@ -235,6 +238,9 @@ export function useDataGrid<TData extends RowData>(
 		getRowId,
 		initialState,
 		onDataChange,
+		onSortingChange: onSortingChangeProp,
+		onColumnFiltersChange: onColumnFiltersChangeProp,
+		onRowSelectionChange: onRowSelectionChangeProp,
 		onRowAdd: onRowAddProp,
 		onRowsAdd,
 		onRowsDelete: onRowsDeleteProp,
@@ -955,6 +961,7 @@ export function useDataGrid<TData extends RowData>(
 			}
 		}
 		rowSelection = prunedRowSelection;
+		onRowSelectionChangeProp?.(prunedRowSelection);
 
 		const selectedRows = Object.keys(prunedRowSelection);
 		const newSelectedCells = new Set<string>();
@@ -2191,15 +2198,18 @@ export function useDataGrid<TData extends RowData>(
 		},
 		onSortingChange: (updater) => {
 			sorting = typeof updater === 'function' ? updater(sorting) : updater;
+			onSortingChangeProp?.(sorting);
 			notifyTableUpdate?.();
 		},
 		onColumnFiltersChange: (updater) => {
 			columnFilters = typeof updater === 'function' ? updater(columnFilters) : updater;
+			onColumnFiltersChangeProp?.(columnFilters);
 			notifyTableUpdate?.();
 		},
 		onRowSelectionChange: (updater) => {
 			const newRowSelection = typeof updater === 'function' ? updater(rowSelection) : updater;
 			rowSelection = newRowSelection;
+			onRowSelectionChangeProp?.(newRowSelection);
 
 			// Keep cell selection aligned with selected rows so the full row is highlighted.
 			const rows = table.getRowModel().rows;
