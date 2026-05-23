@@ -1339,11 +1339,15 @@ export function useDataGrid<TData extends RowData>(
 		if (searchMatches.length === 0) return;
 
 		const newIndex = (matchIndex + 1) % searchMatches.length;
-		matchIndex = newIndex;
-
 		const match = searchMatches[newIndex];
 		if (match) {
 			virtualizer?.scrollToIndex(match.rowIndex, { align: 'center' });
+			requestAnimationFrame(() => {
+				matchIndex = newIndex;
+				requestAnimationFrame(() => {
+					focusCell(match.rowIndex, match.columnId);
+				});
+			});
 		}
 	}
 
@@ -1351,11 +1355,15 @@ export function useDataGrid<TData extends RowData>(
 		if (searchMatches.length === 0) return;
 
 		const newIndex = (matchIndex - 1 + searchMatches.length) % searchMatches.length;
-		matchIndex = newIndex;
-
 		const match = searchMatches[newIndex];
 		if (match) {
 			virtualizer?.scrollToIndex(match.rowIndex, { align: 'center' });
+			requestAnimationFrame(() => {
+				matchIndex = newIndex;
+				requestAnimationFrame(() => {
+					focusCell(match.rowIndex, match.columnId);
+				});
+			});
 		}
 	}
 
