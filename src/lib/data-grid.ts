@@ -1,5 +1,13 @@
 import type { Column, Row, Table, RowData } from '@tanstack/table-core';
-import type { CellOpts, CellSelectOption, Direction, FileCellData } from '$lib/types/data-grid.js';
+import {
+	getCellKey,
+	parseCellKey,
+	type CellOpts,
+	type CellPosition,
+	type CellSelectOption,
+	type Direction,
+	type FileCellData
+} from '$lib/types/data-grid.js';
 import { VIEWPORT_OFFSET } from '$lib/config/data-grid.js';
 
 const DOMAIN_REGEX = /^[\w.-]+\.[a-z]{2,}(\/\S*)?$/i;
@@ -198,6 +206,69 @@ export function parseTsv(text: string, fallbackColumnCount: number): string[][] 
 	return rows.length > 0
 		? rows
 		: lines.filter((line) => line.length > 0).map((line) => line.split('\t'));
+}
+
+export function formatCellValueForCopy(value: unknown, cellVariant?: string): string {
+	if (value === null || value === undefined) return '';
+	if (cellVariant === 'file' || cellVariant === 'multi-select') return JSON.stringify(value);
+	if (value instanceof Date) return value.toISOString();
+	return String(value);
+}
+
+export function serializeCellsToTsv(params: {
+	selectedCells: Iterable<string>;
+	focusedCell: CellPosition | null;
+	rows: { getValue: (columnId: string) => unknown }[];
+	getCellVariant: (columnId: string) => string | undefined;
+	nonNavigableColumnIds: ReadonlySet<string>;
+}): { tsvData: string; selectedCells: string[] } | null {
+	const selectedCells = Array.from(params.selectedCells);
+	const cells =
+		selectedCells.length > 0
+			? selectedCells
+			: params.focusedCell
+				? [getCellKey(params.focusedCell.rowIndex, params.focusedCell.columnId)]
+				: [];
+
+	if (cells.length === 0) return null;
+
+	const selectedColumnIds: string[] = [];
+	const seenColumnIds = new Set<string>();
+	const rowIndices = new Set<number>();
+	const cellData = new Map<string, string>();
+	const navigableCells: string[] = [];
+
+	for (const cellKey of cells) {
+		const { rowIndex, columnId } = parseCellKey(cellKey);
+		if (!columnId || params.nonNavigableColumnIds.has(columnId)) continue;
+
+		navigableCells.push(cellKey);
+
+		if (!seenColumnIds.has(columnId)) {
+			seenColumnIds.add(columnId);
+			selectedColumnIds.push(columnId);
+		}
+
+		rowIndices.add(rowIndex);
+
+		const row = params.rows[rowIndex];
+		if (row) {
+			const value = row.getValue(columnId);
+			const cellVariant = params.getCellVariant(columnId);
+			cellData.set(cellKey, formatCellValueForCopy(value, cellVariant));
+		}
+	}
+
+	const sortedRowIndices = Array.from(rowIndices).sort((a, b) => a - b);
+	const tsvData = sortedRowIndices
+		.map((rowIndex) =>
+			selectedColumnIds
+				.map((columnId) => cellData.get(getCellKey(rowIndex, columnId)) ?? '')
+				.join('\t')
+		)
+		.join('\n');
+
+	return { tsvData, selectedCells: navigableCells };
 }
 
 export function getIsFileCellData(item: unknown): item is FileCellData {

@@ -283,8 +283,8 @@ declare module '@tanstack/table-core' {
 			direction?: NavigationDirection;
 			moveToNextRow?: boolean;
 		}) => void;
-		onCellsCopy?: () => void;
-		onCellsCut?: () => void;
+		onCellsCopy?: () => void | Promise<void>;
+		onCellsCut?: () => void | Promise<void>;
 		onFilesUpload?: (params: {
 			files: File[];
 			rowIndex: number;

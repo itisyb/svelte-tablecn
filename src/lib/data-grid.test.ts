@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parsePastedCellValue, parseTsv } from './data-grid.js';
+import { parsePastedCellValue, parseTsv, serializeCellsToTsv } from './data-grid.js';
 
 describe('parseTsv', () => {
 	it('parses simple multi-row TSV', () => {
@@ -71,5 +71,60 @@ describe('parsePastedCellValue', () => {
 			shouldSkip: false
 		});
 		expect(parsePastedCellValue('maybe', { variant: 'checkbox' }).shouldSkip).toBe(true);
+	});
+});
+
+describe('serializeCellsToTsv', () => {
+	const rows = [
+		{
+			getValue: (columnId: string) =>
+				({
+					name: 'Tony Hawk',
+					age: 55,
+					skills: ['Kickflip', 'Vert']
+				})[columnId]
+		},
+		{
+			getValue: (columnId: string) =>
+				({
+					name: 'Lizzie Armanto',
+					age: 31,
+					skills: ['Park']
+				})[columnId]
+		}
+	];
+
+	const nonNavigableColumnIds = new Set(['select', 'actions']);
+	const getCellVariant = (columnId: string) =>
+		columnId === 'skills' ? 'multi-select' : columnId === 'age' ? 'number' : 'short-text';
+
+	it('falls back to the focused cell when no cells are selected', () => {
+		expect(
+			serializeCellsToTsv({
+				selectedCells: new Set(),
+				focusedCell: { rowIndex: 0, columnId: 'name' },
+				rows,
+				getCellVariant,
+				nonNavigableColumnIds
+			})
+		).toEqual({
+			tsvData: 'Tony Hawk',
+			selectedCells: ['0:name']
+		});
+	});
+
+	it('serializes selected cells without inserting unselected columns', () => {
+		expect(
+			serializeCellsToTsv({
+				selectedCells: new Set(['0:name', '0:skills', '1:name', '1:skills']),
+				focusedCell: null,
+				rows,
+				getCellVariant,
+				nonNavigableColumnIds
+			})
+		).toEqual({
+			tsvData: 'Tony Hawk\t["Kickflip","Vert"]\nLizzie Armanto\t["Park"]',
+			selectedCells: ['0:name', '0:skills', '1:name', '1:skills']
+		});
 	});
 });

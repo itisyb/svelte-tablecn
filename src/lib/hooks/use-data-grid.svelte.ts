@@ -75,7 +75,8 @@ import {
 	getScrollDirection,
 	parsePastedCellValue,
 	parseTsv,
-	scrollCellIntoView
+	scrollCellIntoView,
+	serializeCellsToTsv as serializeCellsToTsvData
 } from '$lib/data-grid.js';
 import { toast } from 'svelte-sonner';
 import {
@@ -1064,70 +1065,48 @@ export function useDataGrid<TData extends RowData>(
 	// Clipboard Operations
 	// ========================================
 
-	function copySelectedCells() {
-		if (selectionState.selectedCells.size === 0) return;
-
-		const rows = table.getRowModel().rows;
-		const cols = getNavigableColumns();
-
-		// Get bounds of selection
-		let minRow = Infinity,
-			maxRow = -Infinity;
-		let minCol = Infinity,
-			maxCol = -Infinity;
-
-		for (const cellKey of selectionState.selectedCells) {
-			const { rowIndex, columnId } = parseCellKey(cellKey);
-			const colIndex = cols.findIndex((c) => c.id === columnId);
-			if (colIndex >= 0) {
-				minRow = Math.min(minRow, rowIndex);
-				maxRow = Math.max(maxRow, rowIndex);
-				minCol = Math.min(minCol, colIndex);
-				maxCol = Math.max(maxCol, colIndex);
-			}
-		}
-
-		// Build TSV string
-		const lines: string[] = [];
-		for (let row = minRow; row <= maxRow; row++) {
-			const rowData = rows[row];
-			if (!rowData) continue;
-
-			const cells: string[] = [];
-			for (let col = minCol; col <= maxCol; col++) {
-				const colId = cols[col]?.id;
-				if (!colId) continue;
-
-				const cellKey = getCellKey(row, colId);
-				if (selectionState.selectedCells.has(cellKey)) {
-					const value = rowData.getValue(colId);
-					cells.push(formatCellValueForCopy(value));
-				} else {
-					cells.push('');
-				}
-			}
-			lines.push(cells.join('\t'));
-		}
-
-		const text = lines.join('\n');
-		navigator.clipboard
-			.writeText(text)
-			.then(() => {
-				const cellCount = selectionState.selectedCells.size;
-				toast.success(`${cellCount} cell${cellCount !== 1 ? 's' : ''} copied`);
-			})
-			.catch((error) => {
-				toast.error(error instanceof Error ? error.message : 'Failed to copy to clipboard');
-			});
+	function serializeCellsToTsv(): { tsvData: string; selectedCells: string[] } | null {
+		return serializeCellsToTsvData({
+			selectedCells: selectionState.selectedCells,
+			focusedCell,
+			rows: table.getRowModel().rows,
+			getCellVariant: (columnId) => table.getColumn(columnId)?.columnDef.meta?.cell?.variant,
+			nonNavigableColumnIds: NON_NAVIGABLE_COLUMNS
+		});
 	}
 
-	function cutSelectedCells() {
+	async function copySelectedCells() {
+		const result = serializeCellsToTsv();
+		if (!result) return;
+
+		try {
+			await navigator.clipboard.writeText(result.tsvData);
+			if (cutCells.size > 0) {
+				cutCells = new Set();
+			}
+
+			const cellCount = result.selectedCells.length;
+			toast.success(`${cellCount} cell${cellCount !== 1 ? 's' : ''} copied`);
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Failed to copy to clipboard');
+		}
+	}
+
+	async function cutSelectedCells() {
 		if (readOnly) return;
 
-		const cellCount = selectionState.selectedCells.size;
-		copySelectedCells();
-		cutCells = new Set(selectionState.selectedCells);
-		// Note: Toast for cut is handled separately since copy already shows success
+		const result = serializeCellsToTsv();
+		if (!result) return;
+
+		try {
+			await navigator.clipboard.writeText(result.tsvData);
+			cutCells = new Set(result.selectedCells);
+
+			const cellCount = result.selectedCells.length;
+			toast.success(`${cellCount} cell${cellCount !== 1 ? 's' : ''} cut`);
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Failed to cut to clipboard');
+		}
 	}
 
 	async function pasteFromClipboard() {
@@ -1226,12 +1205,6 @@ export function useDataGrid<TData extends RowData>(
 				`${cellsSkipped} cell${cellsSkipped !== 1 ? 's' : ''} skipped pasting for invalid data`
 			);
 		}
-	}
-
-	function formatCellValueForCopy(value: unknown): string {
-		if (value === null || value === undefined) return '';
-		if (Array.isArray(value)) return JSON.stringify(value);
-		return String(value);
 	}
 
 	// ========================================
