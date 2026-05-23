@@ -23,12 +23,13 @@
 
 	interface Props {
 		table: Table<TData>;
+		disabled?: boolean;
 		dir?: Direction;
 		align?: 'start' | 'center' | 'end';
 		class?: string;
 	}
 
-	let { table, dir = 'ltr', align = 'start', class: className }: Props = $props();
+	let { table, disabled = false, dir = 'ltr', align = 'start', class: className }: Props = $props();
 
 	// Get columns - table.getAllColumns() is reactive via our wrapper
 	const columns = $derived(
@@ -57,14 +58,15 @@
 				role="combobox"
 				variant="outline"
 				size="sm"
-				class={cn('ms-auto hidden h-8 font-normal lg:flex', className)}
+				class="ms-auto hidden h-8 font-normal lg:flex"
+				{disabled}
 			>
 				<Settings2 class="text-muted-foreground" />
 				View
 			</Button>
 		{/snippet}
 	</PopoverTrigger>
-	<PopoverContent {dir} {align} class="w-44 p-0">
+	<PopoverContent {dir} {align} class={cn('w-44 p-0', className)}>
 		<Command>
 			<CommandInput placeholder="Search columns..." />
 			<CommandList>

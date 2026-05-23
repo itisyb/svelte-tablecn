@@ -4,6 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
+import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -234,6 +235,14 @@ describe('/+page.svelte', () => {
 		);
 
 		expect(trigger.disabled).toBe(true);
+	});
+
+	it('should disable the data grid view menu', async () => {
+		await render(DataGridViewMenuFixture);
+
+		const trigger = await waitFor(() => page.getByRole('combobox', { name: 'Toggle columns' }));
+
+		await expect.element(trigger).toBeDisabled();
 	});
 
 	it('should reset search state when toggled closed from the keyboard shortcut', async () => {
