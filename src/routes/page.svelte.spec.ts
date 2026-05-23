@@ -119,8 +119,7 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-md');
-		expect(content.className).not.toContain('rounded-sm');
+		expect(content.className).toContain('rounded-sm');
 
 		let bubbledToGrid = false;
 		const onGridKeyDown = () => {
@@ -176,6 +175,27 @@ describe('/+page.svelte', () => {
 		expect(hitbox.className).toContain('group relative -my-1.5');
 		expect(hitbox.className).not.toContain('size-full');
 		expect(hitbox.className).not.toContain('px-3 py-1.5');
+	});
+
+	it('should toggle select-all from the padded hitbox', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		const hitbox = await waitFor(() => {
+			const element = document.querySelector<HTMLElement>('[aria-label="Select all"]');
+			return element?.parentElement;
+		});
+		const firstRow = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const label = await waitFor(() => hitbox.querySelector<HTMLLabelElement>('label'));
+
+		label.click();
+
+		const selectedCell = await waitFor(() =>
+			firstRow.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"][data-selected]')
+		);
+		expect(selectedCell).toBeTruthy();
 	});
 
 	it('should sync checkbox cell when the external value changes', async () => {

@@ -1,5 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Row, Table } from '@tanstack/table-core';
+	import { useId } from 'bits-ui';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import type { DataGridSelectHitboxSize } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
@@ -40,6 +41,7 @@
 	const rowSelection = $derived(table.getState().rowSelection);
 	const isSelected = $derived(rowSelection[row.id] ?? false);
 	const meta = $derived(table.options.meta);
+	const checkboxId = useId();
 	const rowNumber = $derived.by(() => {
 		if (!enableRowMarkers && !readOnly) return undefined;
 		return meta?.getVisualRowIndex?.(row.id) ?? rowIndex + 1;
@@ -82,7 +84,12 @@
 			isSelected && 'bg-primary/10'
 		)}
 	>
-		<div class={cn('group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5', hitboxClass)}>
+		<div
+			class={cn(
+				'group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5',
+				hitboxClass
+			)}
+		>
 			{#if rowNumber !== undefined}
 				<div
 					aria-hidden="true"
@@ -96,6 +103,7 @@
 			{/if}
 
 			<Checkbox
+				id={checkboxId}
 				aria-label={rowNumber ? `Select row ${rowNumber}` : 'Select row'}
 				class={cn(
 					'relative transition-[shadow,border,opacity] hover:border-primary/40',
@@ -107,6 +115,7 @@
 				onclick={handleClick}
 				onmousedown={handleMouseDown}
 			/>
+			<label for={checkboxId} class="absolute inset-0 cursor-pointer"></label>
 		</div>
 	</div>
 {/if}

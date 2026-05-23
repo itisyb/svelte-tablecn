@@ -1,10 +1,11 @@
 <script lang="ts">
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	import type { Table, RowSelectionState } from '@tanstack/table-core';
+	import { getContext } from 'svelte';
+	import { useId } from 'bits-ui';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import type { DataGridSelectHitboxSize } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
-	import { getContext } from 'svelte';
 
 	interface Props {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,6 +32,7 @@
 
 	// Track rowSelection so header state updates when selection changes.
 	const rowSelection = $derived(getRowSelection?.() ?? {});
+	const checkboxId = useId();
 
 	const isAllSelected = $derived.by(() => {
 		void rowSelection;
@@ -66,11 +68,13 @@
 		)}
 	>
 		<Checkbox
+			id={checkboxId}
 			aria-label="Select all"
 			class="relative transition-[shadow,border] hover:border-primary/40"
 			checked={isAllSelected}
 			indeterminate={isSomeSelected}
 			onCheckedChange={handleSelectAllChange}
 		/>
+		<label for={checkboxId} class="absolute inset-0 cursor-pointer"></label>
 	</div>
 {/if}
