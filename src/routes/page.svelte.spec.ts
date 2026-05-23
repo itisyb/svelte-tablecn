@@ -14,6 +14,7 @@ import DataGridLongTextCellSyncFixture from './data-grid-long-text-cell-sync-fix
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixture.svelte';
 import DataGridNumberCellSyncFixture from './data-grid-number-cell-sync-fixture.svelte';
+import DataGridOutsideSelectionFixture from './data-grid-outside-selection-fixture.svelte';
 import DataGridPasteDelayedRowsFixture from './data-grid-paste-delayed-rows-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridPasteFitExistingFixture from './data-grid-paste-fit-existing-fixture.svelte';
@@ -529,6 +530,51 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('row count')).toHaveTextContent('2');
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Grace');
 		await expect.element(page.getByLabelText('second name')).toHaveTextContent('Linus');
+	});
+
+	it('should clear selected cells when clicking outside the grid', async () => {
+		await render(DataGridOutsideSelectionFixture);
+
+		Object.defineProperty(navigator, 'clipboard', {
+			configurable: true,
+			value: {
+				readText: async () => 'Grace\t44'
+			}
+		});
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		const firstCell = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+
+		firstCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		firstCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		firstCell.click();
+		await waitFor(() => firstCell.hasAttribute('data-focused'));
+
+		await page.getByRole('button', { name: 'Paste from clipboard' }).click();
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('2');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Grace');
+		await expect.element(page.getByLabelText('first age')).toHaveTextContent('44');
+
+		expect(document.activeElement === grid || grid.contains(document.activeElement)).toBe(true);
+		const outsideTarget = await waitFor(() =>
+			Array.from(document.querySelectorAll<HTMLButtonElement>('button')).find(
+				(button) => button.textContent?.trim() === 'Outside target'
+			)
+		);
+		const outsideTargetRect = outsideTarget.getBoundingClientRect();
+		outsideTarget.dispatchEvent(
+			new MouseEvent('mousedown', {
+				bubbles: true,
+				cancelable: true,
+				button: 0,
+				clientX: outsideTargetRect.left + outsideTargetRect.width / 2,
+				clientY: outsideTargetRect.top + outsideTargetRect.height / 2
+			})
+		);
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
 	});
 
 	it('should render custom data grid cell renderers directly', async () => {

@@ -2545,22 +2545,37 @@ export function useDataGrid<TData extends RowData>(
 		if (!container) return;
 
 		const gridContainer = container;
+		const currentFocusedCell = focusedCell;
+		const currentEditingCell = editingCell;
+		const hasSelections =
+			selectionState.selectedCells.size > 0 || Object.keys(rowSelection).length > 0;
 
-		function onPointerDown(event: PointerEvent) {
-			if (focusGuard) return;
-			if (!focusedCell && !editingCell) return;
+		function onMouseDown(event: MouseEvent) {
+			if (event.button === 2) return;
+			if (focusGuard && !hasSelections) return;
+			if (!currentFocusedCell && !currentEditingCell && !hasSelections) return;
 
 			const target = event.target;
 			if (!(target instanceof Node)) return;
 			if (gridContainer.contains(target)) return;
 			if (getIsInPopover(target)) return;
 
+			try {
+				const elements = document.elementsFromPoint(event.clientX, event.clientY);
+				if (elements.some((element) => getIsInPopover(element))) return;
+			} catch {
+				// If point lookup is unavailable for a synthetic event, fall back to target checks.
+			}
+
 			blurCell();
+			if (hasSelections) {
+				onSelectionClear();
+			}
 		}
 
 		function onFocusOut(event: FocusEvent) {
 			if (focusGuard) return;
-			if (!focusedCell || editingCell) return;
+			if (!currentFocusedCell || currentEditingCell) return;
 
 			const relatedTarget = event.relatedTarget;
 
@@ -2574,7 +2589,7 @@ export function useDataGrid<TData extends RowData>(
 			}
 
 			// Focus lost because the cell unmounted — keep model, focus grid for keyboard nav
-			const { rowIndex, columnId } = focusedCell;
+			const { rowIndex, columnId } = currentFocusedCell;
 			const cellKey = getCellKey(rowIndex, columnId);
 
 			requestAnimationFrame(() => {
@@ -2589,11 +2604,11 @@ export function useDataGrid<TData extends RowData>(
 			});
 		}
 
-		const removePointerDown = on(document, 'pointerdown', onPointerDown, { capture: true });
+		document.addEventListener('mousedown', onMouseDown);
 		const removeFocusOut = on(gridContainer, 'focusout', onFocusOut);
 
 		return () => {
-			removePointerDown();
+			document.removeEventListener('mousedown', onMouseDown);
 			removeFocusOut();
 		};
 	});
