@@ -78,6 +78,7 @@
 		const meta = table.options.meta;
 		return meta?.rowHeight ?? 'short';
 	});
+	const readOnly = $derived(table.options.meta?.readOnly ?? false);
 
 	const getGridDir = getContext<GridDirGetter>(GRID_DIR_CONTEXT_KEY);
 	const dir = $derived(getGridDir?.() ?? 'ltr');
@@ -109,7 +110,7 @@
 			const meta = table.options.meta;
 			// Only start editing if cell was ALREADY focused before this mousedown/click
 			// Selection is handled by mousedown, so we only handle editing here
-			if (wasFocusedOnMouseDown) {
+			if (wasFocusedOnMouseDown && !readOnly) {
 				meta?.onCellEditingStart?.(rowIndex, columnId);
 			}
 		}
@@ -176,7 +177,7 @@
 		}
 
 		// Handle editing keys when focused
-		if (isFocused && !isEditing) {
+		if (isFocused && !isEditing && !readOnly) {
 			const meta = table.options.meta;
 			if (event.key === 'F2' || event.key === 'Enter') {
 				event.preventDefault();

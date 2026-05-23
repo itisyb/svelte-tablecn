@@ -1,5 +1,11 @@
 <script lang="ts" generics="TData, TValue">
-	import type { Header, Table, ColumnSort, SortDirection, SortingState } from '@tanstack/table-core';
+	import type {
+		Header,
+		Table,
+		ColumnSort,
+		SortDirection,
+		SortingState
+	} from '@tanstack/table-core';
 	import type { CellOpts } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import {
@@ -51,7 +57,9 @@
 		return column.id;
 	});
 
-	const isAnyColumnResizing = $derived(table.getState().columnSizingInfo?.isResizingColumn ?? false);
+	const isAnyColumnResizing = $derived(
+		table.getState().columnSizingInfo?.isResizingColumn ?? false
+	);
 
 	const cellVariant = $derived(column.columnDef.meta?.cell);
 	const columnVariant = $derived.by(() => getColumnVariant(cellVariant?.variant));
@@ -313,8 +321,8 @@
 		aria-valuemax={defaultColumnDef.maxSize}
 		tabindex={0}
 		class={cn(
-			'-end-px absolute top-0 z-50 h-full w-1 cursor-col-resize touch-none select-none bg-border transition-opacity after:absolute after:inset-y-0 after:-start-1 after:h-full after:w-3 after:content-[\'\'] hover:bg-primary focus:bg-primary focus:outline-none',
-			isColumnResizing ? 'bg-primary opacity-100' : 'opacity-0 hover:opacity-100'
+			"absolute -end-px top-0 z-50 h-full w-0.5 cursor-ew-resize touch-none select-none bg-border transition-opacity after:absolute after:inset-y-0 after:start-1/2 after:h-full after:w-[18px] after:-translate-x-1/2 after:content-[''] hover:bg-primary focus:bg-primary focus:outline-none",
+			isColumnResizing ? 'bg-primary' : 'opacity-0 hover:opacity-100'
 		)}
 		ondblclick={onResizerDoubleClick}
 		onmousedown={header.getResizeHandler()}
