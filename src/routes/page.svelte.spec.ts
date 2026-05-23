@@ -134,6 +134,31 @@ describe('/+page.svelte', () => {
 		await waitFor(() => document.querySelector<HTMLElement>('[data-slot="select-content"]') === null);
 	});
 
+	it('should suppress native text selection while drag-selecting cells', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		const firstCell = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+
+		firstCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+
+		await waitFor(() => document.body.style.userSelect === 'none');
+
+		const selectStartEvent = new Event('selectstart', { bubbles: true, cancelable: true });
+		const contextMenuEvent = new Event('contextmenu', { bubbles: true, cancelable: true });
+
+		expect(document.dispatchEvent(selectStartEvent)).toBe(false);
+		expect(selectStartEvent.defaultPrevented).toBe(true);
+		expect(document.dispatchEvent(contextMenuEvent)).toBe(false);
+		expect(contextMenuEvent.defaultPrevented).toBe(true);
+
+		firstCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+
+		await waitFor(() => document.body.style.userSelect === '');
+	});
+
 	it('should render select-all header hitbox without extra padding wrapper', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();

@@ -2514,6 +2514,31 @@ export function useDataGrid<TData extends RowData>(
 		return on(container, 'keydown', handleKeyDown);
 	});
 
+	// Match the original grid: suppress native text selection/context menus while drag-selecting cells.
+	$effect(() => {
+		if (!selectionState.isSelecting) return;
+		if (typeof document === 'undefined') return;
+
+		function onSelectStart(event: Event) {
+			event.preventDefault();
+		}
+
+		function onContextMenu(event: Event) {
+			event.preventDefault();
+		}
+
+		const previousUserSelect = document.body.style.userSelect;
+		document.addEventListener('selectstart', onSelectStart);
+		document.addEventListener('contextmenu', onContextMenu);
+		document.body.style.userSelect = 'none';
+
+		return () => {
+			document.removeEventListener('selectstart', onSelectStart);
+			document.removeEventListener('contextmenu', onContextMenu);
+			document.body.style.userSelect = previousUserSelect;
+		};
+	});
+
 	// Blur focused cell when clicking outside; keep keyboard target when cell unmounts (virtualization)
 	$effect(() => {
 		const container = dataGridRef;
