@@ -2095,7 +2095,7 @@ export function useDataGrid<TData extends RowData>(
 		onCellEditingStart: startEditing,
 		onCellEditingStop: stopEditing,
 		onDataUpdate: handleDataUpdate,
-		onRowsDelete: deleteRowsByIndices,
+		onRowsDelete: onRowsDeleteProp ? deleteRowsByIndices : undefined,
 		onCellsCopy: copySelectedCells,
 		onCellsCut: cutSelectedCells,
 		onFilesUpload,
