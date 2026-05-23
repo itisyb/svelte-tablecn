@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseTsv } from './data-grid.js';
+import { parsePastedCellValue, parseTsv } from './data-grid.js';
 
 describe('parseTsv', () => {
 	it('parses simple multi-row TSV', () => {
@@ -34,5 +34,42 @@ describe('parseTsv', () => {
 
 	it('falls back to single-column rows when no tabs are detected', () => {
 		expect(parseTsv('line1\nline2\nline3', 1)).toEqual([['line1'], ['line2'], ['line3']]);
+	});
+});
+
+describe('parsePastedCellValue', () => {
+	it('preserves numeric-looking values for text cells', () => {
+		expect(parsePastedCellValue('00123', { variant: 'short-text' })).toEqual({
+			value: '00123',
+			shouldSkip: false
+		});
+	});
+
+	it('parses numbers only for number cells', () => {
+		expect(parsePastedCellValue('42.5', { variant: 'number' })).toEqual({
+			value: 42.5,
+			shouldSkip: false
+		});
+		expect(parsePastedCellValue('nope', { variant: 'number' }).shouldSkip).toBe(true);
+	});
+
+	it('matches select labels and values case-insensitively', () => {
+		const options = [
+			{ label: 'Engineering', value: 'eng' },
+			{ label: 'Marketing', value: 'mkt' }
+		];
+
+		expect(parsePastedCellValue('engineering', { variant: 'select', options })).toEqual({
+			value: 'eng',
+			shouldSkip: false
+		});
+	});
+
+	it('skips invalid checkbox values', () => {
+		expect(parsePastedCellValue('checked', { variant: 'checkbox' })).toEqual({
+			value: true,
+			shouldSkip: false
+		});
+		expect(parsePastedCellValue('maybe', { variant: 'checkbox' }).shouldSkip).toBe(true);
 	});
 });

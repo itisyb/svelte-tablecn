@@ -73,6 +73,7 @@ import {
 	getEmptyCellValue,
 	getIsInPopover,
 	getScrollDirection,
+	parsePastedCellValue,
 	parseTsv,
 	scrollCellIntoView
 } from '$lib/data-grid.js';
@@ -1170,6 +1171,7 @@ export function useDataGrid<TData extends RowData>(
 		const lines = parseTsv(text, cols.length);
 
 		const updates: UpdateCell[] = [];
+		let cellsSkipped = 0;
 
 		for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
 			const line = lines[lineIdx];
@@ -1183,7 +1185,12 @@ export function useDataGrid<TData extends RowData>(
 				const col = cols[colIndex];
 				if (!col) break;
 
-				const value = parseCellValueForPaste(line[cellIdx] || '', col.id);
+				const cellOpts = col.columnDef.meta?.cell;
+				const { value, shouldSkip } = parsePastedCellValue(line[cellIdx] || '', cellOpts);
+				if (shouldSkip) {
+					cellsSkipped++;
+					continue;
+				}
 				updates.push({ rowIndex, columnId: col.id, value });
 			}
 		}
@@ -1207,7 +1214,17 @@ export function useDataGrid<TData extends RowData>(
 			handleDataUpdate(updates);
 			onPaste?.(updates);
 
-			toast.success(`${updates.length} cell${updates.length !== 1 ? 's' : ''} pasted`);
+			if (cellsSkipped > 0) {
+				toast.success(
+					`${updates.length} cell${updates.length !== 1 ? 's' : ''} pasted, ${cellsSkipped} skipped`
+				);
+			} else {
+				toast.success(`${updates.length} cell${updates.length !== 1 ? 's' : ''} pasted`);
+			}
+		} else if (cellsSkipped > 0) {
+			toast.error(
+				`${cellsSkipped} cell${cellsSkipped !== 1 ? 's' : ''} skipped pasting for invalid data`
+			);
 		}
 	}
 
@@ -1215,29 +1232,6 @@ export function useDataGrid<TData extends RowData>(
 		if (value === null || value === undefined) return '';
 		if (Array.isArray(value)) return JSON.stringify(value);
 		return String(value);
-	}
-
-	function parseCellValueForPaste(text: string, _columnId: string): unknown {
-		// Try to parse as JSON (for arrays)
-		if (text.startsWith('[') || text.startsWith('{')) {
-			try {
-				return JSON.parse(text);
-			} catch {
-				// Not valid JSON
-			}
-		}
-
-		// Try to parse as number
-		const num = Number(text);
-		if (!isNaN(num) && text.trim() !== '') {
-			return num;
-		}
-
-		// Try to parse as boolean
-		if (text.toLowerCase() === 'true') return true;
-		if (text.toLowerCase() === 'false') return false;
-
-		return text;
 	}
 
 	// ========================================

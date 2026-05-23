@@ -1,6 +1,11 @@
 import type { Column, Row, Table, RowData } from '@tanstack/table-core';
-import type { CellOpts, Direction } from '$lib/types/data-grid.js';
+import type { CellOpts, CellSelectOption, Direction, FileCellData } from '$lib/types/data-grid.js';
 import { VIEWPORT_OFFSET } from '$lib/config/data-grid.js';
+
+const DOMAIN_REGEX = /^[\w.-]+\.[a-z]{2,}(\/\S*)?$/i;
+const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}.*)?$/;
+const TRUTHY_BOOLEANS = new Set(['true', '1', 'yes', 'checked']);
+const VALID_BOOLEANS = new Set(['true', 'false', '1', '0', 'yes', 'no', 'checked', 'unchecked']);
 
 /** Index in the current row model (filtered/sorted), not TanStack's preserved core `row.index`. */
 export function getRowModelPosition<TData>(table: Table<TData>, row: Row<TData>): number {
@@ -193,6 +198,176 @@ export function parseTsv(text: string, fallbackColumnCount: number): string[][] 
 	return rows.length > 0
 		? rows
 		: lines.filter((line) => line.length > 0).map((line) => line.split('\t'));
+}
+
+export function getIsFileCellData(item: unknown): item is FileCellData {
+	return (
+		!!item &&
+		typeof item === 'object' &&
+		'id' in item &&
+		'name' in item &&
+		'size' in item &&
+		'type' in item
+	);
+}
+
+export function matchSelectOption(
+	value: string,
+	options: Pick<CellSelectOption, 'label' | 'value'>[]
+): string | undefined {
+	return options.find(
+		(option) =>
+			option.value === value ||
+			option.value.toLowerCase() === value.toLowerCase() ||
+			option.label.toLowerCase() === value.toLowerCase()
+	)?.value;
+}
+
+function formatDateToString(date: Date): string {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${year}-${month}-${day}`;
+}
+
+function parsePastedDate(value: string): string | null {
+	const date = new Date(value);
+	if (Number.isNaN(date.getTime())) return null;
+
+	if (ISO_DATE_REGEX.test(value)) {
+		return value.slice(0, 10);
+	}
+
+	return formatDateToString(date);
+}
+
+export function parsePastedCellValue(
+	pastedValue: string,
+	cellOpts?: CellOpts
+): { value: unknown; shouldSkip: boolean } {
+	const cellVariant = cellOpts?.variant;
+	let processedValue: unknown = pastedValue;
+
+	switch (cellVariant) {
+		case 'number': {
+			if (!pastedValue) return { value: null, shouldSkip: false };
+			const num = Number.parseFloat(pastedValue);
+			return Number.isNaN(num)
+				? { value: undefined, shouldSkip: true }
+				: { value: num, shouldSkip: false };
+		}
+
+		case 'checkbox': {
+			if (!pastedValue) return { value: false, shouldSkip: false };
+			const lower = pastedValue.toLowerCase();
+			return VALID_BOOLEANS.has(lower)
+				? { value: TRUTHY_BOOLEANS.has(lower), shouldSkip: false }
+				: { value: undefined, shouldSkip: true };
+		}
+
+		case 'date': {
+			if (!pastedValue) return { value: null, shouldSkip: false };
+			const date = parsePastedDate(pastedValue);
+			return date === null
+				? { value: undefined, shouldSkip: true }
+				: { value: date, shouldSkip: false };
+		}
+
+		case 'select': {
+			if (!pastedValue) return { value: '', shouldSkip: false };
+			const matched = matchSelectOption(pastedValue, cellOpts.options);
+			return matched
+				? { value: matched, shouldSkip: false }
+				: { value: undefined, shouldSkip: true };
+		}
+
+		case 'multi-select': {
+			let values: string[] = [];
+			try {
+				const parsed = JSON.parse(pastedValue);
+				if (Array.isArray(parsed)) {
+					values = parsed.filter((value): value is string => typeof value === 'string');
+				}
+			} catch {
+				values = pastedValue ? pastedValue.split(',').map((value) => value.trim()) : [];
+			}
+
+			const validated = values
+				.map((value) => matchSelectOption(value, cellOpts.options))
+				.filter(Boolean) as string[];
+
+			if (values.length > 0 && validated.length === 0) {
+				return { value: undefined, shouldSkip: true };
+			}
+
+			return { value: validated, shouldSkip: false };
+		}
+
+		case 'file': {
+			if (!pastedValue) return { value: [], shouldSkip: false };
+			try {
+				const parsed = JSON.parse(pastedValue);
+				if (!Array.isArray(parsed)) return { value: undefined, shouldSkip: true };
+
+				const validFiles = parsed.filter(getIsFileCellData);
+				if (parsed.length > 0 && validFiles.length === 0) {
+					return { value: undefined, shouldSkip: true };
+				}
+
+				return { value: validFiles, shouldSkip: false };
+			} catch {
+				return { value: undefined, shouldSkip: true };
+			}
+		}
+
+		case 'url': {
+			if (!pastedValue) return { value: '', shouldSkip: false };
+			const firstChar = pastedValue[0];
+			if (firstChar === '[' || firstChar === '{') return { value: undefined, shouldSkip: true };
+
+			try {
+				new URL(pastedValue);
+				return { value: pastedValue, shouldSkip: false };
+			} catch {
+				return DOMAIN_REGEX.test(pastedValue)
+					? { value: pastedValue, shouldSkip: false }
+					: { value: undefined, shouldSkip: true };
+			}
+		}
+
+		default: {
+			if (!pastedValue) return { value: '', shouldSkip: false };
+
+			if (ISO_DATE_REGEX.test(pastedValue)) {
+				const date = parsePastedDate(pastedValue);
+				if (date !== null) return { value: new Date(date).toLocaleDateString(), shouldSkip: false };
+			}
+
+			const firstChar = pastedValue[0];
+			if (firstChar === '[' || firstChar === '{' || firstChar === 't' || firstChar === 'f') {
+				try {
+					const parsed = JSON.parse(pastedValue);
+
+					if (Array.isArray(parsed)) {
+						if (parsed.length > 0 && parsed.every(getIsFileCellData)) {
+							processedValue = parsed.map((file) => file.name).join(', ');
+						} else if (parsed.every((value) => typeof value === 'string')) {
+							processedValue = (parsed as string[]).join(', ');
+						}
+					} else if (typeof parsed === 'boolean') {
+						processedValue = parsed ? 'Checked' : 'Unchecked';
+					}
+				} catch {
+					const lower = pastedValue.toLowerCase();
+					if (lower === 'true' || lower === 'false') {
+						processedValue = lower === 'true' ? 'Checked' : 'Unchecked';
+					}
+				}
+			}
+		}
+	}
+
+	return { value: processedValue, shouldSkip: false };
 }
 
 export function getIsInPopover(element: unknown): boolean {
