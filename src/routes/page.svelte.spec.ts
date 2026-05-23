@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import Page from './+page.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
+import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
@@ -283,6 +284,19 @@ describe('/+page.svelte', () => {
 
 		expect(hideItem.dataset.slot).toBe('dropdown-menu-item');
 		expect(hideItem.dataset.slot).not.toBe('dropdown-menu-checkbox-item');
+	});
+
+	it('should render context delete rows as destructive menu item', async () => {
+		await render(DataGridContextMenuFixture);
+
+		const deleteRowsItem = await waitFor(() =>
+			Array.from(document.querySelectorAll<HTMLElement>('[data-slot="dropdown-menu-item"]')).find(
+				(element) => element.textContent?.includes('Delete rows')
+			)
+		);
+
+		expect(deleteRowsItem.dataset.variant).toBe('destructive');
+		expect(deleteRowsItem.className).toContain('data-[variant=destructive]:text-destructive');
 	});
 
 	it('should disable the data grid view menu', async () => {

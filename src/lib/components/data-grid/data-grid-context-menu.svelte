@@ -121,7 +121,7 @@
 			</DropdownMenuItem>
 			{#if onRowsDelete}
 				<DropdownMenuSeparator />
-				<DropdownMenuItem class="text-destructive focus:text-destructive" onSelect={onDelete}>
+				<DropdownMenuItem variant="destructive" onSelect={onDelete}>
 					<Trash2 class="mr-2 size-4" />
 					Delete rows
 				</DropdownMenuItem>
