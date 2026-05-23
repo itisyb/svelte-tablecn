@@ -6,7 +6,7 @@
 
 	interface Props {
 		row: Row<TData>;
-		table: Table<TData>;
+		table: Table<any>;
 		rowIndex: number;
 		enableRowMarkers?: boolean;
 		readOnly?: boolean;

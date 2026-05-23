@@ -40,6 +40,16 @@ export function getDataGridSelectColumn<TData extends RowData>(
 				readOnly,
 				debug
 			}),
+		cell: ({ row, table }) =>
+			renderComponent(RowSelectCell, {
+				row,
+				table,
+				rowIndex: row.index,
+				enableRowMarkers,
+				readOnly,
+				hitboxSize,
+				debug
+			}),
 		size,
 		enableHiding,
 		enableResizing,

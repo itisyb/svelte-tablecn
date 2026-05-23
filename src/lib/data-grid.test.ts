@@ -7,6 +7,8 @@ import {
 	serializeCellsToTsv
 } from './data-grid.js';
 import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
+import { getDataGridSelectColumn } from './components/data-grid/data-grid-select-column.js';
+import { RenderComponentConfig } from './table/index.js';
 
 describe('parseTsv', () => {
 	it('parses simple multi-row TSV', () => {
@@ -170,6 +172,31 @@ describe('getRowIndicesForDeletion', () => {
 				rows
 			})
 		).toEqual([1]);
+	});
+});
+
+describe('getDataGridSelectColumn', () => {
+	it('provides a TanStack cell renderer like upstream', () => {
+		const column = getDataGridSelectColumn<{ id: string }>({ enableRowMarkers: true });
+
+		expect(typeof column.cell).toBe('function');
+		if (typeof column.cell !== 'function') return;
+
+		const result = column.cell({
+			row: { id: 'a', index: 4 },
+			table: {}
+		} as never);
+
+		expect(result).toBeInstanceOf(RenderComponentConfig);
+		expect((result as RenderComponentConfig<typeof result.component>).props).toMatchObject({
+			row: { id: 'a', index: 4 },
+			table: {},
+			rowIndex: 4,
+			enableRowMarkers: true,
+			readOnly: false,
+			hitboxSize: 'default',
+			debug: false
+		});
 	});
 });
 
