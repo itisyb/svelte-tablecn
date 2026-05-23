@@ -775,16 +775,33 @@ export function useDataGrid<TData extends RowData>(
 
 	function startEditing(rowIndex: number, columnId: string) {
 		if (readOnly) return;
+		focusedCell = { rowIndex, columnId };
 		editingCell = { rowIndex, columnId };
 	}
 
 	function stopEditing(opts?: { direction?: NavigationDirection; moveToNextRow?: boolean }) {
+		const currentEditing = editingCell;
 		editingCell = null;
 
-		if (opts?.direction) {
-			navigateCell(opts.direction);
-		} else if (opts?.moveToNextRow && focusedCell) {
-			navigateCell('down');
+		if (!currentEditing) return;
+
+		const { rowIndex, columnId } = currentEditing;
+
+		if (opts?.moveToNextRow) {
+			const nextRowIndex = rowIndex + 1;
+			if (nextRowIndex < table.getRowModel().rows.length) {
+				requestAnimationFrame(() => {
+					focusCell(nextRowIndex, columnId);
+				});
+			}
+		} else if (opts?.direction) {
+			focusedCell = { rowIndex, columnId };
+			requestAnimationFrame(() => {
+				navigateCell(opts.direction ?? 'right');
+			});
+		} else {
+			focusedCell = { rowIndex, columnId };
+			scrollAndFocusCell(rowIndex, columnId);
 		}
 	}
 

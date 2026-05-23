@@ -8,6 +8,7 @@ import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte'
 import DataGridCtrlShiftEdgeFixture from './data-grid-ctrl-shift-edge-fixture.svelte';
 import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svelte';
 import DataGridDefaultFeaturesFixture from './data-grid-default-features-fixture.svelte';
+import DataGridEditingMetaFixture from './data-grid-editing-meta-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridFileCellLocalFixture from './data-grid-file-cell-local-fixture.svelte';
 import DataGridFileCellSyncFixture from './data-grid-file-cell-sync-fixture.svelte';
@@ -1206,6 +1207,24 @@ describe('/+page.svelte', () => {
 		await render(DataGridSearchStateFixture);
 
 		await expect.element(page.getByLabelText('initial match index')).toHaveTextContent('-1');
+	});
+
+	it('should focus direct meta editing starts before navigating on stop', async () => {
+		await render(DataGridEditingMetaFixture);
+
+		await page.getByRole('button', { name: 'Start second name edit' }).click();
+
+		await expect.element(page.getByLabelText('focused cell')).toHaveTextContent('1:name');
+		await expect.element(page.getByLabelText('editing cell')).toHaveTextContent('1:name');
+	});
+
+	it('should navigate from the direct meta editing cell on stop', async () => {
+		await render(DataGridEditingMetaFixture);
+
+		await page.getByRole('button', { name: 'Start second name and stop right' }).click();
+
+		await expect.element(page.getByLabelText('editing cell')).toHaveTextContent('none');
+		await waitFor(() => page.getByLabelText('focused cell').element().textContent?.trim() === '1:score');
 	});
 
 	it('should hide row mutation shortcuts unless enabled', async () => {
