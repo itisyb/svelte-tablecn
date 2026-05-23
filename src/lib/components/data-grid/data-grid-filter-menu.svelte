@@ -30,6 +30,7 @@
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
+	import { useId } from 'bits-ui';
 	import { CalendarDate, type DateValue, parseDate } from '@internationalized/date';
 
 	// Icons
@@ -54,6 +55,9 @@
 	let { table, disabled = false, dir = 'ltr', align = 'start', class: className }: Props =
 		$props();
 
+	const id = useId();
+	const labelId = `${id}-label`;
+	const descriptionId = `${id}-description`;
 	let open = $state(false);
 
 	const columnFilters = $derived(table.getState().columnFilters);
@@ -281,6 +285,8 @@
 		{/snippet}
 	</PopoverTrigger>
 	<PopoverContent
+		aria-labelledby={labelId}
+		aria-describedby={descriptionId}
 		{dir}
 		{align}
 		class={cn(
@@ -289,10 +295,13 @@
 		)}
 	>
 		<div class="flex flex-col gap-1">
-			<h4 class="font-medium leading-none">
+			<h4 id={labelId} class="font-medium leading-none">
 				{columnFilters.length > 0 ? 'Filter by' : 'No filters applied'}
 			</h4>
-			<p class={cn('text-muted-foreground text-sm', columnFilters.length > 0 && 'sr-only')}>
+			<p
+				id={descriptionId}
+				class={cn('text-muted-foreground text-sm', columnFilters.length > 0 && 'sr-only')}
+			>
 				{columnFilters.length > 0
 					? 'Modify filters to narrow down your data.'
 					: 'Add filters to narrow down your data.'}
@@ -312,6 +321,10 @@
 				onfinalize={handleDndFinalize}
 			>
 				{#each filterItems as filter, index (filter.id)}
+					{@const filterItemId = `${id}-filter-${filter.id}`}
+					{@const fieldListboxId = `${filterItemId}-field-listbox`}
+					{@const fieldTriggerId = `${filterItemId}-field-trigger`}
+					{@const operatorListboxId = `${filterItemId}-operator-listbox`}
 					{@const variant = columnVariants.get(filter.id) ?? 'short-text'}
 					{@const filterValue = filter.value as FilterValue | undefined}
 					{@const operator = filterValue?.operator ?? getDefaultOperator(variant)}
@@ -322,6 +335,7 @@
 					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 					<li
 						role="listitem"
+						id={filterItemId}
 						tabindex={-1}
 						class="flex items-center gap-2"
 						onkeydown={(event) => onFilterItemKeyDown(event, filter.id)}
@@ -342,6 +356,9 @@
 								{#snippet child({ props })}
 									<Button
 										{...props}
+										id={fieldTriggerId}
+										aria-controls={fieldListboxId}
+										{dir}
 										variant="outline"
 										size="sm"
 										class="w-32 justify-between rounded font-normal"
@@ -351,7 +368,7 @@
 									</Button>
 								{/snippet}
 							</PopoverTrigger>
-							<PopoverContent align="start" class="w-40 p-0">
+							<PopoverContent id={fieldListboxId} {dir} align="start" class="w-40 p-0">
 								<Command>
 									<CommandInput placeholder="Search fields..." />
 									<CommandList>
@@ -413,12 +430,16 @@
 								});
 							}}
 						>
-							<SelectTrigger size="sm" class="w-32 rounded lowercase">
+							<SelectTrigger
+								aria-controls={operatorListboxId}
+								size="sm"
+								class="w-32 rounded lowercase"
+							>
 								<span data-slot="select-value" class="truncate">
 									{operators.find((op) => op.value === operator)?.label ?? operator}
 								</span>
 							</SelectTrigger>
-							<SelectContent>
+							<SelectContent id={operatorListboxId}>
 								{#each operators as op (op.value)}
 									<SelectItem value={op.value} class="lowercase">
 										{op.label}
@@ -786,6 +807,7 @@
 							{/if}
 						</div>
 						<Button
+							aria-controls={filterItemId}
 							variant="outline"
 							size="icon"
 							class="size-8 rounded"

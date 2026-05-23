@@ -855,13 +855,44 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Filter 1' }).click();
 
+		const content = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="popover-content"]')
+		);
+		const labelId = content.getAttribute('aria-labelledby');
+		const descriptionId = content.getAttribute('aria-describedby');
 		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
 		const valueInput = await waitFor(() =>
 			filterItem.querySelector<HTMLInputElement>('input[placeholder="Value"]')
 		);
+		const fieldTrigger = await waitFor(() => page.getByRole('button', { name: 'Name' }).element());
+		const operatorTrigger = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="select-trigger"]')
+		);
+		const deleteTrigger = await waitFor(() => {
+			const buttons = filterItem.querySelectorAll<HTMLButtonElement>('button');
+			return buttons.item(2);
+		});
+		const fieldListboxId = fieldTrigger.getAttribute('aria-controls');
+		const operatorListboxId = operatorTrigger.getAttribute('aria-controls');
 
+		expect(labelId).toBeTruthy();
+		expect(descriptionId).toBeTruthy();
+		expect(document.getElementById(labelId!)?.textContent).toContain('Filter by');
+		expect(document.getElementById(descriptionId!)?.textContent).toContain(
+			'Modify filters to narrow down your data.'
+		);
+		expect(filterItem.id).toBeTruthy();
+		expect(fieldTrigger.id).toBeTruthy();
+		expect(fieldListboxId).toBe(`${filterItem.id}-field-listbox`);
+		expect(operatorListboxId).toBe(`${filterItem.id}-operator-listbox`);
+		expect(deleteTrigger.getAttribute('aria-controls')).toBe(filterItem.id);
 		expect(valueInput.parentElement?.className).toContain('max-w-60');
 
+		expect(dataGridFilterMenuSource).toContain('aria-labelledby={labelId}');
+		expect(dataGridFilterMenuSource).toContain('aria-describedby={descriptionId}');
+		expect(dataGridFilterMenuSource).toContain('aria-controls={fieldListboxId}');
+		expect(dataGridFilterMenuSource).toContain('aria-controls={operatorListboxId}');
+		expect(dataGridFilterMenuSource).toContain('aria-controls={filterItemId}');
 		expect(dataGridFilterMenuSource).toContain('ms-auto');
 		expect(dataGridFilterMenuSource).not.toContain('ml-auto');
 		expect(dataGridFilterMenuSource).toContain('{#if option.count}');
