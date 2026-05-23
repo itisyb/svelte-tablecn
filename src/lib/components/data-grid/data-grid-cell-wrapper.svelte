@@ -62,7 +62,7 @@
 
 	// Compute cellKey reactively for virtualization
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
-	const showSelectionHighlight = $derived(isSelected && !isFocused && !isEditing);
+	const showSelectionHighlight = $derived(isSelected && !isEditing);
 
 	const isSearchMatch = $derived.by(() => {
 		const meta = table.options.meta;
