@@ -160,7 +160,7 @@
 			<Textarea
 				bind:ref={textareaRef}
 				placeholder="Enter text..."
-				class="min-h-[150px] resize-none rounded-none border-0 shadow-none focus-visible:ring-0"
+				class="max-h-[300px] min-h-[150px] resize-none overflow-y-auto rounded-none border-0 shadow-none focus-visible:ring-1 focus-visible:ring-ring"
 				bind:value={() => value, setTextareaValue}
 				onblur={handleBlur}
 				onkeydown={handleKeyDown}

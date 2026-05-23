@@ -74,7 +74,7 @@
 		const newValues = currentValues.filter((v) => v !== valueToRemove);
 		localEditValues = newValues;
 		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValues });
-		setTimeout(() => inputRef?.focus(), 0);
+		queueMicrotask(() => inputRef?.focus());
 	}
 
 	function clearAll() {
@@ -185,7 +185,7 @@
 						{#each selectedValues as val (val)}
 							{@const option = options.find((opt) => opt.value === val)}
 							{@const label = option?.label ?? val}
-							<Badge variant="secondary" class="h-5 gap-1 px-1.5 text-xs">
+							<Badge variant="secondary" class="gap-1 px-1.5 py-px">
 								{label}
 								<button
 									type="button"
@@ -243,12 +243,12 @@
 	{#if displayItems.length > 0}
 		<div class="flex flex-wrap items-center gap-1 overflow-hidden">
 			{#each visibleItems as item (item.value)}
-				<Badge variant="secondary" class="h-5 shrink-0 px-1.5 text-xs">
+				<Badge variant="secondary" class="shrink-0 px-1.5 py-px">
 					{item.label}
 				</Badge>
 			{/each}
 			{#if hiddenBadgeCount > 0}
-				<Badge variant="outline" class="h-5 shrink-0 px-1.5 text-muted-foreground text-xs">
+				<Badge variant="outline" class="shrink-0 px-1.5 py-px text-muted-foreground">
 					+{hiddenBadgeCount}
 				</Badge>
 			{/if}

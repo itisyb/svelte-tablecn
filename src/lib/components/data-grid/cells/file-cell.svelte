@@ -566,14 +566,14 @@
 					/>
 				{:else}
 					{@const FileIcon = getFileIcon(file.type)}
-					<Badge variant="secondary" class="h-5 shrink-0 gap-1 px-1.5 text-xs">
+					<Badge variant="secondary" class="shrink-0 gap-1 px-1.5 py-px">
 						<FileIcon class="size-3 shrink-0" />
 						<span class="max-w-[100px] truncate">{file.name}</span>
 					</Badge>
 				{/if}
 			{/each}
 			{#if hiddenFileCount > 0}
-				<Badge variant="outline" class="h-5 shrink-0 px-1.5 text-muted-foreground text-xs">
+				<Badge variant="outline" class="shrink-0 px-1.5 py-px text-muted-foreground">
 					+{hiddenFileCount}
 				</Badge>
 			{/if}
