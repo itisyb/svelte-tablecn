@@ -14,6 +14,7 @@ import DataGridLongTextCellSyncFixture from './data-grid-long-text-cell-sync-fix
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridMultiSelectCellFixture from './data-grid-multi-select-cell-fixture.svelte';
 import DataGridNumberCellSyncFixture from './data-grid-number-cell-sync-fixture.svelte';
+import DataGridPasteDelayedRowsFixture from './data-grid-paste-delayed-rows-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridPasteFitExistingFixture from './data-grid-paste-fit-existing-fixture.svelte';
 import DataGridPasteWithoutFocusFixture from './data-grid-paste-without-focus-fixture.svelte';
@@ -473,6 +474,36 @@ describe('/+page.svelte', () => {
 		await waitFor(() => document.querySelector('[data-slot="dialog-content"]') === null);
 		await expect.element(page.getByLabelText('row count')).toHaveTextContent('1');
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Grace');
+	});
+
+	it('should wait for delayed rows before pasting expanded clipboard data', async () => {
+		await render(DataGridPasteDelayedRowsFixture);
+
+		Object.defineProperty(navigator, 'clipboard', {
+			value: {
+				readText: async () => 'Grace\nLinus'
+			},
+			configurable: true
+		});
+
+		const firstCell = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+		firstCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		firstCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		firstCell.click();
+		await waitFor(() => firstCell.hasAttribute('data-focused'));
+
+		await page.getByRole('button', { name: 'Paste from clipboard' }).click();
+		await expect
+			.element(page.getByRole('heading', { name: 'Do you want to add more rows?' }))
+			.toBeInTheDocument();
+
+		await page.getByRole('button', { name: 'Continue' }).click();
+
+		await expect.element(page.getByLabelText('row count')).toHaveTextContent('2');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Grace');
+		await expect.element(page.getByLabelText('second name')).toHaveTextContent('Linus');
 	});
 
 	it('should render custom data grid cell renderers directly', async () => {

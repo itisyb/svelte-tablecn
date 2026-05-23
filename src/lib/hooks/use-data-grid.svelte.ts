@@ -1158,6 +1158,8 @@ export function useDataGrid<TData extends RowData>(
 			}
 
 			if (rowsNeeded > 0 && expandRows) {
+				const expectedRowCount = rows.length + rowsNeeded;
+
 				if (onRowsAdd) {
 					await onRowsAdd(rowsNeeded);
 				} else if (onRowAddProp) {
@@ -1165,7 +1167,16 @@ export function useDataGrid<TData extends RowData>(
 						await onRowAddProp();
 					}
 				}
-				syncTableFromData();
+
+				let attempts = 0;
+				const maxAttempts = 50;
+
+				do {
+					syncTableFromData();
+					if (table.getRowModel().rows.length >= expectedRowCount) break;
+					await new Promise((resolve) => setTimeout(resolve, 100));
+					attempts++;
+				} while (attempts < maxAttempts);
 			}
 
 			// Perform paste
