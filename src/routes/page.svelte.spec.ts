@@ -176,4 +176,42 @@ describe('/+page.svelte', () => {
 
 		expect(ageWrapper.textContent?.trim()).toBe('44');
 	});
+
+	it('should close and reset the paste expansion dialog when cancelled', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		await waitFor(() => document.querySelector('[data-slot="grid-row"][data-index="0"]'));
+
+		const oversizedPaste = Array.from({ length: 205 }, (_, index) => `Person ${index}`).join('\n');
+		Object.defineProperty(navigator, 'clipboard', {
+			configurable: true,
+			value: {
+				readText: async () => oversizedPaste
+			}
+		});
+
+		const row = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const nameCell = row.querySelectorAll<HTMLElement>('[data-slot="grid-cell"]').item(1);
+		const nameWrapper = await waitFor(() =>
+			nameCell.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+
+		nameWrapper.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		nameWrapper.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		nameWrapper.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'v', ctrlKey: true, bubbles: true, cancelable: true })
+		);
+
+		const dialog = await waitFor(() => document.querySelector<HTMLElement>('[role="dialog"]'));
+		expect(dialog.textContent).toContain('5');
+
+		await page.getByRole('button', { name: 'Cancel' }).click();
+		await waitFor(() => document.querySelector<HTMLElement>('[role="dialog"]') === null);
+	});
 });

@@ -2171,7 +2171,9 @@ export function useDataGrid<TData extends RowData>(
 			contextMenu = { ...contextMenu, open };
 		},
 		onPasteDialogOpenChange: (open: boolean) => {
-			pasteDialog = { ...pasteDialog, open };
+			pasteDialog = open
+				? { ...pasteDialog, open }
+				: { open: false, rowsNeeded: 0, clipboardText: '' };
 		},
 		onPasteWithExpansion: async () => {
 			if (onRowsAdd) {
