@@ -118,6 +118,7 @@ export interface UseDataGridOptions<TData extends RowData> {
 	) => Partial<CellPosition> | null | void | Promise<Partial<CellPosition> | null | void>;
 	onRowsAdd?: (count: number) => void | Promise<void>;
 	onRowsDelete?: (rows: TData[], rowIndices: number[]) => void | Promise<void>;
+	onRowHeightChange?: (value: RowHeightValue) => void;
 	onPaste?: (updates: UpdateCell[]) => void | Promise<void>;
 	onFilesUpload?: (params: {
 		files: File[];
@@ -237,6 +238,7 @@ export function useDataGrid<TData extends RowData>(
 		onRowAdd: onRowAddProp,
 		onRowsAdd,
 		onRowsDelete: onRowsDeleteProp,
+		onRowHeightChange: onRowHeightChangeProp,
 		onPaste,
 		onFilesUpload,
 		onFilesDelete
@@ -2083,6 +2085,7 @@ export function useDataGrid<TData extends RowData>(
 		getIsActiveSearchMatch,
 		onRowHeightChange: (value: RowHeightValue) => {
 			rowHeight = value;
+			onRowHeightChangeProp?.(value);
 		},
 		getVisualRowIndex,
 		onColumnClick,
