@@ -5,6 +5,7 @@ import Page from './+page.svelte';
 import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
 import DataGridContextMenuFixture from './data-grid-context-menu-fixture.svelte';
+import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridLongTextCellSyncFixture from './data-grid-long-text-cell-sync-fixture.svelte';
 import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
@@ -262,6 +263,28 @@ describe('/+page.svelte', () => {
 		await waitFor(() => trigger.textContent?.includes('Sales'));
 
 		expect(trigger.textContent).toContain('Sales');
+	});
+
+	it('should sync date editor when the external value changes', async () => {
+		await render(DataGridDateCellSyncFixture);
+
+		const cellContent = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-content"]')
+		);
+		await waitFor(() => cellContent.textContent?.includes('1/1/2024'));
+
+		const dayTwo = await waitFor(() =>
+			Array.from(document.querySelectorAll<HTMLElement>('[data-calendar-day]')).find(
+				(element) => element.textContent?.trim() === '2'
+			)
+		);
+		dayTwo.click();
+		await waitFor(() => cellContent.textContent?.includes('1/2/2024'));
+
+		await page.getByRole('button', { name: 'External date' }).click();
+		await waitFor(() => cellContent.textContent?.includes('1/3/2024'));
+
+		expect(cellContent.textContent).toContain('1/3/2024');
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {
