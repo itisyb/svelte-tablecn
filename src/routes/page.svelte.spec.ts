@@ -21,6 +21,7 @@ import DataGridPasteDelayedRowsFixture from './data-grid-paste-delayed-rows-fixt
 import DataGridPasteDisabledFixture from './data-grid-paste-disabled-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridPasteFitExistingFixture from './data-grid-paste-fit-existing-fixture.svelte';
+import DataGridPasteOrderFixture from './data-grid-paste-order-fixture.svelte';
 import DataGridPasteWithoutFocusFixture from './data-grid-paste-without-focus-fixture.svelte';
 import DataGridRowAddSelectionFixture from './data-grid-row-add-selection-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
@@ -491,6 +492,32 @@ describe('/+page.svelte', () => {
 		);
 
 		expect(ageWrapper.textContent?.trim()).toBe('44');
+	});
+
+	it('should await onPaste before applying pasted data', async () => {
+		await render(DataGridPasteOrderFixture);
+
+		Object.defineProperty(navigator, 'clipboard', {
+			configurable: true,
+			value: {
+				readText: async () => 'Grace'
+			}
+		});
+
+		const nameWrapper = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+
+		nameWrapper.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		nameWrapper.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		nameWrapper.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+		await page.getByRole('button', { name: 'Paste from clipboard' }).click();
+
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Grace');
+		await expect
+			.element(page.getByLabelText('paste events'))
+			.toHaveTextContent('paste-start,paste-end,change');
 	});
 
 	it('should close and reset the paste expansion dialog when cancelled', async () => {

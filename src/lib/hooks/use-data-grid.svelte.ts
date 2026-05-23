@@ -1180,7 +1180,7 @@ export function useDataGrid<TData extends RowData>(
 			}
 
 			// Perform paste
-			performPaste(text, startPos, startColIndex);
+			await performPaste(text, startPos, startColIndex);
 			pasteDialog = { open: false, rowsNeeded: 0, clipboardText: '' };
 		} catch {
 			// Clipboard access denied
@@ -1191,7 +1191,7 @@ export function useDataGrid<TData extends RowData>(
 		await onCellsPaste(false);
 	}
 
-	function performPaste(text: string, startPos: CellPosition, startColIndex: number) {
+	async function performPaste(text: string, startPos: CellPosition, startColIndex: number) {
 		const rows = table.getRowModel().rows;
 		const cols = getNavigableColumns();
 		const lines = parseTsv(text, cols.length);
@@ -1228,6 +1228,8 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		if (updates.length > 0) {
+			await onPaste?.(updates);
+
 			// Clear cut cells first if we had any (to merge all updates together)
 			if (cutCells.size > 0) {
 				const tableColumns = table.getAllColumns();
@@ -1244,7 +1246,6 @@ export function useDataGrid<TData extends RowData>(
 			}
 
 			handleDataUpdate(updates);
-			onPaste?.(updates);
 
 			if (cellsSkipped > 0) {
 				toast.success(
