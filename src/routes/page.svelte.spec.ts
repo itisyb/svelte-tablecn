@@ -118,6 +118,22 @@ describe('/+page.svelte', () => {
 		await waitFor(() => document.querySelector<HTMLElement>('[data-slot="select-content"]') === null);
 	});
 
+	it('should render select-all header hitbox without extra padding wrapper', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		await expect.element(page.getByLabelText('Select all')).toBeInTheDocument();
+
+		const hitbox = await waitFor(() => {
+			const element = document.querySelector<HTMLElement>('[aria-label="Select all"]');
+			return element?.parentElement;
+		});
+
+		expect(hitbox.className).toContain('group relative -my-1.5');
+		expect(hitbox.className).not.toContain('size-full');
+		expect(hitbox.className).not.toContain('px-3 py-1.5');
+	});
+
 	it('should keep the first typed character when opening long text editor', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();

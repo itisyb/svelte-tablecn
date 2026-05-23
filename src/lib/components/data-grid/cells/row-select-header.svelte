@@ -58,21 +58,19 @@
 {#if readOnly}
 	<div class="mt-1 flex items-center ps-1 text-muted-foreground text-sm">#</div>
 {:else}
-	<div class={cn('flex size-full items-center justify-center px-3 py-1.5')}>
-		<div
-			class={cn(
-				'group relative -my-1.5 flex h-[calc(100%+0.75rem)] items-center py-1.5',
-				hitboxClass,
-				debug && 'outline outline-dashed outline-red-500/50'
-			)}
-		>
-			<Checkbox
-				aria-label={isAllSelected ? 'Deselect all rows' : 'Select all rows'}
-				class="relative transition-[shadow,border] hover:border-primary/40"
-				checked={isAllSelected}
-				indeterminate={isSomeSelected}
-				onCheckedChange={handleSelectAllChange}
-			/>
-		</div>
+	<div
+		class={cn(
+			'group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5',
+			hitboxClass,
+			debug && 'outline outline-dashed outline-red-500/50'
+		)}
+	>
+		<Checkbox
+			aria-label="Select all"
+			class="relative transition-[shadow,border] hover:border-primary/40"
+			checked={isAllSelected}
+			indeterminate={isSomeSelected}
+			onCheckedChange={handleSelectAllChange}
+		/>
 	</div>
 {/if}
