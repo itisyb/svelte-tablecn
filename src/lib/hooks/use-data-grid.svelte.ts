@@ -1952,8 +1952,6 @@ export function useDataGrid<TData extends RowData>(
 			rowId: result?.rowId,
 			columnId: targetColumnId
 		});
-
-		startEditing(targetRowIndex, targetColumnId);
 	}
 
 	async function handleRowAdd(event?: MouseEvent) {
