@@ -704,6 +704,9 @@ describe('/+page.svelte', () => {
 
 		expect(hideItem.dataset.slot).toBe('dropdown-menu-item');
 		expect(hideItem.dataset.slot).not.toBe('dropdown-menu-checkbox-item');
+
+		const icon = hideItem.querySelector('svg');
+		expect(icon?.getAttribute('class')).not.toContain('me-2');
 	});
 
 	it('should render context delete rows as destructive menu item', async () => {
@@ -717,6 +720,9 @@ describe('/+page.svelte', () => {
 
 		expect(deleteRowsItem.dataset.variant).toBe('destructive');
 		expect(deleteRowsItem.className).toContain('data-[variant=destructive]:text-destructive');
+
+		const icon = deleteRowsItem.querySelector('svg');
+		expect(icon?.getAttribute('class')).not.toContain('mr-2');
 	});
 
 	it('should not render context menu trigger when closed', async () => {

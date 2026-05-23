@@ -249,7 +249,7 @@
 				checked={column.getIsSorted() === 'asc'}
 				onCheckedChange={() => onSortingChange('asc')}
 			>
-				<ChevronUp class="me-2 size-4" />
+				<ChevronUp />
 				Sort asc
 			</DropdownMenuCheckboxItem>
 			<DropdownMenuCheckboxItem
@@ -257,12 +257,12 @@
 				checked={column.getIsSorted() === 'desc'}
 				onCheckedChange={() => onSortingChange('desc')}
 			>
-				<ChevronDown class="me-2 size-4" />
+				<ChevronDown />
 				Sort desc
 			</DropdownMenuCheckboxItem>
 			{#if column.getIsSorted()}
 				<DropdownMenuItem onclick={onSortRemove}>
-					<X class="me-2 size-4" />
+					<X />
 					Remove sort
 				</DropdownMenuItem>
 			{/if}
@@ -274,23 +274,23 @@
 
 			{#if isPinnedLeft}
 				<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={onUnpin}>
-					<PinOff class="me-2 size-4" />
+					<PinOff />
 					Unpin from left
 				</DropdownMenuItem>
 			{:else}
 				<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={onLeftPin}>
-					<Pin class="me-2 size-4" />
+					<Pin />
 					Pin to left
 				</DropdownMenuItem>
 			{/if}
 			{#if isPinnedRight}
 				<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={onUnpin}>
-					<PinOff class="me-2 size-4" />
+					<PinOff />
 					Unpin from right
 				</DropdownMenuItem>
 			{:else}
 				<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={onRightPin}>
-					<Pin class="me-2 size-4" />
+					<Pin />
 					Pin to right
 				</DropdownMenuItem>
 			{/if}
@@ -298,7 +298,7 @@
 		{#if column.getCanHide()}
 			<DropdownMenuSeparator />
 			<DropdownMenuItem class="[&_svg]:text-muted-foreground" onclick={() => column.toggleVisibility(false)}>
-				<EyeOff class="me-2 size-4" />
+				<EyeOff />
 				Hide column
 			</DropdownMenuItem>
 		{/if}

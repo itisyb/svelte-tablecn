@@ -108,21 +108,21 @@
 			onCloseAutoFocus={onCloseAutoFocus}
 		>
 			<DropdownMenuItem onSelect={onCopy}>
-				<Copy class="mr-2 size-4" />
+				<Copy />
 				Copy
 			</DropdownMenuItem>
 			<DropdownMenuItem onSelect={onCut} disabled={readOnly}>
-				<Scissors class="mr-2 size-4" />
+				<Scissors />
 				Cut
 			</DropdownMenuItem>
 			<DropdownMenuItem onSelect={onClear} disabled={readOnly}>
-				<Eraser class="mr-2 size-4" />
+				<Eraser />
 				Clear
 			</DropdownMenuItem>
 			{#if onRowsDelete}
 				<DropdownMenuSeparator />
 				<DropdownMenuItem variant="destructive" onSelect={onDelete}>
-					<Trash2 class="mr-2 size-4" />
+					<Trash2 />
 					Delete rows
 				</DropdownMenuItem>
 			{/if}
