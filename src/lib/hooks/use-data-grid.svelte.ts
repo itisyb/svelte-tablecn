@@ -2046,7 +2046,7 @@ export function useDataGrid<TData extends RowData>(
 			return;
 		}
 
-		clearCellSelection();
+		onSelectionClear();
 
 		const targetRowIndex = resolveDisplayRowIndex(result, result?.rowIndex ?? initialRowCount);
 		const targetColumnId = result?.columnId ?? defaultColumnId ?? getFirstNavigableColumnId();

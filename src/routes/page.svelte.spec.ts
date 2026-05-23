@@ -22,6 +22,7 @@ import DataGridPasteDisabledFixture from './data-grid-paste-disabled-fixture.sve
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridPasteFitExistingFixture from './data-grid-paste-fit-existing-fixture.svelte';
 import DataGridPasteWithoutFocusFixture from './data-grid-paste-without-focus-fixture.svelte';
+import DataGridRowAddSelectionFixture from './data-grid-row-add-selection-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
 import DataGridSelectCellSyncFixture from './data-grid-select-cell-sync-fixture.svelte';
@@ -693,6 +694,18 @@ describe('/+page.svelte', () => {
 		);
 
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
+	});
+
+	it('should clear row selection after adding a row like the original grid', async () => {
+		await render(DataGridRowAddSelectionFixture);
+
+		await page.getByLabelText('Select row').click();
+		await expect.element(page.getByLabelText('selected rows')).toHaveTextContent('1');
+
+		await page.getByRole('button', { name: 'Add row' }).click();
+
+		await expect.element(page.getByLabelText('row count')).toHaveTextContent('2');
+		await expect.element(page.getByLabelText('selected rows')).toHaveTextContent('0');
 	});
 
 	it('should extend selection to the row edge with Ctrl+Shift+ArrowLeft', async () => {
