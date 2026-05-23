@@ -8,6 +8,7 @@ import DataGridMenuFixture from './data-grid-menu-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
+import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
@@ -335,6 +336,19 @@ describe('/+page.svelte', () => {
 
 		await expect.element(page.getByRole('button', { name: 'Filter' })).toBeDisabled();
 		await expect.element(page.getByRole('button', { name: 'Sort' })).toBeDisabled();
+	});
+
+	it('should remove sort item with delete shortcut', async () => {
+		await render(DataGridSortMenuFixture);
+
+		await page.getByRole('button', { name: 'Sort 1' }).click();
+
+		const sortItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		sortItem.focus();
+		sortItem.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
+
+		await waitFor(() => document.querySelector('[role="listitem"]') === null);
+		await expect.element(page.getByRole('heading', { name: 'No sorting applied' })).toBeInTheDocument();
 	});
 
 	it('should reset search state when toggled closed from the keyboard shortcut', async () => {

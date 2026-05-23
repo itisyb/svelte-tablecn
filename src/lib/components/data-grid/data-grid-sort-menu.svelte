@@ -141,6 +141,17 @@
 		);
 		table.setSorting(cleanItems);
 	}
+
+	function onSortItemKeyDown(event: KeyboardEvent, sortId: string) {
+		if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+			return;
+		}
+
+		if (REMOVE_SORT_SHORTCUTS.includes(event.key.toLowerCase())) {
+			event.preventDefault();
+			onSortRemove(sortId);
+		}
+	}
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />
@@ -190,6 +201,7 @@
 		</div>
 		{#if sortingItems.length > 0}
 			<ul
+				role="list"
 				class="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1"
 				use:dragHandleZone={{
 					items: sortingItems,
@@ -201,7 +213,14 @@
 				onfinalize={handleDndFinalize}
 			>
 				{#each sortingItems as sort (sort.id)}
-					<li class="flex items-center gap-2">
+					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+					<li
+						role="listitem"
+						tabindex={-1}
+						class="flex items-center gap-2"
+						onkeydown={(event) => onSortItemKeyDown(event, sort.id)}
+					>
 						<Popover>
 							<PopoverTrigger>
 								{#snippet child({ props })}
