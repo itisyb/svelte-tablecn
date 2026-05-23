@@ -112,7 +112,7 @@
 			{step}
 			onblur={handleBlur}
 			oninput={handleInput}
-			class="w-full border-none bg-transparent p-0 text-start outline-none"
+			class="w-full border-none bg-transparent p-0 text-start outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 		/>
 	{:else}
 		<span data-slot="grid-cell-content">{displayValue}</span>
