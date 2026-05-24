@@ -54,6 +54,7 @@ import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-colu
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
+import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 
@@ -1267,6 +1268,12 @@ describe('/+page.svelte', () => {
 		expect(checkboxSource).toContain('aria-invalid:border-destructive');
 		expect(checkboxSource).toContain('dark:bg-input/30');
 		expect(checkboxSource).toContain('dark:data-[state=checked]:bg-primary');
+	});
+
+	it('should keep dialog close marker and state styling aligned with the original ui dialog', () => {
+		expect(dialogContentSource).toContain('data-slot="dialog-close"');
+		expect(dialogContentSource).toContain('data-[state=open]:bg-accent');
+		expect(dialogContentSource).toContain('data-[state=open]:text-muted-foreground');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
