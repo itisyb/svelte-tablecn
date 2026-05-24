@@ -642,7 +642,7 @@
 												</Button>
 											{/snippet}
 										</PopoverTrigger>
-										<PopoverContent id={inputListboxId} align="start" class="w-48 p-0">
+										<PopoverContent id={inputListboxId} align="start" class="w-[200px] p-0">
 											<Command>
 												<CommandInput placeholder="Search options..." />
 												<CommandList>

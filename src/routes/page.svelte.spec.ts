@@ -1629,6 +1629,7 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).not.toContain(
 			"variant === 'range' ? 'min-w-52' : 'min-w-36'"
 		);
+		expect(dataTableFilterListSource).toContain('class="w-[200px] p-0"');
 	});
 
 	it('should remove the last data table filter from the trigger shortcut like the original table', () => {
