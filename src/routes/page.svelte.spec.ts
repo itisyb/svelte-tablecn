@@ -13,6 +13,7 @@ import DataGridDateCellSyncFixture from './data-grid-date-cell-sync-fixture.svel
 import DataGridDataUpdateFixture from './data-grid-data-update-fixture.svelte';
 import DataGridDefaultFeaturesFixture from './data-grid-default-features-fixture.svelte';
 import DataGridEditingMetaFixture from './data-grid-editing-meta-fixture.svelte';
+import DataGridFilterDatePlaceholderFixture from './data-grid-filter-date-placeholder-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridFilterSelectPlaceholderFixture from './data-grid-filter-select-placeholder-fixture.svelte';
 import DataGridFileCellLocalFixture from './data-grid-file-cell-local-fixture.svelte';
@@ -1444,6 +1445,22 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('selectedOption.icon');
 		expect(dataGridFilterMenuSource).not.toContain('Select values');
 		expect(dataGridFilterMenuSource).not.toContain('Select value');
+		expect(dataGridFilterMenuSource).toContain('Pick a date');
+		expect(dataGridFilterMenuSource).not.toContain('Select date');
+		expect(dataGridFilterMenuSource).toContain('formatDate(calendarDateToISO(calendarValue)');
+	});
+
+	it('should use the original date placeholder for date filters', async () => {
+		await render(DataGridFilterDatePlaceholderFixture);
+
+		await page.getByRole('button', { name: 'Filter 1' }).click();
+
+		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		await expect
+			.element(page.getByRole('button', { name: 'Pick a date', exact: true }))
+			.toBeInTheDocument();
+		expect(filterItem.textContent).toContain('Pick a date');
+		expect(filterItem.textContent).not.toContain('Select date');
 	});
 
 	it('should use the original value placeholder for select filters', async () => {

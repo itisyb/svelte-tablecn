@@ -11,6 +11,7 @@
 	import { cn } from '$lib/utils.js';
 	import { getDefaultOperator, getOperatorsForVariant } from '$lib/data-grid-filters.js';
 	import { useDebouncedCallback } from '$lib/hooks/use-debounced-callback.js';
+	import { formatDate } from '$lib/format.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
@@ -613,8 +614,12 @@
 														<CalendarIcon />
 														<span class="truncate">
 															{calendarValue
-																? `${calendarValue.month}/${calendarValue.day}/${calendarValue.year}`
-																: 'Select date'}
+																? formatDate(calendarDateToISO(calendarValue), {
+																		month: 'short',
+																		day: 'numeric',
+																		year: 'numeric'
+																	})
+																: 'Pick a date'}
 														</span>
 													</Button>
 												{/snippet}
