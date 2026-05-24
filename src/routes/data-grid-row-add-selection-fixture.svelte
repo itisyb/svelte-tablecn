@@ -9,6 +9,7 @@
 	};
 
 	let nextId = 2;
+	let shouldFailRowAdd = false;
 	let data = $state<Row[]>([{ id: '1', name: 'Ada' }]);
 
 	const columns: ColumnDef<Row, unknown>[] = [
@@ -29,6 +30,11 @@
 		},
 		getRowId: (row) => row.id,
 		onRowAdd: () => {
+			if (shouldFailRowAdd) {
+				shouldFailRowAdd = false;
+				throw new Error('Failed to add');
+			}
+
 			const rowIndex = data.length;
 			const row = { id: String(nextId++), name: 'Grace' };
 			data = [...data, row];
@@ -44,6 +50,14 @@
 </script>
 
 <Button onclick={() => dataGridProps.onRowAdd?.()}>Add row</Button>
+<Button
+	onclick={() => {
+		shouldFailRowAdd = true;
+		dataGridProps.onRowAdd?.();
+	}}
+>
+	Fail row add
+</Button>
 <DataGrid {...dataGridProps} {table} {selectedCellsSet} {getSelectionVersion} height={160} />
 <output aria-label="selected rows">{selectedRows}</output>
 <output aria-label="row count">{data.length}</output>

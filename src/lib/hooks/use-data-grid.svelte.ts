@@ -2206,9 +2206,7 @@ export function useDataGrid<TData extends RowData>(
 		let result: Partial<CellPosition> | null | void;
 		try {
 			result = await onRowAddProp(event);
-		} catch (error) {
-			console.error('[useDataGrid] onRowAdd failed', error);
-			toast.error('Failed to add row');
+		} catch {
 			return;
 		}
 

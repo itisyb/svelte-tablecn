@@ -782,6 +782,24 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('selected rows')).toHaveTextContent('0');
 	});
 
+	it('should not log or add rows when row add fails like the original grid', async () => {
+		const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+		try {
+			await render(DataGridRowAddSelectionFixture);
+
+			await page.getByLabelText('Select row').click();
+			await expect.element(page.getByLabelText('selected rows')).toHaveTextContent('1');
+
+			await page.getByRole('button', { name: 'Fail row add' }).click();
+
+			await expect.element(page.getByLabelText('row count')).toHaveTextContent('1');
+			expect(consoleError).not.toHaveBeenCalled();
+		} finally {
+			consoleError.mockRestore();
+		}
+	});
+
 	it('should extend selection to the row edge with Ctrl+Shift+ArrowLeft', async () => {
 		await render(DataGridCtrlShiftEdgeFixture);
 
