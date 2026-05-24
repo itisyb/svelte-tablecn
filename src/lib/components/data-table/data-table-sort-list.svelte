@@ -21,7 +21,6 @@
 	} from '$lib/components/ui/select/index.js';
 
 	import ArrowDownUp from '@lucide/svelte/icons/arrow-down-up';
-	import Check from '@lucide/svelte/icons/check';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import GripVertical from '@lucide/svelte/icons/grip-vertical';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
@@ -232,12 +231,6 @@
 													onSelect={() => onSortUpdate(sort.id, { id: column.id })}
 												>
 													<span class="truncate">{column.label}</span>
-													<Check
-														class={cn(
-															'ml-auto',
-															column.id === sort.id ? 'opacity-100' : 'opacity-0'
-														)}
-													/>
 												</CommandItem>
 											{/each}
 										</CommandGroup>

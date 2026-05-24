@@ -61,6 +61,7 @@ import dataTableFilterListSource from '$lib/components/data-table/data-table-fil
 import dataTableFilterMenuSource from '$lib/components/data-table/data-table-filter-menu.svelte?raw';
 import dataTableRangeFilterSource from '$lib/components/data-table/data-table-range-filter.svelte?raw';
 import dataTableSliderFilterSource from '$lib/components/data-table/data-table-slider-filter.svelte?raw';
+import dataTableSortListSource from '$lib/components/data-table/data-table-sort-list.svelte?raw';
 import dataTableViewOptionsSource from '$lib/components/data-table/data-table-view-options.svelte?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
@@ -1373,6 +1374,11 @@ describe('/+page.svelte', () => {
 		expect(dataTableRangeFilterSource).not.toContain(
 			'shrink-0 text-muted-foreground text-xs">to'
 		);
+	});
+
+	it('should keep data table sort field options plain like the original table', () => {
+		expect(dataTableSortListSource).not.toContain("from '@lucide/svelte/icons/check'");
+		expect(dataTableSortListSource).not.toContain("column.id === sort.id ? 'opacity-100'");
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
