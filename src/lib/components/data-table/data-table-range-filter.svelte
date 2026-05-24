@@ -85,7 +85,7 @@
 <div
 	bind:this={ref}
 	data-slot="range"
-	class={cn('flex w-full flex-col gap-2', !showSlider && 'flex-row items-center gap-2', className)}
+	class={cn(showSlider ? 'flex w-full flex-col gap-2' : 'flex w-full items-center gap-2', className)}
 	{...restProps}
 >
 	<div class={cn('flex w-full items-center gap-2', showSlider && 'gap-2')}>

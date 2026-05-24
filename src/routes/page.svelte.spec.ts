@@ -1861,8 +1861,12 @@ describe('/+page.svelte', () => {
 
 	it('should keep data table range filters in the original two-input shape by default', () => {
 		expect(dataTableRangeFilterSource).toContain('showSlider = false');
+		expect(dataTableRangeFilterSource).toContain("'flex w-full items-center gap-2'");
 		expect(dataTableRangeFilterSource).toContain('sr-only shrink-0 text-muted-foreground');
 		expect(dataTableRangeFilterSource).not.toContain('showSlider = true');
+		expect(dataTableRangeFilterSource).not.toContain(
+			"'flex w-full flex-col gap-2', !showSlider && 'flex-row items-center gap-2'"
+		);
 		expect(dataTableRangeFilterSource).not.toContain(
 			'shrink-0 text-muted-foreground text-xs">to'
 		);
