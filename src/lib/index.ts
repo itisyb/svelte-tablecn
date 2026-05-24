@@ -47,6 +47,7 @@ export {
 	formatDateForDisplay,
 	formatDateToString,
 	formatFileSize,
+	getColumnVariant,
 	getFileIcon,
 	getUrlHref,
 	parseLocalDate

@@ -1,5 +1,8 @@
 import type { Column, Row, Table, RowData } from '@tanstack/table-core';
 import type { Component } from 'svelte';
+import BaselineIcon from '@lucide/svelte/icons/baseline';
+import CalendarIcon from '@lucide/svelte/icons/calendar';
+import CheckSquareIcon from '@lucide/svelte/icons/check-square';
 import FileIcon from '@lucide/svelte/icons/file';
 import FileArchive from '@lucide/svelte/icons/file-archive';
 import FileAudio from '@lucide/svelte/icons/file-audio';
@@ -7,7 +10,12 @@ import FileImage from '@lucide/svelte/icons/file-image';
 import FileSpreadsheet from '@lucide/svelte/icons/file-spreadsheet';
 import FileText from '@lucide/svelte/icons/file-text';
 import FileVideo from '@lucide/svelte/icons/file-video';
+import HashIcon from '@lucide/svelte/icons/hash';
+import LinkIcon from '@lucide/svelte/icons/link';
+import ListChecksIcon from '@lucide/svelte/icons/list-checks';
+import ListIcon from '@lucide/svelte/icons/list';
 import Presentation from '@lucide/svelte/icons/presentation';
+import TextInitialIcon from '@lucide/svelte/icons/text';
 import {
 	getCellKey,
 	parseCellKey,
@@ -497,6 +505,34 @@ export function getEmptyCellValue(variant: CellOpts['variant'] | undefined): unk
 	if (variant === 'number' || variant === 'date') return null;
 	if (variant === 'checkbox') return false;
 	return '';
+}
+
+export function getColumnVariant(variant?: CellOpts['variant']): {
+	icon: Component<{ class?: string }>;
+	label: string;
+} | null {
+	switch (variant) {
+		case 'short-text':
+			return { icon: BaselineIcon, label: 'Short text' };
+		case 'long-text':
+			return { icon: TextInitialIcon, label: 'Long text' };
+		case 'number':
+			return { icon: HashIcon, label: 'Number' };
+		case 'url':
+			return { icon: LinkIcon, label: 'URL' };
+		case 'checkbox':
+			return { icon: CheckSquareIcon, label: 'Checkbox' };
+		case 'select':
+			return { icon: ListIcon, label: 'Select' };
+		case 'multi-select':
+			return { icon: ListChecksIcon, label: 'Multi-select' };
+		case 'date':
+			return { icon: CalendarIcon, label: 'Date' };
+		case 'file':
+			return { icon: FileIcon, label: 'File' };
+		default:
+			return null;
+	}
 }
 
 export function getUrlHref(urlString: string): string {

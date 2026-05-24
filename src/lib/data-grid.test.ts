@@ -6,6 +6,7 @@ import {
 	formatDateForDisplay,
 	formatDateToString,
 	formatFileSize,
+	getColumnVariant,
 	getColumnPinningStyle,
 	getFileIcon,
 	getIsInPopover,
@@ -36,6 +37,7 @@ import {
 	formatDateForDisplay as rootFormatDateForDisplay,
 	formatDateToString as rootFormatDateToString,
 	formatFileSize as rootFormatFileSize,
+	getColumnVariant as getRootColumnVariant,
 	getDefaultOperator as getRootDefaultOperator,
 	getFileIcon as getRootFileIcon,
 	getFilterFn as getRootFilterFn,
@@ -142,6 +144,8 @@ describe('data-grid formatting helpers', () => {
 		expect(formatFileSize(0)).toBe('0 B');
 		expect(formatFileSize(1536)).toBe('1.5 KB');
 		expect(getFileIcon('image/png')).toBeTypeOf('function');
+		expect(getColumnVariant('multi-select')).toMatchObject({ label: 'Multi-select' });
+		expect(getColumnVariant(undefined)).toBeNull();
 	});
 });
 
@@ -477,6 +481,7 @@ describe('package root data-grid filter exports', () => {
 		expect(rootFormatDateForDisplay).toBe(formatDateForDisplay);
 		expect(rootFormatFileSize).toBe(formatFileSize);
 		expect(getRootFileIcon).toBe(getFileIcon);
+		expect(getRootColumnVariant).toBe(getColumnVariant);
 	});
 });
 

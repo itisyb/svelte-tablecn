@@ -6,7 +6,7 @@
 		SortDirection,
 		SortingState
 	} from '@tanstack/table-core';
-	import type { CellOpts } from '$lib/types/data-grid.js';
+	import { getColumnVariant } from '$lib/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import {
 		DropdownMenu,
@@ -17,18 +17,8 @@
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu/index.js';
 	import { Tooltip, TooltipContent, TooltipTrigger } from '$lib/components/ui/tooltip/index.js';
-	import type { Component } from 'svelte';
 
 	// Icons
-	import Baseline from '@lucide/svelte/icons/baseline';
-	import TextInitial from '@lucide/svelte/icons/text';
-	import Hash from '@lucide/svelte/icons/hash';
-	import Link from '@lucide/svelte/icons/link';
-	import CheckSquare from '@lucide/svelte/icons/check-square';
-	import List from '@lucide/svelte/icons/list';
-	import ListChecks from '@lucide/svelte/icons/list-checks';
-	import Calendar from '@lucide/svelte/icons/calendar';
-	import FileIcon from '@lucide/svelte/icons/file';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import ArrowDown from '@lucide/svelte/icons/arrow-down';
@@ -114,34 +104,6 @@
 			return false;
 		}
 	});
-
-	function getColumnVariant(variant?: CellOpts['variant']): {
-		icon: Component<{ class?: string }>;
-		label: string;
-	} | null {
-		switch (variant) {
-			case 'short-text':
-				return { icon: Baseline, label: 'Short text' };
-			case 'long-text':
-				return { icon: TextInitial, label: 'Long text' };
-			case 'number':
-				return { icon: Hash, label: 'Number' };
-			case 'url':
-				return { icon: Link, label: 'URL' };
-			case 'checkbox':
-				return { icon: CheckSquare, label: 'Checkbox' };
-			case 'select':
-				return { icon: List, label: 'Select' };
-			case 'multi-select':
-				return { icon: ListChecks, label: 'Multi-select' };
-			case 'date':
-				return { icon: Calendar, label: 'Date' };
-			case 'file':
-				return { icon: FileIcon, label: 'File' };
-			default:
-				return null;
-		}
-	}
 
 	function onSortingChange(direction: SortDirection) {
 		table.setSorting((prev: SortingState) => {
