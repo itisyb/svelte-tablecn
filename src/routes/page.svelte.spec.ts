@@ -1397,6 +1397,22 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).toContain('Open filter command menu');
 	});
 
+	it('should keep data table filter menu trigger shortcuts aligned with the original table', () => {
+		expect(dataTableFilterMenuSource).toContain('<svelte:window onkeydown={handleKeyDown} />');
+		expect(dataTableFilterMenuSource).toContain('FILTER_SHORTCUT_KEY');
+		expect(dataTableFilterMenuSource).toContain('onTriggerKeyDown');
+		expect(dataTableFilterMenuSource).toContain('bind:ref={triggerRef}');
+		expect(dataTableFilterMenuSource).toContain('requestAnimationFrame(() => triggerRef?.focus())');
+		expect(dataTableFilterMenuSource).toContain('removeFilter(getFilterKey(lastFilter');
+		expect(dataTableFilterMenuSource).toContain(
+			'class="w-full max-w-[var(--bits-popover-content-available-width)] p-0"'
+		);
+		expect(dataTableFilterMenuSource).not.toContain('sm:w-80');
+		expect(dataTableFilterMenuSource).toContain(
+			'<Command loop class="[&_[data-slot=command-input-wrapper]_svg]:hidden">'
+		);
+	});
+
 	it('should keep data table filter list value column bounded like the original table', () => {
 		expect(dataTableFilterListSource).toContain('sm:min-w-[380px]');
 		expect(dataTableFilterListSource).toContain('max-h-[300px]');

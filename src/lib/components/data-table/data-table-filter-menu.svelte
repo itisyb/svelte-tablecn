@@ -37,6 +37,9 @@
 	import Text from '@lucide/svelte/icons/text';
 	import X from '@lucide/svelte/icons/x';
 
+	const FILTER_SHORTCUT_KEY = 'f';
+	const REMOVE_FILTER_SHORTCUTS = ['backspace', 'delete'];
+
 	type FilterItem = ColumnFilter & Partial<ExtendedColumnFilter<TData>>;
 
 	interface AvailableColumn {
@@ -77,6 +80,7 @@
 	let selectedColumnId = $state<string | null>(null);
 	let draftValue = $state('');
 	let draftSecondaryValue = $state('');
+	let triggerRef = $state<HTMLButtonElement | null>(null);
 	let openFieldSelectors = $state<Set<string>>(new Set());
 
 	const filters = $derived(table.getState().columnFilters as FilterItem[]);
@@ -176,6 +180,7 @@
 				(filter, index) => getFilterKey(filter, index) !== filterKey
 			)
 		);
+		requestAnimationFrame(() => triggerRef?.focus());
 	}
 
 	function resetFilters() {
@@ -218,6 +223,36 @@
 		open = nextOpen;
 		if (!nextOpen) {
 			resetDraft();
+		}
+	}
+
+	function handleKeyDown(event: KeyboardEvent) {
+		if (
+			disabled ||
+			event.target instanceof HTMLInputElement ||
+			event.target instanceof HTMLTextAreaElement ||
+			(event.target instanceof HTMLElement && event.target.contentEditable === 'true')
+		) {
+			return;
+		}
+
+		if (
+			event.key.toLowerCase() === FILTER_SHORTCUT_KEY &&
+			(event.ctrlKey || event.metaKey) &&
+			event.shiftKey
+		) {
+			event.preventDefault();
+			open = !open;
+		}
+	}
+
+	function onTriggerKeyDown(event: KeyboardEvent) {
+		if (REMOVE_FILTER_SHORTCUTS.includes(event.key.toLowerCase()) && filters.length > 0) {
+			event.preventDefault();
+			const lastFilter = filters[filters.length - 1];
+			if (lastFilter) {
+				removeFilter(getFilterKey(lastFilter, filters.length - 1));
+			}
 		}
 	}
 
@@ -296,6 +331,8 @@
 		return typeof filter.value === 'string' ? filter.value : '';
 	}
 </script>
+
+<svelte:window onkeydown={handleKeyDown} />
 
 <div role="list" class={cn('flex flex-wrap items-center gap-2', className)}>
 	{#each filters as filter, index (getFilterKey(filter, index))}
@@ -615,10 +652,12 @@
 			{#snippet child({ props })}
 				<Button
 					{...props}
+					bind:ref={triggerRef}
 					aria-label="Open filter command menu"
 					variant="outline"
 					size={filters.length > 0 ? 'icon' : 'sm'}
 					class={cn(filters.length > 0 && 'size-8', 'h-8 font-normal')}
+					onkeydown={onTriggerKeyDown}
 					{disabled}
 				>
 					<FilterIcon class="text-muted-foreground" />
@@ -630,10 +669,10 @@
 		</PopoverTrigger>
 		<PopoverContent
 			{align}
-			class="w-full max-w-[var(--bits-popover-content-available-width)] p-0 sm:w-80"
+			class="w-full max-w-[var(--bits-popover-content-available-width)] p-0"
 		>
 			{#if !selectedColumn}
-				<Command>
+				<Command loop class="[&_[data-slot=command-input-wrapper]_svg]:hidden">
 					<CommandInput placeholder="Search fields..." />
 					<CommandList>
 						<CommandEmpty>No fields found.</CommandEmpty>
