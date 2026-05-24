@@ -5,9 +5,10 @@
 	type Row = {
 		id: string;
 		name: string;
+		actionLabel: string;
 	};
 
-	let data = $state<Row[]>([{ id: '1', name: 'Ada' }]);
+	let data = $state<Row[]>([{ id: '1', name: 'Ada', actionLabel: 'Review' }]);
 
 	const columns: ColumnDef<Row, unknown>[] = [
 		{
@@ -15,6 +16,17 @@
 			accessorKey: 'name',
 			header: 'Name',
 			size: 180,
+			meta: {
+				cell: {
+					variant: 'short-text'
+				}
+			}
+		},
+		{
+			id: 'actions',
+			accessorKey: 'actionLabel',
+			header: 'Actions',
+			size: 120,
 			meta: {
 				cell: {
 					variant: 'short-text'
@@ -36,9 +48,14 @@
 	function searchAda() {
 		dataGrid.searchState?.onSearch('Ada');
 	}
+
+	function searchReview() {
+		dataGrid.searchState?.onSearch('Review');
+	}
 </script>
 
 <button type="button" onclick={searchAda}>Search Ada</button>
+<button type="button" onclick={searchReview}>Search Review</button>
 <DataGrid {...dataGrid} height={160} />
 <output aria-label="initial match index">{dataGrid.searchState?.matchIndex}</output>
 <output aria-label="active search match">
@@ -48,4 +65,7 @@
 </output>
 <output aria-label="search matches by row">
 	{dataGrid.searchMatchesByRow?.get(0)?.has('name') ? 'row0-name' : 'none'}
+</output>
+<output aria-label="action search match">
+	{dataGrid.searchMatchesByRow?.get(0)?.has('actions') ? 'row0-actions' : 'none'}
 </output>

@@ -482,6 +482,18 @@ export function useDataGrid<TData extends RowData>(
 		return getNavigableColumns().map((col) => col.id);
 	}
 
+	function getColumnIds(): string[] {
+		return columns
+			.map((column) => {
+				if (column.id) return column.id;
+				if ('accessorKey' in column && typeof column.accessorKey === 'string') {
+					return column.accessorKey;
+				}
+				return undefined;
+			})
+			.filter((id): id is string => Boolean(id));
+	}
+
 	function scrollFocusedCellIntoView(
 		rowIndex: number,
 		columnId: string,
@@ -1500,7 +1512,7 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		const rows = table.getRowModel().rows;
-		const cols = getNavigableColumns();
+		const columnIds = getColumnIds();
 		const matches: CellPosition[] = [];
 		const lowerQuery = query.toLowerCase();
 
@@ -1511,11 +1523,15 @@ export function useDataGrid<TData extends RowData>(
 			const row = rows[rowIndex];
 			if (!row) continue;
 
-			for (const col of cols) {
-				const value = row.getValue(col.id);
+			const cellById = new Map(row.getVisibleCells().map((cell) => [cell.column.id, cell]));
+
+			for (const columnId of columnIds) {
+				const cell = cellById.get(columnId);
+				if (!cell) continue;
+
+				const value = cell.getValue();
 				const strValue = String(value ?? '').toLowerCase();
 				if (strValue.includes(lowerQuery)) {
-					const columnId = col.id;
 					matches.push({ rowIndex, columnId });
 					// Build Set in same loop - single pass
 					searchMatchSet.add(getCellKey(rowIndex, columnId));

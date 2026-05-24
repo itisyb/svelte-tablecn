@@ -1270,6 +1270,15 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('search matches by row')).toHaveTextContent('row0-name');
 	});
 
+	it('should search visible non-navigable columns like the original grid', async () => {
+		await render(DataGridSearchStateFixture);
+
+		await page.getByRole('button', { name: 'Search Review' }).click();
+
+		await expect.element(page.getByLabelText('active search match')).toHaveTextContent('0:actions');
+		await expect.element(page.getByLabelText('action search match')).toHaveTextContent('row0-actions');
+	});
+
 	it('should focus direct meta editing starts before navigating on stop', async () => {
 		await render(DataGridEditingMetaFixture);
 
