@@ -58,6 +58,8 @@ import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-colu
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridRowSource from '$lib/components/data-grid/data-grid-row.svelte?raw';
 import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row-height-menu.svelte?raw';
+import dataGridRowSelectCellSource from '$lib/components/data-grid/cells/row-select-cell.svelte?raw';
+import dataGridRowSelectHeaderSource from '$lib/components/data-grid/cells/row-select-header.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSkeletonGridSource from '$lib/components/data-grid/data-grid-skeleton-grid.svelte?raw';
 import dataGridSkeletonToolbarSource from '$lib/components/data-grid/data-grid-skeleton-toolbar.svelte?raw';
@@ -1321,6 +1323,16 @@ describe('/+page.svelte', () => {
 		expect(dataGridCellWrapperSource).toContain('ref = $bindable(null)');
 		expect(dataGridCellWrapperSource).toContain('onClickProp?.(event)');
 		expect(dataGridCellWrapperSource).toContain('onKeyDownProp?.(event)');
+	});
+
+	it('should style row select debug hitboxes like the original grid', () => {
+		expect(dataGridRowSelectCellSource).toContain(
+			"debug && 'border border-red-500 border-dashed bg-red-500/20'"
+		);
+		expect(dataGridRowSelectHeaderSource).toContain(
+			"debug && 'border border-red-500 border-dashed bg-red-500/20'"
+		);
+		expect(dataGridRowSelectHeaderSource).not.toContain('outline outline-dashed');
 	});
 
 	it('should forward data table column header trigger props like the original table', () => {

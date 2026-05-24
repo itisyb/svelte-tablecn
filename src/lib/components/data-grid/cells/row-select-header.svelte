@@ -63,8 +63,7 @@
 	<div
 		class={cn(
 			'group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5',
-			hitboxClass,
-			debug && 'outline outline-dashed outline-red-500/50'
+			hitboxClass
 		)}
 	>
 		<Checkbox
@@ -75,6 +74,12 @@
 			indeterminate={isSomeSelected}
 			onCheckedChange={handleSelectAllChange}
 		/>
-		<label for={checkboxId} class="absolute inset-0 cursor-pointer"></label>
+		<label
+			for={checkboxId}
+			class={cn(
+				'absolute inset-0 cursor-pointer',
+				debug && 'border border-red-500 border-dashed bg-red-500/20'
+			)}
+		></label>
 	</div>
 {/if}

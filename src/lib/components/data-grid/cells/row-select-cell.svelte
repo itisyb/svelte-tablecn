@@ -120,7 +120,13 @@
 				onclick={handleClick}
 				onmousedown={handleMouseDown}
 			/>
-			<label for={checkboxId} class="absolute inset-0 cursor-pointer"></label>
+			<label
+				for={checkboxId}
+				class={cn(
+					'absolute inset-0 cursor-pointer',
+					debug && 'border border-red-500 border-dashed bg-red-500/20'
+				)}
+			></label>
 		</div>
 	</div>
 {/if}
