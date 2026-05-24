@@ -457,6 +457,11 @@ export function useDataTable<TData>(
 		prevPaginationSnapshot = paginationSnapshot;
 		prevJoinOperator = joinOperator;
 
+		if (filtersChanged && pagination.pageIndex !== 0) {
+			pagination = { ...pagination, pageIndex: 0 };
+			prevPaginationSnapshot = JSON.stringify(pagination);
+		}
+
 		const delay = filtersChanged && !sortingChanged && !paginationChanged ? debounceMs : throttleMs;
 		void syncQueryState(delay);
 	});
