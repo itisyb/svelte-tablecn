@@ -1,5 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { CellVariantProps, FileCellData } from '$lib/types/data-grid.js';
+	import { formatFileSize, getFileIcon } from '$lib/data-grid.js';
 	import { getCellKey, getLineCount } from '$lib/types/data-grid.js';
 	import { useBadgeOverflow } from '$lib/hooks/use-badge-overflow.svelte.js';
 	import DataGridCellWrapper from '../data-grid-cell-wrapper.svelte';
@@ -12,15 +13,7 @@
 	import { toast } from 'svelte-sonner';
 	import Upload from '@lucide/svelte/icons/upload';
 	import X from '@lucide/svelte/icons/x';
-	import FileIcon from '@lucide/svelte/icons/file';
-	import FileImage from '@lucide/svelte/icons/file-image';
-	import FileVideo from '@lucide/svelte/icons/file-video';
-	import FileAudio from '@lucide/svelte/icons/file-audio';
-	import FileText from '@lucide/svelte/icons/file-text';
-	import FileArchive from '@lucide/svelte/icons/file-archive';
-	import FileSpreadsheet from '@lucide/svelte/icons/file-spreadsheet';
-	import Presentation from '@lucide/svelte/icons/presentation';
-	import { onDestroy, untrack, type Component } from 'svelte';
+	import { onDestroy, untrack } from 'svelte';
 
 	let {
 		cell,
@@ -107,28 +100,6 @@
 
 	function setError(message: string | null) {
 		errorState = message ? { cellKey, message } : null;
-	}
-
-	function formatFileSize(bytes: number): string {
-		if (bytes <= 0 || !Number.isFinite(bytes)) return '0 B';
-		const k = 1024;
-		const sizes = ['B', 'KB', 'MB', 'GB'];
-		const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k)));
-		return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`;
-	}
-
-	function getFileIcon(type: string): Component {
-		if (type.startsWith('image/')) return FileImage;
-		if (type.startsWith('video/')) return FileVideo;
-		if (type.startsWith('audio/')) return FileAudio;
-		if (type.includes('pdf')) return FileText;
-		if (type.includes('zip') || type.includes('rar')) return FileArchive;
-		if (type.includes('word') || type.includes('document') || type.includes('doc')) return FileText;
-		if (type.includes('sheet') || type.includes('excel') || type.includes('xls'))
-			return FileSpreadsheet;
-		if (type.includes('presentation') || type.includes('powerpoint') || type.includes('ppt'))
-			return Presentation;
-		return FileIcon;
 	}
 
 	function validateFile(file: File): string | null {

@@ -224,6 +224,11 @@
 					"target": "config/data-grid.ts"
 				},
 				{
+					"path": "src/lib/data-grid.ts",
+					"type": "registry:lib",
+					"target": "data-grid.ts"
+				},
+				{
 					"path": "src/lib/data-grid-filters.ts",
 					"type": "registry:lib",
 					"target": "data-grid-filters.ts"

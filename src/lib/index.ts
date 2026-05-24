@@ -43,6 +43,14 @@ export {
 
 // Data Grid filter utilities
 export * from './data-grid-filters';
+export {
+	formatDateForDisplay,
+	formatDateToString,
+	formatFileSize,
+	getFileIcon,
+	getUrlHref,
+	parseLocalDate
+} from './data-grid';
 export { getColumnPinningStyle } from './data-table';
 export { formatDate } from './format';
 export { generateId } from './id';

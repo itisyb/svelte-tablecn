@@ -5,6 +5,7 @@
 	import { PopoverContent } from '$lib/components/ui/popover/index.js';
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import { type DateValue, parseDate, today, getLocalTimeZone } from '@internationalized/date';
+	import { formatDateForDisplay, formatDateToString, parseLocalDate } from '$lib/data-grid.js';
 
 	let {
 		cell,
@@ -51,39 +52,6 @@
 
 	// Default month for calendar (selected date or today)
 	const defaultMonth = $derived(selectedDate ?? today(getLocalTimeZone()));
-
-	function parseLocalDate(dateValue: unknown): Date | null {
-		if (!dateValue) return null;
-		if (dateValue instanceof Date) return dateValue;
-		if (typeof dateValue !== 'string') return null;
-
-		const [year, month, day] = dateValue.split('-').map(Number);
-		if (!year || !month || !day) return null;
-
-		const date = new Date(year, month - 1, day);
-		if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
-			return null;
-		}
-
-		return date;
-	}
-
-	function formatDateToString(date: Date): string {
-		const year = date.getFullYear();
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const day = String(date.getDate()).padStart(2, '0');
-
-		return `${year}-${month}-${day}`;
-	}
-
-	function formatDateForDisplay(dateValue: unknown): string {
-		if (!dateValue) return '';
-
-		const date = parseLocalDate(dateValue);
-		if (!date) return typeof dateValue === 'string' ? dateValue : '';
-
-		return date.toLocaleDateString();
-	}
 
 	function handleDateSelect(date: DateValue | undefined) {
 		if (!date || readOnly) return;

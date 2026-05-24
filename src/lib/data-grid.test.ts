@@ -3,9 +3,15 @@ import { dirname, join, normalize } from 'node:path';
 import type { Row } from '@tanstack/table-core';
 import { describe, expect, it } from 'vitest';
 import {
+	formatDateForDisplay,
+	formatDateToString,
+	formatFileSize,
 	getColumnPinningStyle,
+	getFileIcon,
 	getIsInPopover,
 	getRowIndicesForDeletion,
+	getUrlHref,
+	parseLocalDate,
 	parsePastedCellValue,
 	parseTsv,
 	serializeCellsToTsv
@@ -27,9 +33,15 @@ import {
 	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
 	SELECT_FILTER_OPERATORS as ROOT_SELECT_FILTER_OPERATORS,
 	TEXT_FILTER_OPERATORS as ROOT_TEXT_FILTER_OPERATORS,
+	formatDateForDisplay as rootFormatDateForDisplay,
+	formatDateToString as rootFormatDateToString,
+	formatFileSize as rootFormatFileSize,
 	getDefaultOperator as getRootDefaultOperator,
+	getFileIcon as getRootFileIcon,
 	getFilterFn as getRootFilterFn,
-	getOperatorsForVariant as getRootOperatorsForVariant
+	getOperatorsForVariant as getRootOperatorsForVariant,
+	getUrlHref as getRootUrlHref,
+	parseLocalDate as rootParseLocalDate
 } from './index.js';
 
 describe('parseTsv', () => {
@@ -112,6 +124,24 @@ describe('parsePastedCellValue', () => {
 			shouldSkip: false
 		});
 		expect(parsePastedCellValue('maybe', { variant: 'checkbox' }).shouldSkip).toBe(true);
+	});
+});
+
+describe('data-grid formatting helpers', () => {
+	it('exports upstream URL, date, and file helpers', () => {
+		expect(getUrlHref('example.com/path')).toBe('http://example.com/path');
+		expect(getUrlHref('https://example.com/path')).toBe('https://example.com/path');
+		expect(getUrlHref('javascript:alert(1)')).toBe('');
+
+		const date = parseLocalDate('2024-02-29');
+		expect(date).toBeInstanceOf(Date);
+		expect(formatDateToString(date as Date)).toBe('2024-02-29');
+		expect(parseLocalDate('2024-02-30')).toBeNull();
+		expect(formatDateForDisplay('invalid-date')).toBe('invalid-date');
+
+		expect(formatFileSize(0)).toBe('0 B');
+		expect(formatFileSize(1536)).toBe('1.5 KB');
+		expect(getFileIcon('image/png')).toBeTypeOf('function');
 	});
 });
 
@@ -244,6 +274,7 @@ describe('data-grid registry item', () => {
 		const targets = new Set(dataGrid?.files?.map((file) => file.target));
 
 		expect(targets.has('data-grid/data-grid-action-bar.svelte')).toBe(true);
+		expect(targets.has('data-grid.ts')).toBe(true);
 		expect(targets.has('action-bar/index.ts')).toBe(true);
 		expect(targets.has('action-bar/action-bar.svelte')).toBe(true);
 		expect(targets.has('action-bar/action-bar-item.svelte')).toBe(true);
@@ -437,6 +468,15 @@ describe('package root data-grid filter exports', () => {
 		expect(ROOT_BOOLEAN_FILTER_OPERATORS[0]?.value).toBe('isTrue');
 		expect(getRootDefaultOperator('multi-select')).toBe('is');
 		expect(getRootOperatorsForVariant('number')).toBe(NUMBER_FILTER_OPERATORS);
+	});
+
+	it('exposes upstream data-grid formatting helpers from the package root', () => {
+		expect(getRootUrlHref).toBe(getUrlHref);
+		expect(rootParseLocalDate).toBe(parseLocalDate);
+		expect(rootFormatDateToString).toBe(formatDateToString);
+		expect(rootFormatDateForDisplay).toBe(formatDateForDisplay);
+		expect(rootFormatFileSize).toBe(formatFileSize);
+		expect(getRootFileIcon).toBe(getFileIcon);
 	});
 });
 

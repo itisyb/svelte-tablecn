@@ -1,4 +1,13 @@
 import type { Column, Row, Table, RowData } from '@tanstack/table-core';
+import type { Component } from 'svelte';
+import FileIcon from '@lucide/svelte/icons/file';
+import FileArchive from '@lucide/svelte/icons/file-archive';
+import FileAudio from '@lucide/svelte/icons/file-audio';
+import FileImage from '@lucide/svelte/icons/file-image';
+import FileSpreadsheet from '@lucide/svelte/icons/file-spreadsheet';
+import FileText from '@lucide/svelte/icons/file-text';
+import FileVideo from '@lucide/svelte/icons/file-video';
+import Presentation from '@lucide/svelte/icons/presentation';
 import {
 	getCellKey,
 	parseCellKey,
@@ -488,6 +497,77 @@ export function getEmptyCellValue(variant: CellOpts['variant'] | undefined): unk
 	if (variant === 'number' || variant === 'date') return null;
 	if (variant === 'checkbox') return false;
 	return '';
+}
+
+export function getUrlHref(urlString: string): string {
+	if (!urlString || urlString.trim() === '') return '';
+
+	const trimmed = urlString.trim();
+
+	if (/^(javascript|data|vbscript|file):/i.test(trimmed)) {
+		return '';
+	}
+
+	if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+		return trimmed;
+	}
+
+	return `http://${trimmed}`;
+}
+
+export function parseLocalDate(dateValue: unknown): Date | null {
+	if (!dateValue) return null;
+	if (dateValue instanceof Date) return dateValue;
+	if (typeof dateValue !== 'string') return null;
+
+	const [year, month, day] = dateValue.split('-').map(Number);
+	if (!year || !month || !day) return null;
+
+	const date = new Date(year, month - 1, day);
+	if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+		return null;
+	}
+
+	return date;
+}
+
+export function formatDateToString(date: Date): string {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+
+	return `${year}-${month}-${day}`;
+}
+
+export function formatDateForDisplay(dateValue: unknown): string {
+	if (!dateValue) return '';
+
+	const date = parseLocalDate(dateValue);
+	if (!date) return typeof dateValue === 'string' ? dateValue : '';
+
+	return date.toLocaleDateString();
+}
+
+export function formatFileSize(bytes: number): string {
+	if (bytes <= 0 || !Number.isFinite(bytes)) return '0 B';
+	const k = 1024;
+	const sizes = ['B', 'KB', 'MB', 'GB'];
+	const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k)));
+	return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`;
+}
+
+export function getFileIcon(type: string): Component {
+	if (type.startsWith('image/')) return FileImage;
+	if (type.startsWith('video/')) return FileVideo;
+	if (type.startsWith('audio/')) return FileAudio;
+	if (type.includes('pdf')) return FileText;
+	if (type.includes('zip') || type.includes('rar')) return FileArchive;
+	if (type.includes('word') || type.includes('document') || type.includes('doc')) return FileText;
+	if (type.includes('sheet') || type.includes('excel') || type.includes('xls')) return FileSpreadsheet;
+	if (type.includes('presentation') || type.includes('powerpoint') || type.includes('ppt')) {
+		return Presentation;
+	}
+	return FileIcon;
 }
 
 export function getScrollDirection(

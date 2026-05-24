@@ -3,6 +3,7 @@
 	import type { CellVariantProps } from '$lib/types/data-grid.js';
 	import DataGridCellWrapper from '../data-grid-cell-wrapper.svelte';
 	import { cn } from '$lib/utils.js';
+	import { getUrlHref } from '$lib/data-grid.js';
 	import { toast } from 'svelte-sonner';
 
 	let {
@@ -70,25 +71,6 @@
 			moveCaretToEnd();
 		}
 	});
-
-	function getUrlHref(urlString: string): string {
-		if (!urlString || urlString.trim() === '') return '';
-
-		const trimmed = urlString.trim();
-
-		// Reject dangerous protocols
-		if (/^(javascript|data|vbscript|file):/i.test(trimmed)) {
-			return '';
-		}
-
-		// Check if it already has a protocol
-		if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-			return trimmed;
-		}
-
-		// Add http:// prefix for links without protocol
-		return `http://${trimmed}`;
-	}
 
 	function handleBlur() {
 		const currentValue = getSaveValue();
