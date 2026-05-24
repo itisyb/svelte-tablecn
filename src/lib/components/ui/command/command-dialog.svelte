@@ -10,7 +10,7 @@
 		ref = $bindable(null),
 		value = $bindable(""),
 		title = "Command Palette",
-		description = "Search for a command to run",
+		description = "Search for a command to run...",
 		portalProps,
 		children,
 		...restProps

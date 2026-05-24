@@ -52,6 +52,7 @@ import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
+import commandDialogSource from '$lib/components/ui/command/command-dialog.svelte?raw';
 import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
 import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
 import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-wrapper.svelte?raw';
@@ -1483,6 +1484,11 @@ describe('/+page.svelte', () => {
 	it('should keep command input padding aligned with the original ui command', () => {
 		expect(commandInputSource).toContain('border-b px-3');
 		expect(commandInputSource).not.toContain('pe-8 ps-3');
+	});
+
+	it('should keep command dialog default description aligned with the original ui command', () => {
+		expect(commandDialogSource).toContain('description = "Search for a command to run..."');
+		expect(commandDialogSource).not.toContain('description = "Search for a command to run",');
 	});
 
 	it('should keep table checkbox alignment aligned with the original ui table', () => {
