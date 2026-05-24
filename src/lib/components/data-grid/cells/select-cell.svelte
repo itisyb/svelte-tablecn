@@ -132,11 +132,11 @@
 				align="start"
 				alignOffset={-8}
 				sideOffset={-8}
-				class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-[2px]"
+				class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"
 				style="min-width: calc(var(--bits-select-anchor-width) + 16px);"
 			>
 				{#each options as option (option.value)}
-					<SelectItem value={option.value} label={option.label} class="rounded-[2px]">
+					<SelectItem value={option.value} label={option.label}>
 						{option.label}
 					</SelectItem>
 				{/each}
