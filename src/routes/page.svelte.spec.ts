@@ -1048,6 +1048,36 @@ describe('/+page.svelte', () => {
 		expect(icon?.getAttribute('class')).not.toContain('me-2');
 	});
 
+	it('should preserve column selection after pinning like the original grid', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		await waitFor(() => document.querySelector('[data-slot="grid-row"][data-index="0"]'));
+		await page.getByRole('button', { name: 'Name', exact: true }).click();
+
+		const selection = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="action-bar-selection"]')
+		);
+		expect(selection.textContent).toContain('200 cells selected');
+
+		const pinItem = await waitFor(() =>
+			Array.from(document.querySelectorAll<HTMLElement>('[data-slot="dropdown-menu-item"]')).find(
+				(element) => element.textContent?.includes('Pin to left')
+			)
+		);
+		pinItem.click();
+
+		const persistedSelection = await waitFor(() => {
+			const currentSelection = document.querySelector<HTMLElement>(
+				'[data-slot="action-bar-selection"]'
+			);
+			return currentSelection?.textContent?.includes('200 cells selected')
+				? currentSelection
+				: null;
+		});
+		expect(persistedSelection).toBeTruthy();
+	});
+
 	it('should render context delete rows as destructive menu item', async () => {
 		await render(DataGridContextMenuFixture);
 
