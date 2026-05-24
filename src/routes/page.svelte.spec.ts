@@ -218,8 +218,8 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-sm');
-		expect(content.className).not.toContain('rounded-md');
+		expect(content.className).toContain('rounded-md');
+		expect(content.className).not.toContain('rounded-sm');
 		expect(content.className).not.toContain('rounded-[2px]');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
@@ -1521,6 +1521,16 @@ describe('/+page.svelte', () => {
 		expect(calendarCellSource).toContain('relative h-full w-full aspect-square');
 		expect(dataGridRangeCalendarSource).toContain('relative h-full w-full aspect-square');
 		expect(calendarCellSource).not.toContain('size-(--cell-size) relative');
+	});
+
+	it('should keep calendar day focus treatment aligned with the original ui calendar', () => {
+		expect(calendarDaySource).toContain(
+			'focus:relative focus:z-10 focus:border-ring focus:ring-[3px] focus:ring-ring/50'
+		);
+		expect(dataGridRangeCalendarSource).toContain(
+			'focus:relative focus:z-10 focus:border-ring focus:ring-[3px] focus:ring-ring/50'
+		);
+		expect(calendarDaySource).not.toContain('focus:border-ring focus:ring-ring/50 focus:relative');
 	});
 
 	it('should keep dialog close marker and state styling aligned with the original ui dialog', () => {

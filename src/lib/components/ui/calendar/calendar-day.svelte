@@ -26,7 +26,7 @@
 		// hover
 		"dark:hover:text-accent-foreground",
 		// focus
-		"focus:border-ring focus:ring-ring/50 focus:relative",
+		"focus:relative focus:z-10 focus:border-ring focus:ring-[3px] focus:ring-ring/50",
 		// inner spans
 		"[&>span]:text-xs [&>span]:opacity-70",
 		className
