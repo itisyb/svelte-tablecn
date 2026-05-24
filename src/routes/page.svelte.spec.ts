@@ -41,6 +41,7 @@ import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
 import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
+import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 
@@ -70,6 +71,16 @@ describe('/+page.svelte', () => {
 
 		const grid = page.getByRole('grid', { name: 'Data grid' });
 		await expect.element(grid).toBeInTheDocument();
+	});
+
+	it('should cancel pending debounced callbacks on unmount like the original hook', async () => {
+		await render(DebouncedCallbackFixture);
+
+		await page.getByRole('button', { name: 'Schedule debounced callback' }).click();
+		await page.getByRole('button', { name: 'Unmount debounced child' }).click();
+		await new Promise((resolve) => setTimeout(resolve, 80));
+
+		await expect.element(page.getByLabelText('debounced calls')).toHaveTextContent('0');
 	});
 
 	it('should only autofocus object targets with a column id like the original grid', async () => {
