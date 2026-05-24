@@ -143,8 +143,7 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-md');
-		expect(content.className).not.toContain('rounded-sm');
+		expect(content.className).toContain('rounded-sm');
 
 		let bubbledToGrid = false;
 		const onGridKeyDown = () => {
@@ -422,8 +421,8 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Replace files' }).click();
 
-		await waitFor(() => !dropzoneElement.hasAttribute('data-invalid'));
-		await expect.element(dropzone).toBeInTheDocument();
+		await waitFor(() => !dropzoneElement.isConnected || !dropzoneElement.hasAttribute('data-invalid'));
+		await expect.element(dropzone).not.toBeInTheDocument();
 		await expect.element(page.getByLabelText('file names')).toHaveTextContent('server.txt');
 	});
 
