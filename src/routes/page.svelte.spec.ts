@@ -49,6 +49,7 @@ import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
+import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
@@ -1258,6 +1259,14 @@ describe('/+page.svelte', () => {
 
 	it('should keep separator slot naming aligned with the original ui separator', () => {
 		expect(separatorSource).toContain('"data-slot": dataSlot = "separator-root"');
+	});
+
+	it('should keep checkbox slots and state styling aligned with the original ui checkbox', () => {
+		expect(checkboxSource).toContain('data-slot="checkbox"');
+		expect(checkboxSource).toContain('data-slot="checkbox-indicator"');
+		expect(checkboxSource).toContain('aria-invalid:border-destructive');
+		expect(checkboxSource).toContain('dark:bg-input/30');
+		expect(checkboxSource).toContain('dark:data-[state=checked]:bg-primary');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
