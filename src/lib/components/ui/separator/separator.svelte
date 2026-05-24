@@ -5,7 +5,7 @@
 	let {
 		ref = $bindable(null),
 		class: className,
-		"data-slot": dataSlot = "separator",
+		"data-slot": dataSlot = "separator-root",
 		...restProps
 	}: SeparatorPrimitive.RootProps = $props();
 </script>

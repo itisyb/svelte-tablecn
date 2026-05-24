@@ -54,6 +54,7 @@ import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
+import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -1253,6 +1254,10 @@ describe('/+page.svelte', () => {
 		expect(inputSource).toContain('selection:bg-primary');
 		expect(inputSource).toContain('focus-visible:ring-[3px]');
 		expect(inputSource).toContain('aria-invalid:border-destructive');
+	});
+
+	it('should keep separator slot naming aligned with the original ui separator', () => {
+		expect(separatorSource).toContain('"data-slot": dataSlot = "separator-root"');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
