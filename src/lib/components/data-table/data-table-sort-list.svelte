@@ -2,7 +2,7 @@
 	import type { Table, ColumnSort, SortingState } from '@tanstack/table-core';
 	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
 	import {
@@ -322,9 +322,13 @@
 							<Trash2 />
 						</Button>
 						<button
+							type="button"
 							use:dragHandle
 							aria-label="drag handle for sort"
-							class="inline-flex size-8 shrink-0 cursor-grab items-center justify-center gap-2 whitespace-nowrap rounded border bg-background text-sm font-medium shadow-xs outline-none transition-all hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 dark:border-input dark:bg-input/30 dark:hover:bg-input/50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
+							class={cn(
+								buttonVariants({ variant: 'outline', size: 'icon' }),
+								'size-8 shrink-0 cursor-grab rounded'
+							)}
 						>
 							<GripVertical class="size-4" />
 						</button>

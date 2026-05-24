@@ -1419,13 +1419,19 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep data grid drag handle focus styling aligned with outline buttons', () => {
+		expect(dataGridFilterMenuSource).toContain('Button, buttonVariants');
 		expect(dataGridFilterMenuSource).toContain('aria-label="drag handle for filter"');
-		expect(dataGridFilterMenuSource).toContain('shadow-xs outline-none transition-all');
-		expect(dataGridFilterMenuSource).toContain('focus-visible:ring-[3px]');
+		expect(dataGridFilterMenuSource).toContain(
+			"buttonVariants({ variant: 'outline', size: 'icon' })"
+		);
+		expect(dataGridFilterMenuSource).toContain("'size-8 shrink-0 cursor-grab rounded'");
 		expect(dataGridFilterMenuSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
+		expect(dataGridSortMenuSource).toContain('Button, buttonVariants');
 		expect(dataGridSortMenuSource).toContain('aria-label="drag handle for sort"');
-		expect(dataGridSortMenuSource).toContain('shadow-xs outline-none transition-all');
-		expect(dataGridSortMenuSource).toContain('focus-visible:ring-[3px]');
+		expect(dataGridSortMenuSource).toContain(
+			"buttonVariants({ variant: 'outline', size: 'icon' })"
+		);
+		expect(dataGridSortMenuSource).toContain("'size-8 shrink-0 cursor-grab rounded'");
 		expect(dataGridSortMenuSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
 	});
 
@@ -1889,9 +1895,12 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep data table filter drag handle focus styling aligned with outline buttons', () => {
+		expect(dataTableFilterListSource).toContain('Button, buttonVariants');
 		expect(dataTableFilterListSource).toContain('aria-label="drag handle for filter"');
-		expect(dataTableFilterListSource).toContain('shadow-xs outline-none transition-all');
-		expect(dataTableFilterListSource).toContain('focus-visible:ring-[3px]');
+		expect(dataTableFilterListSource).toContain(
+			"buttonVariants({ variant: 'outline', size: 'icon' })"
+		);
+		expect(dataTableFilterListSource).toContain("'size-8 shrink-0 cursor-grab rounded'");
 		expect(dataTableFilterListSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
 	});
 
@@ -1933,9 +1942,12 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep data table sort drag handle focus styling aligned with outline buttons', () => {
+		expect(dataTableSortListSource).toContain('Button, buttonVariants');
 		expect(dataTableSortListSource).toContain('aria-label="drag handle for sort"');
-		expect(dataTableSortListSource).toContain('shadow-xs outline-none transition-all');
-		expect(dataTableSortListSource).toContain('focus-visible:ring-[3px]');
+		expect(dataTableSortListSource).toContain(
+			"buttonVariants({ variant: 'outline', size: 'icon' })"
+		);
+		expect(dataTableSortListSource).toContain("'size-8 shrink-0 cursor-grab rounded'");
 		expect(dataTableSortListSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
 	});
 

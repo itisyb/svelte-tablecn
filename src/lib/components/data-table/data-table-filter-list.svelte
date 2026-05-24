@@ -20,7 +20,7 @@
 	import { getDefaultFilterOperator, getFilterOperators } from '$lib/types/data-table.js';
 	import { generateId } from '$lib/id.js';
 	import { formatDate } from '$lib/format.js';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import DataTableRangeFilter from './data-table-range-filter.svelte';
@@ -751,9 +751,13 @@
 							<Trash2 />
 						</Button>
 						<button
+							type="button"
 							use:dragHandle
 							aria-label="drag handle for filter"
-							class="inline-flex size-8 shrink-0 cursor-grab items-center justify-center gap-2 whitespace-nowrap rounded border bg-background text-sm font-medium shadow-xs outline-none transition-all hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 dark:border-input dark:bg-input/30 dark:hover:bg-input/50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
+							class={cn(
+								buttonVariants({ variant: 'outline', size: 'icon' }),
+								'size-8 shrink-0 cursor-grab rounded'
+							)}
 						>
 							<GripVertical class="size-4" />
 						</button>
