@@ -55,8 +55,10 @@ import commandInputSource from '$lib/components/ui/command/command-input.svelte?
 import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
+import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row-height-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
+import dataGridViewMenuSource from '$lib/components/data-grid/data-grid-view-menu.svelte?raw';
 import dataTableDateFilterSource from '$lib/components/data-table/data-table-date-filter.svelte?raw';
 import dataTableFacetedFilterSource from '$lib/components/data-table/data-table-faceted-filter.svelte?raw';
 import dataTableFilterListSource from '$lib/components/data-table/data-table-filter-list.svelte?raw';
@@ -1278,6 +1280,28 @@ describe('/+page.svelte', () => {
 			"const secondaryLabel = $derived(styleOptions ? 'Style' : 'Department')"
 		);
 		expect(dataGridActionBarSource).toContain('{secondaryLabel}');
+	});
+
+	it('should forward row height select content props like the original grid', () => {
+		expect(dataGridRowHeightMenuSource).toContain(
+			'interface Props extends ComponentProps<typeof SelectContent>'
+		);
+		expect(dataGridRowHeightMenuSource).toContain('...contentProps');
+		expect(dataGridRowHeightMenuSource).toContain(
+			'<SelectContent class={className} {...contentProps}>'
+		);
+		expect(dataGridRowHeightMenuSource).not.toContain("align = 'start'");
+	});
+
+	it('should forward view menu popover content props like the original grid', () => {
+		expect(dataGridViewMenuSource).toContain(
+			'interface Props extends ComponentProps<typeof PopoverContent>'
+		);
+		expect(dataGridViewMenuSource).toContain('...contentProps');
+		expect(dataGridViewMenuSource).toContain(
+			"<PopoverContent {dir} class={cn('w-44 p-0', className)} {...contentProps}>"
+		);
+		expect(dataGridViewMenuSource).not.toContain("align = 'start'");
 	});
 
 	it('should keep input styling aligned with the original ui input', () => {

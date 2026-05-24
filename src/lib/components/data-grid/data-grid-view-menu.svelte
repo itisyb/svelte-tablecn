@@ -16,20 +16,25 @@
 		CommandItem,
 		CommandList
 	} from '$lib/components/ui/command/index.js';
+	import type { ComponentProps } from 'svelte';
 
 	// Icons
 	import Settings2 from '@lucide/svelte/icons/settings-2';
 	import Check from '@lucide/svelte/icons/check';
 
-	interface Props {
+	interface Props extends ComponentProps<typeof PopoverContent> {
 		table: Table<TData>;
 		disabled?: boolean;
 		dir?: Direction;
-		align?: 'start' | 'center' | 'end';
-		class?: string;
 	}
 
-	let { table, disabled = false, dir = 'ltr', align = 'start', class: className }: Props = $props();
+	let {
+		table,
+		disabled = false,
+		dir = 'ltr',
+		class: className,
+		...contentProps
+	}: Props = $props();
 
 	// Get columns - table.getAllColumns() is reactive via our wrapper
 	const columns = $derived(
@@ -66,7 +71,7 @@
 			</Button>
 		{/snippet}
 	</PopoverTrigger>
-	<PopoverContent {dir} {align} class={cn('w-44 p-0', className)}>
+	<PopoverContent {dir} class={cn('w-44 p-0', className)} {...contentProps}>
 		<Command>
 			<CommandInput placeholder="Search columns..." />
 			<CommandList>

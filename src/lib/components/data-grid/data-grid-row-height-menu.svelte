@@ -7,7 +7,7 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
-	import type { Component } from 'svelte';
+	import type { Component, ComponentProps } from 'svelte';
 
 	// Icons
 	import Minus from '@lucide/svelte/icons/minus';
@@ -28,14 +28,12 @@
 		{ label: 'Extra Tall', value: 'extra-tall', icon: ChevronsDownUp }
 	];
 
-	interface Props {
+	interface Props extends ComponentProps<typeof SelectContent> {
 		table: Table<TData>;
 		disabled?: boolean;
-		align?: 'start' | 'center' | 'end';
-		class?: string;
 	}
 
-	let { table, disabled = false, align = 'start', class: className }: Props = $props();
+	let { table, disabled = false, class: className, ...contentProps }: Props = $props();
 
 	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
 	const onRowHeightChange = $derived(table.options.meta?.onRowHeightChange);
@@ -62,7 +60,7 @@
 			{/if}
 		</span>
 	</SelectTrigger>
-	<SelectContent {align} class={className}>
+	<SelectContent class={className} {...contentProps}>
 		{#each rowHeights as option (option.value)}
 			{@const OptionIcon = option.icon}
 			<SelectItem value={option.value}>
