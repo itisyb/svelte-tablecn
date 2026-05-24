@@ -6,7 +6,7 @@
 		Table,
 		Updater
 	} from '@tanstack/table-core';
-	import type { Component } from 'svelte';
+	import type { Component, ComponentProps } from 'svelte';
 	import type {
 		DataTableOption,
 		ExtendedColumnFilter,
@@ -58,21 +58,19 @@
 		options?: DataTableOption[];
 	}
 
-	interface Props {
+	interface Props extends ComponentProps<typeof PopoverContent> {
 		table: Table<TData>;
 		/** Pass `dataTable.setColumnFilters` from useDataTable — keeps Svelte state in sync */
 		setColumnFilters?: (updater: Updater<ColumnFiltersState>) => void;
 		disabled?: boolean;
-		align?: 'start' | 'center' | 'end';
-		class?: string;
 	}
 
 	let {
 		table,
 		setColumnFilters: setColumnFiltersProp,
 		disabled = false,
-		align = 'start',
-		class: className
+		class: className,
+		...contentProps
 	}: Props = $props();
 
 	const id = useId();
@@ -347,11 +345,11 @@
 	<PopoverContent
 		aria-labelledby={labelId}
 		aria-describedby={descriptionId}
-		{align}
 		class={cn(
 			'flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[380px]',
 			className
 		)}
+		{...contentProps}
 	>
 		<div class="flex flex-col gap-1">
 			<h4 id={labelId} class="font-medium leading-none">

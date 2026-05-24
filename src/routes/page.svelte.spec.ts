@@ -59,6 +59,7 @@ import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 import dataGridViewMenuSource from '$lib/components/data-grid/data-grid-view-menu.svelte?raw';
+import dataTableAdvancedToolbarSource from '$lib/components/data-table/data-table-advanced-toolbar.svelte?raw';
 import dataTableDateFilterSource from '$lib/components/data-table/data-table-date-filter.svelte?raw';
 import dataTableFacetedFilterSource from '$lib/components/data-table/data-table-faceted-filter.svelte?raw';
 import dataTableFilterListSource from '$lib/components/data-table/data-table-filter-list.svelte?raw';
@@ -1401,6 +1402,15 @@ describe('/+page.svelte', () => {
 		expect(dataTableToolbarSource).toContain('{...restProps}');
 	});
 
+	it('should forward data table advanced toolbar root props like the original table', () => {
+		expect(dataTableAdvancedToolbarSource).toContain(
+			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+		);
+		expect(dataTableAdvancedToolbarSource).toContain('...restProps');
+		expect(dataTableAdvancedToolbarSource).toContain('bind:this={ref}');
+		expect(dataTableAdvancedToolbarSource).toContain('{...restProps}');
+	});
+
 	it('should keep data table date filter trigger and popover aligned with the original table', () => {
 		expect(dataTableDateFilterSource).toContain('role="button"');
 		expect(dataTableDateFilterSource).toContain('tabindex={0}');
@@ -1523,6 +1533,15 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).toContain('aria-controls={filterItemId}');
 	});
 
+	it('should forward data table filter list popover content props like the original table', () => {
+		expect(dataTableFilterListSource).toContain(
+			'interface Props extends ComponentProps<typeof PopoverContent>'
+		);
+		expect(dataTableFilterListSource).toContain('...contentProps');
+		expect(dataTableFilterListSource).toContain('{...contentProps}');
+		expect(dataTableFilterListSource).not.toContain("align = 'start'");
+	});
+
 	it('should keep data table filter list field options plain like the original table', () => {
 		expect(dataTableFilterListSource).not.toContain('{#if column.icon}');
 		expect(dataTableFilterListSource).not.toContain('{@const Icon = column.icon}');
@@ -1581,6 +1600,15 @@ describe('/+page.svelte', () => {
 		expect(dataTableSortListSource).toContain('aria-controls={directionListboxId}');
 		expect(dataTableSortListSource).toContain('id={directionListboxId}');
 		expect(dataTableSortListSource).toContain('aria-controls={sortItemId}');
+	});
+
+	it('should forward data table sort list popover content props like the original table', () => {
+		expect(dataTableSortListSource).toContain(
+			'interface Props extends ComponentProps<typeof PopoverContent>'
+		);
+		expect(dataTableSortListSource).toContain('...contentProps');
+		expect(dataTableSortListSource).toContain('{...contentProps}');
+		expect(dataTableSortListSource).not.toContain("align = 'start'");
 	});
 
 	it('should keep data table pagination page size width aligned with the original table', () => {
