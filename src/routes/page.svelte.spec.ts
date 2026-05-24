@@ -14,6 +14,7 @@ import DataGridDataUpdateFixture from './data-grid-data-update-fixture.svelte';
 import DataGridDefaultFeaturesFixture from './data-grid-default-features-fixture.svelte';
 import DataGridEditingMetaFixture from './data-grid-editing-meta-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
+import DataGridFilterSelectPlaceholderFixture from './data-grid-filter-select-placeholder-fixture.svelte';
 import DataGridFileCellLocalFixture from './data-grid-file-cell-local-fixture.svelte';
 import DataGridFileCellSyncFixture from './data-grid-file-cell-sync-fixture.svelte';
 import DataGridFocusoutFixture from './data-grid-focusout-fixture.svelte';
@@ -1441,6 +1442,22 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('setFieldSelectorOpen(filter.id, false)');
 		expect(dataGridFilterMenuSource).toContain('selectedOptionsWithIcons');
 		expect(dataGridFilterMenuSource).toContain('selectedOption.icon');
+		expect(dataGridFilterMenuSource).not.toContain('Select values');
+		expect(dataGridFilterMenuSource).not.toContain('Select value');
+	});
+
+	it('should use the original value placeholder for select filters', async () => {
+		await render(DataGridFilterSelectPlaceholderFixture);
+
+		await page.getByRole('button', { name: 'Filter 1' }).click();
+
+		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		await expect
+			.element(page.getByRole('button', { name: 'Value', exact: true }))
+			.toBeInTheDocument();
+		expect(filterItem.textContent).toContain('Value');
+		expect(filterItem.textContent).not.toContain('Select value');
+		expect(filterItem.textContent).not.toContain('Select values');
 	});
 
 	it('should keep filter item when delete is pressed with the operator selector open', async () => {

@@ -656,7 +656,7 @@
 														class="h-8 w-full justify-start rounded font-normal"
 													>
 														{#if selectedOptions.length === 0}
-															<span class="text-muted-foreground">Select values</span>
+															<span class="text-muted-foreground">Value</span>
 														{:else}
 															{#if selectedOptionsWithIcons.length > 0}
 																<div class="flex items-center -space-x-2 rtl:space-x-reverse">
@@ -742,7 +742,7 @@
 															{/if}
 															<span class="truncate">{selectedOption.label}</span>
 														{:else}
-															<span class="text-muted-foreground">Select value</span>
+															<span class="text-muted-foreground">Value</span>
 														{/if}
 													</Button>
 												{/snippet}
