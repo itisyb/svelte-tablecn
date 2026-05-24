@@ -2,6 +2,7 @@
 	import type { CellPosition } from '$lib/types/data-grid.js';
 	import { useDebouncedCallback } from '$lib/hooks/use-debounced-callback.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import X from '@lucide/svelte/icons/x';
@@ -104,15 +105,15 @@
 		class="fade-in-0 slide-in-from-top-2 absolute top-4 end-4 z-50 flex animate-in flex-col gap-2 rounded-lg border bg-background p-2 shadow-lg"
 	>
 		<div class="flex items-center gap-2">
-			<input
-				bind:this={inputRef}
+			<Input
+				bind:ref={inputRef}
 				type="text"
 				autocomplete="off"
 				autocorrect="off"
 				autocapitalize="off"
 				spellcheck="false"
 				placeholder="Find in table..."
-				class="flex h-8 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm"
+				class="h-8 w-64"
 				bind:value={() => searchQuery, handleSearchInput}
 				onkeydown={onKeyDown}
 			/>

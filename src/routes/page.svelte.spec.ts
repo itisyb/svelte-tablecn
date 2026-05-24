@@ -1774,6 +1774,13 @@ describe('/+page.svelte', () => {
 		expect(dataGridSearchSource).not.toContain('debounceTimer');
 	});
 
+	it('should use the shared input primitive for grid search like the original component', () => {
+		expect(dataGridSearchSource).toContain("import { Input } from '$lib/components/ui/input/index.js'");
+		expect(dataGridSearchSource).toContain('class="h-8 w-64"');
+		expect(dataGridSearchSource).not.toContain('shadow-sm');
+		expect(dataGridSearchSource).not.toContain('focus-visible:ring-1');
+	});
+
 	it('should expose the original initial search match index', async () => {
 		await render(DataGridSearchStateFixture);
 
