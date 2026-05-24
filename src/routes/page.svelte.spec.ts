@@ -45,6 +45,7 @@ import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
+import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
@@ -1493,6 +1494,12 @@ describe('/+page.svelte', () => {
 		expect(document.querySelector<HTMLElement>('[data-slot="grid-search"]')?.textContent).toContain(
 			'Type to search'
 		);
+	});
+
+	it('should use the shared debounce hook for grid search like the original component', () => {
+		expect(dataGridSearchSource).toContain('useDebouncedCallback');
+		expect(dataGridSearchSource).toContain('SEARCH_DEBOUNCE_MS = 150');
+		expect(dataGridSearchSource).not.toContain('debounceTimer');
 	});
 
 	it('should expose the original initial search match index', async () => {

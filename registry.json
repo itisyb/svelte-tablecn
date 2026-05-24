@@ -214,6 +214,11 @@
 					"target": "use-data-grid-undo-redo.svelte.ts"
 				},
 				{
+					"path": "src/lib/hooks/use-debounced-callback.ts",
+					"type": "registry:hook",
+					"target": "use-debounced-callback.ts"
+				},
+				{
 					"path": "src/lib/types/data-grid.ts",
 					"type": "registry:lib",
 					"target": "types/data-grid.ts"

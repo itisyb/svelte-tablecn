@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
 	import type { CellPosition } from '$lib/types/data-grid.js';
+	import { useDebouncedCallback } from '$lib/hooks/use-debounced-callback.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import X from '@lucide/svelte/icons/x';
+
+	const SEARCH_DEBOUNCE_MS = 150;
 
 	interface Props {
 		searchOpen: boolean;
@@ -31,15 +33,9 @@
 	}: Props = $props();
 
 	let inputRef = $state<HTMLInputElement | null>(null);
-
-	// Debounce timer
-	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-	onDestroy(() => {
-		if (debounceTimer) {
-			clearTimeout(debounceTimer);
-		}
-	});
+	const debouncedSearch = useDebouncedCallback((query: string) => {
+		onSearch(query);
+	}, SEARCH_DEBOUNCE_MS);
 
 	// Focus input when opening
 	$effect(() => {
@@ -61,15 +57,7 @@
 
 	function handleSearchInput(value: string) {
 		onSearchQueryChange(value);
-
-		if (debounceTimer) {
-			clearTimeout(debounceTimer);
-		}
-
-		// Debounce the table scan while keeping the input responsive.
-		debounceTimer = setTimeout(() => {
-			onSearch(value);
-		}, 150);
+		debouncedSearch(value);
 	}
 
 	function onKeyDown(event: KeyboardEvent) {
