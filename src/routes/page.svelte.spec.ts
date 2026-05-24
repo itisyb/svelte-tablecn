@@ -68,8 +68,10 @@ import dataTablePaginationSource from '$lib/components/data-table/data-table-pag
 import dataTableRangeFilterSource from '$lib/components/data-table/data-table-range-filter.svelte?raw';
 import dataTableSliderFilterSource from '$lib/components/data-table/data-table-slider-filter.svelte?raw';
 import dataTableSortListSource from '$lib/components/data-table/data-table-sort-list.svelte?raw';
+import dataTableSkeletonSource from '$lib/components/data-table/data-table-skeleton.svelte?raw';
 import dataTableToolbarSource from '$lib/components/data-table/data-table-toolbar.svelte?raw';
 import dataTableViewOptionsSource from '$lib/components/data-table/data-table-view-options.svelte?raw';
+import dataTableSource from '$lib/components/data-table/data-table.svelte?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
@@ -1657,6 +1659,33 @@ describe('/+page.svelte', () => {
 		expect(dataTablePaginationSource).toContain('...restProps');
 		expect(dataTablePaginationSource).toContain('bind:this={ref}');
 		expect(dataTablePaginationSource).toContain('{...restProps}');
+	});
+
+	it('should forward data table root props like the original table', () => {
+		expect(dataTableSource).toContain(
+			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+		);
+		expect(dataTableSource).toContain('...restProps');
+		expect(dataTableSource).toContain('bind:this={ref}');
+		expect(dataTableSource).toContain('{...restProps}');
+	});
+
+	it('should forward data table range filter root props like the original table', () => {
+		expect(dataTableRangeFilterSource).toContain(
+			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+		);
+		expect(dataTableRangeFilterSource).toContain('...restProps');
+		expect(dataTableRangeFilterSource).toContain('bind:this={ref}');
+		expect(dataTableRangeFilterSource).toContain('{...restProps}');
+	});
+
+	it('should forward data table skeleton root props like the original table', () => {
+		expect(dataTableSkeletonSource).toContain(
+			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+		);
+		expect(dataTableSkeletonSource).toContain('...restProps');
+		expect(dataTableSkeletonSource).toContain('bind:this={ref}');
+		expect(dataTableSkeletonSource).toContain('{...restProps}');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {

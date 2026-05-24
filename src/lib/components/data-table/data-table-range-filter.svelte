@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Column } from '@tanstack/table-core';
-	import { cn } from '$lib/utils.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
 	import {
@@ -11,8 +11,9 @@
 		type RangeValue
 	} from '$lib/data-table-range-utils.js';
 	import type { ExtendedColumnFilter } from '$lib/types/data-table.js';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	interface Props {
+	interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
 		filter: ExtendedColumnFilter<TData>;
 		column: Column<TData, unknown>;
 		inputId: string;
@@ -21,7 +22,6 @@
 			updates: Partial<Omit<ExtendedColumnFilter<TData>, 'filterId'>>
 		) => void;
 		showSlider?: boolean;
-		class?: string;
 	}
 
 	let {
@@ -30,7 +30,9 @@
 		inputId,
 		onFilterUpdate,
 		showSlider = false,
-		class: className
+		class: className,
+		ref = $bindable(null),
+		...restProps
 	}: Props = $props();
 
 	const meta = $derived(column.columnDef.meta);
@@ -81,8 +83,10 @@
 </script>
 
 <div
+	bind:this={ref}
 	data-slot="range"
 	class={cn('flex w-full flex-col gap-2', !showSlider && 'flex-row items-center gap-2', className)}
+	{...restProps}
 >
 	<div class={cn('flex w-full items-center gap-2', showSlider && 'gap-2')}>
 		<div class="relative min-w-0 flex-1">

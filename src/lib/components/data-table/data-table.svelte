@@ -1,7 +1,8 @@
 <script lang="ts" generics="TData">
 	import type { Table as TanstackTable } from '@tanstack/table-core';
 	import type { Snippet } from 'svelte';
-	import { cn } from '$lib/utils.js';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import { cn, type WithElementRef } from '$lib/utils.js';
 	import {
 		Table,
 		TableBody,
@@ -14,14 +15,14 @@
 	import { getColumnPinningStyle } from '$lib/data-table.js';
 	import DataTablePagination from './data-table-pagination.svelte';
 
-	interface Props {
+	interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
 		table: TanstackTable<TData>;
 		actionBar?: Snippet;
 		children?: Snippet;
-		class?: string;
 	}
 
-	let { table, actionBar, children, class: className }: Props = $props();
+	let { table, actionBar, children, class: className, ref = $bindable(null), ...restProps }: Props =
+		$props();
 
 	const headerGroups = $derived(table.getHeaderGroups());
 	const rows = $derived(table.getRowModel().rows);
@@ -35,7 +36,11 @@
 	}
 </script>
 
-<div class={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}>
+<div
+	bind:this={ref}
+	class={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}
+	{...restProps}
+>
 	{@render children?.()}
 	<div class="overflow-hidden rounded-md border">
 		<Table>
