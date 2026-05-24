@@ -2120,6 +2120,8 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('DataGridRangeCalendar');
 		expect(dataGridFilterMenuSource).toContain('Pick a range');
 		expect(dataGridFilterMenuSource).toContain('captionLayout="dropdown"');
+		expect(dataGridFilterMenuSource).toContain('class="w-48 p-0"');
+		expect(dataGridFilterMenuSource).not.toContain('class="w-[200px] p-0"');
 	});
 
 	it('should use the original date placeholder for date filters', async () => {
