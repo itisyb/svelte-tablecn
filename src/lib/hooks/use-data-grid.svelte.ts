@@ -2786,13 +2786,6 @@ export function useDataGrid<TData extends RowData>(
 			if (relatedTarget && gridContainer.contains(relatedTarget as Node)) return;
 			if (getIsInPopover(relatedTarget)) return;
 
-			// Focus left the grid (toolbar, page chrome, another widget)
-			if (relatedTarget && !gridContainer.contains(relatedTarget as Node)) {
-				blurCell();
-				return;
-			}
-
-			// Focus lost because the cell unmounted — keep model, focus grid for keyboard nav
 			const { rowIndex, columnId } = currentFocusedCell;
 			const cellKey = getCellKey(rowIndex, columnId);
 
@@ -2801,6 +2794,7 @@ export function useDataGrid<TData extends RowData>(
 
 				const cellElement = cellMapRef.get(cellKey);
 				if (cellElement && document.body.contains(cellElement)) {
+					cellElement.focus();
 					return;
 				}
 

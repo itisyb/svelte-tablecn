@@ -16,6 +16,7 @@ import DataGridEditingMetaFixture from './data-grid-editing-meta-fixture.svelte'
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridFileCellLocalFixture from './data-grid-file-cell-local-fixture.svelte';
 import DataGridFileCellSyncFixture from './data-grid-file-cell-sync-fixture.svelte';
+import DataGridFocusoutFixture from './data-grid-focusout-fixture.svelte';
 import DataGridKeyboardShortcutsDefaultFixture from './data-grid-keyboard-shortcuts-default-fixture.svelte';
 import DataGridKeyboardShortcutsEnabledFixture from './data-grid-keyboard-shortcuts-enabled-fixture.svelte';
 import DataGridLongTextCellSyncFixture from './data-grid-long-text-cell-sync-fixture.svelte';
@@ -1030,6 +1031,27 @@ describe('/+page.svelte', () => {
 		);
 
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
+	});
+
+	it('should restore focused cell when focus leaves without an outside click like the original grid', async () => {
+		await render(DataGridFocusoutFixture);
+
+		const firstCell = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+		const outsideTarget = page.getByRole('button', { name: 'Outside focus target' });
+
+		firstCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		firstCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		firstCell.click();
+		await waitFor(() => firstCell.hasAttribute('data-focused'));
+		firstCell.focus();
+		await waitFor(() => document.activeElement === firstCell);
+		await new Promise((resolve) => setTimeout(resolve, 350));
+
+		await outsideTarget.element().focus();
+		await waitFor(() => document.activeElement === firstCell);
+		expect(firstCell.hasAttribute('data-focused')).toBe(true);
 	});
 
 	it('should render custom data grid cell renderers directly', async () => {
