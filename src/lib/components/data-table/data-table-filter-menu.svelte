@@ -747,6 +747,9 @@
 												<Icon />
 											{/if}
 											<span class="truncate">{option.label}</span>
+											{#if option.count}
+												<span class="ml-auto font-mono text-xs">{option.count}</span>
+											{/if}
 										</CommandItem>
 									{/each}
 								</CommandGroup>

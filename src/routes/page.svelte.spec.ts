@@ -1577,6 +1577,14 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).not.toContain("'Select value'");
 	});
 
+	it('should keep data table draft select option counts aligned with the original table', () => {
+		expect(dataTableFilterMenuSource).toContain('{#if option.count}');
+		expect(dataTableFilterMenuSource).toContain(
+			'<span class="ml-auto font-mono text-xs">{option.count}</span>'
+		);
+		expect(dataTableFilterMenuSource).not.toContain('option.count !== undefined');
+	});
+
 	it('should close data table filter field selector after choosing a field like the original table', () => {
 		expect(dataTableFilterMenuSource).toContain('openFieldSelectors.has(filterKey)');
 		expect(dataTableFilterMenuSource).toContain('setFieldSelectorOpen(filterKey, false)');
