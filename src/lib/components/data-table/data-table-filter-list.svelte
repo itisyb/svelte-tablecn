@@ -37,6 +37,7 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
+	import { useId } from 'bits-ui';
 
 	import ListFilter from '@lucide/svelte/icons/list-filter';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
@@ -73,6 +74,10 @@
 		align = 'start',
 		class: className
 	}: Props = $props();
+
+	const id = useId();
+	const labelId = `${id}-label`;
+	const descriptionId = `${id}-description`;
 
 	function setColumnFilters(updater: Updater<ColumnFiltersState>) {
 		if (setColumnFiltersProp) {
@@ -322,7 +327,7 @@
 				{...props}
 				variant="outline"
 				size="sm"
-				class={cn('font-normal', className)}
+				class="font-normal"
 				onkeydown={onTriggerKeyDown}
 				{disabled}
 			>
@@ -340,14 +345,22 @@
 		{/snippet}
 	</PopoverTrigger>
 	<PopoverContent
+		aria-labelledby={labelId}
+		aria-describedby={descriptionId}
 		{align}
-		class="flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[380px]"
+		class={cn(
+			'flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[380px]',
+			className
+		)}
 	>
 		<div class="flex flex-col gap-1">
-			<h4 class="font-medium leading-none">
-				{columnFilters.length > 0 ? 'Filter by' : 'No filters applied'}
+			<h4 id={labelId} class="font-medium leading-none">
+				{columnFilters.length > 0 ? 'Filters' : 'No filters applied'}
 			</h4>
-			<p class={cn('text-muted-foreground text-sm', columnFilters.length > 0 && 'sr-only')}>
+			<p
+				id={descriptionId}
+				class={cn('text-muted-foreground text-sm', columnFilters.length > 0 && 'sr-only')}
+			>
 				{columnFilters.length > 0
 					? 'Modify filters to refine your rows.'
 					: 'Add filters to refine your rows.'}
@@ -356,6 +369,7 @@
 
 		{#if listFilters.length > 0}
 			<ul
+				role="list"
 				class="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1"
 				use:dragHandleZone={{
 					items: listFilters,
@@ -368,6 +382,12 @@
 			>
 				{#each listFilters as filter, index (getFilterKey(filter, index))}
 					{@const filterKey = getFilterKey(filter, index)}
+					{@const filterItemId = `${id}-filter-${filterKey}`}
+					{@const joinOperatorListboxId = `${filterItemId}-join-operator-listbox`}
+					{@const fieldListboxId = `${filterItemId}-field-listbox`}
+					{@const operatorListboxId = `${filterItemId}-operator-listbox`}
+					{@const inputId = `${filterItemId}-input`}
+					{@const inputListboxId = `${inputId}-listbox`}
 					{@const variant = getFilterVariant(filter)}
 					{@const operator = getFilterOperator(filter)}
 					{@const filterValues = getFilterValues(filter)}
@@ -376,8 +396,13 @@
 					{@const isSingleSelect = variant === 'select' && !allowsMultiple}
 					{@const needsValue = !['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(operator)}
 					{@const selectOptions = getColumnOptions(filter.id)}
+					{@const columnLabel = columns.find((column) => column.id === filter.id)?.label ?? filter.id}
+					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 					<li
+						role="listitem"
+						id={filterItemId}
+						tabindex={-1}
 						class="flex items-center gap-2"
 						onkeydown={(event) => onFilterItemKeyDown(event, filterKey)}
 					>
@@ -386,10 +411,18 @@
 								<span class="text-muted-foreground text-sm">Where</span>
 							{:else if index === 1}
 								<Select type="single" value={joinOperator} onValueChange={onJoinOperatorChange}>
-									<SelectTrigger size="sm" class="rounded lowercase">
+									<SelectTrigger
+										aria-label="Select join operator"
+										aria-controls={joinOperatorListboxId}
+										size="sm"
+										class="rounded lowercase"
+									>
 										<span data-slot="select-value">{joinOperator}</span>
 									</SelectTrigger>
-									<SelectContent class="min-w-[var(--bits-select-anchor-width)] lowercase">
+									<SelectContent
+										id={joinOperatorListboxId}
+										class="min-w-[var(--bits-select-anchor-width)] lowercase"
+									>
 										<SelectItem value="and">and</SelectItem>
 										<SelectItem value="or">or</SelectItem>
 									</SelectContent>
@@ -407,18 +440,17 @@
 								{#snippet child({ props })}
 									<Button
 										{...props}
+										aria-controls={fieldListboxId}
 										variant="outline"
 										size="sm"
 										class="w-32 justify-between rounded font-normal"
 									>
-										<span class="truncate"
-											>{columns.find((column) => column.id === filter.id)?.label ?? filter.id}</span
-										>
+										<span class="truncate">{columnLabel}</span>
 										<ChevronsUpDown class="opacity-50" />
 									</Button>
 								{/snippet}
 							</PopoverTrigger>
-							<PopoverContent align="start" class="w-40 p-0">
+							<PopoverContent id={fieldListboxId} align="start" class="w-40 p-0">
 								<Command>
 									<CommandInput placeholder="Search fields..." />
 									<CommandList>
@@ -465,13 +497,17 @@
 										: filter.value
 								})}
 						>
-							<SelectTrigger size="sm" class="w-32 rounded lowercase">
+							<SelectTrigger
+								aria-controls={operatorListboxId}
+								size="sm"
+								class="w-32 rounded lowercase"
+							>
 								<span data-slot="select-value" class="truncate"
 									>{getFilterOperators(variant).find((item) => item.value === operator)?.label ??
 										operator}</span
 								>
 							</SelectTrigger>
-							<SelectContent>
+							<SelectContent id={operatorListboxId}>
 								{#each getFilterOperators(variant) as item (item.value)}
 									<SelectItem value={item.value} class="lowercase">{item.label}</SelectItem>
 								{/each}
@@ -495,7 +531,9 @@
 									/>
 								{:else if variant === 'number'}
 									<Input
+										id={inputId}
 										type="number"
+										aria-label={`${columnLabel} filter value`}
 										inputmode="numeric"
 										value={filterValues.primary}
 										oninput={(event) =>
@@ -512,7 +550,9 @@
 										)}
 									>
 										<Input
+											id={inputId}
 											type="date"
+											aria-label={`${columnLabel} filter value`}
 											bind:value={
 												() => filterValues.primary,
 												(value) =>
@@ -522,7 +562,9 @@
 										/>
 										{#if variant === 'dateRange' || operator === 'isBetween'}
 											<Input
+												id={`${inputId}-end`}
 												type="date"
+												aria-label={`${columnLabel} filter end value`}
 												bind:value={
 													() => filterValues.secondary,
 													(value) =>
@@ -540,7 +582,13 @@
 										{/if}
 									</div>
 								{:else if variant === 'boolean'}
-									<div class="h-8 w-full rounded border bg-transparent dark:bg-input/30"></div>
+									<div
+										id={inputId}
+										role="status"
+										aria-label={`${columnLabel} boolean filter`}
+										aria-live="polite"
+										class="h-8 w-full rounded border bg-transparent dark:bg-input/30"
+									></div>
 								{:else if isSingleSelect && selectOptions.length > 0}
 									<Select
 										type="single"
@@ -550,15 +598,18 @@
 										onValueChange={(value: string) => updateFilter(filterKey, { value })}
 									>
 										<SelectTrigger
-											aria-label={`Change ${columns.find((column) => column.id === filter.id)?.label ?? filter.id} value`}
-											class="h-8 w-full rounded data-size:h-8"
+											id={inputId}
+											aria-controls={inputListboxId}
+											aria-label={`Change ${columnLabel} value`}
+											size="sm"
+											class="w-full rounded"
 										>
 											<span data-slot="select-value" class="truncate">
 												{selectOptions.find((option) => option.value === filterValues.primary)
-													?.label ?? 'Select value'}
+												?.label ?? 'Select value'}
 											</span>
 										</SelectTrigger>
-										<SelectContent>
+										<SelectContent id={inputListboxId}>
 											{#each selectOptions as option (option.value)}
 												<SelectItem value={option.value}>{option.label}</SelectItem>
 											{/each}
@@ -573,6 +624,9 @@
 											{#snippet child({ props })}
 												<Button
 													{...props}
+													id={inputId}
+													aria-controls={inputListboxId}
+													aria-label={`${columnLabel} filter value${allowsMultiple ? 's' : ''}`}
 													variant="outline"
 													size="sm"
 													class="h-8 w-full justify-start rounded font-normal"
@@ -590,7 +644,7 @@
 												</Button>
 											{/snippet}
 										</PopoverTrigger>
-										<PopoverContent align="start" class="w-48 p-0">
+										<PopoverContent id={inputListboxId} align="start" class="w-48 p-0">
 											<Command>
 												<CommandInput placeholder="Search options..." />
 												<CommandList>
@@ -624,7 +678,9 @@
 									</Popover>
 								{:else}
 									<Input
+										id={inputId}
 										type="text"
+										aria-label={`${columnLabel} filter value`}
 										bind:value={
 											() => filterValues.primary, (value) => setScalarFilterValue(filterKey, value)
 										}
@@ -632,11 +688,20 @@
 									/>
 								{/if}
 							{:else}
-								<div class="h-8 w-full rounded border bg-transparent dark:bg-input/30"></div>
+								<div
+									id={inputId}
+									role="status"
+									aria-label={`${columnLabel} filter is ${
+										operator === 'isEmpty' ? 'empty' : 'not empty'
+									}`}
+									aria-live="polite"
+									class="h-8 w-full rounded border bg-transparent dark:bg-input/30"
+								></div>
 							{/if}
 						</div>
 
 						<Button
+							aria-controls={filterItemId}
 							variant="outline"
 							size="icon"
 							class="size-8 rounded"

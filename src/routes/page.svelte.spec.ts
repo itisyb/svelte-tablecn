@@ -1408,6 +1408,25 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).toContain('removeFilter(filterKey)');
 	});
 
+	it('should keep data table filter list aria wiring aligned with the original table', () => {
+		expect(dataTableFilterListSource).toContain("import { useId } from 'bits-ui'");
+		expect(dataTableFilterListSource).toContain('aria-labelledby={labelId}');
+		expect(dataTableFilterListSource).toContain('aria-describedby={descriptionId}');
+		expect(dataTableFilterListSource).toContain('role="list"');
+		expect(dataTableFilterListSource).toContain('role="listitem"');
+		expect(dataTableFilterListSource).toContain('id={filterItemId}');
+		expect(dataTableFilterListSource).toContain('tabindex={-1}');
+		expect(dataTableFilterListSource).toContain('aria-controls={joinOperatorListboxId}');
+		expect(dataTableFilterListSource).toContain('id={joinOperatorListboxId}');
+		expect(dataTableFilterListSource).toContain('aria-controls={fieldListboxId}');
+		expect(dataTableFilterListSource).toContain('id={fieldListboxId}');
+		expect(dataTableFilterListSource).toContain('aria-controls={operatorListboxId}');
+		expect(dataTableFilterListSource).toContain('id={operatorListboxId}');
+		expect(dataTableFilterListSource).toContain('aria-controls={inputListboxId}');
+		expect(dataTableFilterListSource).toContain('id={inputListboxId}');
+		expect(dataTableFilterListSource).toContain('aria-controls={filterItemId}');
+	});
+
 	it('should keep data table filter list field options plain like the original table', () => {
 		expect(dataTableFilterListSource).not.toContain('{#if column.icon}');
 		expect(dataTableFilterListSource).not.toContain('{@const Icon = column.icon}');
