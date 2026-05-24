@@ -1422,6 +1422,13 @@ describe('/+page.svelte', () => {
 		expect(dataTableSortListSource).not.toContain("column.id === sort.id ? 'opacity-100'");
 	});
 
+	it('should remove data table sort rows only when child selectors are closed like the original table', () => {
+		expect(dataTableSortListSource).toContain('openFieldSelectors.has(sort.id)');
+		expect(dataTableSortListSource).toContain('openDirectionSelectors.has(sort.id)');
+		expect(dataTableSortListSource).toContain('onSortItemKeyDown(event, sort.id)');
+		expect(dataTableSortListSource).toContain('onSortRemove(sortId)');
+	});
+
 	it('should keep data table pagination page size width aligned with the original table', () => {
 		expect(dataTablePaginationSource).toContain('h-8 w-18 data-size:h-8');
 		expect(dataTablePaginationSource).not.toContain('w-[4.5rem]');
