@@ -61,6 +61,7 @@ import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dro
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
+import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
 import tableHeadSource from '$lib/components/ui/table/table-head.svelte?raw';
 
@@ -1306,6 +1307,11 @@ describe('/+page.svelte', () => {
 	it('should keep table checkbox alignment aligned with the original ui table', () => {
 		expect(tableHeadSource).toContain('[&>[role=checkbox]]:translate-y-[2px]');
 		expect(tableCellSource).toContain('[&>[role=checkbox]]:translate-y-[2px]');
+	});
+
+	it('should keep slider thumb background aligned with the original ui slider', () => {
+		expect(sliderSource).toContain('bg-background');
+		expect(sliderSource).not.toContain('bg-white');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
