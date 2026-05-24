@@ -45,7 +45,7 @@
 				role="combobox"
 				variant="outline"
 				size="sm"
-				class={cn('ml-auto hidden h-8 font-normal lg:flex', className)}
+				class="ml-auto hidden h-8 font-normal lg:flex"
 				{disabled}
 			>
 				<Settings2 class="text-muted-foreground" />
@@ -53,7 +53,7 @@
 			</Button>
 		{/snippet}
 	</PopoverTrigger>
-	<PopoverContent {align} class="w-44 p-0">
+	<PopoverContent {align} class={cn('w-44 p-0', className)}>
 		<Command>
 			<CommandInput placeholder="Search columns..." />
 			<CommandList>
