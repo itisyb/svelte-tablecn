@@ -21,8 +21,6 @@
 	// Icons
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
-	import ArrowDown from '@lucide/svelte/icons/arrow-down';
-	import ArrowUp from '@lucide/svelte/icons/arrow-up';
 	import EyeOff from '@lucide/svelte/icons/eye-off';
 	import Pin from '@lucide/svelte/icons/pin';
 	import PinOff from '@lucide/svelte/icons/pin-off';
@@ -63,20 +61,6 @@
 	});
 	const isPinnedLeft = $derived(pinnedPosition === 'left');
 	const isPinnedRight = $derived(pinnedPosition === 'right');
-
-	// Get current sort state for this column
-	const currentSort = $derived.by(() => {
-		const sortState = table.getState().sorting;
-		return sortState.find((sort) => sort.id === column.id);
-	});
-	const isSorted = $derived(!!currentSort);
-	const sortDirection = $derived(currentSort ? (currentSort.desc ? 'desc' : 'asc') : null);
-
-	// Check if this column has an active filter
-	const hasActiveFilter = $derived.by(() => {
-		const filters = table.getState().columnFilters;
-		return filters.some((f) => f.id === column.id);
-	});
 
 	// Safe getter for column size that handles SSR edge cases
 	const columnSize = $derived.by(() => {
@@ -183,16 +167,6 @@
 				</Tooltip>
 			{/if}
 			<span class="truncate text-start">{label}</span>
-			{#if hasActiveFilter}
-				<span class="ms-1 size-1.5 shrink-0 rounded-full bg-primary" aria-label="Filtered"></span>
-			{/if}
-			{#if isSorted}
-				{#if sortDirection === 'asc'}
-					<ArrowUp class="size-3.5 shrink-0 text-foreground" />
-				{:else}
-					<ArrowDown class="size-3.5 shrink-0 text-foreground" />
-				{/if}
-			{/if}
 		</div>
 		<!-- Right side: chevron -->
 		<ChevronDown class="shrink-0 text-muted-foreground" />

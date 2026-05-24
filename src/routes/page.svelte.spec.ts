@@ -49,6 +49,7 @@ import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
+import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
@@ -1236,6 +1237,12 @@ describe('/+page.svelte', () => {
 
 		expect(getComputedStyle(document.body).pointerEvents).not.toBe('none');
 		expect(document.querySelector('[data-slot="grid"]')?.hasAttribute('inert')).toBe(false);
+	});
+
+	it('should keep column header trigger visuals minimal like the original grid', () => {
+		expect(dataGridColumnHeaderSource).not.toContain('aria-label="Filtered"');
+		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-up'");
+		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-down'");
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
