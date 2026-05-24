@@ -32,6 +32,7 @@ import {
 	BOOLEAN_FILTER_OPERATORS as ROOT_BOOLEAN_FILTER_OPERATORS,
 	DATE_FILTER_OPERATORS as ROOT_DATE_FILTER_OPERATORS,
 	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
+	OVERSCAN as ROOT_OVERSCAN,
 	SELECT_FILTER_OPERATORS as ROOT_SELECT_FILTER_OPERATORS,
 	TEXT_FILTER_OPERATORS as ROOT_TEXT_FILTER_OPERATORS,
 	formatDateForDisplay as rootFormatDateForDisplay,
@@ -45,6 +46,7 @@ import {
 	getUrlHref as getRootUrlHref,
 	parseLocalDate as rootParseLocalDate
 } from './index.js';
+import { OVERSCAN } from './config/data-grid.js';
 
 describe('parseTsv', () => {
 	it('parses simple multi-row TSV', () => {
@@ -146,6 +148,13 @@ describe('data-grid formatting helpers', () => {
 		expect(getFileIcon('image/png')).toBeTypeOf('function');
 		expect(getColumnVariant('multi-select')).toMatchObject({ label: 'Multi-select' });
 		expect(getColumnVariant(undefined)).toBeNull();
+	});
+});
+
+describe('data-grid config', () => {
+	it('keeps the virtual row overscan default aligned with upstream', () => {
+		expect(OVERSCAN).toBe(6);
+		expect(ROOT_OVERSCAN).toBe(OVERSCAN);
 	});
 });
 

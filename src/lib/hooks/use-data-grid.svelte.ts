@@ -87,6 +87,7 @@ import {
 	HORIZONTAL_PAGE_SIZE,
 	MAX_COLUMN_SIZE,
 	MIN_COLUMN_SIZE,
+	OVERSCAN,
 	SCROLL_SYNC_RETRY_COUNT,
 	VIEWPORT_OFFSET
 } from '$lib/config/data-grid.js';
@@ -258,7 +259,7 @@ export function useDataGrid<TData extends RowData>(
 		enableSearch = false,
 		enablePaste = false,
 		readOnly,
-		overscan = 3,
+		overscan = OVERSCAN,
 		dir: dirProp = 'ltr',
 		getRowId,
 		initialState,
