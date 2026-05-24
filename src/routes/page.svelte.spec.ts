@@ -1576,11 +1576,19 @@ describe('/+page.svelte', () => {
 		expect(commandInputSource).not.toContain('pe-8 ps-3');
 	});
 
-	it('should keep command item selected styling aligned with Bits command state', () => {
+	it('should keep command item selected styling aligned with Bits and original command state', () => {
 		expect(commandItemSource).toContain('data-[selected]:bg-accent');
+		expect(commandItemSource).toContain('data-[selected=true]:bg-accent');
 		expect(commandItemSource).toContain('data-[selected]:text-accent-foreground');
+		expect(commandItemSource).toContain('data-[selected=true]:text-accent-foreground');
+		expect(commandItemSource).toContain('data-[disabled]:pointer-events-none');
+		expect(commandItemSource).toContain('data-[disabled=true]:pointer-events-none');
 		expect(commandLinkItemSource).toContain('data-[selected]:bg-accent');
+		expect(commandLinkItemSource).toContain('data-[selected=true]:bg-accent');
 		expect(commandLinkItemSource).toContain('data-[selected]:text-accent-foreground');
+		expect(commandLinkItemSource).toContain('data-[selected=true]:text-accent-foreground');
+		expect(commandLinkItemSource).toContain('data-[disabled]:pointer-events-none');
+		expect(commandLinkItemSource).toContain('data-[disabled=true]:pointer-events-none');
 	});
 
 	it('should keep command dialog default description aligned with the original ui command', () => {
