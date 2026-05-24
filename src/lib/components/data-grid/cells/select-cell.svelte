@@ -116,7 +116,7 @@
 				size="sm"
 				bind:ref={triggerRef}
 				onkeydowncapture={handleWrapperKeyDown}
-				class="size-full min-h-0 !w-full items-start border-none p-0 text-start shadow-none data-[size=sm]:h-full focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
+				class="size-full !w-full items-start border-none p-0 shadow-none focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
 				style="width: calc(100% - 16px);"
 			>
 				{#if displayLabel}

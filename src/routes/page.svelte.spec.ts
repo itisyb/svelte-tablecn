@@ -140,21 +140,25 @@ describe('/+page.svelte', () => {
 			departmentCell.querySelector<HTMLElement>('[data-slot="select-trigger"]')
 		);
 		const content = await waitFor(() =>
-			document.querySelector<HTMLElement>('[data-slot="select-content"]')
+			document.querySelector<HTMLElement>('[data-grid-cell-editor][data-slot="select-content"]')
 		);
 		const { wrapperRect, triggerRect, contentRect } = await waitFor(() => {
 			const wrapperRect = wrapper.getBoundingClientRect();
 			const triggerRect = trigger.getBoundingClientRect();
 			const contentRect = content.getBoundingClientRect();
-			const isPlaced = contentRect.width > 0 && contentRect.height > 0;
+			const isPlaced =
+				contentRect.width > 0 &&
+				contentRect.height > 0 &&
+				getComputedStyle(content).transform === 'none';
 
 			return isPlaced ? { wrapperRect, triggerRect, contentRect } : null;
 		});
 
 		expect(triggerRect.top).toBeGreaterThanOrEqual(wrapperRect.top);
-		expect(triggerRect.bottom).toBeLessThanOrEqual(wrapperRect.bottom);
+		expect(Math.abs(Math.round(triggerRect.height) - 32)).toBeLessThanOrEqual(1);
 		expect(Math.round(contentRect.left)).toBe(Math.round(wrapperRect.left));
-		expect(Math.round(contentRect.top)).toBeLessThan(Math.round(wrapperRect.bottom));
+		expect(contentRect.top).toBeGreaterThanOrEqual(wrapperRect.top);
+		expect(contentRect.top).toBeLessThanOrEqual(wrapperRect.bottom + 8);
 
 		const contentStyle = getComputedStyle(content);
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
@@ -162,6 +166,8 @@ describe('/+page.svelte', () => {
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
 		expect(content.className).toContain('rounded-md');
 		expect(content.className).not.toContain('rounded-[2px]');
+		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
+		expect(trigger.getAttribute('style') ?? '').toContain('width: calc(100% - 16px)');
 		const firstItem = await waitFor(() =>
 			content.querySelector<HTMLElement>('[data-slot="select-item"]')
 		);
