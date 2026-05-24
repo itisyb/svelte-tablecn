@@ -68,24 +68,6 @@
 		return { columnLabels: labels, columns: availableColumns };
 	});
 
-	function getSelectableColumns(currentSortId: string): { id: string; label: string }[] {
-		return table
-			.getAllColumns()
-			.filter((column) => {
-				if (!column.getCanSort()) return false;
-
-				const isSortedElsewhere = sorting.some(
-					(item) => item.id === column.id && item.id !== currentSortId
-				);
-
-				return !isSortedElsewhere;
-			})
-			.map((column) => ({
-				id: column.id,
-				label: column.columnDef.meta?.label ?? column.id
-			}));
-	}
-
 	function onSortAdd() {
 		const firstColumn = columns[0];
 		if (!firstColumn) return;
@@ -269,7 +251,7 @@
 									<CommandList>
 										<CommandEmpty>No fields found.</CommandEmpty>
 										<CommandGroup>
-											{#each getSelectableColumns(sort.id) as column (column.id)}
+											{#each columns as column (column.id)}
 												<CommandItem
 													value={column.id}
 													onSelect={() => onSortUpdate(sort.id, { id: column.id })}

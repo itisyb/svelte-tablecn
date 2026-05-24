@@ -1432,6 +1432,8 @@ describe('/+page.svelte', () => {
 	it('should keep data table sort field options plain like the original table', () => {
 		expect(dataTableSortListSource).not.toContain("from '@lucide/svelte/icons/check'");
 		expect(dataTableSortListSource).not.toContain("column.id === sort.id ? 'opacity-100'");
+		expect(dataTableSortListSource).toContain('{#each columns as column (column.id)}');
+		expect(dataTableSortListSource).not.toContain('getSelectableColumns');
 	});
 
 	it('should remove data table sort rows only when child selectors are closed like the original table', () => {
