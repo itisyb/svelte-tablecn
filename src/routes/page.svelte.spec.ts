@@ -59,6 +59,7 @@ import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-men
 import dataTableFacetedFilterSource from '$lib/components/data-table/data-table-faceted-filter.svelte?raw';
 import dataTableFilterListSource from '$lib/components/data-table/data-table-filter-list.svelte?raw';
 import dataTableFilterMenuSource from '$lib/components/data-table/data-table-filter-menu.svelte?raw';
+import dataTableSliderFilterSource from '$lib/components/data-table/data-table-slider-filter.svelte?raw';
 import dataTableViewOptionsSource from '$lib/components/data-table/data-table-view-options.svelte?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
@@ -1355,6 +1356,13 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).not.toContain(
 			"variant === 'range' ? 'min-w-52' : 'min-w-36'"
 		);
+	});
+
+	it('should keep data table slider filter popover sizing aligned with the original table', () => {
+		expect(dataTableSliderFilterSource).toContain('flex w-auto flex-col gap-4');
+		expect(dataTableSliderFilterSource).toContain('flex items-center gap-4');
+		expect(dataTableSliderFilterSource).not.toContain('min-w-72');
+		expect(dataTableSliderFilterSource).not.toContain('flex items-center gap-3');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {

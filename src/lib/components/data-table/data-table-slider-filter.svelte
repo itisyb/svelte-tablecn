@@ -129,10 +129,10 @@
 				</Button>
 			{/snippet}
 		</PopoverTrigger>
-		<PopoverContent align="start" class="flex w-auto min-w-72 flex-col gap-4">
+		<PopoverContent align="start" class="flex w-auto flex-col gap-4">
 			<div class="flex flex-col gap-3">
 				<p class="font-medium leading-none">{title}</p>
-				<div class="flex items-center gap-3">
+				<div class="flex items-center gap-4">
 					<div class="relative">
 						<Input
 							id={`${inputId}-from`}
