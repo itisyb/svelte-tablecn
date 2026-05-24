@@ -1492,6 +1492,15 @@ describe('/+page.svelte', () => {
 		expect(dataTableSliderFilterSource).not.toContain('flex items-center gap-3');
 	});
 
+	it('should keep data table slider filter trigger aligned with the original table', () => {
+		expect(dataTableSliderFilterSource).toContain('role="button"');
+		expect(dataTableSliderFilterSource).toContain('tabindex={0}');
+		expect(dataTableSliderFilterSource).toContain('<span>{title}</span>');
+		expect(dataTableSliderFilterSource).not.toContain('rounded-r-none');
+		expect(dataTableSliderFilterSource).not.toContain('rounded-l-none');
+		expect(dataTableSliderFilterSource).not.toContain('max-w-40 truncate text-muted-foreground text-xs');
+	});
+
 	it('should keep data table range filters in the original two-input shape by default', () => {
 		expect(dataTableRangeFilterSource).toContain('showSlider = false');
 		expect(dataTableRangeFilterSource).toContain('sr-only shrink-0 text-muted-foreground');
