@@ -55,6 +55,7 @@ import commandInputSource from '$lib/components/ui/command/command-input.svelte?
 import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
+import dataGridRowSource from '$lib/components/data-grid/data-grid-row.svelte?raw';
 import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row-height-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSkeletonGridSource from '$lib/components/data-grid/data-grid-skeleton-grid.svelte?raw';
@@ -1297,6 +1298,16 @@ describe('/+page.svelte', () => {
 		expect(dataGridSource).toContain('...restProps');
 		expect(dataGridSource).toContain('{...restProps}');
 		expect(dataGridSource).toContain('bind:this={ref}');
+	});
+
+	it('should forward data grid row props like the original grid row', () => {
+		expect(dataGridRowSource).toContain(
+			"interface Props extends WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement>"
+		);
+		expect(dataGridRowSource).toContain('...restProps');
+		expect(dataGridRowSource).toContain('{...restProps}');
+		expect(dataGridRowSource).toContain('bind:this={getRowElement, setRowElement}');
+		expect(dataGridRowSource).toContain('style: styleProp');
 	});
 
 	it('should forward data table column header trigger props like the original table', () => {

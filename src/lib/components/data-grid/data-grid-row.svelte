@@ -7,6 +7,7 @@
 		ColumnSizingState
 	} from '@tanstack/table-core';
 	import type { SvelteSet } from 'svelte/reactivity';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import type { CellPosition, RowHeightValue, Direction } from '$lib/types/data-grid.js';
 	import { getRowHeightValue } from '$lib/types/data-grid.js';
 	import {
@@ -14,7 +15,7 @@
 		getColumnPinningStyle,
 		toPinningStyleString
 	} from '$lib/data-grid.js';
-	import { cn } from '$lib/utils.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
 	import { FlexRender } from '$lib/table';
 	import DataGridCell from './data-grid-cell.svelte';
 
@@ -22,7 +23,7 @@
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	type VirtualizerReturn = any;
 
-	interface Props {
+	interface Props extends WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement> {
 		row: Row<TData>;
 		table: Table<TData>;
 		columnPinning: ColumnPinningState;
@@ -41,7 +42,6 @@
 		dir: Direction;
 		adjustLayout: boolean;
 		stretchColumns: boolean;
-		class?: string;
 	}
 
 	let {
@@ -61,10 +61,22 @@
 		dir,
 		adjustLayout,
 		stretchColumns,
-		class: className
+		class: className,
+		style: styleProp,
+		ref = $bindable(null),
+		...restProps
 	}: Props = $props();
 
 	let rowRef = $state<HTMLDivElement | null>(null);
+
+	function getRowElement() {
+		return rowRef;
+	}
+
+	function setRowElement(element: HTMLDivElement | null) {
+		rowRef = element;
+		ref = element;
+	}
 
 	// Handle row ref changes - measure and track in rowMap
 	$effect(() => {
@@ -80,11 +92,13 @@
 
 	// Row selection is reactive via table state
 	const isRowSelected = $derived(row.getIsSelected());
-	const rowStyle = $derived(
-		adjustLayout
+	const rowStyle = $derived.by(() => {
+		const internalStyle = adjustLayout
 			? `top: ${virtualStart}px; height: ${getRowHeightValue(rowHeight)}px; content-visibility: auto;`
-			: `transform: translateY(${virtualStart}px); height: ${getRowHeightValue(rowHeight)}px; content-visibility: auto;`
-	);
+			: `transform: translateY(${virtualStart}px); height: ${getRowHeightValue(rowHeight)}px; content-visibility: auto;`;
+
+		return styleProp ? `${internalStyle} ${styleProp}` : internalStyle;
+	});
 
 	// Same column order as header (getVisibleLeafColumns), not row.getVisibleCells() alone.
 	const visibleCells = $derived.by(() => {
@@ -106,8 +120,9 @@
 	aria-selected={isRowSelected}
 	data-index={virtualRowIndex}
 	data-slot="grid-row"
-	bind:this={rowRef}
 	tabindex={-1}
+	{...restProps}
+	bind:this={getRowElement, setRowElement}
 	{dir}
 	class={cn('absolute flex w-full border-b', !adjustLayout && 'will-change-transform', className)}
 	style={rowStyle}
