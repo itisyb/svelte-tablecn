@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { toast } from 'svelte-sonner';
 import Page from './+page.svelte';
+import layoutCssSource from './layout.css?raw';
 import ActionBarEmptyFixture from './action-bar-empty-fixture.svelte';
 import ActionBarLoopFixture from './action-bar-loop-fixture.svelte';
 import DataGridAutoFocusFixture from './data-grid-auto-focus-fixture.svelte';
@@ -1598,6 +1599,21 @@ describe('/+page.svelte', () => {
 		expect(sonnerSource).toContain('group-[.toaster]:text-popover-foreground');
 		expect(sonnerSource).not.toContain('group-[.toaster]:bg-background');
 		expect(sonnerSource).not.toContain('group-[.toaster]:text-foreground');
+	});
+
+	it('should keep dark theme surface tokens aligned with the original table', () => {
+		expect(layoutCssSource).toContain('--destructive-foreground: oklch(0.577 0.245 27.325)');
+		expect(layoutCssSource).toContain('--color-destructive-foreground: var(--destructive-foreground)');
+		expect(layoutCssSource).toContain('--card: oklch(0.145 0 0)');
+		expect(layoutCssSource).toContain('--popover: oklch(0.145 0 0)');
+		expect(layoutCssSource).toContain('--primary: oklch(0.985 0 0)');
+		expect(layoutCssSource).toContain('--destructive: oklch(0.396 0.141 25.723)');
+		expect(layoutCssSource).toContain('--destructive-foreground: oklch(0.637 0.237 25.331)');
+		expect(layoutCssSource).toContain('--border: oklch(0.269 0 0)');
+		expect(layoutCssSource).toContain('--input: oklch(0.269 0 0)');
+		expect(layoutCssSource).toContain('--sidebar-ring: oklch(0.439 0 0)');
+		expect(layoutCssSource).not.toContain('--popover: oklch(0.205 0 0)');
+		expect(layoutCssSource).not.toContain('--border: oklch(1 0 0 / 10%)');
 	});
 
 	it('should keep data table slider filter inputs compact like the original table', () => {
