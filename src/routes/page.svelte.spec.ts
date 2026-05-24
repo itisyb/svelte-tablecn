@@ -1428,6 +1428,9 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('aria-controls={fieldListboxId}');
 		expect(dataGridFilterMenuSource).toContain('aria-controls={operatorListboxId}');
 		expect(dataGridFilterMenuSource).toContain('aria-controls={filterItemId}');
+		expect(dataGridFilterMenuSource).toContain('const FILTER_DEBOUNCE_MS = 300');
+		expect(dataGridFilterMenuSource).toContain('FILTER_DEBOUNCE_MS');
+		expect(dataGridFilterMenuSource).not.toContain(',\n\t\t250\n\t)');
 		expect(dataGridFilterMenuSource).toContain('ms-auto');
 		expect(dataGridFilterMenuSource).not.toContain('ml-auto');
 		expect(dataGridFilterMenuSource).toContain('{#if option.count}');

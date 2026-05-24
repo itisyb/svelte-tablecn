@@ -43,6 +43,7 @@
 
 	const FILTER_SHORTCUT_KEY = 'f';
 	const REMOVE_FILTER_SHORTCUTS = ['backspace', 'delete'];
+	const FILTER_DEBOUNCE_MS = 300;
 
 	interface Props {
 		table: Table<TData>;
@@ -124,7 +125,7 @@
 
 	const debouncedFilterUpdate = useDebouncedCallback(
 		(filterId: string, updates: Partial<ColumnFilter>) => onFilterUpdate(filterId, updates),
-		250
+		FILTER_DEBOUNCE_MS
 	);
 
 	function getTextFilterValue(filterValue: FilterValue | undefined) {
