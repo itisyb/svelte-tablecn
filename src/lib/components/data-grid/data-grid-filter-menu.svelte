@@ -69,6 +69,7 @@
 	let dragItems = $state<ColumnFilter[]>([]);
 	let openFieldSelectors = $state<Set<string>>(new Set());
 	let openOperatorSelectors = $state<Set<string>>(new Set());
+	let openValueSelectors = $state<Set<string>>(new Set());
 	const filterItems = $derived(isDragging ? dragItems : columnFilters);
 
 	const { columnLabels, columns, columnVariants } = $derived.by(() => {
@@ -214,6 +215,16 @@
 			nextOpenSelectors.delete(filterId);
 		}
 		openOperatorSelectors = nextOpenSelectors;
+	}
+
+	function setValueSelectorOpen(filterId: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openValueSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterId);
+		} else {
+			nextOpenSelectors.delete(filterId);
+		}
+		openValueSelectors = nextOpenSelectors;
 	}
 
 	function onFilterItemKeyDown(event: KeyboardEvent, filterId: string) {
@@ -543,7 +554,10 @@
 										filterValue?.endValue as string | undefined
 									)}
 									{#if operator === 'isBetween'}
-										<Popover>
+										<Popover
+											open={openValueSelectors.has(filter.id)}
+											onOpenChange={(isOpen) => setValueSelectorOpen(filter.id, isOpen)}
+										>
 											<PopoverTrigger>
 												{#snippet child({ props })}
 													<Button
@@ -585,7 +599,10 @@
 											</PopoverContent>
 										</Popover>
 									{:else}
-										<Popover>
+										<Popover
+											open={openValueSelectors.has(filter.id)}
+											onOpenChange={(isOpen) => setValueSelectorOpen(filter.id, isOpen)}
+										>
 											<PopoverTrigger>
 												{#snippet child({ props })}
 													<Button
@@ -627,6 +644,7 @@
 																endValue: filterValue?.endValue
 															}
 														});
+														setValueSelectorOpen(filter.id, false);
 													}}
 												/>
 											</PopoverContent>
@@ -641,7 +659,10 @@
 											selectedValues.includes(option.value)
 										)}
 										{@const selectedOptionsWithIcons = selectedOptions.filter((option) => option.icon)}
-										<Popover>
+										<Popover
+											open={openValueSelectors.has(filter.id)}
+											onOpenChange={(isOpen) => setValueSelectorOpen(filter.id, isOpen)}
+										>
 											<PopoverTrigger>
 												{#snippet child({ props })}
 													<Button
@@ -724,7 +745,10 @@
 										{@const selectedOption = selectOptions.find(
 											(opt) => opt.value === (filterValue?.value as string)
 										)}
-										<Popover>
+										<Popover
+											open={openValueSelectors.has(filter.id)}
+											onOpenChange={(isOpen) => setValueSelectorOpen(filter.id, isOpen)}
+										>
 											<PopoverTrigger>
 												{#snippet child({ props })}
 													<Button
@@ -765,6 +789,7 @@
 																				endValue: filterValue?.endValue
 																			}
 																		});
+																		setValueSelectorOpen(filter.id, false);
 																	}}
 																>
 																	{#if option.icon}

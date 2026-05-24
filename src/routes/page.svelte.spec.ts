@@ -1734,6 +1734,7 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('{#if option.count}');
 		expect(dataGridFilterMenuSource).not.toContain('option.count !== undefined');
 		expect(dataGridFilterMenuSource).toContain('setFieldSelectorOpen(filter.id, false)');
+		expect(dataGridFilterMenuSource).toContain('setValueSelectorOpen(filter.id, false)');
 		expect(dataGridFilterMenuSource).toContain('selectedOptionsWithIcons');
 		expect(dataGridFilterMenuSource).toContain('selectedOption.icon');
 		expect(dataGridFilterMenuSource).not.toContain('Select values');
@@ -1810,6 +1811,28 @@ describe('/+page.svelte', () => {
 		expect(filterItem.textContent).toContain('Value');
 		expect(filterItem.textContent).not.toContain('Select value');
 		expect(filterItem.textContent).not.toContain('Select values');
+	});
+
+	it('should close single-value select filter popovers after choosing a value like the original menu', async () => {
+		await render(DataGridFilterSelectPlaceholderFixture);
+
+		await page.getByRole('button', { name: 'Filter 1' }).click();
+
+		const valueTrigger = await waitFor(() =>
+			page.getByRole('button', { name: 'Value', exact: true }).element()
+		);
+		const listboxId = valueTrigger.getAttribute('aria-controls');
+		valueTrigger.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+		const activeOption = await waitFor(() =>
+			Array.from(document.querySelectorAll<HTMLElement>('[data-slot="command-item"]')).find(
+				(element) => element.textContent?.includes('Active')
+			)
+		);
+		activeOption.click();
+
+		await waitFor(() => (listboxId ? document.getElementById(listboxId) === null : null));
+		await expect.element(page.getByRole('button', { name: 'Active', exact: true })).toBeInTheDocument();
 	});
 
 	it('should keep filter item when delete is pressed with the operator selector open', async () => {
