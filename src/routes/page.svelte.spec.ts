@@ -1338,8 +1338,14 @@ describe('/+page.svelte', () => {
 	it('should keep data table filter chip segment borders aligned with the original table', () => {
 		expect(dataTableFilterMenuSource).toContain('rounded-l-md border border-r-0');
 		expect(dataTableFilterMenuSource).toContain('rounded-none border-r-0 px-2.5 lowercase');
+		expect(dataTableFilterMenuSource).toContain(
+			'rounded-none bg-transparent px-1.5 py-0.5 [&_svg]:hidden'
+		);
 		expect(dataTableFilterMenuSource).not.toContain(
 			'rounded-none border-l-0 px-2.5 lowercase'
+		);
+		expect(dataTableFilterMenuSource).not.toContain(
+			'h-8 rounded-none border-l-0 px-2.5 data-size:h-8 [&_svg]:hidden'
 		);
 	});
 

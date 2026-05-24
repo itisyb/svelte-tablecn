@@ -405,7 +405,7 @@
 						value={filterValues.primary || 'true'}
 						onValueChange={(value: string) => updateFilter(filterKey, { value })}
 					>
-						<SelectTrigger class="h-8 rounded-none border-l-0 px-2.5 data-size:h-8 [&_svg]:hidden">
+						<SelectTrigger class="rounded-none bg-transparent px-1.5 py-0.5 [&_svg]:hidden">
 							<span data-slot="select-value"
 								>{filterValues.primary === 'false' ? 'False' : 'True'}</span
 							>
