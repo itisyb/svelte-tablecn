@@ -17,6 +17,7 @@
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu/index.js';
 	import { Tooltip, TooltipContent, TooltipTrigger } from '$lib/components/ui/tooltip/index.js';
+	import type { ComponentProps } from 'svelte';
 
 	// Icons
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
@@ -26,13 +27,18 @@
 	import PinOff from '@lucide/svelte/icons/pin-off';
 	import X from '@lucide/svelte/icons/x';
 
-	interface Props {
+	interface Props extends ComponentProps<typeof DropdownMenuTrigger> {
 		header: Header<TData, TValue>;
 		table: Table<TData>;
-		class?: string;
 	}
 
-	let { header, table, class: className }: Props = $props();
+	let {
+		header,
+		table,
+		class: className,
+		onpointerdown: onPointerDownProp,
+		...triggerProps
+	}: Props = $props();
 
 	const column = $derived(header.column);
 	const label = $derived.by(() => {
@@ -123,7 +129,8 @@
 		column.pin(false);
 	}
 
-	function onTriggerPointerDown(event: PointerEvent) {
+	function onTriggerPointerDown(event: Parameters<NonNullable<Props['onpointerdown']>>[0]) {
+		onPointerDownProp?.(event);
 		if (event.defaultPrevented) return;
 
 		if (event.button !== 0) {
@@ -148,6 +155,7 @@
 			className
 		)}
 		onpointerdown={onTriggerPointerDown}
+		{...triggerProps}
 	>
 		<!-- Left side: icon + label -->
 		<div class="flex min-w-0 flex-1 items-center gap-1.5">

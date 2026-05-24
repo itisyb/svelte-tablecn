@@ -63,6 +63,7 @@ import dataGridSkeletonSource from '$lib/components/data-grid/data-grid-skeleton
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 import dataGridViewMenuSource from '$lib/components/data-grid/data-grid-view-menu.svelte?raw';
 import dataTableAdvancedToolbarSource from '$lib/components/data-table/data-table-advanced-toolbar.svelte?raw';
+import dataTableColumnHeaderSource from '$lib/components/data-table/data-table-column-header.svelte?raw';
 import dataTableDateFilterSource from '$lib/components/data-table/data-table-date-filter.svelte?raw';
 import dataTableFacetedFilterSource from '$lib/components/data-table/data-table-faceted-filter.svelte?raw';
 import dataTableFilterListSource from '$lib/components/data-table/data-table-filter-list.svelte?raw';
@@ -1277,6 +1278,23 @@ describe('/+page.svelte', () => {
 		expect(dataGridColumnHeaderSource).not.toContain('aria-label="Filtered"');
 		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-up'");
 		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-down'");
+	});
+
+	it('should forward data grid column header trigger props like the original grid', () => {
+		expect(dataGridColumnHeaderSource).toContain(
+			'interface Props extends ComponentProps<typeof DropdownMenuTrigger>'
+		);
+		expect(dataGridColumnHeaderSource).toContain('...triggerProps');
+		expect(dataGridColumnHeaderSource).toContain('{...triggerProps}');
+		expect(dataGridColumnHeaderSource).toContain('onPointerDownProp?.(event)');
+	});
+
+	it('should forward data table column header trigger props like the original table', () => {
+		expect(dataTableColumnHeaderSource).toContain(
+			'interface Props extends ComponentProps<typeof DropdownMenuTrigger>'
+		);
+		expect(dataTableColumnHeaderSource).toContain('...triggerProps');
+		expect(dataTableColumnHeaderSource).toContain('{...triggerProps}');
 	});
 
 	it('should keep data grid action bar style update API aligned with the original grid', () => {
