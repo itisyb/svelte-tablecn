@@ -59,6 +59,7 @@ import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-men
 import dataTableFacetedFilterSource from '$lib/components/data-table/data-table-faceted-filter.svelte?raw';
 import dataTableFilterListSource from '$lib/components/data-table/data-table-filter-list.svelte?raw';
 import dataTableFilterMenuSource from '$lib/components/data-table/data-table-filter-menu.svelte?raw';
+import dataTablePaginationSource from '$lib/components/data-table/data-table-pagination.svelte?raw';
 import dataTableRangeFilterSource from '$lib/components/data-table/data-table-range-filter.svelte?raw';
 import dataTableSliderFilterSource from '$lib/components/data-table/data-table-slider-filter.svelte?raw';
 import dataTableSortListSource from '$lib/components/data-table/data-table-sort-list.svelte?raw';
@@ -1384,6 +1385,11 @@ describe('/+page.svelte', () => {
 	it('should keep data table sort field options plain like the original table', () => {
 		expect(dataTableSortListSource).not.toContain("from '@lucide/svelte/icons/check'");
 		expect(dataTableSortListSource).not.toContain("column.id === sort.id ? 'opacity-100'");
+	});
+
+	it('should keep data table pagination page size width aligned with the original table', () => {
+		expect(dataTablePaginationSource).toContain('h-8 w-18 data-size:h-8');
+		expect(dataTablePaginationSource).not.toContain('w-[4.5rem]');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {

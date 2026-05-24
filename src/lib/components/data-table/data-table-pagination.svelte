@@ -53,7 +53,7 @@
 					if (value) table.setPageSize(Number(value));
 				}}
 			>
-				<SelectTrigger class="h-8 w-[4.5rem] data-size:h-8">
+				<SelectTrigger class="h-8 w-18 data-size:h-8">
 					<SelectValue placeholder={pageSize} />
 				</SelectTrigger>
 				<SelectContent side="top">
