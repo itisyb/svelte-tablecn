@@ -43,9 +43,9 @@
 
 	const filterValue = $derived.by(() => {
 		const id = resolvedColumnId;
-		if (!id) return undefined;
+		if (!id) return resolvedColumn?.getFilterValue();
 
-		return table?.getState().columnFilters.find((filter) => filter.id === id)?.value;
+		return table?.getState().columnFilters.find((filter) => filter.id === id)?.value ?? resolvedColumn?.getFilterValue();
 	});
 
 	const hasActiveFilter = $derived.by(() => {

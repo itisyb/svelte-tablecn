@@ -39,12 +39,12 @@
 	const columnFilterValue = $derived.by(() => {
 		const id = resolvedColumnId;
 		if (!id) {
-			return undefined;
+			return resolvedColumn?.getFilterValue();
 		}
 
 		const filters = table?.getState().columnFilters;
 		const filter = filters?.find((item) => item.id === id);
-		return filter?.value;
+		return filter?.value ?? resolvedColumn?.getFilterValue();
 	});
 	const selectedValues = $derived(
 		new Set(Array.isArray(columnFilterValue) ? (columnFilterValue as string[]) : [])

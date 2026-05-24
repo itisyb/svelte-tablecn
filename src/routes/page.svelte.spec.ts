@@ -1498,6 +1498,7 @@ describe('/+page.svelte', () => {
 	it('should keep data table faceted clear control aligned with the original table', () => {
 		expect(dataTableFacetedFilterSource).toContain('role="button"');
 		expect(dataTableFacetedFilterSource).toContain('tabindex={0}');
+		expect(dataTableFacetedFilterSource).toContain('resolvedColumn?.getFilterValue()');
 		expect(dataTableFacetedFilterSource).not.toContain('type="button"');
 	});
 
@@ -1686,6 +1687,7 @@ describe('/+page.svelte', () => {
 		expect(dataTableSliderFilterSource).toContain('role="button"');
 		expect(dataTableSliderFilterSource).toContain('tabindex={0}');
 		expect(dataTableSliderFilterSource).toContain('<span>{title}</span>');
+		expect(dataTableSliderFilterSource).toContain('resolvedColumn?.getFilterValue()');
 		expect(dataTableSliderFilterSource).not.toContain('rounded-r-none');
 		expect(dataTableSliderFilterSource).not.toContain('rounded-l-none');
 		expect(dataTableSliderFilterSource).not.toContain('max-w-40 truncate text-muted-foreground text-xs');
