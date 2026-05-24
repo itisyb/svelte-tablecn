@@ -836,6 +836,44 @@ describe('/+page.svelte', () => {
 		expect(focusedCell.className).toContain('bg-primary/10');
 	});
 
+	it('should keep selected cell state while editing like the original grid', async () => {
+		await render(DataGridCtrlShiftEdgeFixture);
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		const row = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const focusedCell = await waitFor(() =>
+			row.querySelectorAll<HTMLElement>('[data-slot="grid-cell-wrapper"]').item(2)
+		);
+
+		focusedCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		focusedCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		focusedCell.click();
+		await waitFor(() => focusedCell.hasAttribute('data-focused'));
+
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 'ArrowLeft',
+				ctrlKey: true,
+				shiftKey: true,
+				bubbles: true,
+				cancelable: true
+			})
+		);
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('3');
+		expect(focusedCell.hasAttribute('data-selected')).toBe(true);
+		expect(focusedCell.className).toContain('bg-primary/10');
+
+		focusedCell.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+		await waitFor(() => focusedCell.hasAttribute('data-editing'));
+		await waitFor(() => focusedCell.querySelector<HTMLElement>('[contenteditable="true"]'));
+
+		expect(focusedCell.hasAttribute('data-selected')).toBe(true);
+		expect(focusedCell.className).not.toContain('bg-primary/10');
+	});
+
 	it('should clear selection before blurring the focused cell on Escape', async () => {
 		await render(DataGridCtrlShiftEdgeFixture);
 

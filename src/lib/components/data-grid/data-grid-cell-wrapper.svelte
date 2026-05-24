@@ -209,7 +209,7 @@
 	data-slot="grid-cell-wrapper"
 	data-editing={isEditing ? '' : undefined}
 	data-focused={isFocused ? '' : undefined}
-	data-selected={showSelectionHighlight ? '' : undefined}
+	data-selected={isSelected ? '' : undefined}
 	{dir}
 	tabindex={isFocused && !isEditing ? 0 : -1}
 	class={cellClasses}
