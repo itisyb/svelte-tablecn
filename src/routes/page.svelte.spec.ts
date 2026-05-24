@@ -52,6 +52,7 @@ import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
 import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
+import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
@@ -1265,6 +1266,15 @@ describe('/+page.svelte', () => {
 		expect(dataGridColumnHeaderSource).not.toContain('aria-label="Filtered"');
 		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-up'");
 		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-down'");
+	});
+
+	it('should keep data grid action bar style update API aligned with the original grid', () => {
+		expect(dataGridActionBarSource).toContain('styleOptions?: CellSelectOption[]');
+		expect(dataGridActionBarSource).toContain('onStyleUpdate?: (value: string) => void');
+		expect(dataGridActionBarSource).toContain(
+			"const secondaryLabel = $derived(styleOptions ? 'Style' : 'Department')"
+		);
+		expect(dataGridActionBarSource).toContain('{secondaryLabel}');
 	});
 
 	it('should keep input styling aligned with the original ui input', () => {
