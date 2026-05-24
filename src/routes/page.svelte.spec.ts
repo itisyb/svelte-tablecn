@@ -1529,6 +1529,13 @@ describe('/+page.svelte', () => {
 		expect(dataTablePaginationSource).not.toContain('w-[4.5rem]');
 	});
 
+	it('should keep data table pagination last-page action aligned with the original table', () => {
+		expect(dataTablePaginationSource).toContain(
+			'onclick={() => table.setPageIndex(table.getPageCount() - 1)}'
+		);
+		expect(dataTablePaginationSource).not.toContain('Math.max(table.getPageCount() - 1, 0)');
+	});
+
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();

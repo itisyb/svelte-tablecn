@@ -102,7 +102,7 @@
 				variant="outline"
 				size="icon"
 				class="hidden size-8 lg:flex"
-				onclick={() => table.setPageIndex(Math.max(table.getPageCount() - 1, 0))}
+				onclick={() => table.setPageIndex(table.getPageCount() - 1)}
 				disabled={!table.getCanNextPage()}
 			>
 				<ChevronsRight />
