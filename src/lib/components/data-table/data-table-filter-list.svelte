@@ -371,10 +371,6 @@
 															value: ''
 														})}
 												>
-													{#if column.icon}
-														{@const Icon = column.icon}
-														<Icon class="text-muted-foreground" />
-													{/if}
 													<span class="truncate">{column.label}</span>
 													<Check
 														class={cn(

@@ -1360,6 +1360,11 @@ describe('/+page.svelte', () => {
 		);
 	});
 
+	it('should keep data table filter list field options plain like the original table', () => {
+		expect(dataTableFilterListSource).not.toContain('{#if column.icon}');
+		expect(dataTableFilterListSource).not.toContain('{@const Icon = column.icon}');
+	});
+
 	it('should keep data table slider filter popover sizing aligned with the original table', () => {
 		expect(dataTableSliderFilterSource).toContain('flex w-auto flex-col gap-4');
 		expect(dataTableSliderFilterSource).toContain('flex items-center gap-4');
