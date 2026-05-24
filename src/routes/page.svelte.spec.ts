@@ -56,6 +56,8 @@ import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
+import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
+import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 
@@ -1284,6 +1286,13 @@ describe('/+page.svelte', () => {
 		expect(buttonSource).toContain('"bg-destructive hover:bg-destructive/90');
 		expect(buttonSource).toContain('secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80"');
 		expect(buttonSource).toContain('"bg-background shadow-xs hover:bg-accent');
+	});
+
+	it('should keep dropdown menu label weight aligned with the original ui menu', () => {
+		expect(dropdownMenuLabelSource).toContain('font-medium');
+		expect(dropdownMenuLabelSource).not.toContain('font-semibold');
+		expect(dropdownMenuGroupHeadingSource).toContain('font-medium');
+		expect(dropdownMenuGroupHeadingSource).not.toContain('font-semibold');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
