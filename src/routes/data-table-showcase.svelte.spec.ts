@@ -40,7 +40,7 @@ async function renderShowcase(
 describe('data-table-showcase.svelte', () => {
 	it('should show selected advanced filter values', async () => {
 		await renderShowcase('advanced');
-		await page.getByRole('button', { name: 'Open filter menu' }).click();
+		await page.getByRole('button', { name: 'Open filter command menu' }).click();
 		await page.getByRole('option', { name: 'Department' }).click();
 		await page.getByRole('option', { name: 'Engineering' }).click();
 
@@ -95,7 +95,7 @@ describe('data-table-showcase.svelte', () => {
 
 	it('should update single select filter state when changing options', async () => {
 		await renderShowcase('advanced');
-		await page.getByRole('button', { name: 'Open filter menu' }).click();
+		await page.getByRole('button', { name: 'Open filter command menu' }).click();
 		await page.getByRole('option', { name: 'Department' }).click();
 		await page.getByRole('option', { name: 'Engineering' }).click();
 

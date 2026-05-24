@@ -1383,6 +1383,20 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).toContain('setFieldSelectorOpen(filterKey, false)');
 	});
 
+	it('should keep data table filter menu chip aria wiring aligned with the original table', () => {
+		expect(dataTableFilterMenuSource).toContain("import { useId } from 'bits-ui'");
+		expect(dataTableFilterMenuSource).toContain('id={filterItemId}');
+		expect(dataTableFilterMenuSource).toContain('aria-controls={operatorListboxId}');
+		expect(dataTableFilterMenuSource).toContain('id={operatorListboxId}');
+		expect(dataTableFilterMenuSource).toContain('id={inputId}');
+		expect(dataTableFilterMenuSource).toContain('aria-controls={inputListboxId}');
+		expect(dataTableFilterMenuSource).toContain('id={inputListboxId}');
+		expect(dataTableFilterMenuSource).toContain('aria-controls={filterItemId}');
+		expect(dataTableFilterMenuSource).toContain('role="status"');
+		expect(dataTableFilterMenuSource).toContain('aria-live="polite"');
+		expect(dataTableFilterMenuSource).toContain('Open filter command menu');
+	});
+
 	it('should keep data table filter list value column bounded like the original table', () => {
 		expect(dataTableFilterListSource).toContain('sm:min-w-[380px]');
 		expect(dataTableFilterListSource).toContain('max-h-[300px]');

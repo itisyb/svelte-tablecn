@@ -25,6 +25,7 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
+	import { useId } from 'bits-ui';
 	import DataTableRangeFilter from './data-table-range-filter.svelte';
 	import { cn } from '$lib/utils.js';
 	import { generateId } from '$lib/id.js';
@@ -61,6 +62,8 @@
 		align = 'start',
 		class: className
 	}: Props = $props();
+
+	const id = useId();
 
 	function setColumnFilters(updater: Updater<ColumnFiltersState>) {
 		if (setColumnFiltersProp) {
@@ -297,6 +300,10 @@
 <div role="list" class={cn('flex flex-wrap items-center gap-2', className)}>
 	{#each filters as filter, index (getFilterKey(filter, index))}
 		{@const filterKey = getFilterKey(filter, index)}
+		{@const filterItemId = `${id}-filter-${filterKey}`}
+		{@const operatorListboxId = `${filterItemId}-operator-listbox`}
+		{@const inputId = `${filterItemId}-input`}
+		{@const inputListboxId = `${inputId}-listbox`}
 		{@const variant = getFilterVariant(filter)}
 		{@const operator = getFilterOperator(filter)}
 		{@const filterValues = getFilterValues(filter)}
@@ -307,7 +314,11 @@
 		{@const filterColumn = columns.find((column) => column.id === filter.id)}
 		{@const selectOptions = getColumnOptions(filter.id)}
 
-		<div role="listitem" class="flex h-8 items-center rounded-md bg-background">
+		<div
+			role="listitem"
+			id={filterItemId}
+			class="flex h-8 items-center rounded-md bg-background"
+		>
 			<Popover
 				open={openFieldSelectors.has(filterKey)}
 				onOpenChange={(isOpen) => setFieldSelectorOpen(filterKey, isOpen)}
@@ -376,6 +387,7 @@
 					})}
 			>
 				<SelectTrigger
+					aria-controls={operatorListboxId}
 					size="sm"
 					class="h-8 rounded-none border-r-0 px-2.5 lowercase data-size:h-8 [&_svg]:hidden"
 				>
@@ -383,7 +395,7 @@
 						{getFilterOperators(variant).find((item) => item.value === operator)?.label ?? operator}
 					</span>
 				</SelectTrigger>
-				<SelectContent>
+				<SelectContent id={operatorListboxId}>
 					{#each getFilterOperators(variant) as item (item.value)}
 						<SelectItem value={item.value} class="lowercase">{item.label}</SelectItem>
 					{/each}
@@ -401,13 +413,14 @@
 							filterId: filterKey
 						}}
 						column={table.getColumn(filter.id)!}
-						inputId={filterKey}
+						{inputId}
 						showSlider={false}
 						onFilterUpdate={(nextFilterId, updates) => updateFilter(nextFilterId, updates)}
 						class="size-full max-w-28 gap-0 **:data-[slot='range-min']:border-r-0 [&_input]:rounded-none [&_input]:px-1.5"
 					/>
 				{:else if variant === 'number'}
 					<Input
+						id={inputId}
 						type="number"
 						inputmode="numeric"
 						value={filterValues.primary}
@@ -421,12 +434,16 @@
 						value={filterValues.primary || 'true'}
 						onValueChange={(value: string) => updateFilter(filterKey, { value })}
 					>
-						<SelectTrigger class="rounded-none bg-transparent px-1.5 py-0.5 [&_svg]:hidden">
+						<SelectTrigger
+							id={inputId}
+							aria-controls={inputListboxId}
+							class="rounded-none bg-transparent px-1.5 py-0.5 [&_svg]:hidden"
+						>
 							<span data-slot="select-value"
 								>{filterValues.primary === 'false' ? 'False' : 'True'}</span
 							>
 						</SelectTrigger>
-						<SelectContent>
+						<SelectContent id={inputListboxId}>
 							<SelectItem value="true">True</SelectItem>
 							<SelectItem value="false">False</SelectItem>
 						</SelectContent>
@@ -438,6 +455,8 @@
 						onValueChange={(value: string) => updateFilter(filterKey, { value })}
 					>
 						<SelectTrigger
+							id={inputId}
+							aria-controls={inputListboxId}
 							aria-label={`Change ${filterColumn?.label ?? filter.id} value`}
 							class="h-8 min-w-16 rounded-none border-l-0 px-2.5 data-size:h-8"
 						>
@@ -446,7 +465,7 @@
 									'Select value'}
 							</span>
 						</SelectTrigger>
-						<SelectContent>
+						<SelectContent id={inputListboxId}>
 							{#each selectOptions as option (option.value)}
 								<SelectItem value={option.value}>{option.label}</SelectItem>
 							{/each}
@@ -458,6 +477,8 @@
 							{#snippet child({ props })}
 								<Button
 									{...props}
+									id={inputId}
+									aria-controls={inputListboxId}
 									variant="ghost"
 									size="sm"
 									class="h-full min-w-16 rounded-none border border-l-0 px-2.5 font-normal dark:bg-input/30"
@@ -475,7 +496,7 @@
 								</Button>
 							{/snippet}
 						</PopoverTrigger>
-						<PopoverContent align="start" class="w-48 p-0">
+						<PopoverContent id={inputListboxId} align="start" class="w-48 p-0">
 							<Command>
 								<CommandInput placeholder="Search options..." />
 								<CommandList>
@@ -515,6 +536,7 @@
 						)}
 					>
 						<Input
+							id={inputId}
 							type="date"
 							bind:value={
 								() => filterValues.primary,
@@ -524,6 +546,7 @@
 						/>
 						{#if variant === 'dateRange' || operator === 'isBetween'}
 							<Input
+								id={`${inputId}-end`}
 								type="date"
 								bind:value={
 									() => filterValues.secondary,
@@ -536,6 +559,7 @@
 					</div>
 				{:else}
 					<Input
+						id={inputId}
 						type="text"
 						bind:value={
 							() => filterValues.primary, (value) => setScalarFilterValue(filterKey, value)
@@ -545,6 +569,12 @@
 				{/if}
 			{:else}
 				<div
+					id={inputId}
+					role="status"
+					aria-label={`${filterColumn?.label ?? filter.id} filter is ${
+						operator === 'isEmpty' ? 'empty' : 'not empty'
+					}`}
+					aria-live="polite"
 					class="h-full min-w-16 rounded-none border border-l-0 bg-transparent px-2.5 py-1.5 text-muted-foreground text-sm dark:bg-input/30"
 				>
 					{operator === 'isTrue'
@@ -556,6 +586,7 @@
 			{/if}
 
 			<Button
+				aria-controls={filterItemId}
 				aria-label={`Remove ${filterColumn?.label ?? filter.id} filter`}
 				variant="ghost"
 				size="sm"
@@ -584,7 +615,7 @@
 			{#snippet child({ props })}
 				<Button
 					{...props}
-					aria-label="Open filter menu"
+					aria-label="Open filter command menu"
 					variant="outline"
 					size={filters.length > 0 ? 'icon' : 'sm'}
 					class={cn(filters.length > 0 && 'size-8', 'h-8 font-normal')}
