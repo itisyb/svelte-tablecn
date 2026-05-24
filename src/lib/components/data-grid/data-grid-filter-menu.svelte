@@ -702,7 +702,7 @@
 													</Button>
 												{/snippet}
 											</PopoverTrigger>
-											<PopoverContent id={valueListboxId} {dir} align="start" class="w-[200px] p-0">
+											<PopoverContent id={valueListboxId} {dir} align="start" class="w-48 p-0">
 												<Command>
 													<CommandInput placeholder="Search options..." />
 													<CommandList>
@@ -776,7 +776,7 @@
 													</Button>
 												{/snippet}
 											</PopoverTrigger>
-											<PopoverContent id={valueListboxId} {dir} align="start" class="w-48 p-0">
+											<PopoverContent id={valueListboxId} {dir} align="start" class="w-[200px] p-0">
 												<Command>
 													<CommandInput placeholder="Search options..." />
 													<CommandList>

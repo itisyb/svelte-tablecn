@@ -2310,6 +2310,9 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('Pick a range');
 		expect(dataGridFilterMenuSource).toContain('captionLayout="dropdown"');
 		expect(dataGridFilterMenuSource).toContain('class="w-[200px] p-0"');
+		expect(dataGridFilterMenuSource).toMatch(
+			/\{#if operator === 'isAnyOf' \|\| operator === 'isNoneOf'\}[\s\S]*class="w-48 p-0"[\s\S]*\{@const selectedOption = selectOptions\.find[\s\S]*class="w-\[200px\] p-0"/
+		);
 	});
 
 	it('should use the original date placeholder for date filters', async () => {
