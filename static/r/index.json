@@ -54,6 +54,7 @@
 		"registryDependencies": [
 			"badge",
 			"button",
+			"calendar",
 			"command",
 			"dropdown-menu",
 			"input",
@@ -111,7 +112,8 @@
 			"command",
 			"input",
 			"popover",
-			"select"
+			"select",
+			"slider"
 		],
 		"meta": {
 			"author": "itisyb",
@@ -136,7 +138,8 @@
 			"command",
 			"input",
 			"popover",
-			"select"
+			"select",
+			"slider"
 		],
 		"meta": {
 			"author": "itisyb",

@@ -19,7 +19,8 @@
 		"command",
 		"input",
 		"popover",
-		"select"
+		"select",
+		"slider"
 	],
 	"meta": {
 		"author": "itisyb",

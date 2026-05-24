@@ -18,6 +18,7 @@
 	"registryDependencies": [
 		"badge",
 		"button",
+		"calendar",
 		"command",
 		"dropdown-menu",
 		"input",

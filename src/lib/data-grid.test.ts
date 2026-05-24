@@ -339,6 +339,43 @@ describe('data-table registry items', () => {
 
 		expect(missing).toEqual([]);
 	});
+
+	it('declares registry dependencies for imported UI primitives it does not bundle', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				registryDependencies?: string[];
+				files?: Array<{ path: string }>;
+			}>;
+		};
+		const importPattern = /\$lib\/components\/ui\/([^/'"]+)/g;
+		const missing: string[] = [];
+
+		for (const item of registry.items) {
+			const dependencies = new Set(item.registryDependencies ?? []);
+			const bundledUiFolders = new Set(
+				item.files
+					?.map((file) => file.path.match(/^src\/lib\/components\/ui\/([^/]+)/)?.[1])
+					.filter((folder): folder is string => Boolean(folder))
+			);
+
+			for (const file of item.files ?? []) {
+				if (!existsSync(file.path)) continue;
+
+				const content = readFileSync(file.path, 'utf8');
+				for (const match of content.matchAll(importPattern)) {
+					const primitive = match[1];
+					if (!primitive || bundledUiFolders.has(primitive) || dependencies.has(primitive)) {
+						continue;
+					}
+
+					missing.push(`${item.name}: ${file.path} imports ${primitive}`);
+				}
+			}
+		}
+
+		expect(missing).toEqual([]);
+	});
 });
 
 describe('package root data-grid filter exports', () => {

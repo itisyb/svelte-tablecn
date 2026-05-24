@@ -315,6 +315,7 @@
 			"registryDependencies": [
 				"badge",
 				"button",
+				"calendar",
 				"command",
 				"dropdown-menu",
 				"input",
@@ -508,7 +509,7 @@
 			"title": "Data Table Filter List",
 			"description": "A filter list component for the data table.",
 			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "input", "popover", "select"],
+			"registryDependencies": ["badge", "button", "command", "input", "popover", "select", "slider"],
 			"files": [
 				{
 					"path": "src/lib/components/data-table/data-table-filter-list.svelte",
@@ -582,7 +583,7 @@
 			"title": "Data Table Filter Menu",
 			"description": "A filter menu component for the data table.",
 			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "input", "popover", "select"],
+			"registryDependencies": ["badge", "button", "command", "input", "popover", "select", "slider"],
 			"files": [
 				{
 					"path": "src/lib/components/data-table/data-table-filter-menu.svelte",
