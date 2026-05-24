@@ -54,6 +54,8 @@ import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
 import commandDialogSource from '$lib/components/ui/command/command-dialog.svelte?raw';
 import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
+import commandItemSource from '$lib/components/ui/command/command-item.svelte?raw';
+import commandLinkItemSource from '$lib/components/ui/command/command-link-item.svelte?raw';
 import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
 import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-wrapper.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
@@ -1498,6 +1500,13 @@ describe('/+page.svelte', () => {
 	it('should keep command input padding aligned with the original ui command', () => {
 		expect(commandInputSource).toContain('border-b px-3');
 		expect(commandInputSource).not.toContain('pe-8 ps-3');
+	});
+
+	it('should keep command item selected styling aligned with Bits command state', () => {
+		expect(commandItemSource).toContain('data-[selected]:bg-accent');
+		expect(commandItemSource).toContain('data-[selected]:text-accent-foreground');
+		expect(commandLinkItemSource).toContain('data-[selected]:bg-accent');
+		expect(commandLinkItemSource).toContain('data-[selected]:text-accent-foreground');
 	});
 
 	it('should keep command dialog default description aligned with the original ui command', () => {
