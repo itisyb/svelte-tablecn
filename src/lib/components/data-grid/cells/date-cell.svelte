@@ -19,16 +19,16 @@
 	}: CellVariantProps<TData> = $props();
 
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
-	const initialValue = $derived((cellValue as string) ?? '');
+	const initialValue = $derived(cellValue ?? '');
 	let containerRef = $state<HTMLDivElement | null>(null);
 	let popoverRef = $state<HTMLDivElement | null>(null);
 
 	// Track local edits separately
 	let localEditValue = $state<string | null>(null);
-	let previousInitialValue = $state<string | null>(null);
+	let previousInitialValue = $state<unknown>(undefined);
 
 	$effect(() => {
-		if (initialValue === previousInitialValue) return;
+		if (Object.is(initialValue, previousInitialValue)) return;
 
 		previousInitialValue = initialValue;
 		localEditValue = null;
@@ -39,9 +39,11 @@
 
 	// Parse value to DateValue for calendar
 	const selectedDate = $derived.by((): DateValue | undefined => {
-		if (!value) return undefined;
+		const date = parseLocalDate(value);
+		if (!date) return undefined;
+
 		try {
-			return parseDate(value);
+			return parseDate(formatDateToString(date));
 		} catch {
 			return undefined;
 		}
@@ -50,16 +52,35 @@
 	// Default month for calendar (selected date or today)
 	const defaultMonth = $derived(selectedDate ?? today(getLocalTimeZone()));
 
-	function formatDateForDisplay(dateStr: string): string {
-		if (!dateStr) return '';
+	function parseLocalDate(dateValue: unknown): Date | null {
+		if (!dateValue) return null;
+		if (dateValue instanceof Date) return dateValue;
+		if (typeof dateValue !== 'string') return null;
 
-		const [year, month, day] = dateStr.split('-').map(Number);
-		if (!year || !month || !day) return dateStr;
+		const [year, month, day] = dateValue.split('-').map(Number);
+		if (!year || !month || !day) return null;
 
 		const date = new Date(year, month - 1, day);
 		if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
-			return dateStr;
+			return null;
 		}
+
+		return date;
+	}
+
+	function formatDateToString(date: Date): string {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+
+		return `${year}-${month}-${day}`;
+	}
+
+	function formatDateForDisplay(dateValue: unknown): string {
+		if (!dateValue) return '';
+
+		const date = parseLocalDate(dateValue);
+		if (!date) return typeof dateValue === 'string' ? dateValue : '';
 
 		return date.toLocaleDateString();
 	}

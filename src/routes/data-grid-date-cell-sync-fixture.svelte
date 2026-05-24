@@ -2,9 +2,9 @@
 	import type { Cell, Table } from '@tanstack/table-core';
 	import DateCell from '$lib/components/data-grid/cells/date-cell.svelte';
 
-	type Row = { startDate: string };
+	type Row = { startDate: string | Date };
 
-	let value = $state('2024-01-01');
+	let value = $state<string | Date>(new Date(2024, 0, 1));
 
 	const cell = {
 		id: '0_startDate',

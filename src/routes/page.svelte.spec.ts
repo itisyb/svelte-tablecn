@@ -437,7 +437,7 @@ describe('/+page.svelte', () => {
 		expect(committed).toBe(true);
 	});
 
-	it('should sync date editor when the external value changes', async () => {
+	it('should sync date editor and display Date values like the original grid', async () => {
 		await render(DataGridDateCellSyncFixture);
 
 		const cellContent = await waitFor(() =>
