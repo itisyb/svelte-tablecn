@@ -561,6 +561,7 @@
 							<div class="flex items-center justify-between">
 								<p class="font-medium text-muted-foreground text-xs">
 									{files.length}
+									{' '}
 									{files.length === 1 ? 'file' : 'files'}
 								</p>
 								<Button

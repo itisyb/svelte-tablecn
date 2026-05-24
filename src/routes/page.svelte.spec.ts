@@ -55,6 +55,7 @@ import commandInputSource from '$lib/components/ui/command/command-input.svelte?
 import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
 import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-wrapper.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
+import dataGridFileCellSource from '$lib/components/data-grid/cells/file-cell.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridRowSource from '$lib/components/data-grid/data-grid-row.svelte?raw';
 import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row-height-menu.svelte?raw';
@@ -533,6 +534,14 @@ describe('/+page.svelte', () => {
 			300
 		);
 		expect(committed).toBe(true);
+	});
+
+	it('should space file count labels like the original grid', () => {
+		expect(dataGridFileCellSource).toContain("{' '}");
+		expect(dataGridFileCellSource).toContain("{files.length === 1 ? 'file' : 'files'}");
+		expect(dataGridFileCellSource).not.toContain(
+			"{files.length}\n\t\t\t\t\t\t\t\t\t{files.length === 1 ? 'file' : 'files'}"
+		);
 	});
 
 	it('should revoke local file URLs when the file cell unmounts like the original grid', async () => {
