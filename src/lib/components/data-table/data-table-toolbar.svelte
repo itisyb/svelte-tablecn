@@ -8,16 +8,17 @@
 	import DataTableSliderFilter from './data-table-slider-filter.svelte';
 	import DataTableViewOptions from './data-table-view-options.svelte';
 	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import type { WithElementRef } from '$lib/utils.js';
 
 	import X from '@lucide/svelte/icons/x';
 
-	interface Props {
+	interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
 		table: Table<TData>;
 		children?: Snippet;
-		class?: string;
 	}
 
-	let { table, children, class: className }: Props = $props();
+	let { table, children, class: className, ref = $bindable(null), ...restProps }: Props = $props();
 
 	const isFiltered = $derived(table.getState().columnFilters.length > 0);
 	const columns = $derived(table.getAllColumns().filter((column) => column.getCanFilter()));
@@ -42,9 +43,11 @@
 </script>
 
 <div
+	bind:this={ref}
 	role="toolbar"
 	aria-orientation="horizontal"
 	class={cn('flex w-full items-start justify-between gap-2 p-1', className)}
+	{...restProps}
 >
 	<div class="flex flex-1 flex-wrap items-center gap-2">
 		{#each columns as column (column.id)}

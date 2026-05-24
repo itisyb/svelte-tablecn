@@ -1366,10 +1366,18 @@ describe('/+page.svelte', () => {
 
 	it('should keep data table view option class passthrough aligned with the original table', () => {
 		expect(dataTableViewOptionsSource).toContain("class=\"ml-auto hidden h-8 font-normal lg:flex\"");
+		expect(dataTableViewOptionsSource).toContain(
+			'interface Props extends ComponentProps<typeof PopoverContent>'
+		);
+		expect(dataTableViewOptionsSource).toContain('...contentProps');
 		expect(dataTableViewOptionsSource).toContain("class={cn('w-44 p-0', className)}");
+		expect(dataTableViewOptionsSource).toContain(
+			"<PopoverContent class={cn('w-44 p-0', className)} {...contentProps}>"
+		);
 		expect(dataTableViewOptionsSource).not.toContain(
 			"class={cn('ml-auto hidden h-8 font-normal lg:flex', className)}"
 		);
+		expect(dataTableViewOptionsSource).not.toContain("align = 'start'");
 	});
 
 	it('should keep data table faceted clear control aligned with the original table', () => {
@@ -1382,6 +1390,15 @@ describe('/+page.svelte', () => {
 		expect(dataTableToolbarSource).not.toContain('getBooleanOptions');
 		expect(dataTableToolbarSource).not.toContain("variant === 'boolean'");
 		expect(dataTableToolbarSource).not.toContain("label: 'True'");
+	});
+
+	it('should forward data table toolbar root props like the original table', () => {
+		expect(dataTableToolbarSource).toContain(
+			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+		);
+		expect(dataTableToolbarSource).toContain('...restProps');
+		expect(dataTableToolbarSource).toContain('bind:this={ref}');
+		expect(dataTableToolbarSource).toContain('{...restProps}');
 	});
 
 	it('should keep data table date filter trigger and popover aligned with the original table', () => {
@@ -1576,6 +1593,15 @@ describe('/+page.svelte', () => {
 			'onclick={() => table.setPageIndex(table.getPageCount() - 1)}'
 		);
 		expect(dataTablePaginationSource).not.toContain('Math.max(table.getPageCount() - 1, 0)');
+	});
+
+	it('should forward data table pagination root props like the original table', () => {
+		expect(dataTablePaginationSource).toContain(
+			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+		);
+		expect(dataTablePaginationSource).toContain('...restProps');
+		expect(dataTablePaginationSource).toContain('bind:this={ref}');
+		expect(dataTablePaginationSource).toContain('{...restProps}');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {

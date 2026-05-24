@@ -11,18 +11,17 @@
 		CommandList
 	} from '$lib/components/ui/command/index.js';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
+	import type { ComponentProps } from 'svelte';
 
 	import Check from '@lucide/svelte/icons/check';
 	import Settings2 from '@lucide/svelte/icons/settings-2';
 
-	interface Props {
+	interface Props extends ComponentProps<typeof PopoverContent> {
 		table: Table<TData>;
 		disabled?: boolean;
-		align?: 'start' | 'center' | 'end';
-		class?: string;
 	}
 
-	let { table, disabled = false, align = 'start', class: className }: Props = $props();
+	let { table, disabled = false, class: className, ...contentProps }: Props = $props();
 
 	const columns = $derived(
 		table
@@ -53,7 +52,7 @@
 			</Button>
 		{/snippet}
 	</PopoverTrigger>
-	<PopoverContent {align} class={cn('w-44 p-0', className)}>
+	<PopoverContent class={cn('w-44 p-0', className)} {...contentProps}>
 		<Command>
 			<CommandInput placeholder="Search columns..." />
 			<CommandList>
