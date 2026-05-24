@@ -1399,6 +1399,17 @@ describe('/+page.svelte', () => {
 		expect(dataGridSortMenuSource).not.toContain("align = 'start'");
 	});
 
+	it('should keep data grid drag handle focus styling aligned with outline buttons', () => {
+		expect(dataGridFilterMenuSource).toContain('aria-label="drag handle for filter"');
+		expect(dataGridFilterMenuSource).toContain('shadow-xs outline-none transition-all');
+		expect(dataGridFilterMenuSource).toContain('focus-visible:ring-[3px]');
+		expect(dataGridFilterMenuSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
+		expect(dataGridSortMenuSource).toContain('aria-label="drag handle for sort"');
+		expect(dataGridSortMenuSource).toContain('shadow-xs outline-none transition-all');
+		expect(dataGridSortMenuSource).toContain('focus-visible:ring-[3px]');
+		expect(dataGridSortMenuSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
+	});
+
 	it('should forward row height select content props like the original grid', () => {
 		expect(dataGridRowHeightMenuSource).toContain(
 			'interface Props extends ComponentProps<typeof SelectContent>'

@@ -856,7 +856,7 @@
 						<button
 							use:dragHandle
 							aria-label="drag handle for filter"
-							class="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex size-8 shrink-0 cursor-grab items-center justify-center rounded border text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+							class="inline-flex size-8 shrink-0 cursor-grab items-center justify-center gap-2 whitespace-nowrap rounded border bg-background text-sm font-medium shadow-xs outline-none transition-all hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 dark:border-input dark:bg-input/30 dark:hover:bg-input/50 [&_svg]:pointer-events-none [&_svg]:shrink-0"
 						>
 							<GripVertical class="size-4" />
 						</button>
