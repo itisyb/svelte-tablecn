@@ -28,6 +28,7 @@ import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte'
 import DataGridPasteFitExistingFixture from './data-grid-paste-fit-existing-fixture.svelte';
 import DataGridPasteOrderFixture from './data-grid-paste-order-fixture.svelte';
 import DataGridPasteWithoutFocusFixture from './data-grid-paste-without-focus-fixture.svelte';
+import DataGridReadonlyRowSelectFixture from './data-grid-readonly-row-select-fixture.svelte';
 import DataGridRowAddSelectionFixture from './data-grid-row-add-selection-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
 import DataGridRowHeightMenuFixture from './data-grid-row-height-menu-fixture.svelte';
@@ -219,6 +220,22 @@ describe('/+page.svelte', () => {
 			firstRow.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"][data-selected]')
 		);
 		expect(selectedCell).toBeTruthy();
+	});
+
+	it('should pad read-only row markers like the original grid', async () => {
+		await render(DataGridReadonlyRowSelectFixture);
+
+		const firstRow = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const selectCell = firstRow.querySelectorAll<HTMLElement>('[data-slot="grid-cell"]').item(0);
+		const wrapper = selectCell.firstElementChild as HTMLElement | null;
+		const marker = wrapper?.querySelector<HTMLElement>('[data-slot="row-select-readonly"]');
+
+		expect(wrapper?.className).toContain('size-full px-3 py-1.5');
+		expect(wrapper?.className).toContain('bg-primary/10');
+		expect(marker?.className).toContain('ps-1');
+		expect(marker?.textContent?.trim()).toBe('1');
 	});
 
 	it('should sync checkbox cell when the external value changes', async () => {

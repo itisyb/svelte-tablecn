@@ -74,8 +74,13 @@
 </script>
 
 {#if readOnly}
-	<div class="flex size-full items-center ps-1 text-muted-foreground text-xs tabular-nums">
-		{rowNumber ?? rowIndex + 1}
+	<div class={cn('size-full px-3 py-1.5', isSelected && 'bg-primary/10')}>
+		<div
+			data-slot="row-select-readonly"
+			class="flex items-center ps-1 text-muted-foreground text-xs tabular-nums"
+		>
+			{rowNumber ?? rowIndex + 1}
+		</div>
 	</div>
 {:else}
 	<div
