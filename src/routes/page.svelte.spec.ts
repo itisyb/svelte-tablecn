@@ -1352,6 +1352,10 @@ describe('/+page.svelte', () => {
 		const directionTrigger = await waitFor(() =>
 			document.querySelector<HTMLElement>('[data-slot="select-trigger"]')
 		);
+		const deleteTrigger = await waitFor(() => {
+			const buttons = sortItem.querySelectorAll<HTMLButtonElement>('button');
+			return buttons.item(2);
+		});
 		const fieldListboxId = fieldTrigger.getAttribute('aria-controls');
 		const directionListboxId = directionTrigger.getAttribute('aria-controls');
 
@@ -1359,11 +1363,13 @@ describe('/+page.svelte', () => {
 		expect(fieldTrigger.id).toBeTruthy();
 		expect(fieldListboxId).toBe(`${sortItem.id}-field-listbox`);
 		expect(directionListboxId).toBe(`${sortItem.id}-direction-listbox`);
+		expect(deleteTrigger.getAttribute('aria-controls')).toBe(sortItem.id);
 
 		expect(dataGridSortMenuSource).toContain('aria-labelledby={labelId}');
 		expect(dataGridSortMenuSource).toContain('aria-describedby={descriptionId}');
 		expect(dataGridSortMenuSource).toContain('aria-controls={fieldListboxId}');
 		expect(dataGridSortMenuSource).toContain('aria-controls={directionListboxId}');
+		expect(dataGridSortMenuSource).toContain('aria-controls={sortItemId}');
 	});
 
 	it('should remove filter item with delete shortcut', async () => {

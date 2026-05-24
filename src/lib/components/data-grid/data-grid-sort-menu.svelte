@@ -331,6 +331,7 @@
 							</SelectContent>
 						</Select>
 						<Button
+							aria-controls={sortItemId}
 							variant="outline"
 							size="icon"
 							class="size-8 shrink-0 rounded"
