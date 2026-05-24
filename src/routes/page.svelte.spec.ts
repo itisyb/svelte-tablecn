@@ -1383,6 +1383,11 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).toContain('setFieldSelectorOpen(filterKey, false)');
 	});
 
+	it('should delay clearing data table filter menu draft state while closing like the original table', () => {
+		expect(dataTableFilterMenuSource).toContain('setTimeout(resetDraft, 100)');
+		expect(dataTableFilterMenuSource).not.toContain('if (!nextOpen) {\\n\\t\\t\\tresetDraft();');
+	});
+
 	it('should keep data table filter menu chip aria wiring aligned with the original table', () => {
 		expect(dataTableFilterMenuSource).toContain("import { useId } from 'bits-ui'");
 		expect(dataTableFilterMenuSource).toContain('id={filterItemId}');

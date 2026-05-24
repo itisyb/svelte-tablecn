@@ -222,7 +222,7 @@
 	function onOpenChange(nextOpen: boolean) {
 		open = nextOpen;
 		if (!nextOpen) {
-			resetDraft();
+			setTimeout(resetDraft, 100);
 		}
 	}
 
