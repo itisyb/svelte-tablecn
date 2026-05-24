@@ -1616,6 +1616,13 @@ describe('/+page.svelte', () => {
 		expect(layoutCssSource).not.toContain('--border: oklch(1 0 0 / 10%)');
 	});
 
+	it('should keep root body treatment aligned with the original app layout', () => {
+		expect(layoutCssSource).toContain(
+			'@apply min-h-screen bg-background font-sans text-foreground antialiased'
+		);
+		expect(layoutCssSource).not.toContain('@apply bg-background text-foreground');
+	});
+
 	it('should keep data table slider filter inputs compact like the original table', () => {
 		expect(dataTableSliderFilterSource).not.toContain('text-muted-foreground text-sm">to</span>');
 		expect(dataTableSliderFilterSource).toContain("class={cn('h-8 w-24', unit && 'pr-8')}");
