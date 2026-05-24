@@ -61,6 +61,8 @@ import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dro
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
+import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
+import tableHeadSource from '$lib/components/ui/table/table-head.svelte?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -1299,6 +1301,11 @@ describe('/+page.svelte', () => {
 	it('should keep command input padding aligned with the original ui command', () => {
 		expect(commandInputSource).toContain('border-b px-3');
 		expect(commandInputSource).not.toContain('pe-8 ps-3');
+	});
+
+	it('should keep table checkbox alignment aligned with the original ui table', () => {
+		expect(tableHeadSource).toContain('[&>[role=checkbox]]:translate-y-[2px]');
+		expect(tableCellSource).toContain('[&>[role=checkbox]]:translate-y-[2px]');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
