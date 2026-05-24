@@ -412,7 +412,7 @@
 							<div
 								role="gridcell"
 								tabindex={0}
-								class="relative flex h-9 w-full cursor-pointer items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
+								class="relative flex h-9 grow items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
 								style="width: {addRowWidth}px; min-width: {addRowWidth}px;"
 								onclick={(event) => void onRowAdd?.(event)}
 								onkeydown={onAddRowKeyDown}

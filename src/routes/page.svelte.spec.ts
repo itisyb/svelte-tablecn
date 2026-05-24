@@ -1323,6 +1323,13 @@ describe('/+page.svelte', () => {
 		expect(dataGridSource).toContain('bind:this={ref}');
 	});
 
+	it('should keep data grid add-row footer cell class aligned with the original grid', () => {
+		expect(dataGridSource).toContain(
+			'class="relative flex h-9 grow items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"'
+		);
+		expect(dataGridSource).not.toContain('h-9 w-full cursor-pointer');
+	});
+
 	it('should forward data grid row props like the original grid row', () => {
 		expect(dataGridRowSource).toContain(
 			"interface Props extends WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement>"
