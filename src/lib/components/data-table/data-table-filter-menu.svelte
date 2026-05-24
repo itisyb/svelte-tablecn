@@ -304,7 +304,7 @@
 							{...props}
 							variant="ghost"
 							size="sm"
-							class="rounded-none rounded-l-md border font-normal dark:bg-input/30"
+							class="rounded-none rounded-l-md border border-r-0 font-normal dark:bg-input/30"
 						>
 							{#if filterColumn?.icon}
 								{@const Icon = filterColumn.icon}
@@ -361,7 +361,7 @@
 			>
 				<SelectTrigger
 					size="sm"
-					class="h-8 rounded-none border-l-0 px-2.5 lowercase data-size:h-8 [&_svg]:hidden"
+					class="h-8 rounded-none border-r-0 px-2.5 lowercase data-size:h-8 [&_svg]:hidden"
 				>
 					<span data-slot="select-value" class="truncate">
 						{getFilterOperators(variant).find((item) => item.value === operator)?.label ?? operator}
