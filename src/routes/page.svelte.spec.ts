@@ -212,10 +212,13 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-md');
+		expect(content.className).toContain('rounded-sm');
+		expect(content.className).not.toContain('rounded-md');
 		expect(content.className).not.toContain('rounded-[2px]');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
-		expect(trigger.className).toContain('!w-full');
+		expect(trigger.className).toContain(
+			'size-full !w-full items-start border-none p-0 shadow-none focus-visible:ring-0 dark:bg-transparent'
+		);
 		expect(trigger.getAttribute('style') ?? '').toContain('width: calc(100% - 16px)');
 		const firstItem = await waitFor(() =>
 			content.querySelector<HTMLElement>('[data-slot="select-item"]')
