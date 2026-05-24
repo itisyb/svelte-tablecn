@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Portal } from 'bits-ui';
 	import type { Snippet } from 'svelte';
 	import { on } from 'svelte/events';
 	import { cn, type WithElementRef } from '$lib/utils.js';
@@ -17,6 +18,7 @@
 		alignOffset?: number;
 		side?: 'top' | 'bottom';
 		sideOffset?: number;
+		portalContainer?: Element | null;
 		dir?: ActionBarDirection;
 		orientation?: ActionBarOrientation;
 		loop?: boolean;
@@ -31,6 +33,7 @@
 		alignOffset = 0,
 		align = 'center',
 		sideOffset = 16,
+		portalContainer,
 		dir = 'ltr',
 		orientation = 'horizontal',
 		loop = true,
@@ -83,28 +86,30 @@
 </script>
 
 {#if open}
-	<div
-		bind:this={ref}
-		role="toolbar"
-		aria-orientation={orientation}
-		data-slot="action-bar"
-		data-side={side}
-		data-align={align}
-		data-orientation={orientation}
-		{dir}
-		class={cn(
-			'fixed z-50 rounded-lg border bg-card shadow-lg outline-none',
-			'fade-in-0 zoom-in-95 animate-in duration-250 [animation-timing-function:cubic-bezier(0.16,1,0.3,1)]',
-			'data-[side=bottom]:slide-in-from-bottom-4 data-[side=top]:slide-in-from-top-4',
-			'motion-reduce:animate-none motion-reduce:transition-none',
-			orientation === 'horizontal'
-				? 'flex flex-row items-center gap-2 px-2 py-1.5'
-				: 'flex flex-col items-start gap-2 px-1.5 py-2',
-			className
-		)}
-		style={`${positionStyle}; ${typeof style === 'string' ? style : ''}`}
-		{...restProps}
-	>
-		{@render children?.()}
-	</div>
+	<Portal to={portalContainer ?? 'body'}>
+		<div
+			bind:this={ref}
+			role="toolbar"
+			aria-orientation={orientation}
+			data-slot="action-bar"
+			data-side={side}
+			data-align={align}
+			data-orientation={orientation}
+			{dir}
+			class={cn(
+				'fixed z-50 rounded-lg border bg-card shadow-lg outline-none',
+				'fade-in-0 zoom-in-95 animate-in duration-250 [animation-timing-function:cubic-bezier(0.16,1,0.3,1)]',
+				'data-[side=bottom]:slide-in-from-bottom-4 data-[side=top]:slide-in-from-top-4',
+				'motion-reduce:animate-none motion-reduce:transition-none',
+				orientation === 'horizontal'
+					? 'flex flex-row items-center gap-2 px-2 py-1.5'
+					: 'flex flex-col items-start gap-2 px-1.5 py-2',
+				className
+			)}
+			style={`${positionStyle}; ${typeof style === 'string' ? style : ''}`}
+			{...restProps}
+		>
+			{@render children?.()}
+		</div>
+	</Portal>
 {/if}

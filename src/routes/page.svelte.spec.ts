@@ -6,6 +6,7 @@ import Page from './+page.svelte';
 import layoutCssSource from './layout.css?raw';
 import ActionBarEmptyFixture from './action-bar-empty-fixture.svelte';
 import ActionBarLoopFixture from './action-bar-loop-fixture.svelte';
+import ActionBarPortalFixture from './action-bar-portal-fixture.svelte';
 import DataGridAutoFocusFixture from './data-grid-auto-focus-fixture.svelte';
 import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
@@ -51,6 +52,7 @@ import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
+import actionBarSource from '$lib/components/ui/action-bar/action-bar.svelte?raw';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
 import calendarCellSource from '$lib/components/ui/calendar/calendar-cell.svelte?raw';
@@ -2138,6 +2140,37 @@ describe('/+page.svelte', () => {
 		);
 
 		expect(group.tabIndex).toBe(-1);
+	});
+
+	it('should portal action bars to body and custom containers like the original component', async () => {
+		await render(ActionBarPortalFixture);
+
+		const defaultHost = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-testid="default-action-bar-host"]')
+		);
+		const defaultBar = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-testid="default-action-bar"]')
+		);
+		const customTarget = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-testid="custom-action-bar-target"]')
+		);
+		const customHost = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-testid="custom-action-bar-host"]')
+		);
+		const customBar = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-testid="custom-action-bar"]')
+		);
+
+		expect(defaultBar.parentElement).toBe(document.body);
+		expect(defaultHost.contains(defaultBar)).toBe(false);
+		expect(customBar.parentElement).toBe(customTarget);
+		expect(customHost.contains(customBar)).toBe(false);
+	});
+
+	it('should keep action bar portal source aligned with the original component', () => {
+		expect(actionBarSource).toContain("import { Portal } from 'bits-ui';");
+		expect(actionBarSource).toContain('portalContainer?: Element | null;');
+		expect(actionBarSource).toContain("<Portal to={portalContainer ?? 'body'}>");
 	});
 
 	it('should render context delete rows as destructive menu item', async () => {
