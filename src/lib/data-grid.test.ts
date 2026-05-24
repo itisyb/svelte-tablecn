@@ -348,9 +348,15 @@ describe('data-table registry items', () => {
 
 			if (!base) return undefined;
 
-			return [base, `${base}.ts`, `${base}.svelte`, `${base}.svelte.ts`, `${base}/index.ts`].find(
-				(candidate) => existsSync(candidate)
-			);
+			const sourceBase = base.endsWith('.js') ? base.slice(0, -3) : base;
+			return [
+				base,
+				sourceBase,
+				`${sourceBase}.ts`,
+				`${sourceBase}.svelte`,
+				`${sourceBase}.svelte.ts`,
+				`${sourceBase}/index.ts`
+			].find((candidate) => existsSync(candidate));
 		}
 
 		const missing: string[] = [];

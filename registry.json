@@ -239,6 +239,11 @@
 					"target": "data-grid-filters.ts"
 				},
 				{
+					"path": "src/lib/format.ts",
+					"type": "registry:lib",
+					"target": "format.ts"
+				},
+				{
 					"path": "src/lib/components/ui/data-table/data-table.svelte.ts",
 					"type": "registry:ui",
 					"target": "data-table/data-table.svelte.ts"
@@ -500,9 +505,19 @@
 					"target": "data-table/data-table-sort-list.svelte"
 				},
 				{
+					"path": "src/lib/data-table-range-utils.ts",
+					"type": "registry:lib",
+					"target": "data-table-range-utils.ts"
+				},
+				{
 					"path": "src/lib/config/data-table.ts",
 					"type": "registry:lib",
 					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				},
 				{
 					"path": "src/lib/types/data-table.ts",
@@ -739,6 +754,11 @@
 					"path": "src/lib/components/data-grid/data-grid-sort-menu.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-sort-menu.svelte"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				}
 			],
 			"meta": {
@@ -758,6 +778,11 @@
 					"path": "src/lib/components/data-grid/data-grid-row-height-menu.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-row-height-menu.svelte"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				}
 			],
 			"meta": {
@@ -777,6 +802,11 @@
 					"path": "src/lib/components/data-grid/data-grid-view-menu.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-view-menu.svelte"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				}
 			],
 			"meta": {
@@ -789,13 +819,18 @@
 			"type": "registry:component",
 			"title": "Data Grid Keyboard Shortcuts",
 			"description": "A keyboard shortcuts dialog component for the data grid.",
-			"dependencies": ["bits-ui", "@lucide/svelte"],
+			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
 			"registryDependencies": ["button", "dialog", "input", "kbd", "separator"],
 			"files": [
 				{
 					"path": "src/lib/components/data-grid/data-grid-keyboard-shortcuts.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-keyboard-shortcuts.svelte"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				}
 			],
 			"meta": {
@@ -831,9 +866,19 @@
 					"target": "data-grid/data-grid-filter-menu.svelte"
 				},
 				{
+					"path": "src/lib/hooks/use-debounced-callback.ts",
+					"type": "registry:hook",
+					"target": "use-debounced-callback.ts"
+				},
+				{
 					"path": "src/lib/data-grid-filters.ts",
 					"type": "registry:lib",
 					"target": "data-grid-filters.ts"
+				},
+				{
+					"path": "src/lib/format.ts",
+					"type": "registry:lib",
+					"target": "format.ts"
 				},
 				{
 					"path": "src/lib/types/data-grid.ts",
