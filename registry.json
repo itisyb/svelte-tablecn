@@ -74,6 +74,11 @@
 					"target": "data-grid/data-grid-filter-menu.svelte"
 				},
 				{
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-range-calendar.svelte"
+				},
+				{
 					"path": "src/lib/components/data-grid/data-grid-keyboard-shortcuts.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-keyboard-shortcuts.svelte"
@@ -864,6 +869,11 @@
 					"path": "src/lib/components/data-grid/data-grid-filter-menu.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-filter-menu.svelte"
+				},
+				{
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-range-calendar.svelte"
 				},
 				{
 					"path": "src/lib/hooks/use-debounced-callback.ts",

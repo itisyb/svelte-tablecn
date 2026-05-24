@@ -14,6 +14,7 @@ import DataGridDataUpdateFixture from './data-grid-data-update-fixture.svelte';
 import DataGridDefaultFeaturesFixture from './data-grid-default-features-fixture.svelte';
 import DataGridEditingMetaFixture from './data-grid-editing-meta-fixture.svelte';
 import DataGridFilterDatePlaceholderFixture from './data-grid-filter-date-placeholder-fixture.svelte';
+import DataGridFilterDateRangeFixture from './data-grid-filter-date-range-fixture.svelte';
 import DataGridFilterMenuFixture from './data-grid-filter-menu-fixture.svelte';
 import DataGridFilterSelectPlaceholderFixture from './data-grid-filter-select-placeholder-fixture.svelte';
 import DataGridFileCellLocalFixture from './data-grid-file-cell-local-fixture.svelte';
@@ -1448,6 +1449,8 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('Pick a date');
 		expect(dataGridFilterMenuSource).not.toContain('Select date');
 		expect(dataGridFilterMenuSource).toContain('formatDate(calendarDateToISO(calendarValue)');
+		expect(dataGridFilterMenuSource).toContain('DataGridRangeCalendar');
+		expect(dataGridFilterMenuSource).toContain('Pick a range');
 	});
 
 	it('should use the original date placeholder for date filters', async () => {
@@ -1461,6 +1464,24 @@ describe('/+page.svelte', () => {
 			.toBeInTheDocument();
 		expect(filterItem.textContent).toContain('Pick a date');
 		expect(filterItem.textContent).not.toContain('Select date');
+	});
+
+	it('should use one original-style range picker for date between filters', async () => {
+		await render(DataGridFilterDateRangeFixture);
+
+		await page.getByRole('button', { name: 'Filter 1' }).click();
+
+		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		await expect
+			.element(page.getByRole('button', { name: 'Pick a range', exact: true }))
+			.toBeInTheDocument();
+		expect(filterItem.textContent).toContain('Pick a range');
+		const buttonLabels = Array.from(filterItem.querySelectorAll('button')).map((button) =>
+			button.textContent?.trim()
+		);
+		expect(buttonLabels).toContain('Pick a range');
+		expect(buttonLabels).not.toContain('Start');
+		expect(buttonLabels).not.toContain('End');
 	});
 
 	it('should use the original value placeholder for select filters', async () => {

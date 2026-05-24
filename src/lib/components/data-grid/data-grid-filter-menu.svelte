@@ -31,6 +31,7 @@
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
+	import DataGridRangeCalendar from './data-grid-range-calendar.svelte';
 	import { useId } from 'bits-ui';
 	import { CalendarDate, type DateValue, parseDate } from '@internationalized/date';
 
@@ -256,6 +257,23 @@
 	function calendarDateToISO(date: DateValue | undefined): string | undefined {
 		if (!date) return undefined;
 		return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}T00:00:00.000Z`;
+	}
+
+	function formatCalendarDate(date: DateValue | undefined): string {
+		if (!date) return '';
+		return formatDate(calendarDateToISO(date), {
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric'
+		});
+	}
+
+	function getDateRangeDisplayValue(startDate: DateValue | undefined, endDate: DateValue | undefined) {
+		if (startDate && endDate && startDate.compare(endDate) !== 0) {
+			return `${formatCalendarDate(startDate)} - ${formatCalendarDate(endDate)}`;
+		}
+		if (startDate) return formatCalendarDate(startDate);
+		return 'Pick a range';
 	}
 </script>
 
@@ -520,84 +538,44 @@
 										filterValue?.endValue as string | undefined
 									)}
 									{#if operator === 'isBetween'}
-										<div class="flex gap-2">
-											<Popover>
-												<PopoverTrigger>
-													{#snippet child({ props })}
-														<Button
-															{...props}
-															variant="outline"
-															size="sm"
-															class={cn(
-																'h-8 w-full justify-start rounded font-normal',
-																!calendarValue && 'text-muted-foreground'
-															)}
-														>
-															<CalendarIcon />
-															<span class="truncate">
-																{calendarValue
-																	? `${calendarValue.month}/${calendarValue.day}/${calendarValue.year}`
-																	: 'Start'}
-															</span>
-														</Button>
-													{/snippet}
-												</PopoverTrigger>
-												<PopoverContent align="start" class="w-auto p-0">
-													<Calendar
-														type="single"
-														value={calendarValue}
-														onValueChange={(date: DateValue | undefined) => {
-															const newValue = calendarDateToISO(date);
-															onFilterUpdate(filter.id, {
-																value: {
-																	operator,
-																	value: newValue,
-																	endValue: filterValue?.endValue
-																}
-															});
-														}}
-													/>
-												</PopoverContent>
-											</Popover>
-											<Popover>
-												<PopoverTrigger>
-													{#snippet child({ props })}
-														<Button
-															{...props}
-															variant="outline"
-															size="sm"
-															class={cn(
-																'h-8 w-full justify-start rounded font-normal',
-																!endCalendarValue && 'text-muted-foreground'
-															)}
-														>
-															<CalendarIcon />
-															<span class="truncate">
-																{endCalendarValue
-																	? `${endCalendarValue.month}/${endCalendarValue.day}/${endCalendarValue.year}`
-																	: 'End'}
-															</span>
-														</Button>
-													{/snippet}
-												</PopoverTrigger>
-												<PopoverContent align="start" class="w-auto p-0">
-													<Calendar
-														type="single"
-														value={endCalendarValue}
-														onValueChange={(date: DateValue | undefined) => {
-															const newValue = calendarDateToISO(date);
-															onFilterUpdate(filter.id, {
-																value: {
-																	operator,
-																	value: filterValue?.value,
-																	endValue: newValue
-																}
-															});
-														}}
-													/>
-												</PopoverContent>
-											</Popover>
-										</div>
+										<Popover>
+											<PopoverTrigger>
+												{#snippet child({ props })}
+													<Button
+														{...props}
+														variant="outline"
+														size="sm"
+														class={cn(
+															'h-8 w-full justify-start rounded font-normal',
+															!calendarValue && 'text-muted-foreground'
+														)}
+													>
+														<CalendarIcon />
+														<span class="truncate">
+															{getDateRangeDisplayValue(calendarValue, endCalendarValue)}
+														</span>
+													</Button>
+												{/snippet}
+											</PopoverTrigger>
+											<PopoverContent align="start" class="w-auto p-0">
+												<DataGridRangeCalendar
+													value={{
+														start: calendarValue,
+														end: endCalendarValue
+													}}
+													onValueChange={(range) => {
+														onFilterUpdate(filter.id, {
+															value: {
+																operator,
+																value: calendarDateToISO(range.start),
+																endValue: calendarDateToISO(range.end)
+															}
+														});
+													}}
+													captionLayout="dropdown"
+												/>
+											</PopoverContent>
+										</Popover>
 									{:else}
 										<Popover>
 											<PopoverTrigger>
