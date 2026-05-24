@@ -1,5 +1,10 @@
 import type { Column } from '@tanstack/table-core';
 import { getColumnPinningStyle as getGridColumnPinningStyle } from '$lib/data-grid.js';
+export {
+	getDefaultFilterOperator,
+	getFilterOperators,
+	getValidFilters
+} from '$lib/types/data-table.js';
 
 export function getColumnPinningStyle<TData>(params: {
 	column?: Column<TData, unknown>;

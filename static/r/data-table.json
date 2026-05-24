@@ -124,7 +124,7 @@
 			"target": "use-debounced-callback.ts"
 		},
 		{
-			"content": "import type { Column } from '@tanstack/table-core';\nimport { getColumnPinningStyle as getGridColumnPinningStyle } from '$lib/data-grid.js';\n\nexport function getColumnPinningStyle<TData>(params: {\n\tcolumn?: Column<TData, unknown>;\n\twithBorder?: boolean;\n}): Record<string, string | number | undefined> {\n\tconst { column, withBorder = false } = params;\n\tif (!column) return {};\n\treturn getGridColumnPinningStyle({ column, withBorder, dir: 'ltr' });\n}\n",
+			"content": "import type { Column } from '@tanstack/table-core';\nimport { getColumnPinningStyle as getGridColumnPinningStyle } from '$lib/data-grid.js';\nexport {\n\tgetDefaultFilterOperator,\n\tgetFilterOperators,\n\tgetValidFilters\n} from '$lib/types/data-table.js';\n\nexport function getColumnPinningStyle<TData>(params: {\n\tcolumn?: Column<TData, unknown>;\n\twithBorder?: boolean;\n}): Record<string, string | number | undefined> {\n\tconst { column, withBorder = false } = params;\n\tif (!column) return {};\n\treturn getGridColumnPinningStyle({ column, withBorder, dir: 'ltr' });\n}\n",
 			"type": "registry:lib",
 			"target": "data-table.ts"
 		},

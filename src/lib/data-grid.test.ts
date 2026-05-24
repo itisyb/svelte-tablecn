@@ -10,7 +10,12 @@ import {
 	serializeCellsToTsv
 } from './data-grid.js';
 import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
-import { getColumnPinningStyle as getDataTableColumnPinningStyle } from './data-table.js';
+import {
+	getColumnPinningStyle as getDataTableColumnPinningStyle,
+	getDefaultFilterOperator as getDataTableDefaultFilterOperator,
+	getFilterOperators as getDataTableFilterOperators,
+	getValidFilters as getDataTableValidFilters
+} from './data-table.js';
 import { getDataGridSelectColumn } from './components/data-grid/data-grid-select-column.js';
 import { RenderComponentConfig } from './table/index.js';
 import {
@@ -304,6 +309,39 @@ describe('getColumnPinningStyle', () => {
 			position: 'sticky',
 			zIndex: 1
 		});
+	});
+
+	it('exposes data-table filter helpers from the data-table module like upstream', () => {
+		expect(getDataTableFilterOperators('number').some((item) => item.value === 'isBetween')).toBe(
+			true
+		);
+		expect(getDataTableDefaultFilterOperator('range')).toBe('isBetween');
+		expect(
+			getDataTableValidFilters([
+				{
+					id: 'name',
+					value: '',
+					variant: 'text',
+					operator: 'contains',
+					filterId: 'empty'
+				},
+				{
+					id: 'active',
+					value: '',
+					variant: 'boolean',
+					operator: 'isTrue',
+					filterId: 'boolean'
+				}
+			])
+		).toEqual([
+			{
+				id: 'active',
+				value: '',
+				variant: 'boolean',
+				operator: 'isTrue',
+				filterId: 'boolean'
+			}
+		]);
 	});
 });
 
