@@ -1856,6 +1856,8 @@ describe('/+page.svelte', () => {
 
 		await waitFor(() => document.activeElement === items[0]);
 		expect(document.activeElement?.textContent).toContain('Status');
+		expect(items[0].tabIndex).toBe(0);
+		expect(items[1].tabIndex).toBe(-1);
 
 		const rightEvent = new KeyboardEvent('keydown', {
 			key: 'ArrowRight',
@@ -1867,17 +1869,23 @@ describe('/+page.svelte', () => {
 
 		await waitFor(() => document.activeElement === items[1]);
 		expect(document.activeElement?.textContent).toContain('Department');
+		expect(items[0].tabIndex).toBe(-1);
+		expect(items[1].tabIndex).toBe(0);
 
 		document.activeElement?.dispatchEvent(
 			new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true })
 		);
 		await waitFor(() => document.activeElement === items[2]);
 		expect(document.activeElement?.textContent).toContain('Delete');
+		expect(items[1].tabIndex).toBe(-1);
+		expect(items[2].tabIndex).toBe(0);
 
 		document.activeElement?.dispatchEvent(
 			new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
 		);
 		await waitFor(() => document.activeElement === items[0]);
+		expect(items[0].tabIndex).toBe(0);
+		expect(items[2].tabIndex).toBe(-1);
 	});
 
 	it('should stop action bar arrow focus at the edge when loop is false like the original component', async () => {

@@ -34,7 +34,18 @@
 	}
 
 	function focusItem(item: HTMLElement | undefined) {
+		if (item) {
+			setTabStop(item);
+		}
 		item?.focus();
+	}
+
+	function setTabStop(item: HTMLElement) {
+		const items = getItems();
+		for (const currentItem of items) {
+			currentItem.tabIndex = currentItem === item ? 0 : -1;
+		}
+		lastFocusedItem = item;
 	}
 
 	function getDirectionAwareKey(key: string) {
@@ -50,7 +61,7 @@
 
 		const target = event.target;
 		if (target instanceof HTMLElement && target.matches('[data-action-bar-item]')) {
-			lastFocusedItem = target;
+			setTabStop(target);
 		} else if (event.target === event.currentTarget && !isPointerFocus) {
 			const items = getItems();
 			focusItem(lastFocusedItem && items.includes(lastFocusedItem) ? lastFocusedItem : items[0]);
