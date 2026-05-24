@@ -1400,6 +1400,14 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).not.toContain('event.preventDefault();\n\t\t\tresetFilters();');
 	});
 
+	it('should remove data table filter rows only when child selectors are closed like the original table', () => {
+		expect(dataTableFilterListSource).toContain('openFieldSelectors.has(filterKey)');
+		expect(dataTableFilterListSource).toContain('openOperatorSelectors.has(filterKey)');
+		expect(dataTableFilterListSource).toContain('openValueSelectors.has(filterKey)');
+		expect(dataTableFilterListSource).toContain('onFilterItemKeyDown(event, filterKey)');
+		expect(dataTableFilterListSource).toContain('removeFilter(filterKey)');
+	});
+
 	it('should keep data table filter list field options plain like the original table', () => {
 		expect(dataTableFilterListSource).not.toContain('{#if column.icon}');
 		expect(dataTableFilterListSource).not.toContain('{@const Icon = column.icon}');

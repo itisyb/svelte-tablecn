@@ -88,6 +88,9 @@
 	const joinOperator = $derived(table.options.meta?.joinOperator ?? 'and');
 	let isDragging = $state(false);
 	let dragItems = $state<FilterItem[]>([]);
+	let openFieldSelectors = $state<Set<string>>(new Set());
+	let openOperatorSelectors = $state<Set<string>>(new Set());
+	let openValueSelectors = $state<Set<string>>(new Set());
 	const listFilters = $derived(isDragging ? dragItems : columnFilters);
 
 	const columns = $derived.by((): AvailableColumn[] => {
@@ -259,6 +262,55 @@
 		);
 		setColumnFilters(cleanItems as ColumnFiltersState);
 	}
+
+	function setFieldSelectorOpen(filterKey: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openFieldSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterKey);
+		} else {
+			nextOpenSelectors.delete(filterKey);
+		}
+		openFieldSelectors = nextOpenSelectors;
+	}
+
+	function setOperatorSelectorOpen(filterKey: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openOperatorSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterKey);
+		} else {
+			nextOpenSelectors.delete(filterKey);
+		}
+		openOperatorSelectors = nextOpenSelectors;
+	}
+
+	function setValueSelectorOpen(filterKey: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openValueSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterKey);
+		} else {
+			nextOpenSelectors.delete(filterKey);
+		}
+		openValueSelectors = nextOpenSelectors;
+	}
+
+	function onFilterItemKeyDown(event: KeyboardEvent, filterKey: string) {
+		if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+			return;
+		}
+
+		if (
+			openFieldSelectors.has(filterKey) ||
+			openOperatorSelectors.has(filterKey) ||
+			openValueSelectors.has(filterKey)
+		) {
+			return;
+		}
+
+		if (REMOVE_FILTER_SHORTCUTS.includes(event.key.toLowerCase())) {
+			event.preventDefault();
+			removeFilter(filterKey);
+		}
+	}
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />
@@ -324,7 +376,11 @@
 					{@const isSingleSelect = variant === 'select' && !allowsMultiple}
 					{@const needsValue = !['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(operator)}
 					{@const selectOptions = getColumnOptions(filter.id)}
-					<li class="flex items-center gap-2">
+					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+					<li
+						class="flex items-center gap-2"
+						onkeydown={(event) => onFilterItemKeyDown(event, filterKey)}
+					>
 						<div class="min-w-[72px] text-center">
 							{#if index === 0}
 								<span class="text-muted-foreground text-sm">Where</span>
@@ -343,7 +399,10 @@
 							{/if}
 						</div>
 
-						<Popover>
+						<Popover
+							open={openFieldSelectors.has(filterKey)}
+							onOpenChange={(isOpen) => setFieldSelectorOpen(filterKey, isOpen)}
+						>
 							<PopoverTrigger>
 								{#snippet child({ props })}
 									<Button
@@ -368,13 +427,15 @@
 											{#each columns as column (column.id)}
 												<CommandItem
 													value={column.id}
-													onSelect={() =>
+													onSelect={() => {
 														updateFilter(filterKey, {
 															id: castColumnId(column.id),
 															variant: column.variant,
 															operator: getDefaultFilterOperator(column.variant),
 															value: ''
-														})}
+														});
+														setFieldSelectorOpen(filterKey, false);
+													}}
 												>
 													<span class="truncate">{column.label}</span>
 													<Check
@@ -393,7 +454,9 @@
 
 						<Select
 							type="single"
+							open={openOperatorSelectors.has(filterKey)}
 							value={operator}
+							onOpenChange={(isOpen) => setOperatorSelectorOpen(filterKey, isOpen)}
 							onValueChange={(value: string) =>
 								updateFilter(filterKey, {
 									operator: value as FilterOperator,
@@ -481,7 +544,9 @@
 								{:else if isSingleSelect && selectOptions.length > 0}
 									<Select
 										type="single"
+										open={openValueSelectors.has(filterKey)}
 										value={filterValues.primary}
+										onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
 										onValueChange={(value: string) => updateFilter(filterKey, { value })}
 									>
 										<SelectTrigger
@@ -500,7 +565,10 @@
 										</SelectContent>
 									</Select>
 								{:else if (variant === 'select' || variant === 'multiSelect') && selectOptions.length > 0}
-									<Popover>
+									<Popover
+										open={openValueSelectors.has(filterKey)}
+										onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
+									>
 										<PopoverTrigger>
 											{#snippet child({ props })}
 												<Button
