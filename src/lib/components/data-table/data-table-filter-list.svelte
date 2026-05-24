@@ -289,7 +289,7 @@
 	</PopoverTrigger>
 	<PopoverContent
 		{align}
-		class="flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]"
+		class="flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[380px]"
 	>
 		<div class="flex flex-col gap-1">
 			<h4 class="font-medium leading-none">
@@ -304,7 +304,7 @@
 
 		{#if listFilters.length > 0}
 			<ul
-				class="flex max-h-[400px] flex-col gap-2 overflow-y-auto p-1"
+				class="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1"
 				use:dragHandleZone={{
 					items: listFilters,
 					flipDurationMs: 150,

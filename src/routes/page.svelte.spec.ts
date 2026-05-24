@@ -1384,6 +1384,10 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep data table filter list value column bounded like the original table', () => {
+		expect(dataTableFilterListSource).toContain('sm:min-w-[380px]');
+		expect(dataTableFilterListSource).toContain('max-h-[300px]');
+		expect(dataTableFilterListSource).not.toContain('sm:min-w-[480px]');
+		expect(dataTableFilterListSource).not.toContain('max-h-[400px]');
 		expect(dataTableFilterListSource).toContain('min-w-36 max-w-60 flex-1');
 		expect(dataTableFilterListSource).not.toContain(
 			"variant === 'range' ? 'min-w-52' : 'min-w-36'"
