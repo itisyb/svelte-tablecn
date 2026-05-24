@@ -54,6 +54,7 @@ import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
 import calendarGridSource from '$lib/components/ui/calendar/calendar-grid.svelte?raw';
 import calendarMonthSource from '$lib/components/ui/calendar/calendar-month.svelte?raw';
+import calendarSource from '$lib/components/ui/calendar/calendar.svelte?raw';
 import commandDialogSource from '$lib/components/ui/command/command-dialog.svelte?raw';
 import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
 import commandItemSource from '$lib/components/ui/command/command-item.svelte?raw';
@@ -63,6 +64,7 @@ import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFileCellSource from '$lib/components/data-grid/cells/file-cell.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
+import dataGridRangeCalendarSource from '$lib/components/data-grid/data-grid-range-calendar.svelte?raw';
 import dataGridRowSource from '$lib/components/data-grid/data-grid-row.svelte?raw';
 import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row-height-menu.svelte?raw';
 import dataGridRowSelectCellSource from '$lib/components/data-grid/cells/row-select-cell.svelte?raw';
@@ -1496,6 +1498,11 @@ describe('/+page.svelte', () => {
 		expect(calendarMonthSource).toContain('flex w-full flex-col gap-4');
 		expect(calendarGridSource).toContain('flex w-full border-collapse flex-col gap-1');
 		expect(calendarGridSource).not.toContain('mt-4 flex w-full');
+	});
+
+	it('should keep calendar root sizing aligned with the original ui calendar', () => {
+		expect(calendarSource).toContain('group/calendar w-fit p-3');
+		expect(dataGridRangeCalendarSource).toContain('group/calendar w-fit p-3');
 	});
 
 	it('should keep dialog close marker and state styling aligned with the original ui dialog', () => {
