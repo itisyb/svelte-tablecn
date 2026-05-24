@@ -42,7 +42,7 @@
 	}
 </script>
 
-{#if pasteDialog}
+{#if pasteDialog?.open}
 	<Dialog open={pasteDialog.open} onOpenChange={onPasteDialogOpenChange}>
 		<DialogContent data-grid-popover="">
 			<DialogHeader>

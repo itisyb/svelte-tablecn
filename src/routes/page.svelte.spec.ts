@@ -29,6 +29,7 @@ import DataGridNumberCellSyncFixture from './data-grid-number-cell-sync-fixture.
 import DataGridOutsideSelectionFixture from './data-grid-outside-selection-fixture.svelte';
 import DataGridPasteDelayedRowsFixture from './data-grid-paste-delayed-rows-fixture.svelte';
 import DataGridPasteDisabledFixture from './data-grid-paste-disabled-fixture.svelte';
+import DataGridPasteDialogClosedFixture from './data-grid-paste-dialog-closed-fixture.svelte';
 import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte';
 import DataGridPasteFitExistingFixture from './data-grid-paste-fit-existing-fixture.svelte';
 import DataGridPasteOrderFixture from './data-grid-paste-order-fixture.svelte';
@@ -164,15 +165,13 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-md');
-		expect(content.className).not.toContain('rounded-[2px]');
+		expect(content.className).toContain('rounded-[2px]');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.getAttribute('style') ?? '').toContain('width: calc(100% - 16px)');
 		const firstItem = await waitFor(() =>
 			content.querySelector<HTMLElement>('[data-slot="select-item"]')
 		);
-		expect(firstItem.className).toContain('rounded-sm');
-		expect(firstItem.className).not.toContain('rounded-[2px]');
+		expect(firstItem.className).toContain('rounded-[2px]');
 
 		let bubbledToGrid = false;
 		const onGridKeyDown = () => {
@@ -681,6 +680,13 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Continue' }).click();
 
 		await expect.element(page.getByLabelText('paste mode')).toHaveTextContent('expand');
+	});
+
+	it('should not render the paste expansion dialog while closed like the original grid', async () => {
+		await render(DataGridPasteDialogClosedFixture);
+
+		expect(document.querySelector('[role="dialog"]')).toBeNull();
+		expect(document.querySelector('[data-grid-popover]')).toBeNull();
 	});
 
 	it('should ignore paste when no cell is focused', async () => {
