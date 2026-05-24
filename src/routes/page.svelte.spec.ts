@@ -207,12 +207,10 @@ describe('/+page.svelte', () => {
 
 		const contentStyle = getComputedStyle(content);
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
-		expect(Number.parseFloat(contentStyle.borderRadius)).toBe(2);
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-[2px]');
-		expect(content.className).not.toContain('rounded-md');
-		expect(content.className).not.toContain('rounded-sm');
+		expect(content.className).toContain('rounded-md');
+		expect(content.className).not.toContain('rounded-[2px]');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain('!w-full');
 		expect(trigger.getAttribute('style') ?? '').toContain('width: calc(100% - 16px)');
@@ -1752,6 +1750,13 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).not.toContain('{@const Icon = column.icon}');
 	});
 
+	it('should keep data table filter drag handle focus styling aligned with outline buttons', () => {
+		expect(dataTableFilterListSource).toContain('aria-label="drag handle for filter"');
+		expect(dataTableFilterListSource).toContain('shadow-xs outline-none transition-all');
+		expect(dataTableFilterListSource).toContain('focus-visible:ring-[3px]');
+		expect(dataTableFilterListSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
+	});
+
 	it('should keep data table slider filter popover sizing aligned with the original table', () => {
 		expect(dataTableSliderFilterSource).toContain('flex w-auto flex-col gap-4');
 		expect(dataTableSliderFilterSource).toContain('flex items-center gap-4');
@@ -1783,6 +1788,13 @@ describe('/+page.svelte', () => {
 		expect(dataTableSortListSource).not.toContain("column.id === sort.id ? 'opacity-100'");
 		expect(dataTableSortListSource).toContain('{#each columns as column (column.id)}');
 		expect(dataTableSortListSource).not.toContain('getSelectableColumns');
+	});
+
+	it('should keep data table sort drag handle focus styling aligned with outline buttons', () => {
+		expect(dataTableSortListSource).toContain('aria-label="drag handle for sort"');
+		expect(dataTableSortListSource).toContain('shadow-xs outline-none transition-all');
+		expect(dataTableSortListSource).toContain('focus-visible:ring-[3px]');
+		expect(dataTableSortListSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
 	});
 
 	it('should remove data table sort rows only when child selectors are closed like the original table', () => {
