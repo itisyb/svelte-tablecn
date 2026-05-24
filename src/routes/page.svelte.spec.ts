@@ -1443,6 +1443,22 @@ describe('/+page.svelte', () => {
 		expect(dataTableSortListSource).toContain('onSortRemove(sortId)');
 	});
 
+	it('should keep data table sort list aria wiring aligned with the original table', () => {
+		expect(dataTableSortListSource).toContain("import { useId } from 'bits-ui'");
+		expect(dataTableSortListSource).toContain('aria-labelledby={labelId}');
+		expect(dataTableSortListSource).toContain('aria-describedby={descriptionId}');
+		expect(dataTableSortListSource).toContain('role="list"');
+		expect(dataTableSortListSource).toContain('role="listitem"');
+		expect(dataTableSortListSource).toContain('id={sortItemId}');
+		expect(dataTableSortListSource).toContain('tabindex={-1}');
+		expect(dataTableSortListSource).toContain('id={fieldTriggerId}');
+		expect(dataTableSortListSource).toContain('aria-controls={fieldListboxId}');
+		expect(dataTableSortListSource).toContain('id={fieldListboxId}');
+		expect(dataTableSortListSource).toContain('aria-controls={directionListboxId}');
+		expect(dataTableSortListSource).toContain('id={directionListboxId}');
+		expect(dataTableSortListSource).toContain('aria-controls={sortItemId}');
+	});
+
 	it('should keep data table pagination page size width aligned with the original table', () => {
 		expect(dataTablePaginationSource).toContain('h-8 w-18 data-size:h-8');
 		expect(dataTablePaginationSource).not.toContain('w-[4.5rem]');
