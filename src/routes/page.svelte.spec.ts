@@ -403,19 +403,26 @@ describe('/+page.svelte', () => {
 		await render(DataGridFileCellSyncFixture);
 
 		const input = await waitFor(() => document.querySelector<HTMLInputElement>('input[type="file"]'));
-		const dropzone = await waitFor(() =>
-			document.querySelector<HTMLElement>('[aria-label="Drop files here or click to browse"]')
+		const dropzone = page.getByRole('region', { name: 'File upload' });
+		const dropzoneElement = await waitFor(() =>
+			document.querySelector<HTMLElement>('[role="region"][aria-labelledby]')
 		);
 		const dataTransfer = new DataTransfer();
 		dataTransfer.items.add(new File(['too large'], 'large.txt', { type: 'text/plain' }));
 		input.files = dataTransfer.files;
 		input.dispatchEvent(new Event('change', { bubbles: true }));
 
-		await waitFor(() => dropzone.hasAttribute('data-invalid'));
+		expect(input.getAttribute('aria-labelledby')).toBe(dropzoneElement.getAttribute('aria-labelledby'));
+		expect(input.getAttribute('aria-describedby')).toBe(
+			dropzoneElement.getAttribute('aria-describedby')
+		);
+
+		await waitFor(() => dropzoneElement.hasAttribute('data-invalid'));
 
 		await page.getByRole('button', { name: 'Replace files' }).click();
 
-		await waitFor(() => !dropzone.hasAttribute('data-invalid'));
+		await waitFor(() => !dropzoneElement.hasAttribute('data-invalid'));
+		await expect.element(dropzone).toBeInTheDocument();
 		await expect.element(page.getByLabelText('file names')).toHaveTextContent('server.txt');
 	});
 

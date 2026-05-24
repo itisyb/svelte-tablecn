@@ -4,7 +4,7 @@
 	import { useBadgeOverflow } from '$lib/hooks/use-badge-overflow.svelte.js';
 	import DataGridCellWrapper from '../data-grid-cell-wrapper.svelte';
 	import { PopoverContent } from '$lib/components/ui/popover/index.js';
-	import { Popover as PopoverPrimitive } from 'bits-ui';
+	import { Popover as PopoverPrimitive, useId } from 'bits-ui';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
@@ -48,9 +48,11 @@
 	let errorState = $state<{ cellKey: string; message: string } | null>(null);
 	let containerRef = $state<HTMLDivElement | null>(null);
 	let fileInputRef = $state<HTMLInputElement | null>(null);
-	let dropzoneRef = $state<HTMLButtonElement | null>(null);
+	let dropzoneRef = $state<HTMLDivElement | null>(null);
 	const cellOpts = $derived(cell.column.columnDef.meta?.cell);
 	const sideOffset = $derived(-(containerRef?.clientHeight ?? 0));
+	const labelId = useId();
+	const descriptionId = useId();
 
 	const fileCellOpts = $derived(cellOpts?.variant === 'file' ? cellOpts : null);
 	const maxFileSize = $derived(fileCellOpts?.maxFileSize ?? 10 * 1024 * 1024);
@@ -527,10 +529,15 @@
 				customAnchor={containerRef}
 			>
 				<div class="flex flex-col gap-2 p-3">
-					<span class="sr-only">File upload</span>
-					<button
-						type="button"
-						aria-label="Drop files here or click to browse"
+					<span id={labelId} class="sr-only">File upload</span>
+					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+					<!-- svelte-ignore a11y_role_supports_aria_props -->
+					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+					<div
+						role="region"
+						aria-labelledby={labelId}
+						aria-describedby={descriptionId}
+						aria-invalid={!!error}
 						aria-disabled={isPending}
 						data-dragging={isDragging ? '' : undefined}
 						data-invalid={error ? '' : undefined}
@@ -552,16 +559,18 @@
 							</p>
 							<p class="text-muted-foreground text-xs">or click to browse</p>
 						</div>
-						<p class="text-muted-foreground text-xs">
+						<p id={descriptionId} class="text-muted-foreground text-xs">
 							{maxFileSize
 								? `Max size: ${formatFileSize(maxFileSize)}${maxFiles ? ` • Max ${maxFiles} files` : ''}`
 								: maxFiles
 									? `Max ${maxFiles} files`
 									: 'Select files to upload'}
 						</p>
-					</button>
+					</div>
 					<input
 						type="file"
+						aria-labelledby={labelId}
+						aria-describedby={descriptionId}
 						{multiple}
 						{accept}
 						class="sr-only"
