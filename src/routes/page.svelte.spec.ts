@@ -93,6 +93,7 @@ import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdo
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
+import sonnerSource from '$lib/components/ui/sonner/sonner.svelte?raw';
 import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
 import tableHeadSource from '$lib/components/ui/table/table-head.svelte?raw';
 import tooltipProviderSource from '$lib/components/ui/tooltip/tooltip-provider.svelte?raw';
@@ -1522,6 +1523,17 @@ describe('/+page.svelte', () => {
 	it('should keep slider thumb background aligned with the original ui slider', () => {
 		expect(sliderSource).toContain('bg-background');
 		expect(sliderSource).not.toContain('bg-white');
+	});
+
+	it('should keep toaster surface tokens aligned with the original ui sonner', () => {
+		expect(sonnerSource).toContain("theme = 'system'");
+		expect(sonnerSource).toContain('--normal-bg: var(--popover)');
+		expect(sonnerSource).toContain('--normal-text: var(--popover-foreground)');
+		expect(sonnerSource).toContain('--normal-border: var(--border)');
+		expect(sonnerSource).toContain('group-[.toaster]:bg-popover');
+		expect(sonnerSource).toContain('group-[.toaster]:text-popover-foreground');
+		expect(sonnerSource).not.toContain('group-[.toaster]:bg-background');
+		expect(sonnerSource).not.toContain('group-[.toaster]:text-foreground');
 	});
 
 	it('should keep data table slider filter inputs compact like the original table', () => {
