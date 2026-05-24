@@ -59,6 +59,7 @@ import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-men
 import dataTableFacetedFilterSource from '$lib/components/data-table/data-table-faceted-filter.svelte?raw';
 import dataTableFilterListSource from '$lib/components/data-table/data-table-filter-list.svelte?raw';
 import dataTableFilterMenuSource from '$lib/components/data-table/data-table-filter-menu.svelte?raw';
+import dataTableRangeFilterSource from '$lib/components/data-table/data-table-range-filter.svelte?raw';
 import dataTableSliderFilterSource from '$lib/components/data-table/data-table-slider-filter.svelte?raw';
 import dataTableViewOptionsSource from '$lib/components/data-table/data-table-view-options.svelte?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
@@ -1363,6 +1364,15 @@ describe('/+page.svelte', () => {
 		expect(dataTableSliderFilterSource).toContain('flex items-center gap-4');
 		expect(dataTableSliderFilterSource).not.toContain('min-w-72');
 		expect(dataTableSliderFilterSource).not.toContain('flex items-center gap-3');
+	});
+
+	it('should keep data table range filters in the original two-input shape by default', () => {
+		expect(dataTableRangeFilterSource).toContain('showSlider = false');
+		expect(dataTableRangeFilterSource).toContain('sr-only shrink-0 text-muted-foreground');
+		expect(dataTableRangeFilterSource).not.toContain('showSlider = true');
+		expect(dataTableRangeFilterSource).not.toContain(
+			'shrink-0 text-muted-foreground text-xs">to'
+		);
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {

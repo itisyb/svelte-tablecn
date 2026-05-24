@@ -29,7 +29,7 @@
 		column,
 		inputId,
 		onFilterUpdate,
-		showSlider = true,
+		showSlider = false,
 		class: className
 	}: Props = $props();
 
@@ -109,7 +109,7 @@
 				</span>
 			{/if}
 		</div>
-		<span class="shrink-0 text-muted-foreground text-xs">to</span>
+		<span class="sr-only shrink-0 text-muted-foreground">to</span>
 		<div class="relative min-w-0 flex-1">
 			<Input
 				id={`${inputId}-max`}
