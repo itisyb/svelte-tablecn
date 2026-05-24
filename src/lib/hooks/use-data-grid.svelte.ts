@@ -1700,7 +1700,7 @@ export function useDataGrid<TData extends RowData>(
 		}
 
 		// Delete/Backspace
-		if (event.key === 'Delete' || event.key === 'Backspace') {
+		if ((event.key === 'Delete' || event.key === 'Backspace') && !readOnly) {
 			if (!editingCell) {
 				event.preventDefault();
 				event.stopPropagation();

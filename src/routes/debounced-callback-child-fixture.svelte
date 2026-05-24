@@ -5,7 +5,7 @@
 
 	const schedule = useDebouncedCallback(() => {
 		onFire();
-	}, 50);
+	}, 500);
 </script>
 
 <button type="button" onclick={() => schedule()}>Schedule debounced callback</button>

@@ -30,6 +30,7 @@ import DataGridPasteDialogFixture from './data-grid-paste-dialog-fixture.svelte'
 import DataGridPasteFitExistingFixture from './data-grid-paste-fit-existing-fixture.svelte';
 import DataGridPasteOrderFixture from './data-grid-paste-order-fixture.svelte';
 import DataGridPasteWithoutFocusFixture from './data-grid-paste-without-focus-fixture.svelte';
+import DataGridReadonlyKeyboardFixture from './data-grid-readonly-keyboard-fixture.svelte';
 import DataGridReadonlyRowSelectFixture from './data-grid-readonly-row-select-fixture.svelte';
 import DataGridRowAddSelectionFixture from './data-grid-row-add-selection-fixture.svelte';
 import DataGridRowHeightMenuClassFixture from './data-grid-row-height-menu-class-fixture.svelte';
@@ -248,6 +249,27 @@ describe('/+page.svelte', () => {
 		expect(wrapper?.className).toContain('bg-primary/10');
 		expect(marker?.className).toContain('ps-1');
 		expect(marker?.textContent?.trim()).toBe('1');
+	});
+
+	it('should not intercept delete keys in read-only mode like the original grid', async () => {
+		await render(DataGridReadonlyKeyboardFixture);
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		const firstCell = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+
+		firstCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		firstCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		firstCell.click();
+		await waitFor(() => firstCell.hasAttribute('data-focused'));
+
+		const allowed = grid.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true })
+		);
+
+		expect(allowed).toBe(true);
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
 	});
 
 	it('should sync checkbox cell when the external value changes', async () => {
