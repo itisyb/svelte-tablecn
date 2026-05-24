@@ -5,10 +5,11 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Calendar as CalendarPicker } from '$lib/components/ui/calendar/index.js';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
+	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { formatDate } from '$lib/format.js';
 
 	import Calendar from '@lucide/svelte/icons/calendar';
-	import X from '@lucide/svelte/icons/x';
+	import XCircle from '@lucide/svelte/icons/x-circle';
 
 	interface Props {
 		table?: Table<TData>;
@@ -34,12 +35,11 @@
 	const values = $derived(Array.isArray(filterValue) ? filterValue : [filterValue].filter(Boolean));
 	const displayValue = $derived(
 		values
-			.map((value) =>
-				typeof value === 'string' ? formatDate(value, { month: 'short', day: 'numeric' }) : ''
-			)
+			.map((value) => (typeof value === 'string' ? formatDate(value) : ''))
 			.filter(Boolean)
-			.join(' to ')
+			.join(' - ')
 	);
+	const hasValue = $derived(values.length > 0 && displayValue.length > 0);
 
 	function toCalendarDate(value: string | undefined): DateValue | undefined {
 		if (!value) return undefined;
@@ -70,9 +70,9 @@
 		resolvedColumn?.setFilterValue(cleaned.length > 0 ? cleaned : undefined);
 	}
 
-	function clearFilter() {
+	function onReset(event: MouseEvent) {
+		event.stopPropagation();
 		resolvedColumn?.setFilterValue(undefined);
-		open = false;
 	}
 </script>
 
@@ -86,29 +86,41 @@
 				size="sm"
 				class="border-dashed font-normal"
 			>
-				<Calendar />
+				{#if hasValue}
+					<!-- svelte-ignore a11y_click_events_have_key_events - mirrors upstream clear affordance inside the trigger button. -->
+					<div
+						role="button"
+						aria-label={`Clear ${title ?? 'column'} filter`}
+						tabindex={0}
+						class="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+						onclick={onReset}
+					>
+						<XCircle />
+					</div>
+				{:else}
+					<Calendar />
+				{/if}
 				{title}
-				{#if values.length > 0}
-					<span class="max-w-40 truncate text-muted-foreground text-xs">
+				{#if hasValue}
+					<Separator orientation="vertical" class="mx-0.5 data-[orientation=vertical]:h-4" />
+					<span class="max-w-40 truncate">
 						{displayValue}
 					</span>
 				{/if}
 			</Button>
 		{/snippet}
 	</PopoverTrigger>
-	<PopoverContent align="start" class="w-72 space-y-3">
+	<PopoverContent align="start" class="w-auto p-0">
 		{#if multiple}
-			<div class="grid gap-2 sm:grid-cols-2">
-				<div class="space-y-1">
-					<span class="text-xs text-muted-foreground">From</span>
+			<div class="grid sm:grid-cols-2">
+				<div>
 					<CalendarPicker
 						type="single"
 						value={toCalendarDate(typeof values[0] === 'string' ? values[0] : undefined)}
 						onValueChange={(value: DateValue | undefined) => onRangeDateChange(0, value)}
 					/>
 				</div>
-				<div class="space-y-1">
-					<span class="text-xs text-muted-foreground">To</span>
+				<div>
 					<CalendarPicker
 						type="single"
 						value={toCalendarDate(typeof values[1] === 'string' ? values[1] : undefined)}
@@ -117,20 +129,11 @@
 				</div>
 			</div>
 		{:else}
-			<div class="space-y-1">
-				<span class="text-xs text-muted-foreground">Date</span>
-				<CalendarPicker
-					type="single"
-					value={toCalendarDate(typeof values[0] === 'string' ? values[0] : undefined)}
-					onValueChange={(value: DateValue | undefined) => onSingleDateChange(value)}
-				/>
-			</div>
+			<CalendarPicker
+				type="single"
+				value={toCalendarDate(typeof values[0] === 'string' ? values[0] : undefined)}
+				onValueChange={(value: DateValue | undefined) => onSingleDateChange(value)}
+			/>
 		{/if}
-		<div class="flex justify-end">
-			<Button variant="ghost" size="sm" class="h-8" onclick={clearFilter}>
-				<X />
-				Clear
-			</Button>
-		</div>
 	</PopoverContent>
 </Popover>

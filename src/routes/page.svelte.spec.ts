@@ -56,6 +56,7 @@ import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-colu
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
+import dataTableDateFilterSource from '$lib/components/data-table/data-table-date-filter.svelte?raw';
 import dataTableFacetedFilterSource from '$lib/components/data-table/data-table-faceted-filter.svelte?raw';
 import dataTableFilterListSource from '$lib/components/data-table/data-table-filter-list.svelte?raw';
 import dataTableFilterMenuSource from '$lib/components/data-table/data-table-filter-menu.svelte?raw';
@@ -1338,6 +1339,19 @@ describe('/+page.svelte', () => {
 		expect(dataTableFacetedFilterSource).toContain('role="button"');
 		expect(dataTableFacetedFilterSource).toContain('tabindex={0}');
 		expect(dataTableFacetedFilterSource).not.toContain('type="button"');
+	});
+
+	it('should keep data table date filter trigger and popover aligned with the original table', () => {
+		expect(dataTableDateFilterSource).toContain('role="button"');
+		expect(dataTableDateFilterSource).toContain('tabindex={0}');
+		expect(dataTableDateFilterSource).toContain("Clear ${title ?? 'column'} filter");
+		expect(dataTableDateFilterSource).toContain('data-[orientation=vertical]:h-4');
+		expect(dataTableDateFilterSource).toContain("join(' - ')");
+		expect(dataTableDateFilterSource).toContain('class="w-auto p-0"');
+		expect(dataTableDateFilterSource).not.toContain('class="w-72 space-y-3"');
+		expect(dataTableDateFilterSource).not.toContain('>Date</span>');
+		expect(dataTableDateFilterSource).not.toContain('>From</span>');
+		expect(dataTableDateFilterSource).not.toContain('>To</span>');
 	});
 
 	it('should keep data table filter chip segment borders aligned with the original table', () => {
