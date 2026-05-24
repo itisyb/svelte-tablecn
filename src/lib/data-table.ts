@@ -3,8 +3,9 @@ import { getColumnPinningStyle as getGridColumnPinningStyle } from '$lib/data-gr
 
 export function getColumnPinningStyle<TData>(params: {
 	column?: Column<TData, unknown>;
+	withBorder?: boolean;
 }): Record<string, string | number | undefined> {
-	const { column } = params;
+	const { column, withBorder = false } = params;
 	if (!column) return {};
-	return getGridColumnPinningStyle({ column, dir: 'ltr' });
+	return getGridColumnPinningStyle({ column, withBorder, dir: 'ltr' });
 }

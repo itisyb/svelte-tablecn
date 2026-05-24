@@ -10,6 +10,7 @@ import {
 	serializeCellsToTsv
 } from './data-grid.js';
 import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
+import { getColumnPinningStyle as getDataTableColumnPinningStyle } from './data-table.js';
 import { getDataGridSelectColumn } from './components/data-grid/data-grid-select-column.js';
 import { RenderComponentConfig } from './table/index.js';
 import {
@@ -270,6 +271,38 @@ describe('getColumnPinningStyle', () => {
 			background: 'var(--background)',
 			opacity: 1,
 			width: 180
+		});
+	});
+
+	it('passes data-table pinned border styles through like upstream', () => {
+		const leftColumn = {
+			getIsPinned: () => 'left',
+			getIsLastColumn: (side: string) => side === 'left',
+			getIsFirstColumn: () => false,
+			getStart: () => 24,
+			getAfter: () => 0,
+			getSize: () => 120
+		} as never;
+		const rightColumn = {
+			getIsPinned: () => 'right',
+			getIsLastColumn: () => false,
+			getIsFirstColumn: (side: string) => side === 'right',
+			getStart: () => 0,
+			getAfter: () => 16,
+			getSize: () => 140
+		} as never;
+
+		expect(getDataTableColumnPinningStyle({ column: leftColumn, withBorder: true })).toMatchObject({
+			boxShadow: '-4px 0 4px -4px var(--border) inset',
+			left: '24px',
+			position: 'sticky',
+			zIndex: 1
+		});
+		expect(getDataTableColumnPinningStyle({ column: rightColumn, withBorder: true })).toMatchObject({
+			boxShadow: '4px 0 4px -4px var(--border) inset',
+			right: '16px',
+			position: 'sticky',
+			zIndex: 1
 		});
 	});
 });
