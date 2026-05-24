@@ -20,6 +20,7 @@
 		size = 'sm',
 		children,
 		ref = $bindable(null),
+		tabindex = -1,
 		...restProps
 	}: Props = $props();
 
@@ -46,6 +47,8 @@
 	bind:this={ref}
 	type="button"
 	data-slot="action-bar-item"
+	data-action-bar-item=""
+	tabindex={tabindex}
 	class={cn(buttonVariants({ variant, size }), orientation === 'vertical' && 'w-full', className)}
 	onclick={handleClick}
 	{...restProps}

@@ -1165,6 +1165,52 @@ describe('/+page.svelte', () => {
 		expect(persistedSelection).toBeTruthy();
 	});
 
+	it('should rove action bar focus with arrow keys like the original grid', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		await waitFor(() => document.querySelector('[data-slot="grid-row"][data-index="0"]'));
+		await page.getByRole('button', { name: 'Name', exact: true }).click();
+
+		const group = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="action-bar-group"]')
+		);
+
+		group.focus();
+
+		const items = await waitFor(() => {
+			const currentItems = Array.from(
+				document.querySelectorAll<HTMLElement>('[data-action-bar-item]')
+			);
+			return currentItems.length >= 3 ? currentItems : null;
+		});
+
+		await waitFor(() => document.activeElement === items[0]);
+		expect(document.activeElement?.textContent).toContain('Status');
+
+		const rightEvent = new KeyboardEvent('keydown', {
+			key: 'ArrowRight',
+			bubbles: true,
+			cancelable: true
+		});
+		document.activeElement?.dispatchEvent(rightEvent);
+		expect(rightEvent.defaultPrevented).toBe(true);
+
+		await waitFor(() => document.activeElement === items[1]);
+		expect(document.activeElement?.textContent).toContain('Department');
+
+		document.activeElement?.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true })
+		);
+		await waitFor(() => document.activeElement === items[2]);
+		expect(document.activeElement?.textContent).toContain('Delete');
+
+		document.activeElement?.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+		);
+		await waitFor(() => document.activeElement === items[0]);
+	});
+
 	it('should render context delete rows as destructive menu item', async () => {
 		await render(DataGridContextMenuFixture);
 
