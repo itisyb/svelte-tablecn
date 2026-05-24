@@ -20,7 +20,7 @@
 	import FileArchive from '@lucide/svelte/icons/file-archive';
 	import FileSpreadsheet from '@lucide/svelte/icons/file-spreadsheet';
 	import Presentation from '@lucide/svelte/icons/presentation';
-	import { untrack, type Component } from 'svelte';
+	import { onDestroy, untrack, type Component } from 'svelte';
 
 	let {
 		cell,
@@ -75,7 +75,7 @@
 		if (initialCellValue === previousInitialCellValue) return;
 
 		for (const file of untrack(() => files)) {
-			if (file.url?.startsWith('blob:')) {
+			if (file.url) {
 				URL.revokeObjectURL(file.url);
 			}
 		}
@@ -83,6 +83,14 @@
 		previousInitialCellValue = initialCellValue;
 		files = initialCellValue;
 		setError(null);
+	});
+
+	onDestroy(() => {
+		for (const file of files) {
+			if (file.url) {
+				URL.revokeObjectURL(file.url);
+			}
+		}
 	});
 
 	$effect(() => {

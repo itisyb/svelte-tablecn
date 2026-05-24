@@ -6,6 +6,7 @@
 	type Row = { attachments: FileCellData[] };
 
 	let value = $state<FileCellData[]>([]);
+	let showFileCell = $state(true);
 
 	const cell = {
 		id: '0_attachments',
@@ -41,14 +42,17 @@
 
 <output aria-label="file count">{value.length}</output>
 <output aria-label="first file">{value[0]?.name ?? ''}</output>
+<button type="button" onclick={() => (showFileCell = false)}>Unmount file cell</button>
 
-<FileCell
-	{cell}
-	{table}
-	rowIndex={0}
-	columnId="attachments"
-	isEditing={true}
-	isFocused={true}
-	isSelected={false}
-	cellValue={value}
-/>
+{#if showFileCell}
+	<FileCell
+		{cell}
+		{table}
+		rowIndex={0}
+		columnId="attachments"
+		isEditing={true}
+		isFocused={true}
+		isSelected={false}
+		cellValue={value}
+	/>
+{/if}

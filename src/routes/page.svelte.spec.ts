@@ -444,6 +444,34 @@ describe('/+page.svelte', () => {
 		expect(committed).toBe(true);
 	});
 
+	it('should revoke local file URLs when the file cell unmounts like the original grid', async () => {
+		const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:local-preview');
+		const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+		try {
+			await render(DataGridFileCellLocalFixture);
+
+			const input = await waitFor(() =>
+				document.querySelector<HTMLInputElement>('input[type="file"]')
+			);
+			const dataTransfer = new DataTransfer();
+			dataTransfer.items.add(new File(['ok'], 'local.txt', { type: 'text/plain' }));
+			input.files = dataTransfer.files;
+			input.dispatchEvent(new Event('change', { bubbles: true }));
+
+			await waitFor(() => createObjectURL.mock.calls.length > 0);
+			await page.getByRole('button', { name: 'Unmount file cell' }).click();
+
+			const revoked = await waitFor(() =>
+				revokeObjectURL.mock.calls.some(([url]) => url === 'blob:local-preview')
+			);
+			expect(revoked).toBe(true);
+		} finally {
+			createObjectURL.mockRestore();
+			revokeObjectURL.mockRestore();
+		}
+	});
+
 	it('should sync date editor and display Date values like the original grid', async () => {
 		await render(DataGridDateCellSyncFixture);
 
