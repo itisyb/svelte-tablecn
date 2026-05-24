@@ -366,10 +366,12 @@
 		{@const filterValues = getFilterValues(filter)}
 		{@const allowsMultiple =
 			variant === 'multiSelect' || operator === 'isAnyOf' || operator === 'isNoneOf'}
-		{@const isSingleSelect = variant === 'select' && !allowsMultiple}
 		{@const needsValue = !['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(operator)}
 		{@const filterColumn = columns.find((column) => column.id === filter.id)}
 		{@const selectOptions = getColumnOptions(filter.id)}
+		{@const selectedOptions = selectOptions.filter((option) =>
+			filterValues.values.includes(option.value)
+		)}
 
 		<div
 			role="listitem"
@@ -505,29 +507,6 @@
 							<SelectItem value="false">False</SelectItem>
 						</SelectContent>
 					</Select>
-				{:else if isSingleSelect}
-					<Select
-						type="single"
-						value={filterValues.primary}
-						onValueChange={(value: string) => updateFilter(filterKey, { value })}
-					>
-						<SelectTrigger
-							id={inputId}
-							aria-controls={inputListboxId}
-							aria-label={`Change ${filterColumn?.label ?? filter.id} value`}
-							class="h-8 min-w-16 rounded-none border-l-0 px-2.5 data-size:h-8"
-						>
-							<span data-slot="select-value" class="truncate">
-								{selectOptions.find((option) => option.value === filterValues.primary)?.label ??
-									'Select value'}
-							</span>
-						</SelectTrigger>
-						<SelectContent id={inputListboxId}>
-							{#each selectOptions as option (option.value)}
-								<SelectItem value={option.value}>{option.label}</SelectItem>
-							{/each}
-						</SelectContent>
-					</Select>
 				{:else if variant === 'select' || variant === 'multiSelect'}
 					<Popover>
 						<PopoverTrigger>
@@ -536,20 +515,30 @@
 									{...props}
 									id={inputId}
 									aria-controls={inputListboxId}
+									aria-label={`Change ${filterColumn?.label ?? filter.id} value`}
 									variant="ghost"
 									size="sm"
-									class="h-full min-w-16 rounded-none border border-l-0 px-2.5 font-normal dark:bg-input/30"
+									class="h-full min-w-16 rounded-none border px-1.5 font-normal dark:bg-input/30"
 								>
-									<span class="max-w-28 truncate">
-										{#if allowsMultiple}
-											{filterValues.values.length > 0
-												? `${filterValues.values.length} selected`
-												: 'Select values'}
-										{:else}
-											{selectOptions.find((option) => option.value === filterValues.primary)
-												?.label ?? 'Select value'}
-										{/if}
-									</span>
+									{#if selectedOptions.length === 0}
+										{variant === 'multiSelect' ? 'Select options...' : 'Select option...'}
+									{:else}
+										<div class="flex items-center -space-x-2 rtl:space-x-reverse">
+											{#each selectedOptions as selectedOption (selectedOption.value)}
+												{#if selectedOption.icon}
+													{@const Icon = selectedOption.icon}
+													<div class="rounded-full border bg-background p-0.5">
+														<Icon class="size-3.5" />
+													</div>
+												{/if}
+											{/each}
+										</div>
+										<span class="truncate">
+											{selectedOptions.length > 1
+												? `${selectedOptions.length} selected`
+												: selectedOptions[0]?.label}
+										</span>
+									{/if}
 								</Button>
 							{/snippet}
 						</PopoverTrigger>

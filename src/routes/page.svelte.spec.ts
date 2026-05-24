@@ -1552,12 +1552,29 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).toContain(
 			'rounded-none bg-transparent px-1.5 py-0.5 [&_svg]:hidden'
 		);
+		expect(dataTableFilterMenuSource).toContain(
+			'class="h-full min-w-16 rounded-none border px-1.5 font-normal dark:bg-input/30"'
+		);
 		expect(dataTableFilterMenuSource).not.toContain(
 			'rounded-none border-l-0 px-2.5 lowercase'
 		);
 		expect(dataTableFilterMenuSource).not.toContain(
 			'h-8 rounded-none border-l-0 px-2.5 data-size:h-8 [&_svg]:hidden'
 		);
+	});
+
+	it('should keep data table filter select trigger content aligned with the original table', () => {
+		expect(dataTableFilterMenuSource).toContain('selectedOptions = selectOptions.filter');
+		expect(dataTableFilterMenuSource).toContain(
+			"{variant === 'multiSelect' ? 'Select options...' : 'Select option...'}"
+		);
+		expect(dataTableFilterMenuSource).toContain(
+			'class="flex items-center -space-x-2 rtl:space-x-reverse"'
+		);
+		expect(dataTableFilterMenuSource).toContain('selectedOption.icon');
+		expect(dataTableFilterMenuSource).toContain('rounded-full border bg-background p-0.5');
+		expect(dataTableFilterMenuSource).not.toContain("'Select values'");
+		expect(dataTableFilterMenuSource).not.toContain("'Select value'");
 	});
 
 	it('should close data table filter field selector after choosing a field like the original table', () => {
