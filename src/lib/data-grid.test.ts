@@ -11,6 +11,7 @@ import {
 	serializeCellsToTsv
 } from './data-grid.js';
 import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
+import { getFiltersStateParser, getSortingStateParser } from './parsers.js';
 import {
 	getColumnPinningStyle as getDataTableColumnPinningStyle,
 	getDefaultFilterOperator as getDataTableDefaultFilterOperator,
@@ -435,6 +436,45 @@ describe('package root data-grid filter exports', () => {
 		expect(ROOT_BOOLEAN_FILTER_OPERATORS[0]?.value).toBe('isTrue');
 		expect(getRootDefaultOperator('multi-select')).toBe('is');
 		expect(getRootOperatorsForVariant('number')).toBe(NUMBER_FILTER_OPERATORS);
+	});
+});
+
+describe('data-table state parsers', () => {
+	it('rejects a sorting query when any sort references an unknown column like upstream', () => {
+		const parser = getSortingStateParser<{ name: string; age: number }>(new Set(['name']));
+
+		expect(
+			parser.parse(
+				JSON.stringify([
+					{ id: 'name', desc: false },
+					{ id: 'age', desc: true }
+				])
+			)
+		).toBeNull();
+	});
+
+	it('rejects a filters query when any filter is malformed like upstream', () => {
+		const parser = getFiltersStateParser<{ name: string; age: number }>(new Set(['name', 'age']));
+
+		expect(
+			parser.parse(
+				JSON.stringify([
+					{
+						id: 'name',
+						value: 'alice',
+						variant: 'text',
+						operator: 'contains',
+						filterId: 'name-filter'
+					},
+					{
+						id: 'age',
+						variant: 'number',
+						operator: 'equals',
+						filterId: 'age-filter'
+					}
+				])
+			)
+		).toBeNull();
 	});
 });
 
