@@ -49,6 +49,7 @@ import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
+import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
@@ -1274,6 +1275,13 @@ describe('/+page.svelte', () => {
 		expect(dialogContentSource).toContain('data-slot="dialog-close"');
 		expect(dialogContentSource).toContain('data-[state=open]:bg-accent');
 		expect(dialogContentSource).toContain('data-[state=open]:text-muted-foreground');
+	});
+
+	it('should keep button shadows aligned with the original ui button', () => {
+		expect(buttonSource).toContain('default: "bg-primary text-primary-foreground hover:bg-primary/90"');
+		expect(buttonSource).toContain('"bg-destructive hover:bg-destructive/90');
+		expect(buttonSource).toContain('secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80"');
+		expect(buttonSource).toContain('"bg-background shadow-xs hover:bg-accent');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
