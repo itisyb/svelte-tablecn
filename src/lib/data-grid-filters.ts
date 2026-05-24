@@ -164,11 +164,8 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 		}
 
 		if (operator === 'equals') {
-			if (typeof cellValue === 'number') {
-				const numValue = typeof value === 'number' ? value : Number(value);
-				if (!Number.isNaN(numValue)) {
-					return cellValue === numValue;
-				}
+			if (typeof cellValue === 'number' && typeof value === 'number') {
+				return cellValue === value;
 			}
 			if (cellValue instanceof Date && typeof value === 'string') {
 				const cellDate = new Date(cellValue);
@@ -179,11 +176,8 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 		}
 
 		if (operator === 'notEquals') {
-			if (typeof cellValue === 'number') {
-				const numValue = typeof value === 'number' ? value : Number(value);
-				if (!Number.isNaN(numValue)) {
-					return cellValue !== numValue;
-				}
+			if (typeof cellValue === 'number' && typeof value === 'number') {
+				return cellValue !== value;
 			}
 			if (cellValue instanceof Date && typeof value === 'string') {
 				const cellDate = new Date(cellValue);
@@ -201,34 +195,25 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 			return cellValueStr.endsWith(filterValueStr);
 		}
 
-		if (typeof cellValue === 'number') {
-			const numValue =
-				typeof value === 'number' ? value : value === undefined ? Number.NaN : Number(value);
-			const numEndValue =
-				typeof endValue === 'number'
-					? endValue
-					: endValue === undefined
-						? Number.NaN
-						: Number(endValue);
-
-			if (operator === 'greaterThan' && !Number.isNaN(numValue)) {
-				return cellValue > numValue;
+		if (typeof cellValue === 'number' && typeof value === 'number') {
+			if (operator === 'greaterThan') {
+				return cellValue > value;
 			}
 
-			if (operator === 'greaterThanOrEqual' && !Number.isNaN(numValue)) {
-				return cellValue >= numValue;
+			if (operator === 'greaterThanOrEqual') {
+				return cellValue >= value;
 			}
 
-			if (operator === 'lessThan' && !Number.isNaN(numValue)) {
-				return cellValue < numValue;
+			if (operator === 'lessThan') {
+				return cellValue < value;
 			}
 
-			if (operator === 'lessThanOrEqual' && !Number.isNaN(numValue)) {
-				return cellValue <= numValue;
+			if (operator === 'lessThanOrEqual') {
+				return cellValue <= value;
 			}
 
-			if (operator === 'isBetween' && !Number.isNaN(numValue) && !Number.isNaN(numEndValue)) {
-				return cellValue >= numValue && cellValue <= numEndValue;
+			if (operator === 'isBetween' && typeof endValue === 'number') {
+				return cellValue >= value && cellValue <= endValue;
 			}
 		}
 

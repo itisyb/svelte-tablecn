@@ -608,6 +608,22 @@ describe('data grid filters', () => {
 		).toBe(false);
 	});
 
+	it('does not coerce numeric strings for equality filters like upstream', () => {
+		expect(filterFn(row, 'score', { operator: 'equals', value: '042' }, () => {})).toBe(false);
+		expect(filterFn(row, 'score', { operator: 'notEquals', value: '042' }, () => {})).toBe(
+			true
+		);
+	});
+
+	it('falls back when numeric comparison values are not numbers like upstream', () => {
+		expect(filterFn(row, 'score', { operator: 'greaterThan', value: '100' }, () => {})).toBe(
+			true
+		);
+		expect(
+			filterFn(row, 'score', { operator: 'isBetween', value: '1', endValue: '10' }, () => {})
+		).toBe(true);
+	});
+
 	it('uses endValue for date between filters', () => {
 		expect(
 			filterFn(
