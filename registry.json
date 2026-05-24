@@ -307,9 +307,11 @@
 			"description": "A reusable data table component with sorting, filtering, pagination, view options, and skeleton states for Svelte 5.",
 			"dependencies": [
 				"@tanstack/table-core",
+				"@internationalized/date",
 				"bits-ui",
 				"clsx",
 				"tailwind-merge",
+				"svelte-dnd-action",
 				"@lucide/svelte"
 			],
 			"registryDependencies": [

@@ -376,6 +376,53 @@ describe('data-table registry items', () => {
 
 		expect(missing).toEqual([]);
 	});
+
+	it('declares package dependencies imported by shipped files', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				dependencies?: string[];
+				files?: Array<{ path: string }>;
+			}>;
+		};
+		const packageImportPattern =
+			/(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?from\s+)?['"]([^'"]+)['"]/g;
+		const missing: string[] = [];
+
+		function getPackageName(specifier: string) {
+			if (
+				specifier.startsWith('.') ||
+				specifier.startsWith('$lib/') ||
+				specifier.startsWith('$UTILS$') ||
+				specifier.startsWith('$app/') ||
+				specifier === 'svelte' ||
+				specifier.startsWith('svelte/')
+			) {
+				return undefined;
+			}
+
+			return specifier.startsWith('@')
+				? specifier.split('/').slice(0, 2).join('/')
+				: specifier.split('/')[0];
+		}
+
+		for (const item of registry.items) {
+			const dependencies = new Set(item.dependencies ?? []);
+			for (const file of item.files ?? []) {
+				if (!existsSync(file.path)) continue;
+
+				const content = readFileSync(file.path, 'utf8');
+				for (const match of content.matchAll(packageImportPattern)) {
+					const packageName = match[1] ? getPackageName(match[1]) : undefined;
+					if (!packageName || dependencies.has(packageName)) continue;
+
+					missing.push(`${item.name}: ${file.path} imports ${packageName}`);
+				}
+			}
+		}
+
+		expect(missing).toEqual([]);
+	});
 });
 
 describe('package root data-grid filter exports', () => {
