@@ -11,6 +11,7 @@ import {
 	serializeCellsToTsv
 } from './data-grid.js';
 import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
+import { filterRows } from './filter-rows.js';
 import { getFiltersStateParser, getSortingStateParser } from './parsers.js';
 import {
 	getColumnPinningStyle as getDataTableColumnPinningStyle,
@@ -533,6 +534,12 @@ describe('getColumnPinningStyle', () => {
 		expect(getDataTableFilterOperators('number').some((item) => item.value === 'isBetween')).toBe(
 			true
 		);
+		expect(
+			getDataTableFilterOperators('date').some((item) => item.value === 'onOrBefore')
+		).toBe(true);
+		expect(getDataTableFilterOperators('date').some((item) => item.value === 'onOrAfter')).toBe(
+			true
+		);
 		expect(getDataTableDefaultFilterOperator('range')).toBe('isBetween');
 		expect(
 			getDataTableValidFilters([
@@ -559,6 +566,37 @@ describe('getColumnPinningStyle', () => {
 				operator: 'isTrue',
 				filterId: 'boolean'
 			}
+		]);
+	});
+
+	it('parses and applies upstream date boundary operators for data-table filters', () => {
+		const parser = getFiltersStateParser<{ startedAt: string }>(new Set(['startedAt']));
+		const filters = parser.parse(
+			JSON.stringify([
+				{
+					id: 'startedAt',
+					value: '2023-06-15T00:00:00.000Z',
+					variant: 'date',
+					operator: 'onOrBefore',
+					filterId: 'started-at-filter'
+				}
+			])
+		);
+
+		expect(filters).not.toBeNull();
+		expect(
+			filterRows(
+				[
+					{ startedAt: '2023-06-14T00:00:00.000Z' },
+					{ startedAt: '2023-06-15T00:00:00.000Z' },
+					{ startedAt: '2023-06-16T00:00:00.000Z' }
+				],
+				filters ?? [],
+				'and'
+			)
+		).toEqual([
+			{ startedAt: '2023-06-14T00:00:00.000Z' },
+			{ startedAt: '2023-06-15T00:00:00.000Z' }
 		]);
 	});
 });

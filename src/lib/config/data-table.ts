@@ -39,6 +39,8 @@ export const DATA_TABLE_DATE_OPERATORS = [
 	{ label: 'Does not equal', value: 'notEquals' },
 	{ label: 'Before', value: 'before' },
 	{ label: 'After', value: 'after' },
+	{ label: 'On or before', value: 'onOrBefore' },
+	{ label: 'On or after', value: 'onOrAfter' },
 	{ label: 'Between', value: 'isBetween' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
