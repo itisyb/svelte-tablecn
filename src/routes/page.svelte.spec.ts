@@ -1517,6 +1517,11 @@ describe('/+page.svelte', () => {
 		expect(sliderSource).not.toContain('bg-white');
 	});
 
+	it('should keep data table slider filter inputs compact like the original table', () => {
+		expect(dataTableSliderFilterSource).not.toContain('text-muted-foreground text-sm">to</span>');
+		expect(dataTableSliderFilterSource).toContain("class={cn('h-8 w-24', unit && 'pr-8')}");
+	});
+
 	it('should keep tooltip provider delay aligned with the original ui tooltip', () => {
 		expect(tooltipProviderSource).toContain('delayDuration = 0');
 	});

@@ -147,7 +147,6 @@
 						</span>
 					{/if}
 				</div>
-				<span class="text-muted-foreground text-sm">to</span>
 				<div class="relative">
 					<Input
 						id={`${inputId}-to`}
