@@ -7,7 +7,6 @@
 	import DataTableFacetedFilter from './data-table-faceted-filter.svelte';
 	import DataTableSliderFilter from './data-table-slider-filter.svelte';
 	import DataTableViewOptions from './data-table-view-options.svelte';
-	import type { DataTableOption } from '$lib/types/data-table.js';
 	import type { Snippet } from 'svelte';
 
 	import X from '@lucide/svelte/icons/x';
@@ -40,12 +39,6 @@
 		table.resetColumnFilters();
 	}
 
-	function getBooleanOptions(): DataTableOption[] {
-		return [
-			{ label: 'True', value: 'true' },
-			{ label: 'False', value: 'false' }
-		];
-	}
 </script>
 
 <div
@@ -107,14 +100,6 @@
 					title={label}
 					options={meta?.options ?? []}
 					multiple={variant === 'multiSelect'}
-				/>
-			{:else if variant === 'boolean'}
-				<DataTableFacetedFilter
-					{table}
-					columnId={column.id}
-					{column}
-					title={label}
-					options={getBooleanOptions()}
 				/>
 			{/if}
 		{/each}

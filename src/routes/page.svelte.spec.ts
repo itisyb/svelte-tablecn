@@ -65,6 +65,7 @@ import dataTablePaginationSource from '$lib/components/data-table/data-table-pag
 import dataTableRangeFilterSource from '$lib/components/data-table/data-table-range-filter.svelte?raw';
 import dataTableSliderFilterSource from '$lib/components/data-table/data-table-slider-filter.svelte?raw';
 import dataTableSortListSource from '$lib/components/data-table/data-table-sort-list.svelte?raw';
+import dataTableToolbarSource from '$lib/components/data-table/data-table-toolbar.svelte?raw';
 import dataTableViewOptionsSource from '$lib/components/data-table/data-table-view-options.svelte?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
@@ -1349,6 +1350,12 @@ describe('/+page.svelte', () => {
 		expect(dataTableFacetedFilterSource).toContain('role="button"');
 		expect(dataTableFacetedFilterSource).toContain('tabindex={0}');
 		expect(dataTableFacetedFilterSource).not.toContain('type="button"');
+	});
+
+	it('should keep data table toolbar filter variants aligned with the original table', () => {
+		expect(dataTableToolbarSource).not.toContain('getBooleanOptions');
+		expect(dataTableToolbarSource).not.toContain("variant === 'boolean'");
+		expect(dataTableToolbarSource).not.toContain("label: 'True'");
 	});
 
 	it('should keep data table date filter trigger and popover aligned with the original table', () => {
