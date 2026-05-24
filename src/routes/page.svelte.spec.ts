@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { toast } from 'svelte-sonner';
 import Page from './+page.svelte';
+import ActionBarEmptyFixture from './action-bar-empty-fixture.svelte';
 import ActionBarLoopFixture from './action-bar-loop-fixture.svelte';
 import DataGridAutoFocusFixture from './data-grid-auto-focus-fixture.svelte';
 import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
@@ -1945,6 +1946,16 @@ describe('/+page.svelte', () => {
 		firstItem.blur();
 		await waitFor(() => group.tabIndex === 0);
 		expect(group.tabIndex).toBe(0);
+	});
+
+	it('should remove the action bar group tab stop when there are no focusable items', async () => {
+		await render(ActionBarEmptyFixture);
+
+		const group = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="action-bar-group"]')
+		);
+
+		expect(group.tabIndex).toBe(-1);
 	});
 
 	it('should render context delete rows as destructive menu item', async () => {

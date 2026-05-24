@@ -25,6 +25,7 @@
 	let isPointerFocus = false;
 	let lastFocusedItem: HTMLElement | null = null;
 	let isTabbingBackOut = $state(false);
+	let focusableItemCount = $state(0);
 
 	function getItems() {
 		if (!ref) return [];
@@ -32,6 +33,26 @@
 			(item) => !item.hasAttribute('disabled') && item.getAttribute('aria-disabled') !== 'true'
 		);
 	}
+
+	function updateFocusableItemCount() {
+		focusableItemCount = getItems().length;
+	}
+
+	$effect(() => {
+		if (!ref) return;
+
+		updateFocusableItemCount();
+
+		const observer = new MutationObserver(updateFocusableItemCount);
+		observer.observe(ref, {
+			attributes: true,
+			attributeFilter: ['aria-disabled', 'disabled'],
+			childList: true,
+			subtree: true
+		});
+
+		return () => observer.disconnect();
+	});
 
 	function focusItem(item: HTMLElement | undefined) {
 		if (item) {
@@ -151,7 +172,7 @@
 	data-slot="action-bar-group"
 	data-orientation={orientation}
 	{dir}
-	tabindex={isTabbingBackOut ? -1 : 0}
+	tabindex={isTabbingBackOut || focusableItemCount === 0 ? -1 : 0}
 	class={cn(
 		'flex gap-2 outline-none',
 		orientation === 'horizontal' ? 'items-center' : 'w-full flex-col items-start',
