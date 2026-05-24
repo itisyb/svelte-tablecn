@@ -534,12 +534,24 @@ describe('getColumnPinningStyle', () => {
 		expect(getDataTableFilterOperators('number').some((item) => item.value === 'isBetween')).toBe(
 			true
 		);
+		expect(getDataTableFilterOperators('number').find((item) => item.value === 'equals')).toEqual(
+			{ label: 'Is', value: 'equals' }
+		);
+		expect(
+			getDataTableFilterOperators('number').find((item) => item.value === 'lessThanOrEqual')
+		).toEqual({ label: 'Is less than or equal to', value: 'lessThanOrEqual' });
 		expect(
 			getDataTableFilterOperators('date').some((item) => item.value === 'onOrBefore')
 		).toBe(true);
+		expect(
+			getDataTableFilterOperators('date').find((item) => item.value === 'onOrBefore')
+		).toEqual({ label: 'Is on or before', value: 'onOrBefore' });
 		expect(getDataTableFilterOperators('date').some((item) => item.value === 'onOrAfter')).toBe(
 			true
 		);
+		expect(
+			getDataTableFilterOperators('boolean').find((item) => item.value === 'isFalse')
+		).toEqual({ label: 'Is not', value: 'isFalse' });
 		expect(getDataTableDefaultFilterOperator('range')).toBe('isBetween');
 		expect(
 			getDataTableValidFilters([
