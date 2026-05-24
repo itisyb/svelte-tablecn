@@ -53,6 +53,7 @@ import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
 import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
 import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
+import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-wrapper.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridRowSource from '$lib/components/data-grid/data-grid-row.svelte?raw';
@@ -1308,6 +1309,18 @@ describe('/+page.svelte', () => {
 		expect(dataGridRowSource).toContain('{...restProps}');
 		expect(dataGridRowSource).toContain('bind:this={getRowElement, setRowElement}');
 		expect(dataGridRowSource).toContain('style: styleProp');
+	});
+
+	it('should forward data grid cell wrapper props like the original grid wrapper', () => {
+		expect(dataGridCellWrapperSource).toContain(
+			"interface Props extends WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement>"
+		);
+		expect(dataGridCellWrapperSource).toContain('...restProps');
+		expect(dataGridCellWrapperSource).toContain('{...restProps}');
+		expect(dataGridCellWrapperSource).toContain('bind:this={getWrapperElement, setWrapperElement}');
+		expect(dataGridCellWrapperSource).toContain('ref = $bindable(null)');
+		expect(dataGridCellWrapperSource).toContain('onClickProp?.(event)');
+		expect(dataGridCellWrapperSource).toContain('onKeyDownProp?.(event)');
 	});
 
 	it('should forward data table column header trigger props like the original table', () => {
