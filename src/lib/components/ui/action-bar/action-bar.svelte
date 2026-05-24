@@ -19,6 +19,7 @@
 		sideOffset?: number;
 		dir?: ActionBarDirection;
 		orientation?: ActionBarOrientation;
+		loop?: boolean;
 		children?: Snippet;
 	}
 
@@ -32,6 +33,7 @@
 		sideOffset = 16,
 		dir = 'ltr',
 		orientation = 'horizontal',
+		loop = true,
 		class: className,
 		style,
 		children,
@@ -73,6 +75,9 @@
 		},
 		get orientation() {
 			return orientation;
+		},
+		get loop() {
+			return loop;
 		}
 	});
 </script>

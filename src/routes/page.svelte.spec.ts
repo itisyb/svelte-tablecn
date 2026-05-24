@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { toast } from 'svelte-sonner';
 import Page from './+page.svelte';
+import ActionBarLoopFixture from './action-bar-loop-fixture.svelte';
 import DataGridAutoFocusFixture from './data-grid-auto-focus-fixture.svelte';
 import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
 import DataGridCustomCellFixture from './data-grid-custom-cell-fixture.svelte';
@@ -1281,6 +1282,40 @@ describe('/+page.svelte', () => {
 			new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
 		);
 		await waitFor(() => document.activeElement === items[0]);
+	});
+
+	it('should stop action bar arrow focus at the edge when loop is false like the original component', async () => {
+		await render(ActionBarLoopFixture);
+
+		const group = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="action-bar-group"]')
+		);
+		const items = await waitFor(() => {
+			const currentItems = Array.from(
+				document.querySelectorAll<HTMLElement>('[data-action-bar-item]')
+			);
+			return currentItems.length === 2 ? currentItems : null;
+		});
+
+		group.focus();
+		await waitFor(() => document.activeElement === items[0]);
+
+		document.activeElement?.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true })
+		);
+		await new Promise((resolve) => setTimeout(resolve, 50));
+		expect(document.activeElement).toBe(items[0]);
+
+		document.activeElement?.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true })
+		);
+		await waitFor(() => document.activeElement === items[1]);
+
+		document.activeElement?.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+		);
+		await new Promise((resolve) => setTimeout(resolve, 50));
+		expect(document.activeElement).toBe(items[1]);
 	});
 
 	it('should render context delete rows as destructive menu item', async () => {

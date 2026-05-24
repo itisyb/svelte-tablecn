@@ -18,7 +18,7 @@
 		...restProps
 	}: Props = $props();
 
-	const { dir, orientation } = getActionBarContext('ActionBarGroup');
+	const { dir, orientation, loop } = getActionBarContext('ActionBarGroup');
 
 	let isPointerFocus = false;
 	let lastFocusedItem: HTMLElement | null = null;
@@ -98,9 +98,17 @@
 		} else if (focusIntent === 'last') {
 			focusItem(items[items.length - 1]);
 		} else if (focusIntent === 'next') {
-			focusItem(items[(currentIndex + 1) % items.length]);
+			if (currentIndex < items.length - 1) {
+				focusItem(items[currentIndex + 1]);
+			} else if (loop) {
+				focusItem(items[0]);
+			}
 		} else {
-			focusItem(items[(currentIndex - 1 + items.length) % items.length]);
+			if (currentIndex > 0) {
+				focusItem(items[currentIndex - 1]);
+			} else if (loop) {
+				focusItem(items[items.length - 1]);
+			}
 		}
 	}
 </script>
