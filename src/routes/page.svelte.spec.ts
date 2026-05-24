@@ -84,8 +84,10 @@ import dataTableToolbarSource from '$lib/components/data-table/data-table-toolba
 import dataTableViewOptionsSource from '$lib/components/data-table/data-table-view-options.svelte?raw';
 import dataTableSource from '$lib/components/data-table/data-table.svelte?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
+import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
+import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
@@ -1480,6 +1482,15 @@ describe('/+page.svelte', () => {
 		expect(dropdownMenuLabelSource).not.toContain('font-semibold');
 		expect(dropdownMenuGroupHeadingSource).toContain('font-medium');
 		expect(dropdownMenuGroupHeadingSource).not.toContain('font-semibold');
+	});
+
+	it('should keep dropdown checked item highlight styling aligned with Bits menu state', () => {
+		expect(dropdownMenuCheckboxItemSource).toContain('data-highlighted:bg-accent');
+		expect(dropdownMenuCheckboxItemSource).toContain('data-highlighted:text-accent-foreground');
+		expect(dropdownMenuCheckboxItemSource).not.toContain('focus:bg-accent');
+		expect(dropdownMenuRadioItemSource).toContain('data-highlighted:bg-accent');
+		expect(dropdownMenuRadioItemSource).toContain('data-highlighted:text-accent-foreground');
+		expect(dropdownMenuRadioItemSource).not.toContain('focus:bg-accent');
 	});
 
 	it('should keep command input padding aligned with the original ui command', () => {
