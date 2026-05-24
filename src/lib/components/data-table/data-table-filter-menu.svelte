@@ -81,6 +81,7 @@
 	let draftValue = $state('');
 	let draftSecondaryValue = $state('');
 	let triggerRef = $state<HTMLButtonElement | null>(null);
+	let draftInputRef = $state<HTMLInputElement | null>(null);
 	let openFieldSelectors = $state<Set<string>>(new Set());
 
 	const filters = $derived(table.getState().columnFilters as FilterItem[]);
@@ -219,10 +220,31 @@
 		draftSecondaryValue = value == null ? '' : String(value);
 	}
 
+	function selectColumnForDraft(column: AvailableColumn) {
+		selectedColumnId = column.id;
+		draftValue = '';
+		draftSecondaryValue = '';
+		requestAnimationFrame(() => draftInputRef?.focus());
+	}
+
 	function onOpenChange(nextOpen: boolean) {
 		open = nextOpen;
 		if (!nextOpen) {
 			setTimeout(resetDraft, 100);
+		}
+	}
+
+	function onDraftInputKeyDown(event: KeyboardEvent) {
+		const inputValue =
+			event.currentTarget instanceof HTMLInputElement ? event.currentTarget.value : draftValue;
+		if (
+			selectedColumnId &&
+			REMOVE_FILTER_SHORTCUTS.includes(event.key.toLowerCase()) &&
+			!inputValue &&
+			!draftSecondaryValue
+		) {
+			event.preventDefault();
+			selectedColumnId = null;
 		}
 	}
 
@@ -678,7 +700,7 @@
 						<CommandEmpty>No fields found.</CommandEmpty>
 						<CommandGroup>
 							{#each columns as column (column.id)}
-								<CommandItem value={column.id} onSelect={() => (selectedColumnId = column.id)}>
+								<CommandItem value={column.id} onSelect={() => selectColumnForDraft(column)}>
 									{#if column.icon}
 										{@const Icon = column.icon}
 										<Icon />
@@ -719,7 +741,12 @@
 						</div>
 					{:else if selectedColumn.variant === 'select' || selectedColumn.variant === 'multiSelect'}
 						<Command>
-							<CommandInput placeholder="Search options..." />
+							<CommandInput
+								bind:ref={draftInputRef}
+								bind:value={getDraftValue, setDraftValue}
+								onkeydown={onDraftInputKeyDown}
+								placeholder="Search options..."
+							/>
 							<CommandList>
 								<CommandEmpty>No options found.</CommandEmpty>
 								<CommandGroup>
@@ -743,8 +770,10 @@
 							{#if selectedColumn.variant === 'range' || selectedColumn.variant === 'dateRange'}
 								<div class="grid gap-2 sm:grid-cols-2">
 									<Input
+										bind:ref={draftInputRef}
 										type={selectedColumn.variant === 'range' ? 'number' : 'date'}
 										bind:value={getDraftValue, setDraftValue}
+										onkeydown={onDraftInputKeyDown}
 										placeholder="From"
 									/>
 									<Input
@@ -755,12 +784,14 @@
 								</div>
 							{:else}
 								<Input
+									bind:ref={draftInputRef}
 									type={selectedColumn.variant === 'number'
 										? 'number'
 										: selectedColumn.variant === 'date'
 											? 'date'
 											: 'text'}
 									bind:value={getDraftValue, setDraftValue}
+									onkeydown={onDraftInputKeyDown}
 									placeholder={selectedColumn.variant === 'number'
 										? 'Enter number...'
 										: 'Enter value...'}

@@ -1388,6 +1388,17 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).not.toContain('if (!nextOpen) {\\n\\t\\t\\tresetDraft();');
 	});
 
+	it('should keep data table filter menu draft keyboard back behavior aligned with the original table', () => {
+		expect(dataTableFilterMenuSource).toContain('function selectColumnForDraft');
+		expect(dataTableFilterMenuSource).toContain('requestAnimationFrame(() => draftInputRef?.focus())');
+		expect(dataTableFilterMenuSource).toContain('function onDraftInputKeyDown');
+		expect(dataTableFilterMenuSource).toContain('selectedColumnId = null;');
+		expect(dataTableFilterMenuSource).toContain('onkeydown={onDraftInputKeyDown}');
+		expect(dataTableFilterMenuSource).not.toContain(
+			'onSelect={() => (selectedColumnId = column.id)}'
+		);
+	});
+
 	it('should keep data table filter menu chip aria wiring aligned with the original table', () => {
 		expect(dataTableFilterMenuSource).toContain("import { useId } from 'bits-ui'");
 		expect(dataTableFilterMenuSource).toContain('id={filterItemId}');
