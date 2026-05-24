@@ -85,6 +85,7 @@ import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
 import tableHeadSource from '$lib/components/ui/table/table-head.svelte?raw';
 import tooltipProviderSource from '$lib/components/ui/tooltip/tooltip-provider.svelte?raw';
+import dataGridSource from '$lib/components/data-grid/data-grid.svelte?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -1287,6 +1288,15 @@ describe('/+page.svelte', () => {
 		expect(dataGridColumnHeaderSource).toContain('...triggerProps');
 		expect(dataGridColumnHeaderSource).toContain('{...triggerProps}');
 		expect(dataGridColumnHeaderSource).toContain('onPointerDownProp?.(event)');
+	});
+
+	it('should forward data grid wrapper props like the original grid', () => {
+		expect(dataGridSource).toContain(
+			"WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement>"
+		);
+		expect(dataGridSource).toContain('...restProps');
+		expect(dataGridSource).toContain('{...restProps}');
+		expect(dataGridSource).toContain('bind:this={ref}');
 	});
 
 	it('should forward data table column header trigger props like the original table', () => {

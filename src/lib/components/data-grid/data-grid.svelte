@@ -7,12 +7,13 @@
 		SearchState,
 		Direction
 	} from '$lib/types/data-grid.js';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import {
 		getColumnBorderVisibility,
 		getColumnPinningStyle,
 		toPinningStyleString
 	} from '$lib/data-grid.js';
-	import { cn } from '$lib/utils.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
 	import { FlexRender } from '$lib/table';
 	import DataGridRow from './data-grid-row.svelte';
 	import DataGridColumnHeader from './data-grid-column-header.svelte';
@@ -24,9 +25,10 @@
 	import { setContext } from 'svelte';
 	import { GRID_DIR_CONTEXT_KEY, type GridDirGetter } from './grid-dir-context.js';
 
-	interface Props extends Omit<UseDataGridReturn<TData>, 'dir'> {
+	interface Props
+		extends Omit<UseDataGridReturn<TData>, 'dir'>,
+			WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement> {
 		height?: number;
-		class?: string;
 		dir?: Direction;
 		stretchColumns?: boolean;
 	}
@@ -52,7 +54,9 @@
 		adjustLayout,
 		dir = 'ltr',
 		stretchColumns = false,
-		class: className
+		class: className,
+		ref = $bindable(null),
+		...restProps
 	}: Props = $props();
 
 	// Provide row selection getter via context for header checkbox reactivity
@@ -230,9 +234,11 @@
 
 <TooltipProvider>
 	<div
+		bind:this={ref}
 		data-slot="grid-wrapper"
 		{dir}
 		class={cn('relative flex w-full min-w-0 max-w-full flex-col', className)}
+		{...restProps}
 	>
 		{#if searchState}
 			<DataGridSearch
