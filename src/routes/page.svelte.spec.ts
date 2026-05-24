@@ -172,13 +172,15 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-[2px]');
+		expect(content.className).toContain('rounded-md');
+		expect(content.className).not.toContain('rounded-[2px]');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.getAttribute('style') ?? '').toContain('width: calc(100% - 16px)');
 		const firstItem = await waitFor(() =>
 			content.querySelector<HTMLElement>('[data-slot="select-item"]')
 		);
-		expect(firstItem.className).toContain('rounded-[2px]');
+		expect(firstItem.className).toContain('rounded-sm');
+		expect(firstItem.className).not.toContain('rounded-[2px]');
 
 		let bubbledToGrid = false;
 		const onGridKeyDown = () => {
