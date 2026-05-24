@@ -83,6 +83,7 @@
 	}
 
 	let open = $state(false);
+	let addButtonRef = $state<HTMLButtonElement | null>(null);
 	const columnFilters = $derived(table.getState().columnFilters as FilterItem[]);
 	const joinOperator = $derived(table.options.meta?.joinOperator ?? 'and');
 	let isDragging = $state(false);
@@ -188,6 +189,7 @@
 				(filter, index) => !matchesFilter(filter, filterKey, index)
 			)
 		);
+		requestAnimationFrame(() => addButtonRef?.focus());
 	}
 
 	function addFilter() {
@@ -238,7 +240,10 @@
 	function onTriggerKeyDown(event: KeyboardEvent) {
 		if (REMOVE_FILTER_SHORTCUTS.includes(event.key.toLowerCase()) && columnFilters.length > 0) {
 			event.preventDefault();
-			resetFilters();
+			const lastFilter = columnFilters[columnFilters.length - 1];
+			if (lastFilter) {
+				removeFilter(getFilterKey(lastFilter, columnFilters.length - 1));
+			}
 		}
 	}
 
@@ -584,7 +589,12 @@
 		{/if}
 
 		<div class="flex w-full items-center gap-2">
-			<Button size="sm" class="rounded" onclick={addFilter} disabled={columns.length === 0}
+			<Button
+				bind:ref={addButtonRef}
+				size="sm"
+				class="rounded"
+				onclick={addFilter}
+				disabled={columns.length === 0}
 				>Add filter</Button
 			>
 			{#if columnFilters.length > 0}

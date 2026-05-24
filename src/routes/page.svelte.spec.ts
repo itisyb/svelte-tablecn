@@ -1390,6 +1390,12 @@ describe('/+page.svelte', () => {
 		);
 	});
 
+	it('should remove the last data table filter from the trigger shortcut like the original table', () => {
+		expect(dataTableFilterListSource).toContain('removeFilter(getFilterKey(lastFilter');
+		expect(dataTableFilterListSource).toContain('requestAnimationFrame(() => addButtonRef?.focus())');
+		expect(dataTableFilterListSource).not.toContain('event.preventDefault();\n\t\t\tresetFilters();');
+	});
+
 	it('should keep data table filter list field options plain like the original table', () => {
 		expect(dataTableFilterListSource).not.toContain('{#if column.icon}');
 		expect(dataTableFilterListSource).not.toContain('{@const Icon = column.icon}');
