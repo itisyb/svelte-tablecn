@@ -57,6 +57,9 @@ import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-colu
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row-height-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
+import dataGridSkeletonGridSource from '$lib/components/data-grid/data-grid-skeleton-grid.svelte?raw';
+import dataGridSkeletonToolbarSource from '$lib/components/data-grid/data-grid-skeleton-toolbar.svelte?raw';
+import dataGridSkeletonSource from '$lib/components/data-grid/data-grid-skeleton.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 import dataGridViewMenuSource from '$lib/components/data-grid/data-grid-view-menu.svelte?raw';
 import dataTableAdvancedToolbarSource from '$lib/components/data-table/data-table-advanced-toolbar.svelte?raw';
@@ -1323,6 +1326,33 @@ describe('/+page.svelte', () => {
 			"<PopoverContent {dir} class={cn('w-44 p-0', className)} {...contentProps}>"
 		);
 		expect(dataGridViewMenuSource).not.toContain("align = 'start'");
+	});
+
+	it('should forward data grid skeleton root props like the original grid', () => {
+		expect(dataGridSkeletonSource).toContain(
+			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+		);
+		expect(dataGridSkeletonSource).toContain('...restProps');
+		expect(dataGridSkeletonSource).toContain('bind:this={ref}');
+		expect(dataGridSkeletonSource).toContain('{...restProps}');
+	});
+
+	it('should forward data grid skeleton toolbar root props like the original grid', () => {
+		expect(dataGridSkeletonToolbarSource).toContain(
+			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+		);
+		expect(dataGridSkeletonToolbarSource).toContain('...restProps');
+		expect(dataGridSkeletonToolbarSource).toContain('bind:this={ref}');
+		expect(dataGridSkeletonToolbarSource).toContain('{...restProps}');
+	});
+
+	it('should forward data grid skeleton grid root props like the original grid', () => {
+		expect(dataGridSkeletonGridSource).toContain(
+			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
+		);
+		expect(dataGridSkeletonGridSource).toContain('...restProps');
+		expect(dataGridSkeletonGridSource).toContain('bind:ref');
+		expect(dataGridSkeletonGridSource).toContain('{...restProps}');
 	});
 
 	it('should keep input styling aligned with the original ui input', () => {
