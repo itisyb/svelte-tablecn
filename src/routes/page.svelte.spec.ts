@@ -52,6 +52,7 @@ import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
+import calendarDaySource from '$lib/components/ui/calendar/calendar-day.svelte?raw';
 import calendarGridSource from '$lib/components/ui/calendar/calendar-grid.svelte?raw';
 import calendarMonthSource from '$lib/components/ui/calendar/calendar-month.svelte?raw';
 import calendarSource from '$lib/components/ui/calendar/calendar.svelte?raw';
@@ -1503,6 +1504,16 @@ describe('/+page.svelte', () => {
 	it('should keep calendar root sizing aligned with the original ui calendar', () => {
 		expect(calendarSource).toContain('group/calendar w-fit p-3');
 		expect(dataGridRangeCalendarSource).toContain('group/calendar w-fit p-3');
+	});
+
+	it('should keep calendar day sizing aligned with the original ui calendar', () => {
+		expect(calendarDaySource).toContain(
+			'flex aspect-square size-auto w-full min-w-(--cell-size)'
+		);
+		expect(dataGridRangeCalendarSource).toContain(
+			'flex aspect-square size-auto w-full min-w-(--cell-size)'
+		);
+		expect(calendarDaySource).not.toContain('size-(--cell-size) flex select-none');
 	});
 
 	it('should keep dialog close marker and state styling aligned with the original ui dialog', () => {

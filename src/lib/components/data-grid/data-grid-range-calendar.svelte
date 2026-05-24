@@ -100,7 +100,7 @@
 											<RangeCalendarPrimitive.Day
 												class={cn(
 													buttonVariants({ variant: buttonVariant }),
-													'size-(--cell-size) flex select-none flex-col items-center justify-center gap-1 whitespace-nowrap p-0 font-normal leading-none',
+													'flex aspect-square size-auto w-full min-w-(--cell-size) select-none flex-col items-center justify-center gap-1 whitespace-nowrap p-0 font-normal leading-none',
 													'[&[data-today]:not([data-selected])]:bg-accent [&[data-today]:not([data-selected])]:text-accent-foreground [&[data-today][data-disabled]]:text-muted-foreground',
 													'data-[selected]:bg-primary data-[selected]:text-primary-foreground dark:data-[selected]:hover:bg-accent/50',
 													'data-[range-start]:rounded-e-none data-[range-end]:rounded-s-none data-[range-start][data-range-end]:rounded-md',
