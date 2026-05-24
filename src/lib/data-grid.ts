@@ -321,22 +321,24 @@ export function matchSelectOption(
 	)?.value;
 }
 
-function formatDateToString(date: Date): string {
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, '0');
-	const day = String(date.getDate()).padStart(2, '0');
-	return `${year}-${month}-${day}`;
-}
-
-function parsePastedDate(value: string): string | null {
-	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) return null;
-
+function parsePastedDate(value: string): Date | null {
 	if (ISO_DATE_REGEX.test(value)) {
-		return value.slice(0, 10);
+		const [datePart] = value.split('T');
+		const [year, month, day] = datePart.split('-').map(Number);
+		const localDate = new Date(year, month - 1, day);
+		if (
+			localDate.getFullYear() === year &&
+			localDate.getMonth() === month - 1 &&
+			localDate.getDate() === day
+		) {
+			return localDate;
+		}
+		return null;
 	}
 
-	return formatDateToString(date);
+	const date = new Date(value);
+	if (Number.isNaN(date.getTime())) return null;
+	return date;
 }
 
 export function parsePastedCellValue(
@@ -438,7 +440,7 @@ export function parsePastedCellValue(
 
 			if (ISO_DATE_REGEX.test(pastedValue)) {
 				const date = parsePastedDate(pastedValue);
-				if (date !== null) return { value: new Date(date).toLocaleDateString(), shouldSkip: false };
+				if (date !== null) return { value: date.toLocaleDateString(), shouldSkip: false };
 			}
 
 			const firstChar = pastedValue[0];

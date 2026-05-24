@@ -64,6 +64,16 @@ describe('parsePastedCellValue', () => {
 		expect(parsePastedCellValue('nope', { variant: 'number' }).shouldSkip).toBe(true);
 	});
 
+	it('returns Date values for pasted date cells like the original grid', () => {
+		const result = parsePastedCellValue('2024-01-02', { variant: 'date' });
+
+		expect(result.shouldSkip).toBe(false);
+		expect(result.value).toBeInstanceOf(Date);
+		expect((result.value as Date).getFullYear()).toBe(2024);
+		expect((result.value as Date).getMonth()).toBe(0);
+		expect((result.value as Date).getDate()).toBe(2);
+	});
+
 	it('matches select labels and values case-insensitively', () => {
 		const options = [
 			{ label: 'Engineering', value: 'eng' },
