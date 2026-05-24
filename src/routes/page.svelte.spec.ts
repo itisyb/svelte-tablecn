@@ -64,6 +64,7 @@ import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
 import tableHeadSource from '$lib/components/ui/table/table-head.svelte?raw';
+import tooltipProviderSource from '$lib/components/ui/tooltip/tooltip-provider.svelte?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -1312,6 +1313,10 @@ describe('/+page.svelte', () => {
 	it('should keep slider thumb background aligned with the original ui slider', () => {
 		expect(sliderSource).toContain('bg-background');
 		expect(sliderSource).not.toContain('bg-white');
+	});
+
+	it('should keep tooltip provider delay aligned with the original ui tooltip', () => {
+		expect(tooltipProviderSource).toContain('delayDuration = 0');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
