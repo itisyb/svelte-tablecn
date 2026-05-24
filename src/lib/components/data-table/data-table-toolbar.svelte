@@ -23,12 +23,15 @@
 	const isFiltered = $derived(table.getState().columnFilters.length > 0);
 	const columns = $derived(table.getAllColumns().filter((column) => column.getCanFilter()));
 
-	function getColumnFilterValue(columnId: string): unknown {
-		return table.getState().columnFilters.find((filter) => filter.id === columnId)?.value;
+	function getColumnFilterValue(column: Column<TData>): unknown {
+		return (
+			table.getState().columnFilters.find((filter) => filter.id === column.id)?.value ??
+			column.getFilterValue()
+		);
 	}
 
-	function getColumnStringFilterValue(columnId: string): string {
-		const value = getColumnFilterValue(columnId);
+	function getColumnStringFilterValue(column: Column<TData>): string {
+		const value = getColumnFilterValue(column);
 		return typeof value === 'string' ? value : '';
 	}
 
@@ -59,7 +62,7 @@
 				<Input
 					placeholder={meta?.placeholder ?? label}
 					bind:value={
-						() => getColumnStringFilterValue(column.id),
+						() => getColumnStringFilterValue(column),
 						(value) => setColumnStringFilterValue(column, value)
 					}
 					class="h-8 w-40 lg:w-56"
@@ -70,8 +73,8 @@
 						type="number"
 						inputmode="numeric"
 						placeholder={meta?.placeholder ?? label}
-						value={typeof getColumnFilterValue(column.id) === 'string'
-							? (getColumnFilterValue(column.id) as string)
+						value={typeof getColumnFilterValue(column) === 'string'
+							? (getColumnFilterValue(column) as string)
 							: ''}
 						oninput={(event) =>
 							column.setFilterValue((event.currentTarget as HTMLInputElement).value)}

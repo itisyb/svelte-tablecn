@@ -1503,6 +1503,8 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep data table toolbar filter variants aligned with the original table', () => {
+		expect(dataTableToolbarSource).toContain('column.getFilterValue()');
+		expect(dataTableToolbarSource).toContain('getColumnStringFilterValue(column)');
 		expect(dataTableToolbarSource).not.toContain('getBooleanOptions');
 		expect(dataTableToolbarSource).not.toContain("variant === 'boolean'");
 		expect(dataTableToolbarSource).not.toContain("label: 'True'");
