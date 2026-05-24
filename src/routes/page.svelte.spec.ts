@@ -53,6 +53,7 @@ import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-colu
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
+import inputSource from '$lib/components/ui/input/input.svelte?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -1243,6 +1244,15 @@ describe('/+page.svelte', () => {
 		expect(dataGridColumnHeaderSource).not.toContain('aria-label="Filtered"');
 		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-up'");
 		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-down'");
+	});
+
+	it('should keep input styling aligned with the original ui input', () => {
+		expect(inputSource).toContain('data-slot="input"');
+		expect(inputSource).toContain('min-w-0');
+		expect(inputSource).toContain('shadow-xs');
+		expect(inputSource).toContain('selection:bg-primary');
+		expect(inputSource).toContain('focus-visible:ring-[3px]');
+		expect(inputSource).toContain('aria-invalid:border-destructive');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
