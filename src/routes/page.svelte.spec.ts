@@ -1341,6 +1341,8 @@ describe('/+page.svelte', () => {
 		expect(dataGridCellWrapperSource).toContain('ref = $bindable(null)');
 		expect(dataGridCellWrapperSource).toContain('onClickProp?.(event)');
 		expect(dataGridCellWrapperSource).toContain('onKeyDownProp?.(event)');
+		expect(dataGridCellWrapperSource).toContain('text-start');
+		expect(dataGridCellWrapperSource).not.toContain("dir === 'rtl' ? 'text-right' : 'text-left'");
 	});
 
 	it('should style row select debug hitboxes like the original grid', () => {

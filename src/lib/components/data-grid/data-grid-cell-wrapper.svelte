@@ -87,8 +87,7 @@
 	// Compute cell classes declaratively from reactive table state.
 	const cellClasses = $derived(
 		cn(
-			'size-full px-2 py-1.5 text-sm outline-none has-data-[slot=checkbox]:pt-2.5',
-			dir === 'rtl' ? 'text-right' : 'text-left',
+			'size-full px-2 py-1.5 text-start text-sm outline-none has-data-[slot=checkbox]:pt-2.5',
 			{
 				'ring-1 ring-ring ring-inset': isFocused,
 				'bg-yellow-100 dark:bg-yellow-900/30': isSearchMatch && !isActiveSearchMatch,
