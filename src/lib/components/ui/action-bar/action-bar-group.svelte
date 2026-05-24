@@ -12,6 +12,8 @@
 		class: className,
 		children,
 		ref = $bindable(null),
+		onblur,
+		onfocusout,
 		onfocus,
 		onkeydown,
 		onmousedown,
@@ -22,6 +24,7 @@
 
 	let isPointerFocus = false;
 	let lastFocusedItem: HTMLElement | null = null;
+	let isTabbingBackOut = $state(false);
 
 	function getItems() {
 		if (!ref) return [];
@@ -56,6 +59,18 @@
 		isPointerFocus = false;
 	}
 
+	function handleBlur(event: FocusEvent & { currentTarget: EventTarget & HTMLDivElement }) {
+		onblur?.(event);
+		if (event.defaultPrevented) return;
+		isTabbingBackOut = false;
+	}
+
+	function handleFocusOut(event: FocusEvent & { currentTarget: EventTarget & HTMLDivElement }) {
+		onfocusout?.(event);
+		if (event.defaultPrevented) return;
+		isTabbingBackOut = false;
+	}
+
 	function handleMouseDown(event: MouseEvent & { currentTarget: EventTarget & HTMLDivElement }) {
 		onmousedown?.(event);
 		if (event.defaultPrevented) return;
@@ -68,6 +83,11 @@
 
 		const target = event.target;
 		if (!(target instanceof HTMLElement) || !target.matches('[data-action-bar-item]')) return;
+
+		if (event.key === 'Tab' && event.shiftKey) {
+			isTabbingBackOut = true;
+			return;
+		}
 
 		const key = getDirectionAwareKey(event.key);
 		let focusIntent: 'first' | 'last' | 'prev' | 'next' | undefined;
@@ -120,12 +140,14 @@
 	data-slot="action-bar-group"
 	data-orientation={orientation}
 	{dir}
-	tabindex={0}
+	tabindex={isTabbingBackOut ? -1 : 0}
 	class={cn(
 		'flex gap-2 outline-none',
 		orientation === 'horizontal' ? 'items-center' : 'w-full flex-col items-start',
 		className
 	)}
+	onblur={handleBlur}
+	onfocusout={handleFocusOut}
 	onfocus={handleFocus}
 	onmousedown={handleMouseDown}
 	onkeydown={handleKeyDown}

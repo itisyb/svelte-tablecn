@@ -1397,6 +1397,31 @@ describe('/+page.svelte', () => {
 		expect(document.activeElement).toBe(items[1]);
 	});
 
+	it('should remove the action bar group tab stop while shift-tabbing out like the original component', async () => {
+		await render(ActionBarLoopFixture);
+
+		const group = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="action-bar-group"]')
+		);
+		const firstItem = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-action-bar-item]')
+		);
+
+		group.focus();
+		await waitFor(() => document.activeElement === firstItem);
+
+		firstItem.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true })
+		);
+
+		await waitFor(() => group.tabIndex === -1);
+		expect(group.tabIndex).toBe(-1);
+
+		firstItem.blur();
+		await waitFor(() => group.tabIndex === 0);
+		expect(group.tabIndex).toBe(0);
+	});
+
 	it('should render context delete rows as destructive menu item', async () => {
 		await render(DataGridContextMenuFixture);
 
