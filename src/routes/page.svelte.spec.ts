@@ -52,6 +52,8 @@ import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
+import calendarGridSource from '$lib/components/ui/calendar/calendar-grid.svelte?raw';
+import calendarMonthSource from '$lib/components/ui/calendar/calendar-month.svelte?raw';
 import commandDialogSource from '$lib/components/ui/command/command-dialog.svelte?raw';
 import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
 import commandItemSource from '$lib/components/ui/command/command-item.svelte?raw';
@@ -1488,6 +1490,12 @@ describe('/+page.svelte', () => {
 		expect(checkboxSource).toContain('aria-invalid:border-destructive');
 		expect(checkboxSource).toContain('dark:bg-input/30');
 		expect(checkboxSource).toContain('dark:data-[state=checked]:bg-primary');
+	});
+
+	it('should keep calendar month spacing aligned with the original ui calendar', () => {
+		expect(calendarMonthSource).toContain('flex w-full flex-col gap-4');
+		expect(calendarGridSource).toContain('flex w-full border-collapse flex-col gap-1');
+		expect(calendarGridSource).not.toContain('mt-4 flex w-full');
 	});
 
 	it('should keep dialog close marker and state styling aligned with the original ui dialog', () => {
