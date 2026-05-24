@@ -51,6 +51,7 @@ import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
+import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
@@ -1293,6 +1294,11 @@ describe('/+page.svelte', () => {
 		expect(dropdownMenuLabelSource).not.toContain('font-semibold');
 		expect(dropdownMenuGroupHeadingSource).toContain('font-medium');
 		expect(dropdownMenuGroupHeadingSource).not.toContain('font-semibold');
+	});
+
+	it('should keep command input padding aligned with the original ui command', () => {
+		expect(commandInputSource).toContain('border-b px-3');
+		expect(commandInputSource).not.toContain('pe-8 ps-3');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
