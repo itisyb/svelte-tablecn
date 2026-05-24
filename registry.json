@@ -545,8 +545,23 @@
 			"type": "registry:component",
 			"title": "Data Table Filter List",
 			"description": "A filter list component for the data table.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "input", "popover", "select", "slider"],
+			"dependencies": [
+				"@tanstack/table-core",
+				"@internationalized/date",
+				"bits-ui",
+				"svelte-dnd-action",
+				"@lucide/svelte"
+			],
+			"registryDependencies": [
+				"badge",
+				"button",
+				"calendar",
+				"command",
+				"input",
+				"popover",
+				"select",
+				"slider"
+			],
 			"files": [
 				{
 					"path": "src/lib/components/data-table/data-table-filter-list.svelte",
@@ -557,6 +572,11 @@
 					"path": "src/lib/components/data-table/data-table-range-filter.svelte",
 					"type": "registry:component",
 					"target": "data-table/data-table-range-filter.svelte"
+				},
+				{
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-range-calendar.svelte"
 				},
 				{
 					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",
@@ -619,8 +639,23 @@
 			"type": "registry:component",
 			"title": "Data Table Filter Menu",
 			"description": "A filter menu component for the data table.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "input", "popover", "select", "slider"],
+			"dependencies": [
+				"@tanstack/table-core",
+				"@internationalized/date",
+				"bits-ui",
+				"svelte-dnd-action",
+				"@lucide/svelte"
+			],
+			"registryDependencies": [
+				"badge",
+				"button",
+				"calendar",
+				"command",
+				"input",
+				"popover",
+				"select",
+				"slider"
+			],
 			"files": [
 				{
 					"path": "src/lib/components/data-table/data-table-filter-menu.svelte",
@@ -636,6 +671,11 @@
 					"path": "src/lib/components/data-table/data-table-range-filter.svelte",
 					"type": "registry:component",
 					"target": "data-table/data-table-range-filter.svelte"
+				},
+				{
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-range-calendar.svelte"
 				},
 				{
 					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",

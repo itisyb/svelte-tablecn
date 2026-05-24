@@ -104,6 +104,7 @@
 		"description": "A filter list component for the data table.",
 		"dependencies": [
 			"@tanstack/table-core",
+			"@internationalized/date",
 			"bits-ui",
 			"svelte-dnd-action",
 			"@lucide/svelte"
@@ -111,6 +112,7 @@
 		"registryDependencies": [
 			"badge",
 			"button",
+			"calendar",
 			"command",
 			"input",
 			"popover",
@@ -130,6 +132,7 @@
 		"description": "A filter menu component for the data table.",
 		"dependencies": [
 			"@tanstack/table-core",
+			"@internationalized/date",
 			"bits-ui",
 			"svelte-dnd-action",
 			"@lucide/svelte"
@@ -137,6 +140,7 @@
 		"registryDependencies": [
 			"badge",
 			"button",
+			"calendar",
 			"command",
 			"input",
 			"popover",

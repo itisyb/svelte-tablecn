@@ -14,15 +14,19 @@
 		FilterVariant,
 		JoinOperator
 	} from '$lib/types/data-table.js';
+	import { CalendarDate, parseDate, type DateValue } from '@internationalized/date';
 	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { getDefaultFilterOperator, getFilterOperators } from '$lib/types/data-table.js';
 	import { generateId } from '$lib/id.js';
+	import { formatDate } from '$lib/format.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import DataTableRangeFilter from './data-table-range-filter.svelte';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
+	import { Calendar } from '$lib/components/ui/calendar/index.js';
+	import DataGridRangeCalendar from '$lib/components/data-grid/data-grid-range-calendar.svelte';
 	import {
 		Command,
 		CommandEmpty,
@@ -44,6 +48,7 @@
 	import GripVertical from '@lucide/svelte/icons/grip-vertical';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import Check from '@lucide/svelte/icons/check';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
 
 	const FILTER_SHORTCUT_KEY = 'f';
 	const REMOVE_FILTER_SHORTCUTS = ['backspace', 'delete'];
@@ -171,22 +176,41 @@
 		updateFilter(filterKey, { value: value == null ? '' : String(value) });
 	}
 
-	function setDateFilterValue(
-		filterKey: string,
+	function calendarDateToString(value: DateValue): string {
+		return value.toString();
+	}
+
+	function toCalendarDate(value: string | undefined): DateValue | undefined {
+		if (!value) return undefined;
+
+		try {
+			if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+				return parseDate(value.split('T')[0] ?? value);
+			}
+
+			const date = new Date(Number(value));
+			if (Number.isNaN(date.getTime())) return undefined;
+
+			return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
+		} catch {
+			return undefined;
+		}
+	}
+
+	function getDateDisplayValue(
 		filterValues: ReturnType<typeof getFilterValues>,
-		variant: FilterVariant,
-		operator: FilterOperator,
-		value: string,
-		isSecondary = false
-	) {
-		updateFilter(filterKey, {
-			value:
-				variant === 'dateRange' || operator === 'isBetween'
-					? isSecondary
-						? [filterValues.primary, value]
-						: [value, filterValues.secondary]
-					: value
-		});
+		operator: FilterOperator
+	): string {
+		const dateValues = filterValues.values.filter(Boolean);
+		const startDate = dateValues[0];
+		const endDate = dateValues[1];
+		const isSameDate = startDate && endDate && startDate === endDate;
+
+		if (operator === 'isBetween' && startDate && endDate && !isSameDate) {
+			return `${formatDate(startDate, { month: 'short', day: 'numeric' })} - ${formatDate(endDate, { month: 'short', day: 'numeric' })}`;
+		}
+
+		return startDate ? formatDate(startDate, { month: 'short', day: 'numeric' }) : 'Pick a date';
 	}
 
 	function removeFilter(filterKey: string) {
@@ -541,44 +565,63 @@
 										class="h-8 w-full rounded"
 									/>
 								{:else if variant === 'date' || variant === 'dateRange'}
-									<div
-										class={cn(
-											'grid gap-2',
-											(variant === 'dateRange' || operator === 'isBetween') && 'sm:grid-cols-2'
-										)}
+									<Popover
+										open={openValueSelectors.has(filterKey)}
+										onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
 									>
-										<Input
-											id={inputId}
-											type="date"
-											aria-label={`${columnLabel} filter value`}
-											bind:value={
-												() => filterValues.primary,
-												(value) =>
-													setDateFilterValue(filterKey, filterValues, variant, operator, value)
-											}
-											class="h-8 w-full rounded"
-										/>
-										{#if variant === 'dateRange' || operator === 'isBetween'}
-											<Input
-												id={`${inputId}-end`}
-												type="date"
-												aria-label={`${columnLabel} filter end value`}
-												bind:value={
-													() => filterValues.secondary,
-													(value) =>
-														setDateFilterValue(
-															filterKey,
-															filterValues,
-															variant,
-															operator,
-															value,
-															true
-														)
-												}
-												class="h-8 w-full rounded"
-											/>
-										{/if}
-									</div>
+										<PopoverTrigger>
+											{#snippet child({ props })}
+												<Button
+													{...props}
+													id={inputId}
+													aria-controls={inputListboxId}
+													aria-label={`${columnLabel} date filter`}
+													variant="outline"
+													size="sm"
+													class={cn(
+														'w-full justify-start rounded text-left font-normal',
+														filterValues.values.length === 0 && 'text-muted-foreground'
+													)}
+												>
+													<CalendarIcon />
+													<span class="truncate">{getDateDisplayValue(filterValues, operator)}</span>
+												</Button>
+											{/snippet}
+										</PopoverTrigger>
+										<PopoverContent id={inputListboxId} align="start" class="w-auto p-0">
+											{#if variant === 'dateRange' || operator === 'isBetween'}
+												<DataGridRangeCalendar
+													aria-label={`Select ${columnLabel} date range`}
+													value={{
+														start: toCalendarDate(filterValues.primary),
+														end: toCalendarDate(filterValues.secondary)
+													}}
+													onValueChange={(range) =>
+														updateFilter(filterKey, {
+															value: [range.start, range.end]
+																.map((value) =>
+																	value ? calendarDateToString(value) : undefined
+																)
+																.filter((value): value is string => value !== undefined)
+														})}
+													captionLayout="dropdown"
+												/>
+											{:else}
+												<Calendar
+													aria-label={`Select ${columnLabel} date`}
+													type="single"
+													value={toCalendarDate(filterValues.primary)}
+													onValueChange={(value: DateValue | undefined) => {
+														updateFilter(filterKey, {
+															value: value ? calendarDateToString(value) : ''
+														});
+														setValueSelectorOpen(filterKey, false);
+													}}
+													captionLayout="dropdown"
+												/>
+											{/if}
+										</PopoverContent>
+									</Popover>
 								{:else if variant === 'boolean'}
 									<div
 										id={inputId}

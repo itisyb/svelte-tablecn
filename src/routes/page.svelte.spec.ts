@@ -1792,6 +1792,21 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).toContain('class="w-[200px] p-0"');
 	});
 
+	it('should use calendar popovers for data table filter list dates like the original table', () => {
+		expect(dataTableFilterListSource).toContain(
+			"import { Calendar } from '$lib/components/ui/calendar/index.js'"
+		);
+		expect(dataTableFilterListSource).toContain(
+			"import DataGridRangeCalendar from '$lib/components/data-grid/data-grid-range-calendar.svelte'"
+		);
+		expect(dataTableFilterListSource).toContain('<CalendarIcon />');
+		expect(dataTableFilterListSource).toContain('<DataGridRangeCalendar');
+		expect(dataTableFilterListSource).toContain('<Calendar');
+		expect(dataTableFilterListSource).toContain('getDateDisplayValue(filterValues, operator)');
+		expect(dataTableFilterListSource).not.toContain('type="date"');
+		expect(dataTableFilterListSource).not.toContain('id={`${inputId}-end`}');
+	});
+
 	it('should remove the last data table filter from the trigger shortcut like the original table', () => {
 		expect(dataTableFilterListSource).toContain('removeFilter(getFilterKey(lastFilter');
 		expect(dataTableFilterListSource).toContain('requestAnimationFrame(() => addButtonRef?.focus())');
