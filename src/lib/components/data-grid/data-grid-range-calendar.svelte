@@ -91,7 +91,7 @@
 											{date}
 											month={month.value}
 											class={cn(
-												'size-(--cell-size) relative p-0 text-center text-sm focus-within:z-20',
+												'relative h-full w-full aspect-square p-0 text-center text-sm select-none focus-within:z-20',
 												'[&:first-child_[data-bits-day]]:rounded-s-md [&:last-child_[data-bits-day]]:rounded-e-md',
 												'[&[data-range-middle]_[data-bits-day]]:rounded-none [&[data-range-middle]_[data-bits-day]]:bg-accent [&[data-range-middle]_[data-bits-day]]:text-accent-foreground',
 												'[&[data-highlighted]_[data-bits-day]]:bg-accent [&[data-highlighted]_[data-bits-day]]:text-accent-foreground'
