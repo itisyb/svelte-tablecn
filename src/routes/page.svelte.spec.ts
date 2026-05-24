@@ -1298,6 +1298,10 @@ describe('/+page.svelte', () => {
 		expect(dataGridColumnHeaderSource).not.toContain('aria-label="Filtered"');
 		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-up'");
 		expect(dataGridColumnHeaderSource).not.toContain("from '@lucide/svelte/icons/arrow-down'");
+		expect(dataGridColumnHeaderSource).toContain(
+			'<Icon {...props} class="size-3.5 shrink-0 text-muted-foreground" />'
+		);
+		expect(dataGridColumnHeaderSource).not.toContain('<span {...props}>');
 	});
 
 	it('should forward data grid column header trigger props like the original grid', () => {

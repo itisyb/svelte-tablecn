@@ -164,9 +164,7 @@
 				<Tooltip delayDuration={100}>
 					<TooltipTrigger>
 						{#snippet child({ props })}
-							<span {...props}>
-								<Icon class="size-3.5 shrink-0 text-muted-foreground" />
-							</span>
+							<Icon {...props} class="size-3.5 shrink-0 text-muted-foreground" />
 						{/snippet}
 					</TooltipTrigger>
 					<TooltipContent side="top">
