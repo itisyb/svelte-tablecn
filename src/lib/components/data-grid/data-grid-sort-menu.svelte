@@ -21,6 +21,7 @@
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
 	import { useId } from 'bits-ui';
+	import type { ComponentProps } from 'svelte';
 
 	// Icons
 	import ArrowDownUp from '@lucide/svelte/icons/arrow-down-up';
@@ -36,16 +37,19 @@
 		{ label: 'Desc', value: 'desc' }
 	] as const;
 
-	interface Props {
+	interface Props extends ComponentProps<typeof PopoverContent> {
 		table: Table<TData>;
 		disabled?: boolean;
 		dir?: Direction;
-		align?: 'start' | 'center' | 'end';
-		class?: string;
 	}
 
-	let { table, disabled = false, dir = 'ltr', align = 'start', class: className }: Props =
-		$props();
+	let {
+		table,
+		disabled = false,
+		dir = 'ltr',
+		class: className,
+		...contentProps
+	}: Props = $props();
 
 	const id = useId();
 	const labelId = `${id}-label`;
@@ -215,11 +219,11 @@
 		aria-labelledby={labelId}
 		aria-describedby={descriptionId}
 		{dir}
-		{align}
 		class={cn(
 			'flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[380px]',
 			className
 		)}
+		{...contentProps}
 	>
 		<div class="flex flex-col gap-1">
 			<h4 id={labelId} class="font-medium leading-none">

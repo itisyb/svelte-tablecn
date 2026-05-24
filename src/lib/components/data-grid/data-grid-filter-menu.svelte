@@ -34,6 +34,7 @@
 	import DataGridRangeCalendar from './data-grid-range-calendar.svelte';
 	import { useId } from 'bits-ui';
 	import { CalendarDate, type DateValue, parseDate } from '@internationalized/date';
+	import type { ComponentProps } from 'svelte';
 
 	// Icons
 	import ListFilter from '@lucide/svelte/icons/list-filter';
@@ -47,16 +48,19 @@
 	const REMOVE_FILTER_SHORTCUTS = ['backspace', 'delete'];
 	const FILTER_DEBOUNCE_MS = 300;
 
-	interface Props {
+	interface Props extends ComponentProps<typeof PopoverContent> {
 		table: Table<TData>;
 		disabled?: boolean;
 		dir?: Direction;
-		align?: 'start' | 'center' | 'end';
-		class?: string;
 	}
 
-	let { table, disabled = false, dir = 'ltr', align = 'start', class: className }: Props =
-		$props();
+	let {
+		table,
+		disabled = false,
+		dir = 'ltr',
+		class: className,
+		...contentProps
+	}: Props = $props();
 
 	const id = useId();
 	const labelId = `${id}-label`;
@@ -319,11 +323,11 @@
 		aria-labelledby={labelId}
 		aria-describedby={descriptionId}
 		{dir}
-		{align}
 		class={cn(
 			'flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]',
 			className
 		)}
+		{...contentProps}
 	>
 		<div class="flex flex-col gap-1">
 			<h4 id={labelId} class="font-medium leading-none">

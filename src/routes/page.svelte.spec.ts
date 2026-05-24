@@ -1283,6 +1283,24 @@ describe('/+page.svelte', () => {
 		expect(dataGridActionBarSource).toContain('{secondaryLabel}');
 	});
 
+	it('should forward data grid filter menu popover content props like the original grid', () => {
+		expect(dataGridFilterMenuSource).toContain(
+			'interface Props extends ComponentProps<typeof PopoverContent>'
+		);
+		expect(dataGridFilterMenuSource).toContain('...contentProps');
+		expect(dataGridFilterMenuSource).toContain('{...contentProps}');
+		expect(dataGridFilterMenuSource).not.toContain("align = 'start'");
+	});
+
+	it('should forward data grid sort menu popover content props like the original grid', () => {
+		expect(dataGridSortMenuSource).toContain(
+			'interface Props extends ComponentProps<typeof PopoverContent>'
+		);
+		expect(dataGridSortMenuSource).toContain('...contentProps');
+		expect(dataGridSortMenuSource).toContain('{...contentProps}');
+		expect(dataGridSortMenuSource).not.toContain("align = 'start'");
+	});
+
 	it('should forward row height select content props like the original grid', () => {
 		expect(dataGridRowHeightMenuSource).toContain(
 			'interface Props extends ComponentProps<typeof SelectContent>'
@@ -1487,6 +1505,15 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).toContain(
 			'<Command loop class="[&_[data-slot=command-input-wrapper]_svg]:hidden">'
 		);
+	});
+
+	it('should forward data table filter menu popover content props like the original table', () => {
+		expect(dataTableFilterMenuSource).toContain(
+			'interface Props extends ComponentProps<typeof PopoverContent>'
+		);
+		expect(dataTableFilterMenuSource).toContain('...contentProps');
+		expect(dataTableFilterMenuSource).toContain('{...contentProps}');
+		expect(dataTableFilterMenuSource).not.toContain("align = 'start'");
 	});
 
 	it('should keep data table filter list value column bounded like the original table', () => {

@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { ColumnFilter, ColumnFiltersState, Table, Updater } from '@tanstack/table-core';
-	import type { Component } from 'svelte';
+	import type { Component, ComponentProps } from 'svelte';
 	import type {
 		DataTableOption,
 		ExtendedColumnFilter,
@@ -50,20 +50,18 @@
 		options?: DataTableOption[];
 	}
 
-	interface Props {
+	interface Props extends ComponentProps<typeof PopoverContent> {
 		table: Table<TData>;
 		setColumnFilters?: (updater: Updater<ColumnFiltersState>) => void;
 		disabled?: boolean;
-		align?: 'start' | 'center' | 'end';
-		class?: string;
 	}
 
 	let {
 		table,
 		setColumnFilters: setColumnFiltersProp,
 		disabled = false,
-		align = 'start',
-		class: className
+		class: className,
+		...contentProps
 	}: Props = $props();
 
 	const id = useId();
@@ -690,8 +688,8 @@
 			{/snippet}
 		</PopoverTrigger>
 		<PopoverContent
-			{align}
 			class="w-full max-w-[var(--bits-popover-content-available-width)] p-0"
+			{...contentProps}
 		>
 			{#if !selectedColumn}
 				<Command loop class="[&_[data-slot=command-input-wrapper]_svg]:hidden">
