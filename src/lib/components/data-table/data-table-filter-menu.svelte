@@ -74,6 +74,7 @@
 	let selectedColumnId = $state<string | null>(null);
 	let draftValue = $state('');
 	let draftSecondaryValue = $state('');
+	let openFieldSelectors = $state<Set<string>>(new Set());
 
 	const filters = $derived(table.getState().columnFilters as FilterItem[]);
 	const columns = $derived.by((): AvailableColumn[] => {
@@ -176,6 +177,16 @@
 
 	function resetFilters() {
 		setColumnFilters([]);
+	}
+
+	function setFieldSelectorOpen(filterKey: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openFieldSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterKey);
+		} else {
+			nextOpenSelectors.delete(filterKey);
+		}
+		openFieldSelectors = nextOpenSelectors;
 	}
 
 	function resetDraft() {
@@ -297,7 +308,10 @@
 		{@const selectOptions = getColumnOptions(filter.id)}
 
 		<div role="listitem" class="flex h-8 items-center rounded-md bg-background">
-			<Popover>
+			<Popover
+				open={openFieldSelectors.has(filterKey)}
+				onOpenChange={(isOpen) => setFieldSelectorOpen(filterKey, isOpen)}
+			>
 				<PopoverTrigger>
 					{#snippet child({ props })}
 						<Button
@@ -324,13 +338,15 @@
 								{#each columns as column (column.id)}
 									<CommandItem
 										value={column.id}
-										onSelect={() =>
+										onSelect={() => {
 											updateFilter(filterKey, {
 												id: castColumnId(column.id),
 												variant: column.variant,
 												operator: getDefaultFilterOperator(column.variant),
 												value: ''
-											})}
+											});
+											setFieldSelectorOpen(filterKey, false);
+										}}
 									>
 										{#if column.icon}
 											{@const Icon = column.icon}

@@ -1378,6 +1378,11 @@ describe('/+page.svelte', () => {
 		);
 	});
 
+	it('should close data table filter field selector after choosing a field like the original table', () => {
+		expect(dataTableFilterMenuSource).toContain('openFieldSelectors.has(filterKey)');
+		expect(dataTableFilterMenuSource).toContain('setFieldSelectorOpen(filterKey, false)');
+	});
+
 	it('should keep data table filter list value column bounded like the original table', () => {
 		expect(dataTableFilterListSource).toContain('min-w-36 max-w-60 flex-1');
 		expect(dataTableFilterListSource).not.toContain(
