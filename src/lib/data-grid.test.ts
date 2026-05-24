@@ -12,6 +12,16 @@ import {
 import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
 import { getDataGridSelectColumn } from './components/data-grid/data-grid-select-column.js';
 import { RenderComponentConfig } from './table/index.js';
+import {
+	BOOLEAN_FILTER_OPERATORS as ROOT_BOOLEAN_FILTER_OPERATORS,
+	DATE_FILTER_OPERATORS as ROOT_DATE_FILTER_OPERATORS,
+	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
+	SELECT_FILTER_OPERATORS as ROOT_SELECT_FILTER_OPERATORS,
+	TEXT_FILTER_OPERATORS as ROOT_TEXT_FILTER_OPERATORS,
+	getDefaultOperator as getRootDefaultOperator,
+	getFilterFn as getRootFilterFn,
+	getOperatorsForVariant as getRootOperatorsForVariant
+} from './index.js';
 
 describe('parseTsv', () => {
 	it('parses simple multi-row TSV', () => {
@@ -228,6 +238,19 @@ describe('data-grid registry item', () => {
 		expect(targets.has('action-bar/index.ts')).toBe(true);
 		expect(targets.has('action-bar/action-bar.svelte')).toBe(true);
 		expect(targets.has('action-bar/action-bar-item.svelte')).toBe(true);
+	});
+});
+
+describe('package root data-grid filter exports', () => {
+	it('exposes the full data-grid filter utility surface', () => {
+		expect(getRootFilterFn).toBe(getFilterFn);
+		expect(ROOT_TEXT_FILTER_OPERATORS[0]?.value).toBe('contains');
+		expect(ROOT_NUMBER_FILTER_OPERATORS).toBe(NUMBER_FILTER_OPERATORS);
+		expect(ROOT_DATE_FILTER_OPERATORS[0]?.value).toBe('equals');
+		expect(ROOT_SELECT_FILTER_OPERATORS[0]?.value).toBe('is');
+		expect(ROOT_BOOLEAN_FILTER_OPERATORS[0]?.value).toBe('isTrue');
+		expect(getRootDefaultOperator('multi-select')).toBe('is');
+		expect(getRootOperatorsForVariant('number')).toBe(NUMBER_FILTER_OPERATORS);
 	});
 });
 

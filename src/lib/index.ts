@@ -42,7 +42,7 @@ export {
 } from './components/data-grid';
 
 // Data Grid filter utilities
-export { getFilterFn } from './components/data-grid';
+export * from './data-grid-filters';
 export { getColumnPinningStyle } from './data-table';
 export { formatDate } from './format';
 export { generateId } from './id';
