@@ -1,6 +1,7 @@
 import { page } from 'vitest/browser';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { toast } from 'svelte-sonner';
 import Page from './+page.svelte';
 import DataGridAutoFocusFixture from './data-grid-auto-focus-fixture.svelte';
 import DataGridCheckboxCellFixture from './data-grid-checkbox-cell-fixture.svelte';
@@ -646,6 +647,37 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Paste without focus' }).click();
 
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+	});
+
+	it('should report clipboard paste failures like the original grid', async () => {
+		toast.dismiss();
+		await render(DataGridPasteOrderFixture);
+
+		Object.defineProperty(navigator, 'clipboard', {
+			configurable: true,
+			value: {
+				readText: async () => {
+					throw new Error('Clipboard denied');
+				}
+			}
+		});
+
+		const nameWrapper = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+		nameWrapper.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		nameWrapper.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		nameWrapper.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+		await page.getByRole('button', { name: 'Paste from clipboard' }).click();
+
+		const errorToast = await waitFor(() =>
+			toast
+				.getActiveToasts()
+				.find((activeToast) => activeToast.type === 'error' && activeToast.title === 'Clipboard denied')
+		);
+		expect(errorToast).toBeTruthy();
+		toast.dismiss(errorToast.id);
 	});
 
 	it('should not intercept clipboard paste when paste is disabled', async () => {

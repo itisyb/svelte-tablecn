@@ -1331,8 +1331,13 @@ export function useDataGrid<TData extends RowData>(
 			// Perform paste
 			await performPaste(text, startPos, startColIndex);
 			pasteDialog = { open: false, rowsNeeded: 0, clipboardText: '' };
-		} catch {
-			// Clipboard access denied
+		} catch (error) {
+			if (pasteDialog.open) {
+				pasteDialog = { open: false, rowsNeeded: 0, clipboardText: '' };
+			}
+			toast.error(
+				error instanceof Error ? error.message : 'Failed to paste. Please try again.'
+			);
 		}
 	}
 
