@@ -56,6 +56,7 @@ import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-colu
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
+import dataTableFacetedFilterSource from '$lib/components/data-table/data-table-faceted-filter.svelte?raw';
 import dataTableViewOptionsSource from '$lib/components/data-table/data-table-view-options.svelte?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
@@ -1324,6 +1325,12 @@ describe('/+page.svelte', () => {
 		expect(dataTableViewOptionsSource).not.toContain(
 			"class={cn('ml-auto hidden h-8 font-normal lg:flex', className)}"
 		);
+	});
+
+	it('should keep data table faceted clear control aligned with the original table', () => {
+		expect(dataTableFacetedFilterSource).toContain('role="button"');
+		expect(dataTableFacetedFilterSource).toContain('tabindex={0}');
+		expect(dataTableFacetedFilterSource).not.toContain('type="button"');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {

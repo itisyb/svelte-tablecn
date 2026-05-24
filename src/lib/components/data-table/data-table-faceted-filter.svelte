@@ -88,14 +88,16 @@
 				class="border-dashed font-normal"
 			>
 				{#if selectedValues.size > 0}
-					<button
-						type="button"
+					<!-- svelte-ignore a11y_click_events_have_key_events - mirrors upstream clear affordance inside the trigger button. -->
+					<div
+						role="button"
 						aria-label={`Clear ${title ?? 'column'} filter`}
+						tabindex={0}
 						class="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 						onclick={onReset}
 					>
 						<XCircle />
-					</button>
+					</div>
 				{:else}
 					<PlusCircle />
 				{/if}
