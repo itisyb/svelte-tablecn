@@ -122,8 +122,11 @@
 	</PopoverTrigger>
 	<PopoverContent align="start" class="flex w-auto flex-col gap-4">
 		<div class="flex flex-col gap-3">
-			<p class="font-medium leading-none">{title}</p>
+			<p class="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+				{title}
+			</p>
 			<div class="flex items-center gap-4">
+				<label for={`${inputId}-from`} class="sr-only">From</label>
 				<div class="relative">
 					<Input
 						id={`${inputId}-from`}
@@ -132,6 +135,7 @@
 						aria-valuemin={bounds.min}
 						aria-valuemax={bounds.max}
 						inputmode="numeric"
+						pattern="[0-9]*"
 						placeholder={String(bounds.min)}
 						min={bounds.min}
 						max={bounds.max}
@@ -147,6 +151,7 @@
 						</span>
 					{/if}
 				</div>
+				<label for={`${inputId}-to`} class="sr-only">to</label>
 				<div class="relative">
 					<Input
 						id={`${inputId}-to`}
@@ -155,6 +160,7 @@
 						aria-valuemin={bounds.min}
 						aria-valuemax={bounds.max}
 						inputmode="numeric"
+						pattern="[0-9]*"
 						placeholder={String(bounds.max)}
 						min={bounds.min}
 						max={bounds.max}
@@ -171,7 +177,9 @@
 					{/if}
 				</div>
 			</div>
+			<label for={`${inputId}-slider`} class="sr-only">{title} slider</label>
 			<Slider
+				id={`${inputId}-slider`}
 				type="multiple"
 				min={bounds.min}
 				max={bounds.max}

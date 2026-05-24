@@ -1628,6 +1628,15 @@ describe('/+page.svelte', () => {
 		expect(dataTableSliderFilterSource).toContain("class={cn('h-8 w-24', unit && 'pr-8')}");
 	});
 
+	it('should keep data table slider filter labels aligned with the original table', () => {
+		expect(dataTableSliderFilterSource).toContain('class="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"');
+		expect(dataTableSliderFilterSource).toContain('<label for={`${inputId}-from`} class="sr-only">From</label>');
+		expect(dataTableSliderFilterSource).toContain('<label for={`${inputId}-to`} class="sr-only">to</label>');
+		expect(dataTableSliderFilterSource).toContain('<label for={`${inputId}-slider`} class="sr-only">{title} slider</label>');
+		expect(dataTableSliderFilterSource).toContain('pattern="[0-9]*"');
+		expect(dataTableSliderFilterSource).toContain('id={`${inputId}-slider`}');
+	});
+
 	it('should keep tooltip provider delay aligned with the original ui tooltip', () => {
 		expect(tooltipProviderSource).toContain('delayDuration = 0');
 	});
