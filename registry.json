@@ -422,6 +422,21 @@
 					"target": "data-table.ts"
 				},
 				{
+					"path": "src/lib/data-table-range-utils.ts",
+					"type": "registry:lib",
+					"target": "data-table-range-utils.ts"
+				},
+				{
+					"path": "src/lib/filter-rows.ts",
+					"type": "registry:lib",
+					"target": "filter-rows.ts"
+				},
+				{
+					"path": "src/lib/data-grid-filters.ts",
+					"type": "registry:lib",
+					"target": "data-grid-filters.ts"
+				},
+				{
 					"path": "src/lib/format.ts",
 					"type": "registry:lib",
 					"target": "format.ts"
@@ -440,6 +455,11 @@
 					"path": "src/lib/config/data-table.ts",
 					"type": "registry:lib",
 					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				},
 				{
 					"path": "src/lib/types/data-table.ts",
@@ -511,6 +531,11 @@
 					"target": "use-debounced-callback.ts"
 				},
 				{
+					"path": "src/lib/data-table-range-utils.ts",
+					"type": "registry:lib",
+					"target": "data-table-range-utils.ts"
+				},
+				{
 					"path": "src/lib/format.ts",
 					"type": "registry:lib",
 					"target": "format.ts"
@@ -529,6 +554,11 @@
 					"path": "src/lib/config/data-table.ts",
 					"type": "registry:lib",
 					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				},
 				{
 					"path": "src/lib/types/data-table.ts",
@@ -575,6 +605,11 @@
 					"target": "use-debounced-callback.ts"
 				},
 				{
+					"path": "src/lib/data-table-range-utils.ts",
+					"type": "registry:lib",
+					"target": "data-table-range-utils.ts"
+				},
+				{
 					"path": "src/lib/format.ts",
 					"type": "registry:lib",
 					"target": "format.ts"
@@ -593,6 +628,11 @@
 					"path": "src/lib/config/data-table.ts",
 					"type": "registry:lib",
 					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				},
 				{
 					"path": "src/lib/types/data-table.ts",

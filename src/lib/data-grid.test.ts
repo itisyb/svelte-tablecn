@@ -247,6 +247,37 @@ describe('data-grid registry item', () => {
 	});
 });
 
+describe('data-table registry items', () => {
+	function getRegistryTargets(name: string) {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const item = registry.items.find((registryItem) => registryItem.name === name);
+		return new Set(item?.files?.map((file) => file.target));
+	}
+
+	it('ships local helper modules used by the full data-table block', () => {
+		const targets = getRegistryTargets('data-table');
+
+		expect(targets.has('data-table-range-utils.ts')).toBe(true);
+		expect(targets.has('filter-rows.ts')).toBe(true);
+		expect(targets.has('data-grid-filters.ts')).toBe(true);
+		expect(targets.has('types/data-grid.ts')).toBe(true);
+	});
+
+	it('ships local helper modules used by standalone filter blocks', () => {
+		for (const name of ['data-table-filter-list', 'data-table-filter-menu']) {
+			const targets = getRegistryTargets(name);
+
+			expect(targets.has('data-table-range-utils.ts')).toBe(true);
+			expect(targets.has('types/data-grid.ts')).toBe(true);
+		}
+	});
+});
+
 describe('package root data-grid filter exports', () => {
 	it('exposes the full data-grid filter utility surface', () => {
 		expect(getRootFilterFn).toBe(getFilterFn);
