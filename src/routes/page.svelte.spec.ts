@@ -1468,6 +1468,7 @@ describe('/+page.svelte', () => {
 		);
 		expect(filterItem.id).toBeTruthy();
 		expect(fieldTrigger.id).toBeTruthy();
+		expect(valueInput.id).toBe(`${filterItem.id}-input`);
 		expect(fieldListboxId).toBe(`${filterItem.id}-field-listbox`);
 		expect(operatorListboxId).toBe(`${filterItem.id}-operator-listbox`);
 		expect(deleteTrigger.getAttribute('aria-controls')).toBe(filterItem.id);
@@ -1477,6 +1478,9 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('aria-describedby={descriptionId}');
 		expect(dataGridFilterMenuSource).toContain('aria-controls={fieldListboxId}');
 		expect(dataGridFilterMenuSource).toContain('aria-controls={operatorListboxId}');
+		expect(dataGridFilterMenuSource).toContain('aria-controls={valueListboxId}');
+		expect(dataGridFilterMenuSource).toContain('id={valueInputId}');
+		expect(dataGridFilterMenuSource).toContain('id={valueListboxId}');
 		expect(dataGridFilterMenuSource).toContain('aria-controls={filterItemId}');
 		expect(dataGridFilterMenuSource).toContain('const FILTER_DEBOUNCE_MS = 300');
 		expect(dataGridFilterMenuSource).toContain('FILTER_DEBOUNCE_MS');
@@ -1495,6 +1499,7 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('formatDate(calendarDateToISO(calendarValue)');
 		expect(dataGridFilterMenuSource).toContain('DataGridRangeCalendar');
 		expect(dataGridFilterMenuSource).toContain('Pick a range');
+		expect(dataGridFilterMenuSource).toContain('captionLayout="dropdown"');
 	});
 
 	it('should use the original date placeholder for date filters', async () => {
@@ -1506,6 +1511,13 @@ describe('/+page.svelte', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Pick a date', exact: true }))
 			.toBeInTheDocument();
+		const dateTrigger = await waitFor(() =>
+			page.getByRole('button', { name: 'Pick a date', exact: true }).element()
+		);
+		const listboxId = dateTrigger.getAttribute('aria-controls');
+
+		expect(dateTrigger.id).toBe(`${filterItem.id}-input`);
+		expect(listboxId).toBe(`${filterItem.id}-input-listbox`);
 		expect(filterItem.textContent).toContain('Pick a date');
 		expect(filterItem.textContent).not.toContain('Select date');
 	});
@@ -1519,6 +1531,13 @@ describe('/+page.svelte', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Pick a range', exact: true }))
 			.toBeInTheDocument();
+		const rangeTrigger = await waitFor(() =>
+			page.getByRole('button', { name: 'Pick a range', exact: true }).element()
+		);
+		const listboxId = rangeTrigger.getAttribute('aria-controls');
+
+		expect(rangeTrigger.id).toBe(`${filterItem.id}-input`);
+		expect(listboxId).toBe(`${filterItem.id}-input-listbox`);
 		expect(filterItem.textContent).toContain('Pick a range');
 		const buttonLabels = Array.from(filterItem.querySelectorAll('button')).map((button) =>
 			button.textContent?.trim()
@@ -1537,6 +1556,13 @@ describe('/+page.svelte', () => {
 		await expect
 			.element(page.getByRole('button', { name: 'Value', exact: true }))
 			.toBeInTheDocument();
+		const valueTrigger = await waitFor(() =>
+			page.getByRole('button', { name: 'Value', exact: true }).element()
+		);
+		const listboxId = valueTrigger.getAttribute('aria-controls');
+
+		expect(valueTrigger.id).toBe(`${filterItem.id}-input`);
+		expect(listboxId).toBe(`${filterItem.id}-input-listbox`);
 		expect(filterItem.textContent).toContain('Value');
 		expect(filterItem.textContent).not.toContain('Select value');
 		expect(filterItem.textContent).not.toContain('Select values');

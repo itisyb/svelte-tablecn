@@ -345,6 +345,8 @@
 					{@const fieldListboxId = `${filterItemId}-field-listbox`}
 					{@const fieldTriggerId = `${filterItemId}-field-trigger`}
 					{@const operatorListboxId = `${filterItemId}-operator-listbox`}
+					{@const valueInputId = `${filterItemId}-input`}
+					{@const valueListboxId = `${valueInputId}-listbox`}
 					{@const variant = columnVariants.get(filter.id) ?? 'short-text'}
 					{@const filterValue = filter.value as FilterValue | undefined}
 					{@const operator = filterValue?.operator ?? getDefaultOperator(variant)}
@@ -474,6 +476,7 @@
 									{#if operator === 'isBetween'}
 										<div class="flex gap-2">
 											<Input
+												id={valueInputId}
 												type="number"
 												inputmode="numeric"
 												placeholder="Start"
@@ -492,6 +495,7 @@
 												class="h-8 w-full flex-1 rounded"
 											/>
 											<Input
+												id={`${valueInputId}-end`}
 												type="number"
 												inputmode="numeric"
 												placeholder="End"
@@ -512,6 +516,7 @@
 										</div>
 									{:else}
 										<Input
+											id={valueInputId}
 											type="number"
 											inputmode="numeric"
 											placeholder="Value"
@@ -543,6 +548,9 @@
 												{#snippet child({ props })}
 													<Button
 														{...props}
+														id={valueInputId}
+														aria-controls={valueListboxId}
+														{dir}
 														variant="outline"
 														size="sm"
 														class={cn(
@@ -557,7 +565,7 @@
 													</Button>
 												{/snippet}
 											</PopoverTrigger>
-											<PopoverContent align="start" class="w-auto p-0">
+											<PopoverContent id={valueListboxId} {dir} align="start" class="w-auto p-0">
 												<DataGridRangeCalendar
 													value={{
 														start: calendarValue,
@@ -582,6 +590,9 @@
 												{#snippet child({ props })}
 													<Button
 														{...props}
+														id={valueInputId}
+														aria-controls={valueListboxId}
+														{dir}
 														variant="outline"
 														size="sm"
 														class={cn(
@@ -602,9 +613,10 @@
 													</Button>
 												{/snippet}
 											</PopoverTrigger>
-											<PopoverContent align="start" class="w-auto p-0">
+											<PopoverContent id={valueListboxId} {dir} align="start" class="w-auto p-0">
 												<Calendar
 													type="single"
+													captionLayout="dropdown"
 													value={calendarValue}
 													onValueChange={(date: DateValue | undefined) => {
 														const newValue = calendarDateToISO(date);
@@ -634,6 +646,9 @@
 												{#snippet child({ props })}
 													<Button
 														{...props}
+														id={valueInputId}
+														aria-controls={valueListboxId}
+														{dir}
 														variant="outline"
 														size="sm"
 														class="h-8 w-full justify-start rounded font-normal"
@@ -662,7 +677,7 @@
 													</Button>
 												{/snippet}
 											</PopoverTrigger>
-											<PopoverContent align="start" class="w-48 p-0">
+											<PopoverContent id={valueListboxId} {dir} align="start" class="w-48 p-0">
 												<Command>
 													<CommandInput placeholder="Search options..." />
 													<CommandList>
@@ -714,6 +729,9 @@
 												{#snippet child({ props })}
 													<Button
 														{...props}
+														id={valueInputId}
+														aria-controls={valueListboxId}
+														{dir}
 														variant="outline"
 														size="sm"
 														class="h-8 w-full justify-start rounded font-normal"
@@ -730,7 +748,7 @@
 													</Button>
 												{/snippet}
 											</PopoverTrigger>
-											<PopoverContent align="start" class="w-[200px] p-0">
+											<PopoverContent id={valueListboxId} {dir} align="start" class="w-[200px] p-0">
 												<Command>
 													<CommandInput placeholder="Search options..." />
 													<CommandList>
@@ -777,6 +795,7 @@
 									{/if}
 								{:else}
 									<Input
+										id={valueInputId}
 										type="text"
 										placeholder="Value"
 										class="h-8 w-full rounded"
@@ -787,7 +806,13 @@
 									/>
 								{/if}
 							{:else}
-								<div class="h-8 w-full rounded border bg-transparent dark:bg-input/30"></div>
+								<div
+									id={valueInputId}
+									role="status"
+									aria-label={`${columnLabels.get(filter.id)} filter is empty`}
+									aria-live="polite"
+									class="h-8 w-full rounded border bg-transparent dark:bg-input/30"
+								></div>
 							{/if}
 						</div>
 						<Button
