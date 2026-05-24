@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join, normalize } from 'node:path';
 import type { Row } from '@tanstack/table-core';
 import { describe, expect, it } from 'vitest';
 import {
@@ -252,7 +253,7 @@ describe('data-table registry items', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{
 				name: string;
-				files?: Array<{ target: string }>;
+				files?: Array<{ path: string; target: string }>;
 			}>;
 		};
 		const item = registry.items.find((registryItem) => registryItem.name === name);
@@ -274,7 +275,69 @@ describe('data-table registry items', () => {
 
 			expect(targets.has('data-table-range-utils.ts')).toBe(true);
 			expect(targets.has('types/data-grid.ts')).toBe(true);
+			expect(targets.has('data-table/data-table-view-options.svelte')).toBe(true);
 		}
+	});
+
+	it('ships local files referenced by registry item imports', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				files?: Array<{ path: string; target: string }>;
+			}>;
+		};
+		const sourceToTarget = new Map<string, string>();
+		for (const item of registry.items) {
+			for (const file of item.files ?? []) {
+				sourceToTarget.set(normalize(file.path), file.target);
+			}
+		}
+
+		function resolveSource(from: string, specifier: string) {
+			const base = specifier.startsWith('$lib/')
+				? normalize(specifier.replace(/^\$lib\//, 'src/lib/'))
+				: specifier.startsWith('.')
+					? normalize(join(dirname(from), specifier))
+					: undefined;
+
+			if (!base) return undefined;
+
+			return [base, `${base}.ts`, `${base}.svelte`, `${base}.svelte.ts`, `${base}/index.ts`].find(
+				(candidate) => existsSync(candidate)
+			);
+		}
+
+		const missing: string[] = [];
+		const importPattern = /(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?from\s+)?['"]([^'"]+)['"]/g;
+
+		for (const item of registry.items) {
+			const targets = new Set(item.files?.map((file) => file.target));
+			for (const file of item.files ?? []) {
+				if (!existsSync(file.path)) continue;
+
+				const content = readFileSync(file.path, 'utf8');
+				for (const match of content.matchAll(importPattern)) {
+					const specifier = match[1];
+					if (
+						!specifier ||
+						specifier === '$lib/utils.js' ||
+						specifier === '$lib/utils' ||
+						specifier.startsWith('$lib/components/ui/') ||
+						specifier.startsWith('$lib/table')
+					) {
+						continue;
+					}
+
+					const source = resolveSource(file.path, specifier);
+					const target = source ? sourceToTarget.get(normalize(source)) : undefined;
+					if (target && !targets.has(target)) {
+						missing.push(`${item.name}: ${file.target} imports ${specifier} without ${target}`);
+					}
+				}
+			}
+		}
+
+		expect(missing).toEqual([]);
 	});
 });
 

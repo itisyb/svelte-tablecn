@@ -526,6 +526,11 @@
 					"target": "data-table/data-table-advanced-toolbar.svelte"
 				},
 				{
+					"path": "src/lib/components/data-table/data-table-view-options.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-view-options.svelte"
+				},
+				{
 					"path": "src/lib/hooks/use-debounced-callback.ts",
 					"type": "registry:hook",
 					"target": "use-debounced-callback.ts"
@@ -598,6 +603,11 @@
 					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",
 					"type": "registry:component",
 					"target": "data-table/data-table-advanced-toolbar.svelte"
+				},
+				{
+					"path": "src/lib/components/data-table/data-table-view-options.svelte",
+					"type": "registry:component",
+					"target": "data-table/data-table-view-options.svelte"
 				},
 				{
 					"path": "src/lib/hooks/use-debounced-callback.ts",
