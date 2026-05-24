@@ -79,6 +79,11 @@
 					"target": "data-grid/data-grid-keyboard-shortcuts.svelte"
 				},
 				{
+					"path": "src/lib/components/data-grid/data-grid-action-bar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-action-bar.svelte"
+				},
+				{
 					"path": "src/lib/components/data-grid/data-grid-paste-dialog.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-paste-dialog.svelte"
@@ -242,6 +247,46 @@
 					"path": "src/lib/components/ui/data-table/index.ts",
 					"type": "registry:ui",
 					"target": "data-table/index.ts"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-selection.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-selection.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-group.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-group.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-item.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-item.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-close.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-close.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-separator.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-separator.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-context.ts",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-context.ts"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/index.ts",
+					"type": "registry:ui",
+					"target": "action-bar/index.ts"
 				},
 				{
 					"path": "src/lib/table/index.ts",

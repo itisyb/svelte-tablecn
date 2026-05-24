@@ -30,7 +30,7 @@
 	type="button"
 	data-slot="action-bar-close"
 	class={cn(
-		'rounded-xs opacity-70 outline-none hover:opacity-100 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none [&_svg:not([class*=\'size-\'])]:size-3.5 [&_svg]:pointer-events-none [&_svg]:shrink-0',
+		"rounded-xs opacity-70 outline-none hover:opacity-100 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none [&_svg:not([class*='size-'])]:size-3.5 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 		className
 	)}
 	onclick={handleClick}

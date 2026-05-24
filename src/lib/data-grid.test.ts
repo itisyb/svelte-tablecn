@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import type { Row } from '@tanstack/table-core';
 import { describe, expect, it } from 'vitest';
 import {
@@ -209,6 +210,24 @@ describe('getDataGridSelectColumn', () => {
 			hitboxSize: 'default',
 			debug: false
 		});
+	});
+});
+
+describe('data-grid registry item', () => {
+	it('ships the exported action bar component and local primitive', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const dataGrid = registry.items.find((item) => item.name === 'data-grid');
+		const targets = new Set(dataGrid?.files?.map((file) => file.target));
+
+		expect(targets.has('data-grid/data-grid-action-bar.svelte')).toBe(true);
+		expect(targets.has('action-bar/index.ts')).toBe(true);
+		expect(targets.has('action-bar/action-bar.svelte')).toBe(true);
+		expect(targets.has('action-bar/action-bar-item.svelte')).toBe(true);
 	});
 });
 
