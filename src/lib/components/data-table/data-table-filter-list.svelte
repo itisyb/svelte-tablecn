@@ -414,7 +414,7 @@
 							</SelectContent>
 						</Select>
 
-						<div class={cn('flex-1', variant === 'range' ? 'min-w-52' : 'min-w-36')}>
+						<div class="min-w-36 max-w-60 flex-1">
 							{#if needsValue}
 								{#if variant === 'range' || (variant === 'number' && operator === 'isBetween')}
 									<DataTableRangeFilter

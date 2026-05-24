@@ -57,6 +57,7 @@ import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 import dataTableFacetedFilterSource from '$lib/components/data-table/data-table-faceted-filter.svelte?raw';
+import dataTableFilterListSource from '$lib/components/data-table/data-table-filter-list.svelte?raw';
 import dataTableFilterMenuSource from '$lib/components/data-table/data-table-filter-menu.svelte?raw';
 import dataTableViewOptionsSource from '$lib/components/data-table/data-table-view-options.svelte?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
@@ -1346,6 +1347,13 @@ describe('/+page.svelte', () => {
 		);
 		expect(dataTableFilterMenuSource).not.toContain(
 			'h-8 rounded-none border-l-0 px-2.5 data-size:h-8 [&_svg]:hidden'
+		);
+	});
+
+	it('should keep data table filter list value column bounded like the original table', () => {
+		expect(dataTableFilterListSource).toContain('min-w-36 max-w-60 flex-1');
+		expect(dataTableFilterListSource).not.toContain(
+			"variant === 'range' ? 'min-w-52' : 'min-w-36'"
 		);
 	});
 
