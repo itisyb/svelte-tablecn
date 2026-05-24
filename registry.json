@@ -400,6 +400,11 @@
 					"target": "data-table/data-table-date-filter.svelte"
 				},
 				{
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-range-calendar.svelte"
+				},
+				{
 					"path": "src/lib/components/data-table/data-table-range-filter.svelte",
 					"type": "registry:component",
 					"target": "data-table/data-table-range-filter.svelte"

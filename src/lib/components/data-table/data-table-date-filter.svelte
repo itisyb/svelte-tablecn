@@ -7,6 +7,7 @@
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { formatDate } from '$lib/format.js';
+	import DataGridRangeCalendar from '$lib/components/data-grid/data-grid-range-calendar.svelte';
 
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import XCircle from '@lucide/svelte/icons/x-circle';
@@ -83,18 +84,15 @@
 		updateSingle(value ? calendarDateToTimestamp(value) : undefined);
 	}
 
-	function onRangeDateChange(index: number, value: DateValue | undefined) {
-		updateRange(index, value ? calendarDateToTimestamp(value) : undefined);
+	function onRangeCalendarChange(range: { start?: DateValue; end?: DateValue }) {
+		const nextValue = [range.start, range.end].map((value) =>
+			value ? calendarDateToTimestamp(value) : undefined
+		);
+		resolvedColumn?.setFilterValue(nextValue.some((item) => item !== undefined) ? nextValue : undefined);
 	}
 
 	function updateSingle(value: number | undefined) {
 		resolvedColumn?.setFilterValue(value);
-	}
-
-	function updateRange(index: number, value: number | undefined) {
-		const nextValue: Array<string | number | undefined> = [...values];
-		nextValue[index] = value;
-		resolvedColumn?.setFilterValue(nextValue.some((item) => item !== undefined) ? nextValue : undefined);
 	}
 
 	function onReset(event: MouseEvent) {
@@ -139,22 +137,11 @@
 	</PopoverTrigger>
 	<PopoverContent align="start" class="w-auto p-0">
 		{#if multiple}
-			<div class="grid sm:grid-cols-2">
-				<div>
-					<CalendarPicker
-						type="single"
-						value={toCalendarDate(values[0])}
-						onValueChange={(value: DateValue | undefined) => onRangeDateChange(0, value)}
-					/>
-				</div>
-				<div>
-					<CalendarPicker
-						type="single"
-						value={toCalendarDate(values[1])}
-						onValueChange={(value: DateValue | undefined) => onRangeDateChange(1, value)}
-					/>
-				</div>
-			</div>
+			<DataGridRangeCalendar
+				value={{ start: toCalendarDate(values[0]), end: toCalendarDate(values[1]) }}
+				onValueChange={onRangeCalendarChange}
+				captionLayout="dropdown"
+			/>
 		{:else}
 			<CalendarPicker
 				type="single"

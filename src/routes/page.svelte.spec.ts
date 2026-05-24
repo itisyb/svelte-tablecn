@@ -1670,7 +1670,11 @@ describe('/+page.svelte', () => {
 		expect(dataTableDateFilterSource).toContain('.getTime()');
 		expect(dataTableDateFilterSource).toContain('.map((value) => formatDate(value))');
 		expect(dataTableDateFilterSource).toContain('.some((item) => item !== undefined)');
+		expect(dataTableDateFilterSource).toContain('DataGridRangeCalendar');
+		expect(dataTableDateFilterSource).toContain('onValueChange={onRangeCalendarChange}');
+		expect(dataTableDateFilterSource).toContain('captionLayout="dropdown"');
 		expect(dataTableDateFilterSource).not.toContain('class="w-72 space-y-3"');
+		expect(dataTableDateFilterSource).not.toContain('class="grid sm:grid-cols-2"');
 		expect(dataTableDateFilterSource).not.toContain('>Date</span>');
 		expect(dataTableDateFilterSource).not.toContain('>From</span>');
 		expect(dataTableDateFilterSource).not.toContain('>To</span>');
