@@ -32,7 +32,6 @@
 	import { formatDate } from '$lib/format.js';
 
 	import Check from '@lucide/svelte/icons/check';
-	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import FilterIcon from '@lucide/svelte/icons/list-filter';
 	import Text from '@lucide/svelte/icons/text';
 	import X from '@lucide/svelte/icons/x';
@@ -395,7 +394,6 @@
 								<Icon class="size-3.5 text-muted-foreground" />
 							{/if}
 							<span class="max-w-28 truncate">{filterColumn?.label ?? filter.id}</span>
-							<ChevronsUpDown class="opacity-50" />
 						</Button>
 					{/snippet}
 				</PopoverTrigger>

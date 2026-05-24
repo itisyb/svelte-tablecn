@@ -1602,6 +1602,7 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).toContain(
 			'class="h-full min-w-16 rounded-none border px-1.5 font-normal dark:bg-input/30"'
 		);
+		expect(dataTableFilterMenuSource).not.toContain('ChevronsUpDown');
 		expect(dataTableFilterMenuSource).not.toContain(
 			'rounded-none border-l-0 px-2.5 lowercase'
 		);
