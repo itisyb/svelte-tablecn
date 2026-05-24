@@ -1165,6 +1165,19 @@ describe('/+page.svelte', () => {
 		expect(persistedSelection).toBeTruthy();
 	});
 
+	it('should open column header menus as non-modal like the original grid', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		await waitFor(() => document.querySelector('[data-slot="grid-row"][data-index="0"]'));
+		await page.getByRole('button', { name: 'Name', exact: true }).click();
+
+		await waitFor(() => document.querySelector('[data-slot="dropdown-menu-content"]'));
+
+		expect(getComputedStyle(document.body).pointerEvents).not.toBe('none');
+		expect(document.querySelector('[data-slot="grid"]')?.hasAttribute('inert')).toBe(false);
+	});
+
 	it('should rove action bar focus with arrow keys like the original grid', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();

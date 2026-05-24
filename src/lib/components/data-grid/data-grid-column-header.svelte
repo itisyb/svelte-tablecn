@@ -235,7 +235,7 @@
 		<!-- Right side: chevron -->
 		<ChevronDown class="shrink-0 text-muted-foreground" />
 	</DropdownMenuTrigger>
-	<DropdownMenuContent align="start" sideOffset={0} class="w-60">
+	<DropdownMenuContent align="start" sideOffset={0} preventScroll={false} class="w-60">
 		{#if column.getCanSort()}
 			<DropdownMenuCheckboxItem
 				class="relative ltr:pr-8 ltr:pl-2 rtl:pr-2 rtl:pl-8 [&>span:first-child]:ltr:right-2 [&>span:first-child]:ltr:left-auto [&>span:first-child]:rtl:right-auto [&>span:first-child]:rtl:left-2 [&_svg]:text-muted-foreground"
