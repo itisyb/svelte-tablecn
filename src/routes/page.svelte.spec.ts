@@ -1532,6 +1532,11 @@ describe('/+page.svelte', () => {
 		expect(dataTableDateFilterSource).toContain('data-[orientation=vertical]:h-4');
 		expect(dataTableDateFilterSource).toContain("join(' - ')");
 		expect(dataTableDateFilterSource).toContain('class="w-auto p-0"');
+		expect(dataTableDateFilterSource).toContain('resolvedColumn?.getFilterValue()');
+		expect(dataTableDateFilterSource).toContain('function calendarDateToTimestamp');
+		expect(dataTableDateFilterSource).toContain('.getTime()');
+		expect(dataTableDateFilterSource).toContain('.map((value) => formatDate(value))');
+		expect(dataTableDateFilterSource).toContain('.some((item) => item !== undefined)');
 		expect(dataTableDateFilterSource).not.toContain('class="w-72 space-y-3"');
 		expect(dataTableDateFilterSource).not.toContain('>Date</span>');
 		expect(dataTableDateFilterSource).not.toContain('>From</span>');
