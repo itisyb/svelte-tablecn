@@ -1313,6 +1313,13 @@ describe('/+page.svelte', () => {
 		expect(dataGridRowSource).toContain('style: styleProp');
 	});
 
+	it('should keep data grid row content visibility styling aligned with the original grid', () => {
+		expect(dataGridRowSource).toContain(
+			"'absolute flex w-full border-b [content-visibility:auto]'"
+		);
+		expect(dataGridRowSource).toContain('content-visibility: auto;');
+	});
+
 	it('should forward data grid cell wrapper props like the original grid wrapper', () => {
 		expect(dataGridCellWrapperSource).toContain(
 			"interface Props extends WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement>"

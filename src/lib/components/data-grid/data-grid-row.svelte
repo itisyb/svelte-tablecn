@@ -124,7 +124,11 @@
 	{...restProps}
 	bind:this={getRowElement, setRowElement}
 	{dir}
-	class={cn('absolute flex w-full border-b', !adjustLayout && 'will-change-transform', className)}
+	class={cn(
+		'absolute flex w-full border-b [content-visibility:auto]',
+		!adjustLayout && 'will-change-transform',
+		className
+	)}
 	style={rowStyle}
 >
 	{#each visibleCells as cell, colIndex (cell.id)}
