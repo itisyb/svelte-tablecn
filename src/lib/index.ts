@@ -55,6 +55,7 @@ export {
 export { getColumnPinningStyle } from './data-table';
 export { formatDate } from './format';
 export { generateId } from './id';
+export { getAbsoluteUrl } from './utils';
 export { getSortingStateParser, getFiltersStateParser, type FilterItemSchema } from './parsers';
 
 // Data Table

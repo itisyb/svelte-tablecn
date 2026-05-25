@@ -121,6 +121,7 @@ import toggleGroupSource from '$lib/components/ui/toggle-group/toggle-group.svel
 import toggleGroupItemSource from '$lib/components/ui/toggle-group/toggle-group-item.svelte?raw';
 import tooltipProviderSource from '$lib/components/ui/tooltip/tooltip-provider.svelte?raw';
 import dataGridSource from '$lib/components/data-grid/data-grid.svelte?raw';
+import utilsSource from '$lib/utils.ts?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -1689,6 +1690,15 @@ describe('/+page.svelte', () => {
 	it('should export table footer from the package root like the original table primitive', () => {
 		expect(libIndexSource).toContain('TableFooter');
 		expect(libIndexSource).toContain("} from './components/ui/table';");
+	});
+
+	it('should expose the original absolute URL utility', () => {
+		expect(libIndexSource).toContain("export { getAbsoluteUrl } from './utils';");
+		expect(utilsSource).toContain('export function getAbsoluteUrl(path: string)');
+		expect(utilsSource).toContain('path.startsWith("/") ? path : `/${path}`');
+		expect(utilsSource).toContain('typeof window !== "undefined"');
+		expect(utilsSource).toContain('process.env.VERCEL_URL');
+		expect(utilsSource).toContain('process.env.PORT ?? 3000');
 	});
 
 	it('should expose the original ui label primitive styling', () => {
