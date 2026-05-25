@@ -31,12 +31,12 @@ The biggest remaining gaps versus upstream React `tablecn` are:
    - `drawer`
    - `form`
    - `sortable`
-3. a final export/registry audit for newly completed parity surfaces
+3. a final documentation audit against newly completed parity surfaces
 4. documentation examples that still need to be checked against the current public API
 
 ## Recommended Starting Point
 
-Start with shortcut verification and the export/docs audit, then evaluate the missing primitive ports one at a time.
+Start with the remaining shortcut and documentation audits, then evaluate the missing primitive ports one at a time.
 
 Why this first:
 
@@ -51,9 +51,8 @@ Why this first:
 ### Phase 1: Finish Data Grid Parity
 
 1. Verify keyboard shortcuts against the shipped hook behavior
-2. Verify public API exports stay aligned
-3. Update keyboard shortcuts UI if behavior changes
-4. Align docs and registry with the actual shipped grid surface
+2. Update keyboard shortcuts UI if behavior changes
+3. Align docs with the actual shipped grid surface
 
 ### Phase 2: Validate and Tighten Grid API
 
@@ -62,7 +61,7 @@ Why this first:
 3. Add focused tests for:
    - selection plus edit history interactions
    - public select-column helper behavior
-   - public package exports and registry entries
+   - public package exports and registry entries (covered for data-grid)
 
 ### Phase 3: Close Missing UI Primitive Gaps
 
@@ -109,7 +108,6 @@ Why this first:
 Ship this small, clean milestone next:
 
 1. finish shortcut verification beyond undo/redo and global Escape paths
-2. package export and registry confirmation
-3. README correction or confirmation
+2. README correction or confirmation
 
 That gives the fastest path to a real parity improvement before opening larger dependency decisions for `drawer`, `form`, or `sortable`.

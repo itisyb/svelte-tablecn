@@ -32,10 +32,41 @@ import {
 import { getDataGridSelectColumn } from './components/data-grid/data-grid-select-column.js';
 import { RenderComponentConfig } from './table/index.js';
 import {
+	DataGrid as ComponentDataGrid,
+	DataGridActionBar as ComponentDataGridActionBar,
+	DataGridFilterMenu as ComponentDataGridFilterMenu,
+	DataGridKeyboardShortcuts as ComponentDataGridKeyboardShortcuts,
+	DataGridRowHeightMenu as ComponentDataGridRowHeightMenu,
+	DataGridSkeleton as ComponentDataGridSkeleton,
+	DataGridSkeletonGrid as ComponentDataGridSkeletonGrid,
+	DataGridSkeletonToolbar as ComponentDataGridSkeletonToolbar,
+	DataGridSortMenu as ComponentDataGridSortMenu,
+	DataGridViewMenu as ComponentDataGridViewMenu,
+	FileCell as ComponentFileCell,
+	RowSelectCell as ComponentRowSelectCell,
+	RowSelectHeader as ComponentRowSelectHeader,
+	getDataGridSelectColumn as getComponentDataGridSelectColumn,
+	useDataGrid as useComponentDataGrid,
+	useDataGridUndoRedo as useComponentDataGridUndoRedo
+} from './components/data-grid/index.js';
+import {
 	BOOLEAN_FILTER_OPERATORS as ROOT_BOOLEAN_FILTER_OPERATORS,
+	DataGrid as RootDataGrid,
+	DataGridActionBar as RootDataGridActionBar,
+	DataGridFilterMenu as RootDataGridFilterMenu,
+	DataGridKeyboardShortcuts as RootDataGridKeyboardShortcuts,
+	DataGridRowHeightMenu as RootDataGridRowHeightMenu,
+	DataGridSkeleton as RootDataGridSkeleton,
+	DataGridSkeletonGrid as RootDataGridSkeletonGrid,
+	DataGridSkeletonToolbar as RootDataGridSkeletonToolbar,
+	DataGridSortMenu as RootDataGridSortMenu,
+	DataGridViewMenu as RootDataGridViewMenu,
 	DATE_FILTER_OPERATORS as ROOT_DATE_FILTER_OPERATORS,
+	FileCell as RootFileCell,
 	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
 	OVERSCAN as ROOT_OVERSCAN,
+	RowSelectCell as RootRowSelectCell,
+	RowSelectHeader as RootRowSelectHeader,
 	SELECT_FILTER_OPERATORS as ROOT_SELECT_FILTER_OPERATORS,
 	TEXT_FILTER_OPERATORS as ROOT_TEXT_FILTER_OPERATORS,
 	formatDateForDisplay as rootFormatDateForDisplay,
@@ -47,7 +78,10 @@ import {
 	getFilterFn as getRootFilterFn,
 	getOperatorsForVariant as getRootOperatorsForVariant,
 	getUrlHref as getRootUrlHref,
-	parseLocalDate as rootParseLocalDate
+	getDataGridSelectColumn as getRootDataGridSelectColumn,
+	parseLocalDate as rootParseLocalDate,
+	useDataGrid as useRootDataGrid,
+	useDataGridUndoRedo as useRootDataGridUndoRedo
 } from './index.js';
 import { OVERSCAN } from './config/data-grid.js';
 
@@ -307,6 +341,27 @@ describe('getDataGridSelectColumn', () => {
 	});
 });
 
+describe('package root data-grid component exports', () => {
+	it('exposes the shipped data-grid surface from the package root', () => {
+		expect(RootDataGrid).toBe(ComponentDataGrid);
+		expect(RootDataGridActionBar).toBe(ComponentDataGridActionBar);
+		expect(RootDataGridFilterMenu).toBe(ComponentDataGridFilterMenu);
+		expect(RootDataGridKeyboardShortcuts).toBe(ComponentDataGridKeyboardShortcuts);
+		expect(RootDataGridRowHeightMenu).toBe(ComponentDataGridRowHeightMenu);
+		expect(RootDataGridSkeleton).toBe(ComponentDataGridSkeleton);
+		expect(RootDataGridSkeletonGrid).toBe(ComponentDataGridSkeletonGrid);
+		expect(RootDataGridSkeletonToolbar).toBe(ComponentDataGridSkeletonToolbar);
+		expect(RootDataGridSortMenu).toBe(ComponentDataGridSortMenu);
+		expect(RootDataGridViewMenu).toBe(ComponentDataGridViewMenu);
+		expect(RootFileCell).toBe(ComponentFileCell);
+		expect(RootRowSelectCell).toBe(ComponentRowSelectCell);
+		expect(RootRowSelectHeader).toBe(ComponentRowSelectHeader);
+		expect(getRootDataGridSelectColumn).toBe(getComponentDataGridSelectColumn);
+		expect(useRootDataGrid).toBe(useComponentDataGrid);
+		expect(useRootDataGridUndoRedo).toBe(useComponentDataGridUndoRedo);
+	});
+});
+
 describe('data-grid registry item', () => {
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
@@ -323,6 +378,22 @@ describe('data-grid registry item', () => {
 		expect(targets.has('action-bar/index.ts')).toBe(true);
 		expect(targets.has('action-bar/action-bar.svelte')).toBe(true);
 		expect(targets.has('action-bar/action-bar-item.svelte')).toBe(true);
+	});
+
+	it('ships standalone registry slices for the public data-grid helpers', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{ name: string }>;
+		};
+		const itemNames = new Set(registry.items.map((item) => item.name));
+
+		expect(itemNames.has('data-grid-select-column')).toBe(true);
+		expect(itemNames.has('data-grid-sort-menu')).toBe(true);
+		expect(itemNames.has('data-grid-row-height-menu')).toBe(true);
+		expect(itemNames.has('data-grid-view-menu')).toBe(true);
+		expect(itemNames.has('data-grid-keyboard-shortcuts')).toBe(true);
+		expect(itemNames.has('data-grid-filter-menu')).toBe(true);
+		expect(itemNames.has('data-grid-skeleton')).toBe(true);
+		expect(itemNames.has('use-data-grid-undo-redo')).toBe(true);
 	});
 });
 

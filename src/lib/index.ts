@@ -104,7 +104,9 @@ export {
 	MultiSelectCell,
 	DateCell,
 	UrlCell,
-	FileCell
+	FileCell,
+	RowSelectCell,
+	RowSelectHeader
 } from './components/data-grid/cells';
 
 // UI Components
