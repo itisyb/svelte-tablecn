@@ -121,6 +121,7 @@ import labelSource from '$lib/components/ui/label/label.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import selectContentSource from '$lib/components/ui/select/select-content.svelte?raw';
 import selectGroupSource from '$lib/components/ui/select/select-group.svelte?raw';
+import selectItemSource from '$lib/components/ui/select/select-item.svelte?raw';
 import selectTriggerSource from '$lib/components/ui/select/select-trigger.svelte?raw';
 import sheetContentSource from '$lib/components/ui/sheet/sheet-content.svelte?raw';
 import sheetHeaderSource from '$lib/components/ui/sheet/sheet-header.svelte?raw';
@@ -1757,6 +1758,13 @@ describe('/+page.svelte', () => {
 		expect(dropdownMenuRadioItemSource).toContain('data-highlighted:text-accent-foreground');
 		expect(dropdownMenuRadioItemSource).toContain('focus:bg-accent');
 		expect(dropdownMenuSubTriggerSource).toContain('focus:bg-accent');
+	});
+
+	it('should keep select item focus styling aligned with the original ui select', () => {
+		expect(selectItemSource).toContain('data-[highlighted]:bg-accent');
+		expect(selectItemSource).toContain('data-[highlighted]:text-accent-foreground');
+		expect(selectItemSource).toContain('focus:bg-accent');
+		expect(selectItemSource).toContain('focus:text-accent-foreground');
 	});
 
 	it('should keep command input padding aligned with the original ui command', () => {
