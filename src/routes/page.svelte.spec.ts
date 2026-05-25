@@ -1251,6 +1251,53 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('second name')).toHaveTextContent('Linus');
 	});
 
+	it('should undo expanded paste values and then added rows like the original grid hook', async () => {
+		await render(DataGridPasteDelayedRowsFixture);
+
+		Object.defineProperty(navigator, 'clipboard', {
+			value: {
+				readText: async () => 'Grace\nLinus'
+			},
+			configurable: true
+		});
+
+		const firstCell = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]')
+		);
+		firstCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		firstCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		firstCell.click();
+		await waitFor(() => firstCell.hasAttribute('data-focused'));
+
+		await page.getByRole('button', { name: 'Paste from clipboard' }).click();
+		await page.getByRole('button', { name: 'Continue' }).click();
+
+		await expect.element(page.getByLabelText('row count')).toHaveTextContent('2');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Grace');
+		await expect.element(page.getByLabelText('second name')).toHaveTextContent('Linus');
+		await expect.element(page.getByLabelText('can undo')).toHaveTextContent('yes');
+
+		await page.getByRole('button', { name: 'Undo' }).click();
+		await expect.element(page.getByLabelText('row count')).toHaveTextContent('2');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+		expect((page.getByLabelText('second name').element() as HTMLElement).textContent).toBe('');
+		await expect.element(page.getByLabelText('can redo')).toHaveTextContent('yes');
+
+		await page.getByRole('button', { name: 'Undo' }).click();
+		await expect.element(page.getByLabelText('row count')).toHaveTextContent('1');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+
+		await page.getByRole('button', { name: 'Redo' }).click();
+		await expect.element(page.getByLabelText('row count')).toHaveTextContent('2');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+		expect((page.getByLabelText('second name').element() as HTMLElement).textContent).toBe('');
+
+		await page.getByRole('button', { name: 'Redo' }).click();
+		await expect.element(page.getByLabelText('row count')).toHaveTextContent('2');
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Grace');
+		await expect.element(page.getByLabelText('second name')).toHaveTextContent('Linus');
+	});
+
 	it('should clear selected cells when clicking outside the grid', async () => {
 		await render(DataGridOutsideSelectionFixture);
 

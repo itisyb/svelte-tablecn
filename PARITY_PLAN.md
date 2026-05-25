@@ -28,7 +28,6 @@ The biggest remaining gaps versus upstream React `tablecn` are:
 
 1. focused `use-data-grid-undo-redo` behavior hardening:
    - selection plus edit history interactions
-   - full-grid paste expansion with added rows plus undo/redo
 2. upstream UI primitives that are not shipped in the Svelte port yet:
    - `drawer`
    - `form`
@@ -42,7 +41,7 @@ Start with the remaining `use-data-grid-undo-redo` edge cases, then evaluate the
 
 Why this first:
 
-- the hook is shipped and the demo wiring tracks cells and rows, with focused edit and paste-batch undo coverage now in place
+- the hook is shipped and the demo wiring tracks cells and rows, with focused edit, paste-batch, and paste-expansion undo coverage now in place
 - it improves the existing `data-grid` directly
 - it is much smaller than the `data-table` surface
 - it reduces the biggest credibility gap before expanding scope
@@ -52,7 +51,7 @@ Why this first:
 
 ### Phase 1: Finish Data Grid Parity
 
-1. Add focused undo/redo behavior tests for selection history and paste expansion
+1. Add focused undo/redo behavior tests for selection history
 2. Verify keyboard shortcuts against the shipped hook behavior
 3. Verify public API exports stay aligned
 4. Update keyboard shortcuts UI if behavior changes
@@ -64,7 +63,6 @@ Why this first:
 2. Remove or correct unsupported README claims
 3. Add focused tests for:
    - selection plus edit history interactions
-   - full-grid paste expansion plus undo interactions
    - public select-column helper behavior
    - public package exports and registry entries
 
@@ -112,7 +110,7 @@ Why this first:
 
 Ship this small, clean milestone next:
 
-1. focused undo/redo tests for selection history and paste expansion
+1. focused undo/redo tests for selection history
 2. shortcut verification
 3. package export and registry confirmation
 4. README correction or confirmation
