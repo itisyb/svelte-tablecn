@@ -15,6 +15,7 @@ import SubTrigger from "./dropdown-menu-sub-trigger.svelte";
 import GroupHeading from "./dropdown-menu-group-heading.svelte";
 const Sub = DropdownMenuPrimitive.Sub;
 const Root = DropdownMenuPrimitive.Root;
+const Portal = DropdownMenuPrimitive.Portal;
 
 export {
 	CheckboxGroup,
@@ -34,12 +35,14 @@ export {
 	Sub as DropdownMenuSub,
 	SubContent as DropdownMenuSubContent,
 	SubTrigger as DropdownMenuSubTrigger,
+	Portal as DropdownMenuPortal,
 	Trigger as DropdownMenuTrigger,
 	GroupHeading as DropdownMenuGroupHeading,
 	Group,
 	GroupHeading,
 	Item,
 	Label,
+	Portal,
 	RadioGroup,
 	RadioItem,
 	Root,

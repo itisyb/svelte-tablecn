@@ -1665,6 +1665,7 @@ describe('/+page.svelte', () => {
 		expect(uiIndexSource).toContain('CommandDialog');
 		expect(uiIndexSource).toContain('DialogContent');
 		expect(uiIndexSource).toContain('DropdownMenuContent');
+		expect(uiIndexSource).toContain('DropdownMenuPortal');
 		expect(uiIndexSource).toContain("export { Kbd, KbdGroup } from './kbd';");
 		expect(uiIndexSource).toContain('PopoverContent');
 		expect(uiIndexSource).toContain("export { Toaster } from './sonner';");
@@ -1674,6 +1675,7 @@ describe('/+page.svelte', () => {
 		expect(libIndexSource).toContain('CommandDialog');
 		expect(libIndexSource).toContain('DialogContent');
 		expect(libIndexSource).toContain('DropdownMenuContent');
+		expect(libIndexSource).toContain('DropdownMenuPortal');
 		expect(libIndexSource).toContain("export { Kbd, KbdGroup } from './components/ui/kbd';");
 		expect(libIndexSource).toContain('PopoverContent');
 		expect(libIndexSource).toContain("export { Toaster } from './components/ui/sonner';");
