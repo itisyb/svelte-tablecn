@@ -55,6 +55,7 @@ import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import DrawerFixture from './drawer-fixture.svelte';
 import FpsDocumentFragmentFixture from './fps-document-fragment-fixture.svelte';
+import FormFixture from './form-fixture.svelte';
 import HooksFixture from './hooks-fixture.svelte';
 import PopoverAnchorFixture from './popover-anchor-fixture.svelte';
 import SheetFixture from './sheet-fixture.svelte';
@@ -140,6 +141,14 @@ import dropdownMenuSubTriggerSource from '$lib/components/ui/dropdown-menu/dropd
 import facetedBadgeListSource from '$lib/components/ui/faceted/faceted-badge-list.svelte?raw';
 import facetedContentSource from '$lib/components/ui/faceted/faceted-content.svelte?raw';
 import facetedItemSource from '$lib/components/ui/faceted/faceted-item.svelte?raw';
+import formContextSource from '$lib/components/ui/form/form-context.ts?raw';
+import formControlSource from '$lib/components/ui/form/form-control.svelte?raw';
+import formDescriptionSource from '$lib/components/ui/form/form-description.svelte?raw';
+import formFieldSource from '$lib/components/ui/form/form-field.svelte?raw';
+import formIndexSource from '$lib/components/ui/form/index.ts?raw';
+import formItemSource from '$lib/components/ui/form/form-item.svelte?raw';
+import formLabelSource from '$lib/components/ui/form/form-label.svelte?raw';
+import formMessageSource from '$lib/components/ui/form/form-message.svelte?raw';
 import fpsSource from '$lib/components/ui/fps/fps.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import labelSource from '$lib/components/ui/label/label.svelte?raw';
@@ -282,6 +291,26 @@ describe('/+page.svelte', () => {
 		expect(document.querySelector('[data-slot="drawer-footer"]')).toBeTruthy();
 		expect(document.querySelector('[data-slot="drawer-title"]')).toBeTruthy();
 		expect(document.querySelector('[data-slot="drawer-description"]')).toBeTruthy();
+	});
+
+	it('should render the original form primitive accessibility contract', async () => {
+		await render(FormFixture);
+
+		const label = document.querySelector<HTMLLabelElement>('[data-slot="form-label"]');
+		const input = document.querySelector<HTMLInputElement>('[data-slot="form-control"]');
+		const description = document.querySelector<HTMLElement>('[data-slot="form-description"]');
+		const message = document.querySelector<HTMLElement>('[data-slot="form-message"]');
+
+		expect(label?.getAttribute('for')).toBe('email-field-form-item');
+		expect(label?.dataset.error).toBe('true');
+		expect(input?.id).toBe('email-field-form-item');
+		expect(input?.getAttribute('aria-invalid')).toBe('true');
+		expect(input?.getAttribute('aria-describedby')).toBe(
+			'email-field-form-item-description email-field-form-item-message'
+		);
+		expect(description?.id).toBe('email-field-form-item-description');
+		expect(message?.id).toBe('email-field-form-item-message');
+		expect(message?.textContent).toBe('Email is required');
 	});
 
 	it('should only autofocus object targets with a column id like the original grid', async () => {
@@ -1986,6 +2015,27 @@ describe('/+page.svelte', () => {
 		expect(drawerFooterSource).toContain('data-slot="drawer-footer"');
 		expect(drawerTitleSource).toContain('data-slot="drawer-title"');
 		expect(drawerDescriptionSource).toContain('data-slot="drawer-description"');
+	});
+
+	it('should expose the original ui form primitive slots and aria helpers', () => {
+		expect(libIndexSource).toContain("} from './components/ui/form';");
+		expect(formIndexSource).toContain('FormField');
+		expect(formIndexSource).toContain('FormControl');
+		expect(formContextSource).toContain('formItemId: `${id}-form-item`');
+		expect(formContextSource).toContain('formDescriptionId: `${id}-form-item-description`');
+		expect(formContextSource).toContain('formMessageId: `${id}-form-item-message`');
+		expect(formFieldSource).toContain('setFormFieldContext');
+		expect(formItemSource).toContain('data-slot="form-item"');
+		expect(formItemSource).toContain('grid gap-2');
+		expect(formLabelSource).toContain('data-slot="form-label"');
+		expect(formLabelSource).toContain('data-[error=true]:text-destructive');
+		expect(formControlSource).toContain('"data-slot": "form-control"');
+		expect(formControlSource).toContain('"aria-describedby": describedBy');
+		expect(formControlSource).toContain('"aria-invalid": field.invalid');
+		expect(formDescriptionSource).toContain('data-slot="form-description"');
+		expect(formDescriptionSource).toContain('text-muted-foreground text-sm');
+		expect(formMessageSource).toContain('data-slot="form-message"');
+		expect(formMessageSource).toContain('text-destructive text-sm');
 	});
 
 	it('should expose remaining original lightweight ui primitives from the package root', () => {

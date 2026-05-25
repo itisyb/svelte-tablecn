@@ -69,6 +69,15 @@ import {
 	DrawerTrigger as ComponentDrawerTrigger
 } from './components/ui/drawer/index.js';
 import {
+	Form as ComponentForm,
+	FormControl as ComponentFormControl,
+	FormDescription as ComponentFormDescription,
+	FormField as ComponentFormField,
+	FormItem as ComponentFormItem,
+	FormLabel as ComponentFormLabel,
+	FormMessage as ComponentFormMessage
+} from './components/ui/form/index.js';
+import {
 	BOOLEAN_FILTER_OPERATORS as ROOT_BOOLEAN_FILTER_OPERATORS,
 	DataGrid as RootDataGrid,
 	DataGridActionBar as RootDataGridActionBar,
@@ -92,6 +101,13 @@ import {
 	DrawerTitle as RootDrawerTitle,
 	DrawerTrigger as RootDrawerTrigger,
 	FileCell as RootFileCell,
+	Form as RootForm,
+	FormControl as RootFormControl,
+	FormDescription as RootFormDescription,
+	FormField as RootFormField,
+	FormItem as RootFormItem,
+	FormLabel as RootFormLabel,
+	FormMessage as RootFormMessage,
 	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
 	OVERSCAN as ROOT_OVERSCAN,
 	RowSelectCell as RootRowSelectCell,
@@ -421,6 +437,18 @@ describe('package root drawer component exports', () => {
 	});
 });
 
+describe('package root form component exports', () => {
+	it('exposes the shipped form primitive from the package root', () => {
+		expect(RootForm).toBe(ComponentForm);
+		expect(RootFormControl).toBe(ComponentFormControl);
+		expect(RootFormDescription).toBe(ComponentFormDescription);
+		expect(RootFormField).toBe(ComponentFormField);
+		expect(RootFormItem).toBe(ComponentFormItem);
+		expect(RootFormLabel).toBe(ComponentFormLabel);
+		expect(RootFormMessage).toBe(ComponentFormMessage);
+	});
+});
+
 describe('data-grid registry item', () => {
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
@@ -455,6 +483,7 @@ describe('data-grid registry item', () => {
 		expect(itemNames.has('use-data-grid-undo-redo')).toBe(true);
 		expect(itemNames.has('sortable')).toBe(true);
 		expect(itemNames.has('drawer')).toBe(true);
+		expect(itemNames.has('form')).toBe(true);
 	});
 
 	it('ships a standalone sortable registry item', () => {
@@ -507,6 +536,35 @@ describe('data-grid registry item', () => {
 			'drawer/drawer-footer.svelte',
 			'drawer/drawer-title.svelte',
 			'drawer/drawer-description.svelte'
+		]) {
+			expect(targets.has(target)).toBe(true);
+		}
+	});
+
+	it('ships a standalone form registry item', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				dependencies?: string[];
+				registryDependencies?: string[];
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const form = registry.items.find((item) => item.name === 'form');
+		const targets = new Set(form?.files?.map((file) => file.target));
+
+		expect(form?.dependencies).toContain('bits-ui');
+		expect(form?.registryDependencies).toContain('label');
+		for (const target of [
+			'form/index.ts',
+			'form/form.svelte',
+			'form/form-context.ts',
+			'form/form-field.svelte',
+			'form/form-item.svelte',
+			'form/form-label.svelte',
+			'form/form-control.svelte',
+			'form/form-description.svelte',
+			'form/form-message.svelte'
 		]) {
 			expect(targets.has(target)).toBe(true);
 		}

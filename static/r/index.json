@@ -331,6 +331,23 @@
 		"relativeUrl": "drawer.json"
 	},
 	{
+		"name": "form",
+		"title": "Form",
+		"type": "registry:ui",
+		"description": "A Svelte form primitive that preserves the upstream tablecn slot and aria contract.",
+		"dependencies": [
+			"bits-ui"
+		],
+		"registryDependencies": [
+			"label"
+		],
+		"meta": {
+			"author": "itisyb",
+			"originalAuthor": "tablecn.com"
+		},
+		"relativeUrl": "form.json"
+	},
+	{
 		"name": "use-data-grid-undo-redo",
 		"title": "Use Data Grid Undo Redo",
 		"type": "registry:hook",

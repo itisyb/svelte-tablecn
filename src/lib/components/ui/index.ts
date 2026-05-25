@@ -101,6 +101,15 @@ export {
 	FacetedSeparator,
 	FacetedTrigger
 } from './faceted';
+export {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage
+} from './form';
 export { Fps, fpsVariants } from './fps';
 export { Input } from './input';
 export { Kbd, KbdGroup } from './kbd';

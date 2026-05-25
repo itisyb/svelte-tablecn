@@ -1099,6 +1099,65 @@
 			}
 		},
 		{
+			"name": "form",
+			"type": "registry:ui",
+			"title": "Form",
+			"description": "A Svelte form primitive that preserves the upstream tablecn slot and aria contract.",
+			"dependencies": ["bits-ui"],
+			"registryDependencies": ["label"],
+			"files": [
+				{
+					"path": "src/lib/components/ui/form/form.svelte",
+					"type": "registry:ui",
+					"target": "form/form.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-context.ts",
+					"type": "registry:ui",
+					"target": "form/form-context.ts"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-field.svelte",
+					"type": "registry:ui",
+					"target": "form/form-field.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-item.svelte",
+					"type": "registry:ui",
+					"target": "form/form-item.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-label.svelte",
+					"type": "registry:ui",
+					"target": "form/form-label.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-control.svelte",
+					"type": "registry:ui",
+					"target": "form/form-control.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-description.svelte",
+					"type": "registry:ui",
+					"target": "form/form-description.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-message.svelte",
+					"type": "registry:ui",
+					"target": "form/form-message.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/index.ts",
+					"type": "registry:ui",
+					"target": "form/index.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
 			"name": "use-data-grid-undo-redo",
 			"type": "registry:hook",
 			"title": "Use Data Grid Undo Redo",

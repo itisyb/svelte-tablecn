@@ -27,13 +27,13 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - core UI primitive styling and slot markers for the shipped Svelte primitives
 - `sortable` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests
 - `drawer` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using the existing Bits Dialog foundation
+- `form` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using a Svelte-native error/context contract
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
 1. keyboard shortcut verification against the shipped grid behavior and shortcut UI
-2. upstream `form` UI primitive is not shipped in the Svelte port yet
-3. a final documentation audit against newly completed parity surfaces
-4. documentation examples that still need to be checked against the current public API
+2. a final documentation audit against newly completed parity surfaces
+3. documentation examples that still need to be checked against the current public API
 
 ## Recommended Starting Point
 
@@ -45,7 +45,7 @@ Why this first:
 - it improves the existing `data-grid` directly
 - it is much smaller than the `data-table` surface
 - it reduces the biggest credibility gap before expanding scope
-- it does not require choosing new Svelte equivalents for React-only dependencies like `react-hook-form`
+- it does not require adding React-only dependencies like `react-hook-form`
 
 ## Execution Order
 
@@ -66,10 +66,10 @@ Why this first:
 
 ### Phase 3: Close Missing UI Primitive Gaps
 
-1. Port `form` only after choosing the Svelte form-state integration that replaces `react-hook-form`
+1. Keep `form` covered against the Svelte-native error/context contract while evaluating whether a richer form-state adapter is needed
 2. Keep `drawer` covered against the existing Bits Dialog implementation while deciding whether Vaul-style drag/snap behavior needs a Svelte dependency
 3. Keep `sortable` covered against the existing `svelte-dnd-action` implementation while closing the remaining primitive gaps
-4. Add source and browser tests for the remaining primitive's slot markers, classes, and core interaction behavior
+4. Add source and browser tests for any future primitive adapters' slot markers, classes, and core interaction behavior
 
 ### Phase 4: Final Data Table API Audit
 
@@ -97,12 +97,12 @@ Why this first:
 - shipped primitives expose the same `data-slot` contract as upstream where the Svelte implementation has an equivalent component
 - `sortable` is ported with the existing Svelte drag dependency
 - `drawer` is ported with the existing Bits Dialog dependency and upstream slot/direction styling contract
-- `form` is either ported or explicitly documented as out of scope until its dependency decision is made
+- `form` is ported with a Svelte-native error/context contract that preserves upstream IDs, slots, and ARIA wiring
 
 ## Risks
 
 - `drawer` depends on Vaul in upstream React; the current Svelte port covers the modal drawer contract with Bits Dialog, but deeper drag/snap behavior still needs an explicit dependency decision if required
-- `form` depends on `react-hook-form`, so a direct port is not possible without choosing a Svelte form-state contract
+- `form` depends on `react-hook-form` upstream; the current Svelte port covers the primitive contract, but richer controller-level integration needs an explicit Svelte form-state adapter if required
 - `sortable` uses `svelte-dnd-action`, so any deeper keyboard or announcement parity work needs to respect that library's event model
 - naming can still drift if exports and registry entries are not checked after each parity slice
 
@@ -113,4 +113,4 @@ Ship this small, clean milestone next:
 1. continue shortcut verification beyond undo/redo, global Escape, and filter/search conflict paths
 2. finish any remaining broader documentation audit outside the README examples
 
-That gives the fastest path to a real parity improvement before opening the remaining dependency decision for `form`.
+That gives the fastest path to a real parity improvement before opening richer adapter decisions for `drawer` drag/snap behavior or `form` controller-level integration.
