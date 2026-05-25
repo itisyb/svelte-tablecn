@@ -54,6 +54,7 @@ import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import FpsDocumentFragmentFixture from './fps-document-fragment-fixture.svelte';
 import HooksFixture from './hooks-fixture.svelte';
+import PopoverAnchorFixture from './popover-anchor-fixture.svelte';
 import SheetFixture from './sheet-fixture.svelte';
 import uiIndexSource from '$lib/components/ui/index.ts?raw';
 import libIndexSource from '$lib/index.ts?raw';
@@ -124,7 +125,11 @@ import facetedItemSource from '$lib/components/ui/faceted/faceted-item.svelte?ra
 import fpsSource from '$lib/components/ui/fps/fps.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import labelSource from '$lib/components/ui/label/label.svelte?raw';
+import popoverAnchorSource from '$lib/components/ui/popover/popover-anchor.svelte?raw';
 import popoverContentSource from '$lib/components/ui/popover/popover-content.svelte?raw';
+import popoverIndexSource from '$lib/components/ui/popover/index.ts?raw';
+import popoverProviderSource from '$lib/components/ui/popover/popover-provider.svelte?raw';
+import popoverRootSource from '$lib/components/ui/popover/popover.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import selectContentSource from '$lib/components/ui/select/select-content.svelte?raw';
 import selectGroupSource from '$lib/components/ui/select/select-group.svelte?raw';
@@ -1910,6 +1915,35 @@ describe('/+page.svelte', () => {
 			expect(source).not.toContain('data-[side=left]:slide-in-from-end-2');
 			expect(source).not.toContain('data-[side=right]:slide-in-from-start-2');
 		}
+	});
+
+	it('should expose and wire popover anchors like the original ui popover', async () => {
+		expect(popoverIndexSource).toContain('Anchor as PopoverAnchor');
+		expect(uiIndexSource).toContain('PopoverAnchor');
+		expect(libIndexSource).toContain('PopoverAnchor');
+		expect(popoverRootSource).toContain('PopoverProvider');
+		expect(popoverProviderSource).toContain('setPopoverContext');
+		expect(popoverAnchorSource).toContain('data-slot="popover-anchor"');
+		expect(popoverContentSource).toContain('customAnchor={anchor}');
+
+		await render(PopoverAnchorFixture);
+
+		const anchor = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="popover-anchor"]')
+		);
+		const content = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="popover-content"]')
+		);
+		const { anchorRect, contentRect } = await waitFor(() => {
+			const anchorRect = anchor.getBoundingClientRect();
+			const contentRect = content.getBoundingClientRect();
+			return contentRect.width > 0 && contentRect.height > 0 && contentRect.left > 0
+				? { anchorRect, contentRect }
+				: null;
+		});
+
+		expect(content.textContent).toContain('Anchored content');
+		expect(Math.round(contentRect.left)).toBe(Math.round(anchorRect.left));
 	});
 
 	it('should forward select group refs like the original select primitive', () => {

@@ -200,7 +200,13 @@ export { Input } from './components/ui/input';
 export { Kbd, KbdGroup } from './components/ui/kbd';
 export { Label } from './components/ui/label';
 export { Checkbox } from './components/ui/checkbox';
-export { Popover, PopoverClose, PopoverContent, PopoverTrigger } from './components/ui/popover';
+export {
+	Popover,
+	PopoverAnchor,
+	PopoverClose,
+	PopoverContent,
+	PopoverTrigger
+} from './components/ui/popover';
 export { Separator } from './components/ui/separator';
 export {
 	Select,

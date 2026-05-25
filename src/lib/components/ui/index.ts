@@ -94,7 +94,7 @@ export { Input } from './input';
 export { Kbd, KbdGroup } from './kbd';
 export { Label } from './label';
 export { Checkbox } from './checkbox';
-export { Popover, PopoverClose, PopoverContent, PopoverTrigger } from './popover';
+export { Popover, PopoverAnchor, PopoverClose, PopoverContent, PopoverTrigger } from './popover';
 export { Separator } from './separator';
 export {
 	Select,
