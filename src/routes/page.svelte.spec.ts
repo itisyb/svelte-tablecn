@@ -1553,12 +1553,16 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep input styling aligned with the original ui input', () => {
+		expect(inputSource).toContain("import { cn");
 		expect(inputSource).toContain('data-slot="input"');
+		expect(inputSource).toContain('class={cn(');
+		expect(inputSource).toContain('className');
 		expect(inputSource).toContain('min-w-0');
 		expect(inputSource).toContain('shadow-xs');
 		expect(inputSource).toContain('selection:bg-primary');
 		expect(inputSource).toContain('focus-visible:ring-[3px]');
 		expect(inputSource).toContain('aria-invalid:border-destructive');
+		expect(inputSource).not.toContain('{className}"');
 	});
 
 	it('should keep separator slot naming aligned with the original ui separator', () => {
