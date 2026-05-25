@@ -102,6 +102,7 @@ import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dro
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
 import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte?raw';
+import fpsSource from '$lib/components/ui/fps/fps.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import labelSource from '$lib/components/ui/label/label.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
@@ -1693,6 +1694,15 @@ describe('/+page.svelte', () => {
 		expect(labelSource).toContain('flex select-none items-center gap-2');
 		expect(labelSource).toContain('peer-disabled:cursor-not-allowed');
 		expect(labelSource).toContain('group-data-[disabled=true]:pointer-events-none');
+	});
+
+	it('should expose the original ui fps primitive styling', () => {
+		expect(libIndexSource).toContain("export { Fps, fpsVariants } from './components/ui/fps';");
+		expect(fpsSource).toContain('data-slot="fps"');
+		expect(fpsSource).toContain('font-mono text-foreground text-sm backdrop-blur-sm');
+		expect(fpsSource).toContain('"top-right": "top-4 right-4"');
+		expect(fpsSource).toContain('warning: "text-orange-500"');
+		expect(fpsSource).toContain("<Portal to={portalContainer ?? 'body'}>");
 	});
 
 	it('should expose the original ui toggle primitive styling', () => {

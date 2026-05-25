@@ -12,6 +12,7 @@ export {
 } from './table';
 
 export { Button, buttonVariants } from './button';
+export { Fps, fpsVariants } from './fps';
 export { Input } from './input';
 export { Label } from './label';
 export { Checkbox } from './checkbox';
