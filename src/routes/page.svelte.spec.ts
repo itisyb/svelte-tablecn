@@ -2490,17 +2490,26 @@ describe('/+page.svelte', () => {
 		const customBar = await waitFor(() =>
 			document.querySelector<HTMLElement>('[data-testid="custom-action-bar"]')
 		);
+		const fragmentTarget = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-testid="fragment-action-bar-target"]')
+		);
+		const fragmentBar = await waitFor(() =>
+			fragmentTarget.shadowRoot?.querySelector<HTMLElement>('[data-testid="fragment-action-bar"]')
+		);
 
 		expect(defaultBar.parentElement).toBe(document.body);
 		expect(defaultHost.contains(defaultBar)).toBe(false);
 		expect(customBar.parentElement).toBe(customTarget);
 		expect(customHost.contains(customBar)).toBe(false);
+		expect(fragmentTarget.shadowRoot?.contains(fragmentBar)).toBe(true);
 	});
 
 	it('should keep action bar portal source aligned with the original component', () => {
 		expect(actionBarSource).toContain("import { Portal } from 'bits-ui';");
-		expect(actionBarSource).toContain('portalContainer?: Element | null;');
-		expect(actionBarSource).toContain("<Portal to={portalContainer ?? 'body'}>");
+		expect(actionBarSource).toContain('portalContainer?: Element | DocumentFragment | null;');
+		expect(actionBarSource).toContain('isDocumentFragment(portalContainer)');
+		expect(actionBarSource).toContain('portalContainer.appendChild(fragmentPortalHost)');
+		expect(actionBarSource).toContain('<Portal to={portalTarget}>');
 	});
 
 	it('should render context delete rows as destructive menu item', async () => {

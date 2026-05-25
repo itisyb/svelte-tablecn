@@ -6,6 +6,14 @@
 	} from '$lib/components/ui/action-bar/index.js';
 
 	let portalContainer = $state<HTMLElement | null>(null);
+	let shadowHost = $state<HTMLDivElement | null>(null);
+	let shadowRoot = $state<ShadowRoot | null>(null);
+
+	$effect(() => {
+		if (!shadowHost || shadowRoot) return;
+
+		shadowRoot = shadowHost.attachShadow({ mode: 'open' });
+	});
 </script>
 
 <div data-testid="default-action-bar-host">
@@ -27,3 +35,13 @@
 		</ActionBar>
 	{/if}
 </div>
+
+<div data-testid="fragment-action-bar-target" bind:this={shadowHost}></div>
+
+{#if shadowRoot}
+	<ActionBar open portalContainer={shadowRoot} data-testid="fragment-action-bar">
+		<ActionBarGroup>
+			<ActionBarItem>Fragment</ActionBarItem>
+		</ActionBarGroup>
+	</ActionBar>
+{/if}
