@@ -743,6 +743,21 @@ describe('README UI primitive docs', () => {
 	};
 	const registryItems = new Set(registry.items.map((item) => item.name));
 
+	it('documents every installable registry item from registry.json', () => {
+		expect(readme).toContain('### Installable Registry Items');
+
+		const documentedItems = new Set(
+			Array.from(readme.matchAll(/\| `([^`]+)` \| `?\/r\/([^`|\s]+)\.json`? \|/g)).map(
+				([, name, urlName]) => {
+					expect(name).toBe(urlName);
+					return name;
+				}
+			)
+		);
+
+		expect([...documentedItems].sort()).toEqual([...registryItems].sort());
+	});
+
 	it('documents standalone registry slices for shipped upstream ui primitives', () => {
 		expect(readme).toContain('## UI Primitives');
 		for (const primitive of ['drawer', 'form', 'sortable']) {

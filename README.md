@@ -37,6 +37,29 @@ pnpm dlx shadcn-svelte@latest add https://svelte-tablecn.vercel.app/r/data-grid.
 npx shadcn-svelte@latest add https://svelte-tablecn.vercel.app/r/data-grid.json
 ```
 
+### Installable Registry Items
+
+Install the full grid/table blocks or add smaller slices as needed:
+
+| Item | Registry URL |
+| --- | --- |
+| `data-grid` | `/r/data-grid.json` |
+| `data-table` | `/r/data-table.json` |
+| `data-table-sort-list` | `/r/data-table-sort-list.json` |
+| `data-table-filter-list` | `/r/data-table-filter-list.json` |
+| `data-table-filter-menu` | `/r/data-table-filter-menu.json` |
+| `data-grid-select-column` | `/r/data-grid-select-column.json` |
+| `data-grid-sort-menu` | `/r/data-grid-sort-menu.json` |
+| `data-grid-row-height-menu` | `/r/data-grid-row-height-menu.json` |
+| `data-grid-view-menu` | `/r/data-grid-view-menu.json` |
+| `data-grid-keyboard-shortcuts` | `/r/data-grid-keyboard-shortcuts.json` |
+| `data-grid-filter-menu` | `/r/data-grid-filter-menu.json` |
+| `data-grid-skeleton` | `/r/data-grid-skeleton.json` |
+| `sortable` | `/r/sortable.json` |
+| `drawer` | `/r/drawer.json` |
+| `form` | `/r/form.json` |
+| `use-data-grid-undo-redo` | `/r/use-data-grid-undo-redo.json` |
+
 ### Prerequisites
 
 Make sure you have [shadcn-svelte](https://www.shadcn-svelte.com/) configured in your project with Tailwind CSS v4:

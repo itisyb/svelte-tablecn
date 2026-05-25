@@ -39,6 +39,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
 - The data-grid single-select cell editor uses a smaller cell-scoped content radius, leaving the shared select primitive default radius intact
+- README registry documentation is checked against `registry.json` so every installable `/r/*.json` slice is listed
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

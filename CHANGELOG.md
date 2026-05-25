@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-table README option documentation now includes required `data` and `columns` options and is checked against `UseDataTableOptions`.
 - Generated registry artifact coverage now verifies item metadata and file `type`/`target` entries against `registry.json`.
 - Data grid select editor popovers now use a smaller in-cell radius while keeping the shared select primitive unchanged.
+- README registry documentation now lists every installable `/r/*.json` item and is checked against `registry.json`.
 
 ### Fixed
 
