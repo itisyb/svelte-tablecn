@@ -59,6 +59,8 @@ import calendarCellSource from '$lib/components/ui/calendar/calendar-cell.svelte
 import calendarDaySource from '$lib/components/ui/calendar/calendar-day.svelte?raw';
 import calendarGridSource from '$lib/components/ui/calendar/calendar-grid.svelte?raw';
 import calendarMonthSource from '$lib/components/ui/calendar/calendar-month.svelte?raw';
+import calendarNextButtonSource from '$lib/components/ui/calendar/calendar-next-button.svelte?raw';
+import calendarPrevButtonSource from '$lib/components/ui/calendar/calendar-prev-button.svelte?raw';
 import calendarSource from '$lib/components/ui/calendar/calendar.svelte?raw';
 import commandDialogSource from '$lib/components/ui/command/command-dialog.svelte?raw';
 import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
@@ -1515,6 +1517,15 @@ describe('/+page.svelte', () => {
 	it('should keep calendar root sizing aligned with the original ui calendar', () => {
 		expect(calendarSource).toContain('group/calendar w-fit p-3');
 		expect(dataGridRangeCalendarSource).toContain('group/calendar w-fit p-3');
+	});
+
+	it('should keep calendar navigation disabled styling aligned with original and Bits state', () => {
+		expect(calendarPrevButtonSource).toContain('aria-disabled:opacity-50');
+		expect(calendarPrevButtonSource).toContain('disabled:opacity-50');
+		expect(calendarPrevButtonSource).toContain('data-[disabled]:opacity-50');
+		expect(calendarNextButtonSource).toContain('aria-disabled:opacity-50');
+		expect(calendarNextButtonSource).toContain('disabled:opacity-50');
+		expect(calendarNextButtonSource).toContain('data-[disabled]:opacity-50');
 	});
 
 	it('should keep calendar day sizing aligned with the original ui calendar', () => {
