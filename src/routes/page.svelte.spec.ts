@@ -128,6 +128,7 @@ import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import selectContentSource from '$lib/components/ui/select/select-content.svelte?raw';
 import selectGroupSource from '$lib/components/ui/select/select-group.svelte?raw';
 import selectItemSource from '$lib/components/ui/select/select-item.svelte?raw';
+import selectLabelSource from '$lib/components/ui/select/select-label.svelte?raw';
 import selectTriggerSource from '$lib/components/ui/select/select-trigger.svelte?raw';
 import sheetContentSource from '$lib/components/ui/sheet/sheet-content.svelte?raw';
 import sheetHeaderSource from '$lib/components/ui/sheet/sheet-header.svelte?raw';
@@ -1831,6 +1832,13 @@ describe('/+page.svelte', () => {
 		expect(selectItemSource).toContain('absolute right-2');
 		expect(selectItemSource).not.toContain('pe-8 ps-2');
 		expect(selectItemSource).not.toContain('absolute end-2');
+	});
+
+	it('should keep select labels backed by the select primitive', () => {
+		expect(selectLabelSource).toContain('SelectPrimitive.GroupHeading');
+		expect(selectLabelSource).toContain('data-slot="select-label"');
+		expect(selectLabelSource).toContain('text-muted-foreground px-2 py-1.5 text-xs');
+		expect(selectLabelSource).not.toContain('<div');
 	});
 
 	it('should keep command input padding aligned with the original ui command', () => {
