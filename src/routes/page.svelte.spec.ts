@@ -95,6 +95,7 @@ import dataGridSkeletonToolbarSource from '$lib/components/data-grid/data-grid-s
 import dataGridSkeletonSource from '$lib/components/data-grid/data-grid-skeleton.svelte?raw';
 import dataGridSortMenuSource from '$lib/components/data-grid/data-grid-sort-menu.svelte?raw';
 import dataGridViewMenuSource from '$lib/components/data-grid/data-grid-view-menu.svelte?raw';
+import dataGridUndoRedoHookSource from '$lib/hooks/use-data-grid-undo-redo.svelte.ts?raw';
 import dataTableAdvancedToolbarSource from '$lib/components/data-table/data-table-advanced-toolbar.svelte?raw';
 import dataTableColumnHeaderSource from '$lib/components/data-table/data-table-column-header.svelte?raw';
 import dataTableDateFilterSource from '$lib/components/data-table/data-table-date-filter.svelte?raw';
@@ -1225,7 +1226,7 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('third value')).toHaveTextContent('');
 		await expect.element(page.getByLabelText('can undo')).toHaveTextContent('yes');
 
-		window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
 
 		await expect.element(page.getByLabelText('first value')).toHaveTextContent('A');
 		await expect.element(page.getByLabelText('second value')).toHaveTextContent('B');
@@ -1233,7 +1234,7 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
 		await expect.element(page.getByLabelText('can redo')).toHaveTextContent('yes');
 
-		window.dispatchEvent(
+		document.dispatchEvent(
 			new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, shiftKey: true, bubbles: true })
 		);
 
@@ -3384,6 +3385,12 @@ describe('/+page.svelte', () => {
 		expect(gridDemoSource).not.toContain('data = nextData;\\n\\t\\tonDataChange(nextData);');
 	});
 
+	it('should register undo redo shortcuts on the document like the original grid hook', () => {
+		expect(dataGridUndoRedoHookSource).toContain("return on(document, 'keydown', handleKeyDown)");
+		expect(dataGridUndoRedoHookSource).not.toContain("return on(window, 'keydown', handleKeyDown)");
+		expect(dataGridUndoRedoHookSource).toContain("if ((key === 'z' && event.shiftKey) || key === 'y')");
+	});
+
 	it('should undo and redo tracked cell edits like the original grid hook', async () => {
 		await render(DataGridUndoRedoFixture);
 
@@ -3395,13 +3402,19 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
 		await expect.element(page.getByLabelText('can undo')).toHaveTextContent('yes');
 
-		window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
 		await expect.element(page.getByLabelText('can redo')).toHaveTextContent('yes');
 
-		window.dispatchEvent(
+		document.dispatchEvent(
 			new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, shiftKey: true, bubbles: true })
 		);
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
+
+		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+
+		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'y', ctrlKey: true, bubbles: true }));
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
 	});
 

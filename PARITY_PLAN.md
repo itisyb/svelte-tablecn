@@ -40,7 +40,7 @@ Start with shortcut verification and the export/docs audit, then evaluate the mi
 
 Why this first:
 
-- the undo/redo hook is shipped and the demo wiring tracks cells and rows, with focused edit, paste-batch, paste-expansion, and selected-cell clear undo coverage now in place
+- the undo/redo hook is shipped and the demo wiring tracks cells and rows, with focused edit, paste-batch, paste-expansion, selected-cell clear, and document-level redo shortcut coverage now in place
 - it improves the existing `data-grid` directly
 - it is much smaller than the `data-table` surface
 - it reduces the biggest credibility gap before expanding scope
@@ -108,7 +108,7 @@ Why this first:
 
 Ship this small, clean milestone next:
 
-1. shortcut verification
+1. finish shortcut verification beyond the undo/redo listener path
 2. package export and registry confirmation
 3. README correction or confirmation
 
