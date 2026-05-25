@@ -86,6 +86,7 @@ import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row
 import dataGridRowSelectCellSource from '$lib/components/data-grid/cells/row-select-cell.svelte?raw';
 import dataGridRowSelectHeaderSource from '$lib/components/data-grid/cells/row-select-header.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
+import dataGridSelectCellSource from '$lib/components/data-grid/cells/select-cell.svelte?raw';
 import dataGridSkeletonGridSource from '$lib/components/data-grid/data-grid-skeleton-grid.svelte?raw';
 import dataGridSkeletonToolbarSource from '$lib/components/data-grid/data-grid-skeleton-toolbar.svelte?raw';
 import dataGridSkeletonSource from '$lib/components/data-grid/data-grid-skeleton.svelte?raw';
@@ -300,8 +301,8 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-sm');
-		expect(content.className).not.toContain('rounded-md');
+		expect(content.className).toContain('rounded-md');
+		expect(content.className).not.toContain('rounded-sm');
 		expect(content.className).not.toContain('rounded-[2px]');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
@@ -1450,6 +1451,15 @@ describe('/+page.svelte', () => {
 		expect(dataGridCellWrapperSource).toContain('onKeyDownProp?.(event)');
 		expect(dataGridCellWrapperSource).toContain('text-start');
 		expect(dataGridCellWrapperSource).not.toContain("dir === 'rtl' ? 'text-right' : 'text-left'");
+	});
+
+	it('should keep data grid select editor content radius aligned with the original grid', () => {
+		expect(dataGridSelectCellSource).toContain(
+			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"'
+		);
+		expect(dataGridSelectCellSource).not.toContain(
+			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-sm"'
+		);
 	});
 
 	it('should style row select debug hitboxes like the original grid', () => {
