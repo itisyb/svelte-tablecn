@@ -1639,6 +1639,8 @@ describe('/+page.svelte', () => {
 		expect(dialogContentSource).toContain('data-slot="dialog-close"');
 		expect(dialogContentSource).toContain('left-[50%] top-[50%]');
 		expect(dialogContentSource).not.toContain('start-[50%]');
+		expect(dialogContentSource).toContain('absolute top-4 right-4');
+		expect(dialogContentSource).not.toContain('absolute end-4 top-4');
 		expect(dialogContentSource).toContain('data-[state=open]:bg-accent');
 		expect(dialogContentSource).toContain('data-[state=open]:text-muted-foreground');
 	});
