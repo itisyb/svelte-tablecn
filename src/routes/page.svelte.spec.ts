@@ -71,6 +71,7 @@ import commandInputSource from '$lib/components/ui/command/command-input.svelte?
 import commandItemSource from '$lib/components/ui/command/command-item.svelte?raw';
 import commandLinkItemSource from '$lib/components/ui/command/command-link-item.svelte?raw';
 import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
+import dataGridHelpersSource from '$lib/data-grid.ts?raw';
 import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-wrapper.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFileCellSource from '$lib/components/data-grid/cells/file-cell.svelte?raw';
@@ -1670,6 +1671,22 @@ describe('/+page.svelte', () => {
 		expect(libIndexSource).toContain('TooltipProvider');
 		expect(libIndexSource).toContain('SelectContent');
 		expect(libIndexSource).toContain('SelectTrigger');
+	});
+
+	it('should expose implemented data-grid helpers from the package root', () => {
+		expect(dataGridHelpersSource).toContain('export function getColumnBorderVisibility');
+		expect(dataGridHelpersSource).toContain('export function getColumnPinningStyle');
+		expect(dataGridHelpersSource).toContain('export function parseTsv');
+		expect(dataGridHelpersSource).toContain('export function serializeCellsToTsv');
+		expect(dataGridHelpersSource).toContain('export function scrollCellIntoView');
+		expect(libIndexSource).toContain('getColumnBorderVisibility');
+		expect(libIndexSource).toContain('getColumnPinningStyle as getDataGridColumnPinningStyle');
+		expect(libIndexSource).toContain('formatCellValueForCopy');
+		expect(libIndexSource).toContain('getIsInPopover');
+		expect(libIndexSource).toContain('parsePastedCellValue');
+		expect(libIndexSource).toContain('serializeCellsToTsv');
+		expect(libIndexSource).toContain('scrollCellIntoView');
+		expect(libIndexSource).toContain('toPinningStyleString');
 	});
 
 	it('should keep button shadows aligned with the original ui button', () => {

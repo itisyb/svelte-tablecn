@@ -47,10 +47,25 @@ export {
 	formatDateForDisplay,
 	formatDateToString,
 	formatFileSize,
+	formatCellValueForCopy,
+	getColumnBorderVisibility,
+	getColumnPinningStyle as getDataGridColumnPinningStyle,
 	getColumnVariant,
+	getEmptyCellValue,
 	getFileIcon,
+	getIsFileCellData,
+	getIsInPopover,
+	getRowIndicesForDeletion,
+	getRowModelPosition,
+	getScrollDirection,
 	getUrlHref,
-	parseLocalDate
+	matchSelectOption,
+	parsePastedCellValue,
+	parseTsv,
+	parseLocalDate,
+	serializeCellsToTsv,
+	scrollCellIntoView,
+	toPinningStyleString
 } from './data-grid';
 export { getColumnPinningStyle } from './data-table';
 export { formatDate } from './format';
