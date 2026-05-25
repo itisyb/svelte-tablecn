@@ -1620,8 +1620,14 @@ describe('/+page.svelte', () => {
 		expect(tableCellSource).toContain('[&>[role=checkbox]]:translate-y-[2px]');
 	});
 
-	it('should keep slider thumb background aligned with the original ui slider', () => {
+	it('should keep slider thumb styling aligned with original and Bits state', () => {
 		expect(sliderSource).toContain('bg-background');
+		expect(sliderSource).toContain('disabled:pointer-events-none');
+		expect(sliderSource).toContain('aria-disabled:pointer-events-none');
+		expect(sliderSource).toContain('data-[disabled]:pointer-events-none');
+		expect(sliderSource).toContain('disabled:opacity-50');
+		expect(sliderSource).toContain('aria-disabled:opacity-50');
+		expect(sliderSource).toContain('data-[disabled]:opacity-50');
 		expect(sliderSource).not.toContain('bg-white');
 	});
 
