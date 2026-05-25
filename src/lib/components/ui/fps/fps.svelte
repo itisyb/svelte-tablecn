@@ -41,7 +41,7 @@
 		updateInterval?: number;
 		warningThreshold?: number;
 		errorThreshold?: number;
-		portalContainer?: Element | null;
+		portalContainer?: Element | DocumentFragment | null;
 		enabled?: boolean;
 		children?: Snippet;
 	};
@@ -68,12 +68,20 @@
 	let fps = $state(0);
 	let frameCount = 0;
 	let lastTime = 0;
+	let fragmentPortalHost: HTMLDivElement | null = $state(null);
 
 	const status = $derived.by<FpsStatus>(() => {
 		if (fps < errorThreshold) return "error";
 		if (fps < warningThreshold) return "warning";
 		return "good";
 	});
+	const isFragmentPortal = $derived(
+		strategy !== "absolute" && isDocumentFragment(portalContainer)
+	);
+
+	function isDocumentFragment(value: unknown): value is DocumentFragment {
+		return typeof DocumentFragment !== "undefined" && value instanceof DocumentFragment;
+	}
 
 	$effect(() => {
 		if (!enabled) return;
@@ -103,6 +111,18 @@
 			}
 		};
 	});
+
+	$effect(() => {
+		if (!isFragmentPortal || !fragmentPortalHost || !isDocumentFragment(portalContainer)) {
+			return;
+		}
+
+		portalContainer.appendChild(fragmentPortalHost);
+
+		return () => {
+			fragmentPortalHost?.remove();
+		};
+	});
 </script>
 
 {#snippet fpsContent()}
@@ -124,8 +144,12 @@
 {#if enabled}
 	{#if strategy === 'absolute'}
 		{@render fpsContent()}
+	{:else if isFragmentPortal}
+		<div bind:this={fragmentPortalHost} style="display: contents;">
+			{@render fpsContent()}
+		</div>
 	{:else}
-		<Portal to={portalContainer ?? 'body'}>
+		<Portal to={isDocumentFragment(portalContainer) ? 'body' : (portalContainer ?? 'body')}>
 			{@render fpsContent()}
 		</Portal>
 	{/if}

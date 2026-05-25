@@ -52,6 +52,7 @@ import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
+import FpsDocumentFragmentFixture from './fps-document-fragment-fixture.svelte';
 import HooksFixture from './hooks-fixture.svelte';
 import SheetFixture from './sheet-fixture.svelte';
 import uiIndexSource from '$lib/components/ui/index.ts?raw';
@@ -1895,10 +1896,23 @@ describe('/+page.svelte', () => {
 	it('should expose the original ui fps primitive styling', () => {
 		expect(libIndexSource).toContain("export { Fps, fpsVariants } from './components/ui/fps';");
 		expect(fpsSource).toContain('data-slot="fps"');
+		expect(fpsSource).toContain('portalContainer?: Element | DocumentFragment | null');
 		expect(fpsSource).toContain('font-mono text-foreground text-sm backdrop-blur-sm');
 		expect(fpsSource).toContain('"top-right": "top-4 right-4"');
 		expect(fpsSource).toContain('warning: "text-orange-500"');
-		expect(fpsSource).toContain("<Portal to={portalContainer ?? 'body'}>");
+		expect(fpsSource).toContain("isDocumentFragment(portalContainer)");
+	});
+
+	it('should portal fps into document fragments like the original ui fps', async () => {
+		await render(FpsDocumentFragmentFixture);
+
+		const host = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-testid="fps-shadow-host"]')
+		);
+		const fps = await waitFor(() => host.shadowRoot?.querySelector<HTMLElement>('[data-slot="fps"]'));
+
+		expect(fps).toBeTruthy();
+		expect(fps.getAttribute('aria-hidden')).toBe('true');
 	});
 
 	it('should expose the original ui toggle primitive styling', () => {
