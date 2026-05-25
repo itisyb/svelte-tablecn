@@ -3625,20 +3625,68 @@ describe('/+page.svelte', () => {
 			expect(source).toContain('enableRowAdd');
 			expect(source).toContain('enableRowsDelete');
 		}
-		for (const text of [
-			'Move to first row (same column)',
-			'Select to bottom of table',
-			'Undo last action',
-			'Redo last action',
-			'Open search',
-			'Toggle the filter menu',
-			'Toggle the sort menu',
-			'Show keyboard shortcuts',
-			'No shortcuts found',
-			'Try searching for a different term.'
-		]) {
-			expect(dataGridKeyboardShortcutsSource).toContain(text);
-		}
+		const shortcutRows = Array.from(
+			dataGridKeyboardShortcutsSource.matchAll(
+				/keys:\s*\[([^\]]+)\],\s*description:\s*'([^']+)'/g
+			),
+			([, keys, description]) =>
+				`${keys.replace(/\s+/g, ' ').replaceAll("'", '"').trim()} => ${description}`
+		);
+
+		expect(shortcutRows).toEqual([
+			'"↑", "↓", "←", "→" => Navigate between cells',
+			'"Tab" => Move to next cell',
+			'"Shift", "Tab" => Move to previous cell',
+			'"Home" => Move to first column',
+			'"End" => Move to last column',
+			'modKey, "↑" => Move to first row (same column)',
+			'modKey, "↓" => Move to last row (same column)',
+			'modKey, "←" => Move to first column (same row)',
+			'modKey, "→" => Move to last column (same row)',
+			'modKey, "Home" => Move to first cell',
+			'modKey, "End" => Move to last cell',
+			'"PgUp" => Move up one page',
+			'"PgDn" => Move down one page',
+			'"⌥", "↑" => Scroll up one page',
+			'"⌥", "↓" => Scroll down one page',
+			'"⌥", "PgUp" => Scroll left one page of columns',
+			'"⌥", "PgDn" => Scroll right one page of columns',
+			'"Shift", "↑↓←→" => Extend selection',
+			'modKey, "Shift", "↑" => Select to top of table',
+			'modKey, "Shift", "↓" => Select to bottom of table',
+			'modKey, "Shift", "←" => Select to first column',
+			'modKey, "Shift", "→" => Select to last column',
+			'modKey, "A" => Select all cells',
+			'modKey, "Click" => Toggle cell selection',
+			'"Shift", "Click" => Select range',
+			'"Esc" => Clear selection',
+			'"Enter" => Start editing cell',
+			'"F2" => Start editing cell',
+			'"Double Click" => Start editing cell',
+			'"Shift", "Enter" => Insert row below',
+			'modKey, "C" => Copy selected cells',
+			'modKey, "X" => Cut selected cells',
+			'modKey, "V" => Paste cells',
+			'"Delete" => Clear selected cells',
+			'"Backspace" => Clear selected cells',
+			'modKey, "Backspace" => Delete selected rows',
+			'modKey, "Delete" => Delete selected rows',
+			'modKey, "Z" => Undo last action',
+			'modKey, "Shift", "Z" => Redo last action',
+			'modKey, "F" => Open search',
+			'"Enter" => Next match',
+			'"Shift", "Enter" => Previous match',
+			'"Esc" => Close search',
+			'modKey, "Shift", "F" => Toggle the filter menu',
+			'"Backspace" => Remove filter (when focused)',
+			'"Delete" => Remove filter (when focused)',
+			'modKey, "Shift", "S" => Toggle the sort menu',
+			'"Backspace" => Remove sort (when focused)',
+			'"Delete" => Remove sort (when focused)',
+			'modKey, "/" => Show keyboard shortcuts'
+		]);
+		expect(dataGridKeyboardShortcutsSource).toContain('No shortcuts found');
+		expect(dataGridKeyboardShortcutsSource).toContain('Try searching for a different term.');
 		expect(dataGridKeyboardShortcutsSource).toContain("const SHORTCUT_KEY = '/'");
 		expect(dataGridKeyboardShortcutsSource).toContain('<svelte:window onkeydown={handleKeyDown} />');
 	});

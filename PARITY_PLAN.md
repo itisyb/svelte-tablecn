@@ -32,12 +32,12 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - The non-README docs now record the shipped shortcut dialog, standalone primitive registry slices, package-root/UI-barrel primitive helper/type exports, and select editor radius parity fix
 - The adapter decision for the current parity target is explicit: `drawer`, `form`, and `sortable` preserve the installable slots, styling, exported names, IDs, and ARIA contracts without pulling in React-only runtime dependencies
 - Generated `static/r` registry artifacts are checked against `registry.json` so installable slices cannot silently miss or drift from their declared file targets
+- The keyboard shortcuts dialog is source-checked against the original 50-row shortcut map, and browser coverage exercises gated row mutation shortcuts, optional shortcuts, filtering, and the upstream empty state
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
-1. keyboard shortcut verification against the shipped grid behavior and shortcut UI
-2. a completion audit across exports, registry items, docs, and runtime behavior
-3. optional follow-up issues for deeper `drawer` drag/snap behavior, richer `form` controller integration, and sortable keyboard/announcement parity if the project decides to go beyond the current installable primitive contract
+1. a completion audit across exports, registry items, docs, and runtime behavior
+2. optional follow-up issues for deeper `drawer` drag/snap behavior, richer `form` controller integration, and sortable keyboard/announcement parity if the project decides to go beyond the current installable primitive contract
 
 ## Recommended Starting Point
 

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Package root and UI barrel now forward the Svelte-native form helper functions and the public `drawer`, `form`, and `sortable` primitive type contracts.
 - Adapter scope is documented for `drawer`, `form`, and `sortable`: current parity covers installable slots/styling/ARIA contracts without adding React-only runtime dependencies.
 - Registry audit coverage now verifies every installable registry item is emitted in `static/r` with the expected file targets.
+- Keyboard shortcut dialog coverage now checks the full original 50-row shortcut map.
 
 ### Fixed
 
