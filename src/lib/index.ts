@@ -284,6 +284,8 @@ export {
 // Hooks
 // ==============================================
 export { useWindowSize } from './hooks/use-window-size.svelte.js';
+export { useAsRef, type AsRef } from './hooks/use-as-ref.svelte.js';
+export { useLazyRef, type LazyRef } from './hooks/use-lazy-ref';
 export { useMounted, type MountedState } from './hooks/use-mounted.svelte.js';
 export { useMediaQuery, type MediaQueryState } from './hooks/use-media-query.svelte.js';
 export {

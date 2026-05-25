@@ -123,6 +123,8 @@ import toggleGroupItemSource from '$lib/components/ui/toggle-group/toggle-group-
 import tooltipProviderSource from '$lib/components/ui/tooltip/tooltip-provider.svelte?raw';
 import dataGridSource from '$lib/components/data-grid/data-grid.svelte?raw';
 import utilsSource from '$lib/utils.ts?raw';
+import useAsRefSource from '$lib/hooks/use-as-ref.svelte.ts?raw';
+import useLazyRefSource from '$lib/hooks/use-lazy-ref.ts?raw';
 import useMediaQuerySource from '$lib/hooks/use-media-query.svelte.ts?raw';
 import useMountedSource from '$lib/hooks/use-mounted.svelte.ts?raw';
 
@@ -164,9 +166,16 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('debounced calls')).toHaveTextContent('0');
 	});
 
-	it('should expose mounted and media query hooks like the original hook set', async () => {
+	it('should expose hook utilities like the original hook set', async () => {
 		await render(HooksFixture);
 
+		await expect.element(page.getByLabelText('as ref')).toHaveTextContent('Ada');
+		await expect.element(page.getByLabelText('lazy ref')).toHaveTextContent('created once');
+		await expect.element(page.getByLabelText('lazy initializations')).toHaveTextContent('1');
+
+		await page.getByRole('button', { name: 'Update hook state' }).click();
+		await expect.element(page.getByLabelText('as ref')).toHaveTextContent('Grace');
+		await expect.element(page.getByLabelText('lazy initializations')).toHaveTextContent('1');
 		await expect.element(page.getByLabelText('mounted')).toHaveTextContent('mounted');
 		await expect.element(page.getByLabelText('media query')).toHaveTextContent('matched');
 	});
@@ -1711,13 +1720,21 @@ describe('/+page.svelte', () => {
 		expect(utilsSource).toContain('process.env.PORT ?? 3000');
 	});
 
-	it('should expose mounted and media query hooks from the package root like the original hooks', () => {
+	it('should expose the small hook utilities from the package root like the original hooks', () => {
+		expect(libIndexSource).toContain(
+			"export { useAsRef, type AsRef } from './hooks/use-as-ref.svelte.js';"
+		);
+		expect(libIndexSource).toContain("export { useLazyRef, type LazyRef } from './hooks/use-lazy-ref';");
 		expect(libIndexSource).toContain(
 			"export { useMounted, type MountedState } from './hooks/use-mounted.svelte.js';"
 		);
 		expect(libIndexSource).toContain(
 			"export { useMediaQuery, type MediaQueryState } from './hooks/use-media-query.svelte.js';"
 		);
+		expect(useAsRefSource).toContain('export function useAsRef');
+		expect(useAsRefSource).toContain('const current = $derived(getValue(value))');
+		expect(useLazyRefSource).toContain('export function useLazyRef');
+		expect(useLazyRefSource).toContain('current: fn()');
 		expect(useMountedSource).toContain('export function useMounted()');
 		expect(useMountedSource).toContain('mounted = true');
 		expect(useMediaQuerySource).toContain('export function useMediaQuery');
