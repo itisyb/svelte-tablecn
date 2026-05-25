@@ -354,11 +354,14 @@ The package also includes the core non-editable `data-table` surface:
 
 - `useDataTable`
 - `DataTable`
+- `DataTableColumnHeader`
 - `DataTableToolbar`
 - `DataTableAdvancedToolbar`
 - `DataTablePagination`
 - `DataTableViewOptions`
 - `DataTableFacetedFilter`
+- `DataTableDateFilter`
+- `DataTableSliderFilter`
 - `DataTableRangeFilter`
 - `DataTableSortList`
 - `DataTableFilterList`

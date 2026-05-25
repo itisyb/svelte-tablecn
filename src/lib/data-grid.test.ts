@@ -50,6 +50,23 @@ import {
 	useDataGridUndoRedo as useComponentDataGridUndoRedo
 } from './components/data-grid/index.js';
 import {
+	DataTable as ComponentDataTable,
+	DataTableAdvancedToolbar as ComponentDataTableAdvancedToolbar,
+	DataTableColumnHeader as ComponentDataTableColumnHeader,
+	DataTableDateFilter as ComponentDataTableDateFilter,
+	DataTableFacetedFilter as ComponentDataTableFacetedFilter,
+	DataTableFilterList as ComponentDataTableFilterList,
+	DataTableFilterMenu as ComponentDataTableFilterMenu,
+	DataTablePagination as ComponentDataTablePagination,
+	DataTableRangeFilter as ComponentDataTableRangeFilter,
+	DataTableSkeleton as ComponentDataTableSkeleton,
+	DataTableSliderFilter as ComponentDataTableSliderFilter,
+	DataTableSortList as ComponentDataTableSortList,
+	DataTableToolbar as ComponentDataTableToolbar,
+	DataTableViewOptions as ComponentDataTableViewOptions,
+	useDataTable as useComponentDataTable
+} from './components/data-table/index.js';
+import {
 	Sortable as ComponentSortable,
 	SortableContent as ComponentSortableContent,
 	SortableItem as ComponentSortableItem,
@@ -91,6 +108,20 @@ import {
 	DataGridSkeletonToolbar as RootDataGridSkeletonToolbar,
 	DataGridSortMenu as RootDataGridSortMenu,
 	DataGridViewMenu as RootDataGridViewMenu,
+	DataTable as RootDataTable,
+	DataTableAdvancedToolbar as RootDataTableAdvancedToolbar,
+	DataTableColumnHeader as RootDataTableColumnHeader,
+	DataTableDateFilter as RootDataTableDateFilter,
+	DataTableFacetedFilter as RootDataTableFacetedFilter,
+	DataTableFilterList as RootDataTableFilterList,
+	DataTableFilterMenu as RootDataTableFilterMenu,
+	DataTablePagination as RootDataTablePagination,
+	DataTableRangeFilter as RootDataTableRangeFilter,
+	DataTableSkeleton as RootDataTableSkeleton,
+	DataTableSliderFilter as RootDataTableSliderFilter,
+	DataTableSortList as RootDataTableSortList,
+	DataTableToolbar as RootDataTableToolbar,
+	DataTableViewOptions as RootDataTableViewOptions,
 	DATE_FILTER_OPERATORS as ROOT_DATE_FILTER_OPERATORS,
 	Drawer as RootDrawer,
 	DrawerClose as RootDrawerClose,
@@ -135,6 +166,7 @@ import {
 	getDataGridSelectColumn as getRootDataGridSelectColumn,
 	parseLocalDate as rootParseLocalDate,
 	useDataGrid as useRootDataGrid,
+	useDataTable as useRootDataTable,
 	useDataGridUndoRedo as useRootDataGridUndoRedo
 } from './index.js';
 import { OVERSCAN } from './config/data-grid.js';
@@ -413,6 +445,26 @@ describe('package root data-grid component exports', () => {
 		expect(getRootDataGridSelectColumn).toBe(getComponentDataGridSelectColumn);
 		expect(useRootDataGrid).toBe(useComponentDataGrid);
 		expect(useRootDataGridUndoRedo).toBe(useComponentDataGridUndoRedo);
+	});
+});
+
+describe('package root data-table component exports', () => {
+	it('exposes the shipped data-table surface from the package root', () => {
+		expect(RootDataTable).toBe(ComponentDataTable);
+		expect(RootDataTableAdvancedToolbar).toBe(ComponentDataTableAdvancedToolbar);
+		expect(RootDataTableColumnHeader).toBe(ComponentDataTableColumnHeader);
+		expect(RootDataTableDateFilter).toBe(ComponentDataTableDateFilter);
+		expect(RootDataTableFacetedFilter).toBe(ComponentDataTableFacetedFilter);
+		expect(RootDataTableFilterList).toBe(ComponentDataTableFilterList);
+		expect(RootDataTableFilterMenu).toBe(ComponentDataTableFilterMenu);
+		expect(RootDataTablePagination).toBe(ComponentDataTablePagination);
+		expect(RootDataTableRangeFilter).toBe(ComponentDataTableRangeFilter);
+		expect(RootDataTableSkeleton).toBe(ComponentDataTableSkeleton);
+		expect(RootDataTableSliderFilter).toBe(ComponentDataTableSliderFilter);
+		expect(RootDataTableSortList).toBe(ComponentDataTableSortList);
+		expect(RootDataTableToolbar).toBe(ComponentDataTableToolbar);
+		expect(RootDataTableViewOptions).toBe(ComponentDataTableViewOptions);
+		expect(useRootDataTable).toBe(useComponentDataTable);
 	});
 });
 
@@ -756,6 +808,31 @@ describe('README data-table examples', () => {
 		expect(readme).toContain("variant: 'select'");
 		expect(readme).toContain('<DataTable {table}>');
 		expect(readme).toContain('<DataTableToolbar {table} />');
+	});
+
+	it('documents the shipped data-table component surface', () => {
+		const publicComponents = [
+			['DataTable', RootDataTable],
+			['DataTableAdvancedToolbar', RootDataTableAdvancedToolbar],
+			['DataTableColumnHeader', RootDataTableColumnHeader],
+			['DataTableDateFilter', RootDataTableDateFilter],
+			['DataTableFacetedFilter', RootDataTableFacetedFilter],
+			['DataTableFilterList', RootDataTableFilterList],
+			['DataTableFilterMenu', RootDataTableFilterMenu],
+			['DataTablePagination', RootDataTablePagination],
+			['DataTableRangeFilter', RootDataTableRangeFilter],
+			['DataTableSkeleton', RootDataTableSkeleton],
+			['DataTableSliderFilter', RootDataTableSliderFilter],
+			['DataTableSortList', RootDataTableSortList],
+			['DataTableToolbar', RootDataTableToolbar],
+			['DataTableViewOptions', RootDataTableViewOptions],
+			['useDataTable', useRootDataTable]
+		] as const;
+
+		for (const [name, exported] of publicComponents) {
+			expect(exported).toBeTruthy();
+			expect(readme).toContain(`- \`${name}\``);
+		}
 	});
 
 	it('documents the shipped data-table option surface', () => {

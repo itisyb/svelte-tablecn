@@ -33,6 +33,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - The adapter decision for the current parity target is explicit: `drawer`, `form`, and `sortable` preserve the installable slots, styling, exported names, IDs, and ARIA contracts without pulling in React-only runtime dependencies
 - Generated `static/r` registry artifacts are checked against `registry.json` so installable slices cannot silently miss or drift from their declared file targets
 - The keyboard shortcuts dialog is source-checked against the original 50-row shortcut map, and browser coverage exercises gated row mutation shortcuts, optional shortcuts, filtering, and the upstream empty state
+- README data-table component documentation is now checked against the package-root export surface, including `DataTableDateFilter` and `DataTableSliderFilter`
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

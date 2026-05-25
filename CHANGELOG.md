@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adapter scope is documented for `drawer`, `form`, and `sortable`: current parity covers installable slots/styling/ARIA contracts without adding React-only runtime dependencies.
 - Registry audit coverage now verifies every installable registry item is emitted in `static/r` with the expected file targets.
 - Keyboard shortcut dialog coverage now checks the full original 50-row shortcut map.
+- Data-table README component documentation now includes the exported date and slider filter components and is checked against package-root exports.
 
 ### Fixed
 
