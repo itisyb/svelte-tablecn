@@ -3302,6 +3302,33 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
 	});
 
+	it('should undo and redo paste-style cell batches like the original grid hook', async () => {
+		await render(DataGridUndoRedoFixture);
+
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+		await expect.element(page.getByLabelText('first role')).toHaveTextContent('Engineer');
+		await expect.element(page.getByLabelText('second name')).toHaveTextContent('Grace');
+		await expect.element(page.getByLabelText('second role')).toHaveTextContent('Manager');
+
+		await page.getByRole('button', { name: 'Paste batch' }).click();
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
+		await expect.element(page.getByLabelText('first role')).toHaveTextContent('Researcher');
+		await expect.element(page.getByLabelText('second name')).toHaveTextContent('Katherine');
+		await expect.element(page.getByLabelText('second role')).toHaveTextContent('Analyst');
+
+		await page.getByRole('button', { name: 'Undo' }).click();
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+		await expect.element(page.getByLabelText('first role')).toHaveTextContent('Engineer');
+		await expect.element(page.getByLabelText('second name')).toHaveTextContent('Grace');
+		await expect.element(page.getByLabelText('second role')).toHaveTextContent('Manager');
+
+		await page.getByRole('button', { name: 'Redo' }).click();
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
+		await expect.element(page.getByLabelText('first role')).toHaveTextContent('Researcher');
+		await expect.element(page.getByLabelText('second name')).toHaveTextContent('Katherine');
+		await expect.element(page.getByLabelText('second role')).toHaveTextContent('Analyst');
+	});
+
 	it('should not wrap horizontal arrow navigation across rows', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
