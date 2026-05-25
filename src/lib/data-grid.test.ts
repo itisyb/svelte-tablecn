@@ -694,6 +694,10 @@ describe('README UI primitive docs', () => {
 describe('non-README parity docs', () => {
 	const changelog = readFileSync('CHANGELOG.md', 'utf8');
 	const parityPlan = readFileSync('PARITY_PLAN.md', 'utf8');
+	const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as {
+		dependencies?: Record<string, string>;
+		devDependencies?: Record<string, string>;
+	};
 
 	it('records shipped shortcut, primitive, and select-editor parity work outside the README', () => {
 		for (const phrase of [
@@ -710,6 +714,34 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'
 		);
+	});
+
+	it('records adapter decisions for primitive parity without React-only runtime dependencies', () => {
+		for (const phrase of [
+			'current primitive parity intentionally excludes React-only runtime integrations',
+			'no Vaul drag/snap physics in `drawer`',
+			'no `react-hook-form` controller adapter in `form`',
+			'no dnd-kit keyboard sensor/announcement layer in `sortable`'
+		]) {
+			expect(parityPlan).toContain(phrase);
+		}
+
+		expect(changelog).toContain('Adapter scope is documented for `drawer`, `form`, and `sortable`');
+
+		const dependencies = {
+			...(packageJson.dependencies ?? {}),
+			...(packageJson.devDependencies ?? {})
+		};
+
+		for (const reactOnlyDependency of [
+			'vaul',
+			'react-hook-form',
+			'@dnd-kit/core',
+			'@dnd-kit/sortable',
+			'@dnd-kit/modifiers'
+		]) {
+			expect(dependencies).not.toHaveProperty(reactOnlyDependency);
+		}
 	});
 });
 

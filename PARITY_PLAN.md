@@ -30,12 +30,13 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - `form` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using a Svelte-native error/context contract
 - README now documents the shortcut dialog and standalone `drawer`, `form`, and `sortable` registry slices against the shipped public API
 - The non-README docs now record the shipped shortcut dialog, standalone primitive registry slices, package-root/UI-barrel primitive helper/type exports, and select editor radius parity fix
+- The adapter decision for the current parity target is explicit: `drawer`, `form`, and `sortable` preserve the installable slots, styling, exported names, IDs, and ARIA contracts without pulling in React-only runtime dependencies
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
 1. keyboard shortcut verification against the shipped grid behavior and shortcut UI
 2. a completion audit across exports, registry items, docs, and runtime behavior
-3. explicit adapter decisions for deeper `drawer` drag/snap behavior, richer `form` controller integration, and any deeper sortable keyboard/announcement parity if those are required
+3. optional follow-up issues for deeper `drawer` drag/snap behavior, richer `form` controller integration, and sortable keyboard/announcement parity if the project decides to go beyond the current installable primitive contract
 
 ## Recommended Starting Point
 
@@ -100,12 +101,17 @@ Why this first:
 - `sortable` is ported with the existing Svelte drag dependency
 - `drawer` is ported with the existing Bits Dialog dependency and upstream slot/direction styling contract
 - `form` is ported with a Svelte-native error/context contract that preserves upstream IDs, slots, and ARIA wiring
+- current primitive parity intentionally excludes React-only runtime integrations:
+  - no Vaul drag/snap physics in `drawer`
+  - no `react-hook-form` controller adapter in `form`
+  - no dnd-kit keyboard sensor/announcement layer in `sortable`
+  These require explicit dependency/product decisions before implementation.
 
 ## Risks
 
-- `drawer` depends on Vaul in upstream React; the current Svelte port covers the modal drawer contract with Bits Dialog, but deeper drag/snap behavior still needs an explicit dependency decision if required
-- `form` depends on `react-hook-form` upstream; the current Svelte port covers the primitive contract, but richer controller-level integration needs an explicit Svelte form-state adapter if required
-- `sortable` uses `svelte-dnd-action`, so any deeper keyboard or announcement parity work needs to respect that library's event model
+- `drawer` depends on Vaul in upstream React; the current Svelte port covers the modal drawer contract with Bits Dialog. Drag/snap physics should be a separate follow-up only if a Svelte drawer dependency is accepted.
+- `form` depends on `react-hook-form` upstream; the current Svelte port covers the primitive contract. Controller-level integration should be a separate follow-up only after choosing a Svelte form-state adapter.
+- `sortable` uses `svelte-dnd-action`, so dnd-kit-style keyboard sensors or screen-reader announcements should be a separate follow-up only if that accessibility scope is required for the Svelte dependency model.
 - naming can still drift if exports and registry entries are not checked after each parity slice
 
 ## Next Milestone
@@ -113,6 +119,6 @@ Why this first:
 Ship this small, clean milestone next:
 
 1. complete a requirement-by-requirement parity audit across exports, registry items, docs, and runtime behavior
-2. decide whether the remaining adapter risks (`drawer` drag/snap behavior, richer `form` integration, deeper sortable accessibility behavior) are required for the current parity target or should be tracked separately
+2. if the audit accepts the current installable primitive scope, track deeper adapter behavior separately instead of treating it as required for this parity PR
 
 That gives the fastest path to a real parity improvement before opening richer adapter decisions for `drawer` drag/snap behavior or `form` controller-level integration.
