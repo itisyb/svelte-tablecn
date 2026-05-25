@@ -7,9 +7,11 @@
 		FilterOperator,
 		FilterVariant
 	} from '$lib/types/data-table.js';
+	import { CalendarDate, parseDate, type DateValue } from '@internationalized/date';
 	import { getDefaultFilterOperator, getFilterOperators } from '$lib/types/data-table.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
+	import { Calendar as CalendarPicker } from '$lib/components/ui/calendar/index.js';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
 	import {
 		Command,
@@ -27,6 +29,7 @@
 	} from '$lib/components/ui/select/index.js';
 	import { useId } from 'bits-ui';
 	import DataTableRangeFilter from './data-table-range-filter.svelte';
+	import DataGridRangeCalendar from '$lib/components/data-grid/data-grid-range-calendar.svelte';
 	import { cn } from '$lib/utils.js';
 	import { generateId } from '$lib/id.js';
 	import { formatDate } from '$lib/format.js';
@@ -218,6 +221,27 @@
 		draftSecondaryValue = value == null ? '' : String(value);
 	}
 
+	function calendarDateToString(value: DateValue): string {
+		return value.toString();
+	}
+
+	function toCalendarDate(value: string | undefined): DateValue | undefined {
+		if (!value) return undefined;
+
+		try {
+			if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+				return parseDate(value.split('T')[0] ?? value);
+			}
+
+			const date = new Date(Number(value));
+			if (Number.isNaN(date.getTime())) return undefined;
+
+			return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
+		} catch {
+			return undefined;
+		}
+	}
+
 	function selectColumnForDraft(column: AvailableColumn) {
 		selectedColumnId = column.id;
 		draftValue = '';
@@ -276,7 +300,7 @@
 		}
 	}
 
-	function addFilterForColumn(column: AvailableColumn, value?: string) {
+	function addFilterForColumn(column: AvailableColumn, value?: string, secondaryValue = draftSecondaryValue) {
 		const nextValue = value ?? draftValue;
 		const filterValue =
 			column.variant === 'multiSelect'
@@ -284,7 +308,7 @@
 					? [nextValue]
 					: []
 				: column.variant === 'range' || column.variant === 'dateRange'
-					? [nextValue, draftSecondaryValue].filter(Boolean)
+					? [nextValue, secondaryValue].filter(Boolean)
 					: nextValue;
 
 		if (
@@ -775,6 +799,57 @@
 						</CommandGroup>
 					</CommandList>
 				</Command>
+			{:else if selectedColumn.variant === 'date'}
+				<Command loop class="[&_[data-slot=command-input-wrapper]_svg]:hidden">
+					<CommandInput
+						bind:ref={draftInputRef}
+						bind:value={getDraftValue, setDraftValue}
+						onkeydown={onDraftInputKeyDown}
+						placeholder={selectedColumn.label}
+					/>
+					<CommandList>
+						<CalendarPicker
+							aria-label={`Select ${selectedColumn.label} date`}
+							type="single"
+							value={toCalendarDate(draftValue)}
+							onValueChange={(value: DateValue | undefined) => {
+								if (!value) return;
+								addFilterForColumn(selectedColumn, calendarDateToString(value));
+							}}
+							captionLayout="dropdown"
+						/>
+					</CommandList>
+				</Command>
+			{:else if selectedColumn.variant === 'dateRange'}
+				<Command loop class="[&_[data-slot=command-input-wrapper]_svg]:hidden">
+					<CommandInput
+						bind:ref={draftInputRef}
+						bind:value={getDraftValue, setDraftValue}
+						onkeydown={onDraftInputKeyDown}
+						placeholder={selectedColumn.label}
+					/>
+					<CommandList>
+						<DataGridRangeCalendar
+							aria-label={`Select ${selectedColumn.label} date range`}
+							value={{
+								start: toCalendarDate(draftValue),
+								end: toCalendarDate(draftSecondaryValue)
+							}}
+							onValueChange={(range) => {
+								const start = range.start ? calendarDateToString(range.start) : '';
+								const end = range.end ? calendarDateToString(range.end) : '';
+
+								draftValue = start;
+								draftSecondaryValue = end;
+
+								if (start && end) {
+									addFilterForColumn(selectedColumn, start, end);
+								}
+							}}
+							captionLayout="dropdown"
+						/>
+					</CommandList>
+				</Command>
 			{:else}
 				<div class="space-y-3 p-4">
 					<div class="space-y-1">
@@ -783,17 +858,17 @@
 					</div>
 
 					<div class="space-y-2">
-						{#if selectedColumn.variant === 'range' || selectedColumn.variant === 'dateRange'}
+						{#if selectedColumn.variant === 'range'}
 							<div class="grid gap-2 sm:grid-cols-2">
 								<Input
 									bind:ref={draftInputRef}
-									type={selectedColumn.variant === 'range' ? 'number' : 'date'}
+									type="number"
 									bind:value={getDraftValue, setDraftValue}
 									onkeydown={onDraftInputKeyDown}
 									placeholder="From"
 								/>
 								<Input
-									type={selectedColumn.variant === 'range' ? 'number' : 'date'}
+									type="number"
 									bind:value={getDraftSecondaryValue, setDraftSecondaryValue}
 									placeholder="To"
 								/>
@@ -801,7 +876,7 @@
 						{:else}
 							<Input
 								bind:ref={draftInputRef}
-								type={selectedColumn.variant === 'date' ? 'date' : 'text'}
+								type="text"
 								bind:value={getDraftValue, setDraftValue}
 								onkeydown={onDraftInputKeyDown}
 								placeholder="Enter value..."
@@ -813,7 +888,7 @@
 							size="sm"
 							class="justify-start"
 							onclick={() => addFilterForColumn(selectedColumn)}
-							disabled={selectedColumn.variant === 'range' || selectedColumn.variant === 'dateRange'
+							disabled={selectedColumn.variant === 'range'
 								? !draftValue || !draftSecondaryValue
 								: !draftValue}
 						>

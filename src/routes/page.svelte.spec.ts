@@ -2220,6 +2220,15 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).toMatch(
 			/\{:else if selectedColumn\.variant === 'text' \|\| selectedColumn\.variant === 'number'\}[\s\S]*<BadgeCheck \/>[\s\S]*Filter by "\{draftValue\}"[\s\S]*\{:else\}/
 		);
+		expect(dataTableFilterMenuSource).toMatch(
+			/\{:else if selectedColumn\.variant === 'date'\}[\s\S]*<CalendarPicker[\s\S]*type="single"[\s\S]*captionLayout="dropdown"[\s\S]*\{:else if selectedColumn\.variant === 'dateRange'\}/
+		);
+		expect(dataTableFilterMenuSource).toMatch(
+			/\{:else if selectedColumn\.variant === 'dateRange'\}[\s\S]*<DataGridRangeCalendar[\s\S]*captionLayout="dropdown"[\s\S]*\{:else\}/
+		);
+		expect(dataTableFilterMenuSource).not.toContain(
+			"type={selectedColumn.variant === 'range' ? 'number' : 'date'}"
+		);
 	});
 
 	it('should close data table filter field selector after choosing a field like the original table', () => {
