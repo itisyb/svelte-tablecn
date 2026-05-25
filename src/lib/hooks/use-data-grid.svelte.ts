@@ -2814,20 +2814,18 @@ export function useDataGrid<TData extends RowData>(
 
 	// Global keyboard handler for search shortcut (Cmd+F / Ctrl+F)
 	$effect(() => {
-		if (!enableSearch) return;
-
 		function onGlobalKeyDown(event: KeyboardEvent) {
 			const target = event.target;
 			if (!(target instanceof HTMLElement)) return;
 
 			const { key, ctrlKey, metaKey, shiftKey } = event;
 			const isCtrlPressed = ctrlKey || metaKey;
+			const isInDataGrid = dataGridRef?.contains(target) ?? false;
+			const isInSearchInput = target.closest('[role="search"]') !== null;
 
 			// Handle Cmd+F / Ctrl+F for search
-			if (isCtrlPressed && !shiftKey && key === 'f') {
+			if (enableSearch && isCtrlPressed && !shiftKey && key === 'f') {
 				const isInInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
-				const isInDataGrid = dataGridRef?.contains(target) ?? false;
-				const isInSearchInput = target.closest('[role="search"]') !== null;
 
 				if (isInDataGrid || isInSearchInput || !isInInput) {
 					event.preventDefault();
@@ -2840,6 +2838,20 @@ export function useDataGrid<TData extends RowData>(
 							dataGridRef?.focus();
 						});
 					}
+				}
+				return;
+			}
+
+			if (!isInDataGrid) return;
+
+			if (key === 'Escape') {
+				const hasSelections =
+					selectionState.selectedCells.size > 0 || Object.keys(rowSelection).length > 0;
+
+				if (hasSelections) {
+					event.preventDefault();
+					event.stopPropagation();
+					onSelectionClear();
 				}
 			}
 		}

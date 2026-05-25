@@ -1099,6 +1099,42 @@ describe('/+page.svelte', () => {
 		await waitFor(() => !focusedCell.hasAttribute('data-focused'));
 	});
 
+	it('should clear selection from the global Escape capture path like the original grid', async () => {
+		await render(DataGridCtrlShiftEdgeFixture);
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		const row = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const focusedCell = await waitFor(() =>
+			row.querySelectorAll<HTMLElement>('[data-slot="grid-cell-wrapper"]').item(2)
+		);
+
+		focusedCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		focusedCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		focusedCell.click();
+		await waitFor(() => focusedCell.hasAttribute('data-focused'));
+
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 'ArrowLeft',
+				ctrlKey: true,
+				shiftKey: true,
+				bubbles: true,
+				cancelable: true
+			})
+		);
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('3');
+
+		focusedCell.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Escape', bubbles: false, cancelable: true })
+		);
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
+		expect(focusedCell.hasAttribute('data-focused')).toBe(true);
+	});
+
 	it('should not run grid select-all while a cell editor is active', async () => {
 		await render(DataGridCtrlShiftEdgeFixture);
 
