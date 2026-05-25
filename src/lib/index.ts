@@ -107,6 +107,8 @@ export { Label } from './components/ui/label';
 export { Checkbox } from './components/ui/checkbox';
 export { Select } from './components/ui/select';
 export { Slider } from './components/ui/slider';
+export { Toggle, toggleVariants } from './components/ui/toggle';
+export { ToggleGroup, ToggleGroupItem } from './components/ui/toggle-group';
 export {
 	Table,
 	TableHeader,

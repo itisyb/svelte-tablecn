@@ -112,6 +112,9 @@ import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import sonnerSource from '$lib/components/ui/sonner/sonner.svelte?raw';
 import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
 import tableHeadSource from '$lib/components/ui/table/table-head.svelte?raw';
+import toggleSource from '$lib/components/ui/toggle/toggle.svelte?raw';
+import toggleGroupSource from '$lib/components/ui/toggle-group/toggle-group.svelte?raw';
+import toggleGroupItemSource from '$lib/components/ui/toggle-group/toggle-group-item.svelte?raw';
 import tooltipProviderSource from '$lib/components/ui/tooltip/tooltip-provider.svelte?raw';
 import dataGridSource from '$lib/components/data-grid/data-grid.svelte?raw';
 
@@ -1690,6 +1693,27 @@ describe('/+page.svelte', () => {
 		expect(labelSource).toContain('flex select-none items-center gap-2');
 		expect(labelSource).toContain('peer-disabled:cursor-not-allowed');
 		expect(labelSource).toContain('group-data-[disabled=true]:pointer-events-none');
+	});
+
+	it('should expose the original ui toggle primitive styling', () => {
+		expect(libIndexSource).toContain(
+			"export { Toggle, toggleVariants } from './components/ui/toggle';"
+		);
+		expect(toggleSource).toContain('data-slot="toggle"');
+		expect(toggleSource).toContain('data-[state=on]:bg-accent');
+		expect(toggleSource).toContain('focus-visible:ring-[3px]');
+		expect(toggleSource).toContain('default: "h-9 min-w-9 px-2"');
+	});
+
+	it('should expose the original ui toggle group primitive styling', () => {
+		expect(libIndexSource).toContain(
+			"export { ToggleGroup, ToggleGroupItem } from './components/ui/toggle-group';"
+		);
+		expect(toggleGroupSource).toContain('data-slot="toggle-group"');
+		expect(toggleGroupSource).toContain('group/toggle-group flex w-fit items-center rounded-md');
+		expect(toggleGroupItemSource).toContain('data-slot="toggle-group-item"');
+		expect(toggleGroupItemSource).toContain('first:rounded-l-md last:rounded-r-md');
+		expect(toggleGroupItemSource).toContain('data-[variant=outline]:border-l-0');
 	});
 
 	it('should keep data table slider filter inputs compact like the original table', () => {

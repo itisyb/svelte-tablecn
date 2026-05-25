@@ -29,3 +29,5 @@ export {
 	SelectGroupHeading
 } from './select';
 export { Slider } from './slider';
+export { Toggle, toggleVariants } from './toggle';
+export { ToggleGroup, ToggleGroupItem } from './toggle-group';
