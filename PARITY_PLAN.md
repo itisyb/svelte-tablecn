@@ -21,6 +21,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - data grid skeletons
 - standalone data-grid select-column helpers
 - README grid usage, paste flag, and undo/redo wiring examples are now checked against the shipped public API
+- README data-table usage and option examples are now checked against the shipped public API
 - `data-table`, pagination, toolbar, advanced toolbar, view options, skeletons, and filter/sort menus
 - date, range, slider, faceted, and list-style data-table filters
 - core UI primitive styling and slot markers for the shipped Svelte primitives
@@ -109,6 +110,6 @@ Why this first:
 Ship this small, clean milestone next:
 
 1. continue shortcut verification beyond undo/redo, global Escape, and filter/search conflict paths
-2. finish the broader README/data-table documentation audit
+2. finish any remaining broader documentation audit outside the README examples
 
 That gives the fastest path to a real parity improvement before opening larger dependency decisions for `drawer`, `form`, or `sortable`.

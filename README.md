@@ -352,12 +352,40 @@ The package also includes the core non-editable `data-table` surface:
 	import { DataTable, DataTableToolbar, useDataTable } from '$lib';
 	import type { ColumnDef } from '@tanstack/table-core';
 
+	type Employee = {
+		id: string;
+		name: string;
+		department: string;
+	};
+
+	let data = $state<Employee[]>([
+		{ id: '1', name: 'Ada Lovelace', department: 'Engineering' },
+		{ id: '2', name: 'Grace Hopper', department: 'Research' }
+	]);
+
 	const columns: ColumnDef<Employee, unknown>[] = [
 		{
+			id: 'name',
 			accessorKey: 'name',
 			header: 'Name',
-			meta: { label: 'Name', variant: 'text' },
-			enableColumnFilter: true
+			enableColumnFilter: true,
+			filterFn: 'includesString',
+			meta: { label: 'Name', variant: 'text' }
+		},
+		{
+			id: 'department',
+			accessorKey: 'department',
+			header: 'Department',
+			enableColumnFilter: true,
+			filterFn: 'equalsString',
+			meta: {
+				label: 'Department',
+				variant: 'select',
+				options: [
+					{ label: 'Engineering', value: 'Engineering' },
+					{ label: 'Research', value: 'Research' }
+				]
+			}
 		}
 	];
 
@@ -392,6 +420,14 @@ Relevant options:
 - `enableAdvancedFilter`
 - `scroll`
 - `shallow`
+- `pageCount`
+- `getRowId`
+- `initialState`
+- `enableRowSelection`
+- `enableMultiSort`
+- `manualPagination`
+- `manualSorting`
+- `manualFiltering`
 
 For advanced filters (multi-rule, AND/OR, operators), see [docs/ADVANCED_FILTERS.md](./docs/ADVANCED_FILTERS.md). The demo toggles **Filter list** vs **Filter menu** like tablecn’s `filterFlag`.
 

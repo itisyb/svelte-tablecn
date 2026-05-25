@@ -419,6 +419,43 @@ describe('README data-grid examples', () => {
 	});
 });
 
+describe('README data-table examples', () => {
+	const readme = readFileSync('README.md', 'utf8');
+
+	it('keeps the basic data-table example self-contained and filterable', () => {
+		expect(readme).toContain('type Employee = {');
+		expect(readme).toContain('let data = $state<Employee[]>([');
+		expect(readme).toContain("filterFn: 'includesString'");
+		expect(readme).toContain("filterFn: 'equalsString'");
+		expect(readme).toContain("variant: 'select'");
+		expect(readme).toContain('<DataTable {table}>');
+		expect(readme).toContain('<DataTableToolbar {table} />');
+	});
+
+	it('documents the shipped data-table option surface', () => {
+		for (const option of [
+			'queryKeys',
+			'history',
+			'debounceMs',
+			'throttleMs',
+			'clearOnDefault',
+			'enableAdvancedFilter',
+			'scroll',
+			'shallow',
+			'pageCount',
+			'getRowId',
+			'initialState',
+			'enableRowSelection',
+			'enableMultiSort',
+			'manualPagination',
+			'manualSorting',
+			'manualFiltering'
+		]) {
+			expect(readme).toContain(`- \`${option}\``);
+		}
+	});
+});
+
 describe('data-table registry items', () => {
 	function getRegistryTargets(name: string) {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
