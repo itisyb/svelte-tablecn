@@ -2150,7 +2150,8 @@ describe('/+page.svelte', () => {
 
 	it('should wrap tooltip roots in a provider like the original ui tooltip', () => {
 		expect(tooltipSource).toContain('<TooltipProvider>');
-		expect(tooltipSource).toContain('<TooltipPrimitive.Root {...restProps}>');
+		expect(tooltipSource).toContain('"data-slot": "tooltip"');
+		expect(tooltipSource).toContain('<TooltipPrimitive.Root {...rootProps}>');
 	});
 
 	it('should keep data table view option class passthrough aligned with the original table', () => {
