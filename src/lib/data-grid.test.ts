@@ -397,6 +397,28 @@ describe('data-grid registry item', () => {
 	});
 });
 
+describe('README data-grid examples', () => {
+	const readme = readFileSync('README.md', 'utf8');
+
+	it('keeps the main grid example aligned with feature-gated paste behavior', () => {
+		expect(readme).toContain('enableSearch: true,');
+		expect(readme).toContain('enablePaste: true');
+		expect(readme).toContain('| Ctrl/Cmd + V         | Paste when `enablePaste` is true |');
+	});
+
+	it('shows undo redo tracking wired through the grid data change path', () => {
+		expect(readme).toContain(
+			'import { DataGrid, useDataGrid, useDataGridUndoRedo, type UndoRedoCellUpdate } from'
+		);
+		expect(readme).toContain('trackCellsUpdate(cellUpdates);');
+		expect(readme).toContain('const dataGrid = useDataGrid({');
+		expect(readme).toContain('onDataChange,');
+		expect(readme).toContain('trackRowsAdd([row]);');
+		expect(readme).toContain('trackRowsDelete(rows);');
+		expect(readme).toContain('<DataGrid {...dataGrid} height={600} />');
+	});
+});
+
 describe('data-table registry items', () => {
 	function getRegistryTargets(name: string) {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {

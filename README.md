@@ -203,7 +203,8 @@ bunx shadcn-svelte@latest init
 			data = newData;
 		},
 		getRowId: (row) => row.id,
-		enableSearch: true
+		enableSearch: true,
+		enablePaste: true
 	});
 </script>
 
@@ -227,7 +228,27 @@ Use `useDataGridUndoRedo` to track cell edits, row adds, and row deletes:
 
 ```svelte
 <script lang="ts">
-	import { useDataGridUndoRedo, type UndoRedoCellUpdate } from '$lib';
+	import { DataGrid, useDataGrid, useDataGridUndoRedo, type UndoRedoCellUpdate } from '$lib';
+	import type { ColumnDef } from '@tanstack/table-core';
+
+	type Employee = {
+		id: string;
+		name: string;
+	};
+
+	let data = $state<Employee[]>([]);
+
+	const columns: ColumnDef<Employee, unknown>[] = [
+		{
+			accessorKey: 'name',
+			header: 'Name',
+			meta: { cell: { variant: 'short-text' } }
+		}
+	];
+
+	function createBlankEmployee(): Employee {
+		return { id: crypto.randomUUID(), name: '' };
+	}
 
 	const { trackCellsUpdate, trackRowsAdd, trackRowsDelete } = useDataGridUndoRedo({
 		data: () => data,
@@ -237,12 +258,61 @@ Use `useDataGridUndoRedo` to track cell edits, row adds, and row deletes:
 		getRowId: (row) => row.id
 	});
 
-	function onDataChange(newData) {
+	function onDataChange(newData: Employee[]) {
 		const cellUpdates: UndoRedoCellUpdate[] = [];
-		// Diff changed rows here, then call trackCellsUpdate(cellUpdates)
+		const maxLength = Math.max(data.length, newData.length);
+
+		for (let rowIndex = 0; rowIndex < maxLength; rowIndex++) {
+			const previousRow = data[rowIndex];
+			const nextRow = newData[rowIndex];
+
+			if (!previousRow || !nextRow) continue;
+
+			const keys = new Set<keyof Employee>([
+				...(Object.keys(previousRow) as Array<keyof Employee>),
+				...(Object.keys(nextRow) as Array<keyof Employee>)
+			]);
+
+			for (const key of keys) {
+				const previousValue = previousRow[key];
+				const newValue = nextRow[key];
+
+				if (!Object.is(previousValue, newValue)) {
+					cellUpdates.push({
+						rowId: previousRow.id,
+						columnId: String(key),
+						previousValue,
+						newValue
+					});
+				}
+			}
+		}
+
+		if (cellUpdates.length > 0) {
+			trackCellsUpdate(cellUpdates);
+		}
+
 		data = newData;
 	}
+
+	const dataGrid = useDataGrid({
+		data: () => data,
+		columns,
+		onDataChange,
+		onRowAdd: () => {
+			const row = createBlankEmployee();
+			data = [...data, row];
+			trackRowsAdd([row]);
+		},
+		onRowsDelete: (rows: Employee[]) => {
+			trackRowsDelete(rows);
+			data = data.filter((row) => !rows.includes(row));
+		},
+		getRowId: (row) => row.id
+	});
 </script>
+
+<DataGrid {...dataGrid} height={600} />
 ```
 
 ## Skeleton
@@ -353,11 +423,14 @@ The data grid supports multiple cell types:
 | Enter                | Start editing / Move down        |
 | Escape               | Cancel editing / Clear selection |
 | Ctrl/Cmd + C         | Copy selected cells              |
-| Ctrl/Cmd + V         | Paste                            |
+| Ctrl/Cmd + V         | Paste when `enablePaste` is true |
 | Ctrl/Cmd + X         | Cut                              |
-| Ctrl/Cmd + Z         | Undo                             |
-| Ctrl/Cmd + Shift + Z | Redo                             |
-| Ctrl/Cmd + F         | Open search                      |
+| Ctrl/Cmd + Z         | Undo when undo/redo is wired     |
+| Ctrl/Cmd + Shift + Z | Redo when undo/redo is wired     |
+| Ctrl/Cmd + F         | Open search when enabled         |
+| Ctrl/Cmd + Shift + F | Toggle the filter menu           |
+| Ctrl/Cmd + Shift + S | Toggle the sort menu             |
+| Ctrl/Cmd + /         | Show keyboard shortcuts          |
 | Delete/Backspace     | Clear cell content               |
 
 ## API Reference
@@ -367,17 +440,24 @@ The data grid supports multiple cell types:
 | Option          | Type                                            | Description                                  |
 | --------------- | ----------------------------------------------- | -------------------------------------------- |
 | `data`          | `TData[] \| (() => TData[])`                    | Data array or getter function for reactivity |
-| `columns`       | `ColumnDef<TData>[]`                            | Column definitions                           |
+| `columns`       | `ColumnDef<TData, unknown>[]`                   | Column definitions                           |
 | `getRowId`      | `(row) => string`                               | Function to get unique row ID                |
+| `autoFocus`     | `boolean \| { rowIndex?, columnId? }`           | Focus the grid or a specific cell on mount   |
+| `dir`           | `'ltr' \| 'rtl' \| (() => 'ltr' \| 'rtl')`      | Text direction                               |
+| `enableColumnSelection` | `boolean`                                | Enable header-driven column selection        |
+| `enableSingleCellSelection` | `boolean`                            | Select the focused cell on click             |
 | `enableSearch`  | `boolean`                                       | Enable search functionality                  |
 | `enablePaste`   | `boolean`                                       | Enable paste functionality                   |
 | `readOnly`      | `boolean`                                       | Make grid read-only                          |
+| `overscan`      | `number`                                        | Virtual row overscan count                   |
 | `rowHeight`     | `'short' \| 'medium' \| 'tall' \| 'extra-tall'` | Row height preset                            |
 | `initialState`  | `object`                                        | Initial table state (sorting, filters, etc.) |
 | `onDataChange`  | `(data: TData[]) => void`                       | Called when data changes                     |
-| `onRowAdd`      | `() => void`                                    | Called when a new row is added               |
+| `onRowAdd`      | `(event?) => Partial<CellPosition> \| null \| void \| Promise<...>` | Called when a new row is added |
 | `onRowsAdd`     | `(count: number) => void`                       | Called when multiple rows are added          |
 | `onRowsDelete`  | `(rows, indices) => void`                       | Called when rows are deleted                 |
+| `onRowHeightChange` | `(value) => void`                           | Called when row height changes               |
+| `onPaste`       | `(updates) => void \| Promise<void>`            | Called before pasted updates are applied     |
 | `onFilesUpload` | `(params) => Promise<FileCellData[]>`           | Handle file uploads                          |
 | `onFilesDelete` | `(params) => void`                              | Handle file deletions                        |
 
@@ -385,7 +465,7 @@ The data grid supports multiple cell types:
 
 ```typescript
 meta: {
-  label: string;           // Column label
+  label?: string;          // Column label
   cell: {
     variant: CellVariant;  // Cell type
     // Variant-specific options:
