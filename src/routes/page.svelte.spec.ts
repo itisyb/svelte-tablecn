@@ -53,6 +53,7 @@ import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import HooksFixture from './hooks-fixture.svelte';
+import SheetFixture from './sheet-fixture.svelte';
 import libIndexSource from '$lib/index.ts?raw';
 import actionBarSource from '$lib/components/ui/action-bar/action-bar.svelte?raw';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
@@ -113,6 +114,10 @@ import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import selectContentSource from '$lib/components/ui/select/select-content.svelte?raw';
 import selectGroupSource from '$lib/components/ui/select/select-group.svelte?raw';
 import selectTriggerSource from '$lib/components/ui/select/select-trigger.svelte?raw';
+import sheetContentSource from '$lib/components/ui/sheet/sheet-content.svelte?raw';
+import sheetHeaderSource from '$lib/components/ui/sheet/sheet-header.svelte?raw';
+import sheetIndexSource from '$lib/components/ui/sheet/index.ts?raw';
+import sheetOverlaySource from '$lib/components/ui/sheet/sheet-overlay.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import sonnerSource from '$lib/components/ui/sonner/sonner.svelte?raw';
 import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
@@ -178,6 +183,26 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('lazy initializations')).toHaveTextContent('1');
 		await expect.element(page.getByLabelText('mounted')).toHaveTextContent('mounted');
 		await expect.element(page.getByLabelText('media query')).toHaveTextContent('matched');
+	});
+
+	it('should render the original sheet primitive on top of dialog primitives', async () => {
+		await render(SheetFixture);
+
+		const sheet = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="sheet-content"]')
+		);
+		const overlay = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="sheet-overlay"]')
+		);
+
+		expect(sheet.getAttribute('role')).toBe('dialog');
+		expect(sheet.className).toContain('slide-in-from-left');
+		expect(sheet.className).toContain('border-r');
+		expect(sheet.textContent).toContain('Sheet title');
+		expect(overlay.className).toContain('bg-black/50');
+		expect(document.querySelector<HTMLElement>('[data-slot="sheet-close"]')?.textContent).toContain(
+			'Close'
+		);
 	});
 
 	it('should only autofocus object targets with a column id like the original grid', async () => {
@@ -1589,6 +1614,24 @@ describe('/+page.svelte', () => {
 		expect(dialogContentSource).toContain('data-slot="dialog-close"');
 		expect(dialogContentSource).toContain('data-[state=open]:bg-accent');
 		expect(dialogContentSource).toContain('data-[state=open]:text-muted-foreground');
+	});
+
+	it('should expose the original ui sheet primitive styling and API', () => {
+		expect(libIndexSource).toContain("} from './components/ui/sheet';");
+		expect(sheetIndexSource).toContain('Root as Sheet');
+		expect(sheetIndexSource).toContain('Content as SheetContent');
+		expect(sheetIndexSource).toContain('Trigger as SheetTrigger');
+		expect(sheetContentSource).toContain('data-slot="sheet-content"');
+		expect(sheetOverlaySource).toContain('data-slot="sheet-overlay"');
+		expect(sheetOverlaySource).toContain('bg-black/50');
+		expect(sheetContentSource).toContain('data-[state=open]:duration-500');
+		expect(sheetContentSource).toContain('data-[state=closed]:duration-300');
+		expect(sheetContentSource).toContain('slide-in-from-right');
+		expect(sheetContentSource).toContain('slide-in-from-left');
+		expect(sheetContentSource).toContain('slide-in-from-top');
+		expect(sheetContentSource).toContain('slide-in-from-bottom');
+		expect(sheetContentSource).toContain('data-slot="sheet-close"');
+		expect(sheetHeaderSource).toContain('flex flex-col gap-1.5 p-4');
 	});
 
 	it('should keep button shadows aligned with the original ui button', () => {

@@ -120,6 +120,16 @@ export { Input } from './components/ui/input';
 export { Label } from './components/ui/label';
 export { Checkbox } from './components/ui/checkbox';
 export { Select } from './components/ui/select';
+export {
+	Sheet,
+	SheetClose,
+	SheetContent,
+	SheetDescription,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger
+} from './components/ui/sheet';
 export { Slider } from './components/ui/slider';
 export { Toggle, toggleVariants } from './components/ui/toggle';
 export { ToggleGroup, ToggleGroupItem } from './components/ui/toggle-group';
