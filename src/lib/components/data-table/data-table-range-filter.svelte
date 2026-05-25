@@ -101,13 +101,13 @@
 				placeholder={formatRangeValue(bounds.min)}
 				min={bounds.min}
 				max={bounds.max}
-				class={cn('h-8 w-full rounded', unit && 'pr-7')}
+				class={cn('h-8 w-full rounded', unit && 'pr-8')}
 				value={String(range[0])}
 				oninput={(event) => onRangeInputChange(event, true)}
 			/>
 			{#if unit}
 				<span
-					class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-1.5 text-muted-foreground text-xs"
+					class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm"
 				>
 					{unit}
 				</span>
@@ -126,13 +126,13 @@
 				placeholder={formatRangeValue(bounds.max)}
 				min={bounds.min}
 				max={bounds.max}
-				class={cn('h-8 w-full rounded', unit && 'pr-7')}
+				class={cn('h-8 w-full rounded', unit && 'pr-8')}
 				value={String(range[1])}
 				oninput={(event) => onRangeInputChange(event)}
 			/>
 			{#if unit}
 				<span
-					class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-1.5 text-muted-foreground text-xs"
+					class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm"
 				>
 					{unit}
 				</span>

@@ -2371,6 +2371,15 @@ describe('/+page.svelte', () => {
 		);
 	});
 
+	it('should keep data table range filter unit adornments aligned with original numeric inputs', () => {
+		expect(dataTableRangeFilterSource).toContain("class={cn('h-8 w-full rounded', unit && 'pr-8')}");
+		expect(dataTableRangeFilterSource).toContain(
+			'rounded-r-md bg-accent px-2 text-muted-foreground text-sm'
+		);
+		expect(dataTableRangeFilterSource).not.toContain("unit && 'pr-7'");
+		expect(dataTableRangeFilterSource).not.toContain('px-1.5 text-muted-foreground text-xs');
+	});
+
 	it('should keep data table sort field options plain like the original table', () => {
 		expect(dataTableSortListSource).not.toContain("from '@lucide/svelte/icons/check'");
 		expect(dataTableSortListSource).not.toContain("column.id === sort.id ? 'opacity-100'");
