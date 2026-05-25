@@ -101,6 +101,7 @@ import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-m
 import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
+import selectTriggerSource from '$lib/components/ui/select/select-trigger.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import sonnerSource from '$lib/components/ui/sonner/sonner.svelte?raw';
 import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
@@ -1594,6 +1595,13 @@ describe('/+page.svelte', () => {
 	it('should keep command dialog default description aligned with the original ui command', () => {
 		expect(commandDialogSource).toContain('description = "Search for a command to run..."');
 		expect(commandDialogSource).not.toContain('description = "Search for a command to run",');
+	});
+
+	it('should keep select trigger disabled styling aligned with original and Bits state', () => {
+		expect(selectTriggerSource).toContain('disabled:cursor-not-allowed');
+		expect(selectTriggerSource).toContain('data-[disabled]:cursor-not-allowed');
+		expect(selectTriggerSource).toContain('disabled:opacity-50');
+		expect(selectTriggerSource).toContain('data-[disabled]:opacity-50');
 	});
 
 	it('should keep table checkbox alignment aligned with the original ui table', () => {
