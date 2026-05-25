@@ -187,10 +187,6 @@
 				value={range}
 				onValueChange={onSliderChange}
 			/>
-			<div class="flex items-center justify-between text-muted-foreground text-xs">
-				<span>{formatRangeValue(bounds.min)}{unit ? ` ${unit}` : ''}</span>
-				<span>{formatRangeValue(bounds.max)}{unit ? ` ${unit}` : ''}</span>
-			</div>
 		</div>
 		<Button
 			aria-label={`Clear ${title ?? 'column'} filter`}

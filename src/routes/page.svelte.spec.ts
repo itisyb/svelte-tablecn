@@ -1689,6 +1689,9 @@ describe('/+page.svelte', () => {
 		expect(dataTableSliderFilterSource).toContain('<label for={`${inputId}-slider`} class="sr-only">{title} slider</label>');
 		expect(dataTableSliderFilterSource).toContain('pattern="[0-9]*"');
 		expect(dataTableSliderFilterSource).toContain('id={`${inputId}-slider`}');
+		expect(dataTableSliderFilterSource).not.toContain(
+			'flex items-center justify-between text-muted-foreground text-xs'
+		);
 	});
 
 	it('should keep tooltip provider delay aligned with the original ui tooltip', () => {
