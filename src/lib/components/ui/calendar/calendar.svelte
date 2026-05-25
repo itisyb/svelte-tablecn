@@ -47,6 +47,7 @@ get along, so we shut typescript up by casting `value` to `never`.
 	bind:value={value as never}
 	bind:ref
 	bind:placeholder
+	data-slot="calendar"
 	{weekdayFormat}
 	{disableDaysOutsideMonth}
 	class={cn(

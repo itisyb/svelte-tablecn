@@ -1644,6 +1644,7 @@ describe('/+page.svelte', () => {
 
 	it('should keep calendar root sizing aligned with the original ui calendar', () => {
 		expect(calendarSource).toContain('group/calendar w-fit p-3');
+		expect(calendarSource).toContain('data-slot="calendar"');
 		expect(dataGridRangeCalendarSource).toContain('group/calendar w-fit p-3');
 	});
 
