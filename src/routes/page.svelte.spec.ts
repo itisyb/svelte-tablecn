@@ -2146,6 +2146,8 @@ describe('/+page.svelte', () => {
 
 	it('should keep tooltip provider delay aligned with the original ui tooltip', () => {
 		expect(tooltipProviderSource).toContain('delayDuration = 0');
+		expect(tooltipProviderSource).toContain('"data-slot": "tooltip-provider"');
+		expect(tooltipProviderSource).toContain('<TooltipPrimitive.Provider {...providerProps}>');
 	});
 
 	it('should wrap tooltip roots in a provider like the original ui tooltip', () => {

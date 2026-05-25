@@ -6,8 +6,16 @@
 		delayDuration = 0,
 		...restProps
 	}: TooltipPrimitive.ProviderProps = $props();
+
+	const providerProps = $derived(
+		{
+			"data-slot": "tooltip-provider",
+			delayDuration,
+			...restProps
+		} as TooltipPrimitive.ProviderProps & { "data-slot": string }
+	);
 </script>
 
-<TooltipPrimitive.Provider {delayDuration} {...restProps}>
+<TooltipPrimitive.Provider {...providerProps}>
 	{@render children?.()}
 </TooltipPrimitive.Provider>
