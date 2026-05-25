@@ -136,8 +136,7 @@ export function getFiltersStateParser<TData>(
 					filter.id === rightFilter.id &&
 					leftValue === rightValue &&
 					filter.variant === rightFilter.variant &&
-					filter.operator === rightFilter.operator &&
-					filter.filterId === rightFilter.filterId
+					filter.operator === rightFilter.operator
 				);
 			})
 	};

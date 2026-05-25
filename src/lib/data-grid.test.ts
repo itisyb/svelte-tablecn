@@ -557,6 +557,33 @@ describe('data-table state parsers', () => {
 			)
 		).toBeNull();
 	});
+
+	it('compares filters without generated filter ids like upstream', () => {
+		const parser = getFiltersStateParser<{ name: string }>(new Set(['name']));
+
+		expect(
+			parser.eq(
+				[
+					{
+						id: 'name',
+						value: 'alice',
+						variant: 'text',
+						operator: 'contains',
+						filterId: 'first-id'
+					}
+				],
+				[
+					{
+						id: 'name',
+						value: 'alice',
+						variant: 'text',
+						operator: 'contains',
+						filterId: 'second-id'
+					}
+				]
+			)
+		).toBe(true);
+	});
 });
 
 describe('getColumnPinningStyle', () => {
