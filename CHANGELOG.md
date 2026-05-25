@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Generated registry artifact coverage now verifies item metadata and file `type`/`target` entries against `registry.json`.
 - Data grid select editor popovers now use a smaller in-cell radius while keeping the shared select primitive unchanged.
 - README registry documentation now lists every installable `/r/*.json` item and is checked against `registry.json`.
+- Registry parity coverage now asserts every original installable item remains present, with only `drawer`, `form`, and `sortable` as intentional Svelte additions.
 
 ### Fixed
 

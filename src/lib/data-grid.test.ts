@@ -534,6 +534,32 @@ describe('package root form component exports', () => {
 });
 
 describe('data-grid registry item', () => {
+	it('keeps every upstream installable registry item with only intentional Svelte additions', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{ name: string }>;
+		};
+		const originalRegistryItems = [
+			'data-table',
+			'data-table-sort-list',
+			'data-table-filter-list',
+			'data-table-filter-menu',
+			'data-grid',
+			'data-grid-select-column',
+			'data-grid-sort-menu',
+			'data-grid-row-height-menu',
+			'data-grid-view-menu',
+			'data-grid-keyboard-shortcuts',
+			'data-grid-filter-menu',
+			'data-grid-skeleton',
+			'use-data-grid-undo-redo'
+		];
+		const svelteOnlyRegistryItems = ['drawer', 'form', 'sortable'];
+		const expectedRegistryItems = [...originalRegistryItems, ...svelteOnlyRegistryItems].sort();
+		const actualRegistryItems = registry.items.map((item) => item.name).sort();
+
+		expect(actualRegistryItems).toEqual(expectedRegistryItems);
+	});
+
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{

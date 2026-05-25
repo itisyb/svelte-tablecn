@@ -40,6 +40,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
 - The data-grid single-select cell editor uses a smaller cell-scoped content radius, leaving the shared select primitive default radius intact
 - README registry documentation is checked against `registry.json` so every installable `/r/*.json` slice is listed
+- Registry item names are checked against the original installable set, with `drawer`, `form`, and `sortable` recorded as intentional Svelte-only primitive additions
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
