@@ -1947,6 +1947,8 @@ describe('/+page.svelte', () => {
 		expect(uiIndexSource).toContain('PopoverAnchor');
 		expect(libIndexSource).toContain('PopoverAnchor');
 		expect(popoverRootSource).toContain('PopoverProvider');
+		expect(popoverRootSource).toContain('"data-slot": "popover"');
+		expect(popoverRootSource).toContain('<PopoverPrimitive.Root bind:open {...rootProps}>');
 		expect(popoverProviderSource).toContain('setPopoverContext');
 		expect(popoverAnchorSource).toContain('data-slot="popover-anchor"');
 		expect(popoverContentSource).toContain('customAnchor={anchor}');

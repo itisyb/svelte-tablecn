@@ -12,9 +12,16 @@
 	import PopoverProvider from "./popover-provider.svelte";
 
 	let { open = $bindable(false), children, ...restProps }: PopoverProps = $props();
+
+	const rootProps = $derived(
+		{
+			"data-slot": "popover",
+			...restProps
+		} as PopoverPrimitive.RootProps & { "data-slot": string }
+	);
 </script>
 
-<PopoverPrimitive.Root bind:open {...restProps}>
+<PopoverPrimitive.Root bind:open {...rootProps}>
 	<PopoverProvider>
 		{@render children?.()}
 	</PopoverProvider>
