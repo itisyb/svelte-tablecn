@@ -34,6 +34,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Generated `static/r` registry artifacts are checked against `registry.json` so installable slices cannot silently miss or drift from their declared file targets
 - The keyboard shortcuts dialog is source-checked against the original 50-row shortcut map, and browser coverage exercises gated row mutation shortcuts, optional shortcuts, filtering, and the upstream empty state
 - README data-table component documentation is now checked against the package-root export surface, including `DataTableDateFilter` and `DataTableSliderFilter`
+- README primitive export documentation is checked against the package-root export surface, including `DrawerPortal`, `DrawerOverlay`, `getFormFieldState`, and `getFormErrorMessage`
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

@@ -460,8 +460,8 @@ The Svelte port also ships the upstream-style UI primitives used by the grid and
 
 | Primitive  | Public exports                                                                   | Registry item       |
 | ---------- | -------------------------------------------------------------------------------- | ------------------- |
-| `drawer`   | `Drawer`, `DrawerContent`, `DrawerTrigger`, `DrawerClose`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription` | `/r/drawer.json`    |
-| `form`     | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage` | `/r/form.json`      |
+| `drawer`   | `Drawer`, `DrawerPortal`, `DrawerOverlay`, `DrawerContent`, `DrawerTrigger`, `DrawerClose`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription` | `/r/drawer.json`    |
+| `form`     | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, `getFormFieldState`, `getFormErrorMessage` | `/r/form.json`      |
 | `sortable` | `Sortable`, `SortableContent`, `SortableItem`, `SortableItemHandle`, `SortableOverlay` | `/r/sortable.json`  |
 
 Install a primitive directly with the shadcn-svelte CLI:

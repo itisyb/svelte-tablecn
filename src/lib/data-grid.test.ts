@@ -715,6 +715,8 @@ describe('README UI primitive docs', () => {
 	it('keeps documented primitive exports aligned with the package root', () => {
 		const documentedExports = [
 			['Drawer', RootDrawer],
+			['DrawerPortal', RootDrawerPortal],
+			['DrawerOverlay', RootDrawerOverlay],
 			['DrawerContent', RootDrawerContent],
 			['DrawerTrigger', RootDrawerTrigger],
 			['DrawerClose', RootDrawerClose],
@@ -729,6 +731,8 @@ describe('README UI primitive docs', () => {
 			['FormControl', RootFormControl],
 			['FormDescription', RootFormDescription],
 			['FormMessage', RootFormMessage],
+			['getFormFieldState', getRootFormFieldState],
+			['getFormErrorMessage', getRootFormErrorMessage],
 			['Sortable', RootSortable],
 			['SortableContent', RootSortableContent],
 			['SortableItem', RootSortableItem],
