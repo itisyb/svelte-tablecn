@@ -295,6 +295,7 @@ export { type VirtualItem } from '@tanstack/virtual-core';
 // ==============================================
 // Types
 // ==============================================
+export type { Prettify, SearchParams } from './types';
 export type {
 	CellSelectOption,
 	FileCellData,

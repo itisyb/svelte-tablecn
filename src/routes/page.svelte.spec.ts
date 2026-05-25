@@ -103,6 +103,7 @@ import dataTableSkeletonSource from '$lib/components/data-table/data-table-skele
 import dataTableToolbarSource from '$lib/components/data-table/data-table-toolbar.svelte?raw';
 import dataTableViewOptionsSource from '$lib/components/data-table/data-table-view-options.svelte?raw';
 import dataTableSource from '$lib/components/data-table/data-table.svelte?raw';
+import typesIndexSource from '$lib/types/index.ts?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
@@ -1706,6 +1707,14 @@ describe('/+page.svelte', () => {
 		expect(libIndexSource).toContain('SearchMatch');
 		expect(libIndexSource).toContain('SearchStateData');
 		expect(libIndexSource).toContain('FilterValue');
+	});
+
+	it('should expose original-style general utility types without server-only dependencies', () => {
+		expect(typesIndexSource).toContain('export type Prettify<T>');
+		expect(typesIndexSource).toContain('export interface SearchParams');
+		expect(typesIndexSource).not.toContain('drizzle-orm');
+		expect(typesIndexSource).not.toContain('React.ElementType');
+		expect(libIndexSource).toContain("export type { Prettify, SearchParams } from './types';");
 	});
 
 	it('should keep button shadows aligned with the original ui button', () => {
