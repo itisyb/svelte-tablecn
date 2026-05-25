@@ -538,7 +538,7 @@ describe('data-grid registry item', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{
 				name: string;
-				files?: Array<{ target: string }>;
+				files?: Array<{ type?: string; target: string }>;
 			}>;
 		};
 		const dataGrid = registry.items.find((item) => item.name === 'data-grid');
@@ -936,7 +936,13 @@ describe('data-table registry items', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{
 				name: string;
-				files?: Array<{ target: string }>;
+				type?: string;
+				title?: string;
+				description?: string;
+				dependencies?: string[];
+				registryDependencies?: string[];
+				meta?: Record<string, unknown>;
+				files?: Array<{ type?: string; target: string }>;
 			}>;
 		};
 		const registryIndex = JSON.parse(readFileSync('static/r/index.json', 'utf8')) as Array<{
@@ -947,6 +953,7 @@ describe('data-table registry items', () => {
 		const registryItemNames = registry.items.map((item) => item.name).sort();
 		const emittedItemNames = registryIndex.map((item) => item.name).sort();
 		const missing: string[] = [];
+		const mismatchedMetadata: string[] = [];
 		const mismatchedFiles: string[] = [];
 
 		expect(emittedItemNames).toEqual(registryItemNames);
@@ -966,17 +973,42 @@ describe('data-table registry items', () => {
 			}
 
 			const emitted = JSON.parse(readFileSync(emittedPath, 'utf8')) as {
-				files?: Array<{ target: string }>;
+				type?: string;
+				title?: string;
+				description?: string;
+				dependencies?: string[];
+				registryDependencies?: string[];
+				meta?: Record<string, unknown>;
+				files?: Array<{ type?: string; target: string }>;
 			};
-			const expectedTargets = (item.files?.map((file) => file.target) ?? []).sort();
-			const emittedTargets = (emitted.files?.map((file) => file.target) ?? []).sort();
+			const metadataFields = [
+				'type',
+				'title',
+				'description',
+				'dependencies',
+				'registryDependencies',
+				'meta'
+			] as const;
 
-			if (emittedTargets.join('\n') !== expectedTargets.join('\n')) {
-				mismatchedFiles.push(`${item.name}: emitted artifact targets differ from registry.json`);
+			for (const field of metadataFields) {
+				const expectedValue = item[field] ?? (field === 'registryDependencies' ? [] : undefined);
+				const emittedValue = emitted[field] ?? (field === 'registryDependencies' ? [] : undefined);
+
+				if (JSON.stringify(emittedValue) !== JSON.stringify(expectedValue)) {
+					mismatchedMetadata.push(`${item.name}: ${field} differs from registry.json`);
+				}
+			}
+
+			const expectedFiles = (item.files?.map((file) => `${file.type}:${file.target}`) ?? []).sort();
+			const emittedFiles = (emitted.files?.map((file) => `${file.type}:${file.target}`) ?? []).sort();
+
+			if (emittedFiles.join('\n') !== expectedFiles.join('\n')) {
+				mismatchedFiles.push(`${item.name}: emitted artifact file entries differ from registry.json`);
 			}
 		}
 
 		expect(missing).toEqual([]);
+		expect(mismatchedMetadata).toEqual([]);
 		expect(mismatchedFiles).toEqual([]);
 	});
 

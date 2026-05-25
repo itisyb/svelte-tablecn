@@ -37,6 +37,8 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README primitive export documentation is checked against the package-root export surface, including `DrawerPortal`, `DrawerOverlay`, `getFormFieldState`, and `getFormErrorMessage`
 - README data-grid option documentation is checked against `UseDataGridOptions`, including sorting, filter, and row-selection change callbacks
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
+- Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
+- The data-grid single-select cell editor uses a smaller cell-scoped content radius, leaving the shared select primitive default radius intact
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

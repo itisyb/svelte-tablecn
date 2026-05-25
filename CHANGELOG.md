@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UI primitive README export documentation now includes drawer portal/overlay and form helper exports.
 - Data-grid README option documentation now includes sorting, filter, and row-selection change callbacks and is checked against `UseDataGridOptions`.
 - Data-table README option documentation now includes required `data` and `columns` options and is checked against `UseDataTableOptions`.
+- Generated registry artifact coverage now verifies item metadata and file `type`/`target` entries against `registry.json`.
+- Data grid select editor popovers now use a smaller in-cell radius while keeping the shared select primitive unchanged.
 
 ### Fixed
 

@@ -290,7 +290,6 @@
 		"title": "Data Grid Skeleton",
 		"type": "registry:component",
 		"description": "A composable skeleton component for the data grid.",
-		"dependencies": [],
 		"registryDependencies": [
 			"skeleton"
 		],
