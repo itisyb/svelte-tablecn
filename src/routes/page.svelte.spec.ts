@@ -1784,6 +1784,19 @@ describe('/+page.svelte', () => {
 		expect(dropdownMenuSubTriggerSource).toContain('focus:bg-accent');
 	});
 
+	it('should keep dropdown menu item inset spacing aligned with the original ui menu', () => {
+		expect(dropdownMenuItemSource).toContain('data-[inset]:pl-8');
+		expect(dropdownMenuItemSource).not.toContain('data-[inset]:ps-8');
+		expect(dropdownMenuLabelSource).toContain('data-[inset]:pl-8');
+		expect(dropdownMenuGroupHeadingSource).toContain('data-[inset]:pl-8');
+		expect(dropdownMenuCheckboxItemSource).toContain('py-1.5 pr-2 pl-8');
+		expect(dropdownMenuCheckboxItemSource).toContain('absolute left-2');
+		expect(dropdownMenuRadioItemSource).toContain('py-1.5 pr-2 pl-8');
+		expect(dropdownMenuRadioItemSource).toContain('absolute left-2');
+		expect(dropdownMenuSubTriggerSource).toContain('data-[inset]:pl-8');
+		expect(dropdownMenuSubTriggerSource).toContain('ml-auto size-4');
+	});
+
 	it('should keep select item focus styling aligned with the original ui select', () => {
 		expect(selectItemSource).toContain('data-[highlighted]:bg-accent');
 		expect(selectItemSource).toContain('data-[highlighted]:text-accent-foreground');
