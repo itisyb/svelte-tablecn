@@ -1,6 +1,11 @@
 <script lang="ts">
 	import type { ColumnDef } from '@tanstack/table-core';
-	import { DataGrid, useDataGrid } from '$lib/components/data-grid';
+	import {
+		DataGrid,
+		type UndoRedoCellUpdate,
+		useDataGrid,
+		useDataGridUndoRedo
+	} from '$lib/components/data-grid';
 
 	type Row = {
 		id: string;
@@ -39,12 +44,43 @@
 		}
 	];
 
-	const { table, selectedCellsSet, getSelectionVersion, ...dataGridProps } = useDataGrid({
-		columns,
+	const undoRedo = useDataGridUndoRedo({
 		data: () => data,
 		onDataChange: (nextData) => {
 			data = nextData;
 		},
+		getRowId: (row) => row.id
+	});
+
+	function handleDataChange(nextData: Row[]) {
+		const keys = ['first', 'second', 'third'] as const;
+		const cellUpdates: UndoRedoCellUpdate[] = [];
+
+		for (let rowIndex = 0; rowIndex < Math.max(data.length, nextData.length); rowIndex++) {
+			const previousRow = data[rowIndex];
+			const nextRow = nextData[rowIndex];
+			if (!previousRow || !nextRow) continue;
+
+			for (const key of keys) {
+				if (Object.is(previousRow[key], nextRow[key])) continue;
+
+				cellUpdates.push({
+					rowId: previousRow.id,
+					columnId: key,
+					previousValue: previousRow[key],
+					newValue: nextRow[key]
+				});
+			}
+		}
+
+		undoRedo.trackCellsUpdate(cellUpdates);
+		data = nextData;
+	}
+
+	const { table, selectedCellsSet, getSelectionVersion, ...dataGridProps } = useDataGrid({
+		columns,
+		data: () => data,
+		onDataChange: handleDataChange,
 		getRowId: (row) => row.id
 	});
 
@@ -57,3 +93,8 @@
 
 <DataGrid {...dataGridProps} {table} {selectedCellsSet} {getSelectionVersion} height={140} />
 <output aria-label="selected cells">{selectedCount}</output>
+<output aria-label="first value">{data[0]?.first}</output>
+<output aria-label="second value">{data[0]?.second}</output>
+<output aria-label="third value">{data[0]?.third}</output>
+<output aria-label="can undo">{undoRedo.canUndo ? 'yes' : 'no'}</output>
+<output aria-label="can redo">{undoRedo.canRedo ? 'yes' : 'no'}</output>

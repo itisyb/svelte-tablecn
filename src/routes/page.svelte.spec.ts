@@ -1186,6 +1186,62 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('3');
 	});
 
+	it('should undo and redo selected-cell clears like the original grid hook', async () => {
+		await render(DataGridCtrlShiftEdgeFixture);
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		const row = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const lastCell = await waitFor(() =>
+			row.querySelectorAll<HTMLElement>('[data-slot="grid-cell-wrapper"]').item(2)
+		);
+
+		lastCell.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		lastCell.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		lastCell.click();
+		await waitFor(() => lastCell.hasAttribute('data-focused'));
+
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 'ArrowLeft',
+				ctrlKey: true,
+				shiftKey: true,
+				bubbles: true,
+				cancelable: true
+			})
+		);
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('3');
+		await expect.element(page.getByLabelText('first value')).toHaveTextContent('A');
+		await expect.element(page.getByLabelText('second value')).toHaveTextContent('B');
+		await expect.element(page.getByLabelText('third value')).toHaveTextContent('C');
+
+		grid.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true }));
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
+		await expect.element(page.getByLabelText('first value')).toHaveTextContent('');
+		await expect.element(page.getByLabelText('second value')).toHaveTextContent('');
+		await expect.element(page.getByLabelText('third value')).toHaveTextContent('');
+		await expect.element(page.getByLabelText('can undo')).toHaveTextContent('yes');
+
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+
+		await expect.element(page.getByLabelText('first value')).toHaveTextContent('A');
+		await expect.element(page.getByLabelText('second value')).toHaveTextContent('B');
+		await expect.element(page.getByLabelText('third value')).toHaveTextContent('C');
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
+		await expect.element(page.getByLabelText('can redo')).toHaveTextContent('yes');
+
+		window.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, shiftKey: true, bubbles: true })
+		);
+
+		await expect.element(page.getByLabelText('first value')).toHaveTextContent('');
+		await expect.element(page.getByLabelText('second value')).toHaveTextContent('');
+		await expect.element(page.getByLabelText('third value')).toHaveTextContent('');
+	});
+
 	it('should paste only fitting rows from the paste expansion dialog', async () => {
 		await render(DataGridPasteFitExistingFixture);
 

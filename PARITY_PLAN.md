@@ -26,8 +26,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
-1. focused `use-data-grid-undo-redo` behavior hardening:
-   - selection plus edit history interactions
+1. keyboard shortcut verification against the shipped grid behavior and shortcut UI
 2. upstream UI primitives that are not shipped in the Svelte port yet:
    - `drawer`
    - `form`
@@ -37,11 +36,11 @@ The biggest remaining gaps versus upstream React `tablecn` are:
 
 ## Recommended Starting Point
 
-Start with the remaining `use-data-grid-undo-redo` edge cases, then evaluate the missing primitive ports one at a time.
+Start with shortcut verification and the export/docs audit, then evaluate the missing primitive ports one at a time.
 
 Why this first:
 
-- the hook is shipped and the demo wiring tracks cells and rows, with focused edit, paste-batch, and paste-expansion undo coverage now in place
+- the undo/redo hook is shipped and the demo wiring tracks cells and rows, with focused edit, paste-batch, paste-expansion, and selected-cell clear undo coverage now in place
 - it improves the existing `data-grid` directly
 - it is much smaller than the `data-table` surface
 - it reduces the biggest credibility gap before expanding scope
@@ -51,11 +50,10 @@ Why this first:
 
 ### Phase 1: Finish Data Grid Parity
 
-1. Add focused undo/redo behavior tests for selection history
-2. Verify keyboard shortcuts against the shipped hook behavior
-3. Verify public API exports stay aligned
-4. Update keyboard shortcuts UI if behavior changes
-5. Align docs and registry with the actual shipped grid surface
+1. Verify keyboard shortcuts against the shipped hook behavior
+2. Verify public API exports stay aligned
+3. Update keyboard shortcuts UI if behavior changes
+4. Align docs and registry with the actual shipped grid surface
 
 ### Phase 2: Validate and Tighten Grid API
 
@@ -83,7 +81,7 @@ Why this first:
 
 ### Grid Parity
 
-- undo and redo work for cell edits and paste operations
+- undo and redo work for cell edits, paste operations, and selected-cell clears
 - keyboard shortcuts match shipped behavior
 - `data-grid-skeleton` is available and exported
 - `data-grid-select-column` is reusable and documented
@@ -110,9 +108,8 @@ Why this first:
 
 Ship this small, clean milestone next:
 
-1. focused undo/redo tests for selection history
-2. shortcut verification
-3. package export and registry confirmation
-4. README correction or confirmation
+1. shortcut verification
+2. package export and registry confirmation
+3. README correction or confirmation
 
 That gives the fastest path to a real parity improvement before opening larger dependency decisions for `drawer`, `form`, or `sortable`.
