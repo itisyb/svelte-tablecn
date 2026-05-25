@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `DataGridKeyboardShortcuts` is documented with the shipped option surface and `Ctrl/Cmd + /` trigger.
+- Standalone `drawer`, `form`, and `sortable` registry slices are documented and exported from the package root.
+- Package root now forwards the Svelte-native form helper functions and the public `drawer`, `form`, and `sortable` primitive type contracts.
+
 ### Fixed
 
+- Data grid select editor popovers use the upstream select content radius instead of forcing square corners.
 - Cell and row selection after filtering: use row-model position (not core `row.index`) so shift-select and counts only include visible rows ([#20](https://github.com/itisyb/svelte-tablecn/issues/20))
 - Click outside the grid clears cell focus (tablecn behavior); no longer re-focuses the cell on `focusout`
 

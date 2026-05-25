@@ -75,7 +75,9 @@ import {
 	FormField as ComponentFormField,
 	FormItem as ComponentFormItem,
 	FormLabel as ComponentFormLabel,
-	FormMessage as ComponentFormMessage
+	FormMessage as ComponentFormMessage,
+	getFormErrorMessage as getComponentFormErrorMessage,
+	getFormFieldState as getComponentFormFieldState
 } from './components/ui/form/index.js';
 import {
 	BOOLEAN_FILTER_OPERATORS as ROOT_BOOLEAN_FILTER_OPERATORS,
@@ -108,6 +110,8 @@ import {
 	FormItem as RootFormItem,
 	FormLabel as RootFormLabel,
 	FormMessage as RootFormMessage,
+	getFormErrorMessage as getRootFormErrorMessage,
+	getFormFieldState as getRootFormFieldState,
 	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
 	OVERSCAN as ROOT_OVERSCAN,
 	RowSelectCell as RootRowSelectCell,
@@ -447,6 +451,32 @@ describe('package root form component exports', () => {
 		expect(RootFormLabel).toBe(ComponentFormLabel);
 		expect(RootFormMessage).toBe(ComponentFormMessage);
 	});
+
+	it('exposes the shipped form helpers from the package root', () => {
+		expect(getRootFormFieldState).toBe(getComponentFormFieldState);
+		expect(getRootFormErrorMessage).toBe(getComponentFormErrorMessage);
+	});
+
+	it('exposes the shipped primitive type contracts from the package root', () => {
+		const packageRoot = readFileSync('src/lib/index.ts', 'utf8');
+
+		for (const exportedType of [
+			'FormControlAttributes',
+			'FormContextValue',
+			'FormFieldContextValue',
+			'FormFieldError',
+			'FormFieldState',
+			'FormItemContextValue',
+			'DrawerContentProps',
+			'DrawerDirection',
+			'DrawerProps',
+			'SortableItemData',
+			'SortableOrientation',
+			'SortableValue'
+		]) {
+			expect(packageRoot).toContain(`type ${exportedType}`);
+		}
+	});
 });
 
 describe('data-grid registry item', () => {
@@ -656,6 +686,28 @@ describe('README UI primitive docs', () => {
 			expect(component).toBeTruthy();
 			expect(readme).toContain(name);
 		}
+	});
+});
+
+describe('non-README parity docs', () => {
+	const changelog = readFileSync('CHANGELOG.md', 'utf8');
+	const parityPlan = readFileSync('PARITY_PLAN.md', 'utf8');
+
+	it('records shipped shortcut, primitive, and select-editor parity work outside the README', () => {
+		for (const phrase of [
+			'DataGridKeyboardShortcuts',
+			'Standalone `drawer`, `form`, and `sortable` registry slices',
+			'primitive type contracts',
+			'upstream select content radius'
+		]) {
+			expect(changelog).toContain(phrase);
+		}
+
+		expect(parityPlan).toContain('package-root primitive helper/type exports');
+		expect(parityPlan).toContain('select editor radius parity fix');
+		expect(parityPlan).not.toContain(
+			'a final documentation audit against any newly completed parity surfaces outside the README examples'
+		);
 	});
 });
 

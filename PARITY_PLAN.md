@@ -29,12 +29,13 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - `drawer` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using the existing Bits Dialog foundation
 - `form` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using a Svelte-native error/context contract
 - README now documents the shortcut dialog and standalone `drawer`, `form`, and `sortable` registry slices against the shipped public API
+- The non-README docs now record the shipped shortcut dialog, standalone primitive registry slices, package-root primitive helper/type exports, and select editor radius parity fix
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
 1. keyboard shortcut verification against the shipped grid behavior and shortcut UI
-2. a final documentation audit against any newly completed parity surfaces outside the README examples
-3. a completion audit across exports, registry items, docs, and runtime behavior
+2. a completion audit across exports, registry items, docs, and runtime behavior
+3. explicit adapter decisions for deeper `drawer` drag/snap behavior, richer `form` controller integration, and any deeper sortable keyboard/announcement parity if those are required
 
 ## Recommended Starting Point
 
@@ -111,7 +112,7 @@ Why this first:
 
 Ship this small, clean milestone next:
 
-1. finish any remaining broader documentation audit outside the README examples
-2. complete a requirement-by-requirement parity audit across exports, registry items, docs, and runtime behavior
+1. complete a requirement-by-requirement parity audit across exports, registry items, docs, and runtime behavior
+2. decide whether the remaining adapter risks (`drawer` drag/snap behavior, richer `form` integration, deeper sortable accessibility behavior) are required for the current parity target or should be tracked separately
 
 That gives the fastest path to a real parity improvement before opening richer adapter decisions for `drawer` drag/snap behavior or `form` controller-level integration.
