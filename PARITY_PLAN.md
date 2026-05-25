@@ -6,7 +6,7 @@ Bring `svelte-tablecn` to feature parity with the original React `tablecn` in a 
 
 ## Current Status
 
-The local repo already covers most of the editable `data-grid` surface:
+The local repo now covers the main editable `data-grid` and `data-table` surfaces:
 
 - editable cells
 - keyboard navigation
@@ -18,22 +18,25 @@ The local repo already covers most of the editable `data-grid` surface:
 - virtualization
 - context menu
 - paste dialog
+- data grid skeletons
+- standalone data-grid select-column helpers
+- `data-table`, pagination, toolbar, advanced toolbar, view options, skeletons, and filter/sort menus
+- date, range, slider, faceted, and list-style data-table filters
+- core UI primitive styling and slot markers for the shipped Svelte primitives
 
-The biggest gaps versus upstream React `tablecn` are:
+The biggest remaining gaps versus upstream React `tablecn` are:
 
 1. `use-data-grid-undo-redo`
-2. `data-grid-skeleton`
-3. standalone `data-grid-select-column` helper/export
-4. the full `data-table` family:
-   - `data-table`
-   - `data-table-sort-list`
-   - `data-table-filter-list`
-   - `data-table-filter-menu`
-   - pagination, toolbar, advanced toolbar, faceted filters, date/range/slider filters, skeleton
+2. upstream UI primitives that are not shipped in the Svelte port yet:
+   - `drawer`
+   - `form`
+   - `sortable`
+3. a final export/registry audit for newly completed parity surfaces
+4. documentation examples that still need to be checked against the current public API
 
 ## Recommended Starting Point
 
-Start with `use-data-grid-undo-redo`.
+Start with `use-data-grid-undo-redo`, then evaluate the missing primitive ports one at a time.
 
 Why this first:
 
@@ -41,6 +44,7 @@ Why this first:
 - it improves the existing `data-grid` directly
 - it is much smaller than the `data-table` surface
 - it reduces the biggest credibility gap before expanding scope
+- it does not require choosing new Svelte equivalents for React-only dependencies like `vaul` or `react-hook-form`
 
 ## Execution Order
 
@@ -50,9 +54,7 @@ Why this first:
 2. Wire undo and redo keyboard shortcuts into the grid
 3. Expose undo and redo in the public API
 4. Update keyboard shortcuts UI to match behavior
-5. Add `data-grid-skeleton`
-6. Add a standalone `data-grid-select-column` export built from the current row-select pieces
-7. Align docs and registry with the actual shipped grid surface
+5. Align docs and registry with the actual shipped grid surface
 
 ### Phase 2: Validate and Tighten Grid API
 
@@ -63,24 +65,20 @@ Why this first:
    - selection plus edit history interactions
    - paste plus undo interactions
    - public select-column helper behavior
+   - public package exports and registry entries
 
-### Phase 3: Build Data Table Core
+### Phase 3: Close Missing UI Primitive Gaps
 
-1. Add `useDataTable` hook
-2. Add core `DataTable` component
-3. Add pagination
-4. Add toolbar and view options
-5. Add faceted filter support
-6. Add table skeleton
+1. Port `drawer` with an explicit Svelte dependency decision for Vaul-style behavior
+2. Port `form` only after choosing the Svelte form-state integration that replaces `react-hook-form`
+3. Port `sortable` against the existing `svelte-dnd-action` dependency
+4. Add source and browser tests for each primitive's slot markers, classes, and core interaction behavior
 
-### Phase 4: Build Advanced Data Table Features
+### Phase 4: Final Data Table API Audit
 
-1. Add sort list
-2. Add filter list
-3. Add filter menu
-4. Add advanced toolbar
-5. Add date, range, and slider filters
-6. Align types, config, and exports with upstream React behavior
+1. Verify `DataTable` examples against upstream table flows
+2. Recheck filter, sort, pagination, and toolbar public APIs
+3. Align types, config, docs, and exports with upstream behavior where practical
 
 ## Acceptance Criteria
 
@@ -95,18 +93,27 @@ Why this first:
 
 - a consumer can build the same server-side `data-table` flows as the React package
 - filtering, sorting, pagination, and toolbar flows are available through public exports
+- documented examples compile against the public package entrypoint
+
+### UI Primitive Parity
+
+- shipped primitives expose the same `data-slot` contract as upstream where the Svelte implementation has an equivalent component
+- `drawer`, `form`, and `sortable` are either ported or explicitly documented as out of scope until their dependency decisions are made
 
 ## Risks
 
-- the local repo currently has `data-table` types but no shipped `data-table` implementation, so naming can drift if we do not anchor to upstream API first
-- dependency installation is currently blocked locally because `node_modules` is not present, so full verification will require installing dependencies before checks/tests
+- `drawer` depends on Vaul in upstream React, so the Svelte port needs an equivalent behavior choice before implementation
+- `form` depends on `react-hook-form`, so a direct port is not possible without choosing a Svelte form-state contract
+- `sortable` is feasible with `svelte-dnd-action`, but it has a larger interaction surface than the slot-marker parity fixes
+- naming can still drift if exports and registry entries are not checked after each parity slice
 
-## First Milestone
+## Next Milestone
 
-Ship this small, clean milestone first:
+Ship this small, clean milestone next:
 
 1. `use-data-grid-undo-redo`
 2. shortcut integration
-3. README correction or confirmation
+3. focused tests for edits, paste, and selection history
+4. README correction or confirmation
 
-That gives the fastest path to a real parity improvement without opening the much larger `data-table` scope immediately.
+That gives the fastest path to a real parity improvement before opening larger dependency decisions for `drawer`, `form`, or `sortable`.
