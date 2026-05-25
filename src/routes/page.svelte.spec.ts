@@ -132,6 +132,7 @@ import textareaSource from '$lib/components/ui/textarea/textarea.svelte?raw';
 import toggleSource from '$lib/components/ui/toggle/toggle.svelte?raw';
 import toggleGroupSource from '$lib/components/ui/toggle-group/toggle-group.svelte?raw';
 import toggleGroupItemSource from '$lib/components/ui/toggle-group/toggle-group-item.svelte?raw';
+import tooltipSource from '$lib/components/ui/tooltip/tooltip.svelte?raw';
 import tooltipProviderSource from '$lib/components/ui/tooltip/tooltip-provider.svelte?raw';
 import dataGridSource from '$lib/components/data-grid/data-grid.svelte?raw';
 import utilsSource from '$lib/utils.ts?raw';
@@ -1940,6 +1941,11 @@ describe('/+page.svelte', () => {
 
 	it('should keep tooltip provider delay aligned with the original ui tooltip', () => {
 		expect(tooltipProviderSource).toContain('delayDuration = 0');
+	});
+
+	it('should wrap tooltip roots in a provider like the original ui tooltip', () => {
+		expect(tooltipSource).toContain('<TooltipProvider>');
+		expect(tooltipSource).toContain('<TooltipPrimitive.Root {...restProps}>');
 	});
 
 	it('should keep data table view option class passthrough aligned with the original table', () => {
