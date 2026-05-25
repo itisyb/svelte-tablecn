@@ -119,6 +119,7 @@ export { Fps, fpsVariants } from './components/ui/fps';
 export { Input } from './components/ui/input';
 export { Label } from './components/ui/label';
 export { Checkbox } from './components/ui/checkbox';
+export { Separator } from './components/ui/separator';
 export { Select } from './components/ui/select';
 export {
 	Sheet,
@@ -131,6 +132,8 @@ export {
 	SheetTrigger
 } from './components/ui/sheet';
 export { Slider } from './components/ui/slider';
+export { Skeleton } from './components/ui/skeleton';
+export { Textarea } from './components/ui/textarea';
 export { Toggle, toggleVariants } from './components/ui/toggle';
 export { ToggleGroup, ToggleGroupItem } from './components/ui/toggle-group';
 export {

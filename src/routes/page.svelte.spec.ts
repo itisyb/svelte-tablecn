@@ -118,10 +118,12 @@ import sheetContentSource from '$lib/components/ui/sheet/sheet-content.svelte?ra
 import sheetHeaderSource from '$lib/components/ui/sheet/sheet-header.svelte?raw';
 import sheetIndexSource from '$lib/components/ui/sheet/index.ts?raw';
 import sheetOverlaySource from '$lib/components/ui/sheet/sheet-overlay.svelte?raw';
+import skeletonSource from '$lib/components/ui/skeleton/skeleton.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import sonnerSource from '$lib/components/ui/sonner/sonner.svelte?raw';
 import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
 import tableHeadSource from '$lib/components/ui/table/table-head.svelte?raw';
+import textareaSource from '$lib/components/ui/textarea/textarea.svelte?raw';
 import toggleSource from '$lib/components/ui/toggle/toggle.svelte?raw';
 import toggleGroupSource from '$lib/components/ui/toggle-group/toggle-group.svelte?raw';
 import toggleGroupItemSource from '$lib/components/ui/toggle-group/toggle-group-item.svelte?raw';
@@ -280,8 +282,8 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-sm');
-		expect(content.className).not.toContain('rounded-md');
+		expect(content.className).toContain('rounded-md');
+		expect(content.className).not.toContain('rounded-sm');
 		expect(content.className).not.toContain('rounded-[2px]');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
@@ -1632,6 +1634,18 @@ describe('/+page.svelte', () => {
 		expect(sheetContentSource).toContain('slide-in-from-bottom');
 		expect(sheetContentSource).toContain('data-slot="sheet-close"');
 		expect(sheetHeaderSource).toContain('flex flex-col gap-1.5 p-4');
+	});
+
+	it('should expose remaining original lightweight ui primitives from the package root', () => {
+		expect(libIndexSource).toContain("export { Separator } from './components/ui/separator';");
+		expect(libIndexSource).toContain("export { Skeleton } from './components/ui/skeleton';");
+		expect(libIndexSource).toContain("export { Textarea } from './components/ui/textarea';");
+		expect(separatorSource).toContain('data-[orientation=horizontal]:h-px');
+		expect(skeletonSource).toContain('data-slot="skeleton"');
+		expect(skeletonSource).toContain('animate-pulse');
+		expect(textareaSource).toContain('data-slot={dataSlot}');
+		expect(textareaSource).toContain('field-sizing-content');
+		expect(textareaSource).toContain('focus-visible:ring-[3px]');
 	});
 
 	it('should keep button shadows aligned with the original ui button', () => {

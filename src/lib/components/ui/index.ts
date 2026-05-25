@@ -28,6 +28,7 @@ export { Fps, fpsVariants } from './fps';
 export { Input } from './input';
 export { Label } from './label';
 export { Checkbox } from './checkbox';
+export { Separator } from './separator';
 export {
 	Select,
 	SelectContent,
@@ -53,4 +54,6 @@ export {
 	SheetTrigger
 } from './sheet';
 export { Toggle, toggleVariants } from './toggle';
+export { Skeleton } from './skeleton';
+export { Textarea } from './textarea';
 export { ToggleGroup, ToggleGroupItem } from './toggle-group';
