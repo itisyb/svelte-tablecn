@@ -2207,6 +2207,21 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).not.toContain('option.count !== undefined');
 	});
 
+	it('should keep data table filter menu draft values inside the command list like the original table', () => {
+		expect(dataTableFilterMenuSource).toContain(
+			"import BadgeCheck from '@lucide/svelte/icons/badge-check'"
+		);
+		expect(dataTableFilterMenuSource).toMatch(
+			/\{:else if selectedColumn\.variant === 'boolean'\}[\s\S]*<CommandInput[\s\S]*placeholder=\{selectedColumn\.label\}[\s\S]*<CommandItem value="true"[\s\S]*<CommandItem[\s\S]*value="false"[\s\S]*\{:else if selectedColumn\.variant === 'select'/
+		);
+		expect(dataTableFilterMenuSource).toMatch(
+			/\{:else if selectedColumn\.variant === 'select' \|\| selectedColumn\.variant === 'multiSelect'\}[\s\S]*<CommandInput[\s\S]*placeholder=\{selectedColumn\.label\}[\s\S]*\{#each selectedColumn\.options \?\? \[\] as option[\s\S]*\{:else if selectedColumn\.variant === 'text'/
+		);
+		expect(dataTableFilterMenuSource).toMatch(
+			/\{:else if selectedColumn\.variant === 'text' \|\| selectedColumn\.variant === 'number'\}[\s\S]*<BadgeCheck \/>[\s\S]*Filter by "\{draftValue\}"[\s\S]*\{:else\}/
+		);
+	});
+
 	it('should close data table filter field selector after choosing a field like the original table', () => {
 		expect(dataTableFilterMenuSource).toContain('openFieldSelectors.has(filterKey)');
 		expect(dataTableFilterMenuSource).toContain('setFieldSelectorOpen(filterKey, false)');

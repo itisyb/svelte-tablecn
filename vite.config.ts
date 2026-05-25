@@ -5,6 +5,9 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
+	optimizeDeps: {
+		include: ['@lucide/svelte/icons/badge-check']
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

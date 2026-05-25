@@ -31,6 +31,7 @@
 	import { generateId } from '$lib/id.js';
 	import { formatDate } from '$lib/format.js';
 
+	import BadgeCheck from '@lucide/svelte/icons/badge-check';
 	import Check from '@lucide/svelte/icons/check';
 	import FilterIcon from '@lucide/svelte/icons/list-filter';
 	import Text from '@lucide/svelte/icons/text';
@@ -696,6 +697,84 @@
 						</CommandGroup>
 					</CommandList>
 				</Command>
+			{:else if selectedColumn.variant === 'boolean'}
+				<Command loop class="[&_[data-slot=command-input-wrapper]_svg]:hidden">
+					<CommandInput
+						bind:ref={draftInputRef}
+						bind:value={getDraftValue, setDraftValue}
+						onkeydown={onDraftInputKeyDown}
+						placeholder={selectedColumn.label}
+					/>
+					<CommandList>
+						<CommandGroup>
+							<CommandItem value="true" onSelect={() => addFilterForColumn(selectedColumn, 'true')}>
+								True
+							</CommandItem>
+							<CommandItem
+								value="false"
+								onSelect={() => addFilterForColumn(selectedColumn, 'false')}
+							>
+								False
+							</CommandItem>
+						</CommandGroup>
+					</CommandList>
+				</Command>
+			{:else if selectedColumn.variant === 'select' || selectedColumn.variant === 'multiSelect'}
+				<Command loop class="[&_[data-slot=command-input-wrapper]_svg]:hidden">
+					<CommandInput
+						bind:ref={draftInputRef}
+						bind:value={getDraftValue, setDraftValue}
+						onkeydown={onDraftInputKeyDown}
+						placeholder={selectedColumn.label}
+					/>
+					<CommandList>
+						<CommandEmpty>No options found.</CommandEmpty>
+						<CommandGroup>
+							{#each selectedColumn.options ?? [] as option (option.value)}
+								<CommandItem
+									value={option.value}
+									onSelect={() => addFilterForColumn(selectedColumn, option.value)}
+								>
+									{#if option.icon}
+										{@const Icon = option.icon}
+										<Icon />
+									{/if}
+									<span class="truncate">{option.label}</span>
+									{#if option.count}
+										<span class="ml-auto font-mono text-xs">{option.count}</span>
+									{/if}
+								</CommandItem>
+							{/each}
+						</CommandGroup>
+					</CommandList>
+				</Command>
+			{:else if selectedColumn.variant === 'text' || selectedColumn.variant === 'number'}
+				<Command loop class="[&_[data-slot=command-input-wrapper]_svg]:hidden">
+					<CommandInput
+						bind:ref={draftInputRef}
+						bind:value={getDraftValue, setDraftValue}
+						onkeydown={onDraftInputKeyDown}
+						placeholder={selectedColumn.label}
+					/>
+					<CommandList>
+						<CommandGroup>
+							{@const isEmpty = !draftValue.trim()}
+							<CommandItem
+								value={draftValue}
+								disabled={isEmpty}
+								onSelect={() => addFilterForColumn(selectedColumn)}
+							>
+								{#if isEmpty}
+									<Text />
+									<span>Type to add filter...</span>
+								{:else}
+									<BadgeCheck />
+									<span class="truncate">Filter by "{draftValue}"</span>
+								{/if}
+							</CommandItem>
+						</CommandGroup>
+					</CommandList>
+				</Command>
 			{:else}
 				<div class="space-y-3 p-4">
 					<div class="space-y-1">
@@ -703,104 +782,45 @@
 						<div class="text-muted-foreground text-sm">{selectedColumn.label}</div>
 					</div>
 
-					{#if selectedColumn.variant === 'boolean'}
-						<div class="grid gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								class="justify-start"
-								onclick={() => addFilterForColumn(selectedColumn, 'true')}
-							>
-								<Check class="size-4 text-muted-foreground" />
-								True
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								class="justify-start"
-								onclick={() => addFilterForColumn(selectedColumn, 'false')}
-							>
-								<Check class="size-4 text-muted-foreground opacity-0" />
-								False
-							</Button>
-						</div>
-					{:else if selectedColumn.variant === 'select' || selectedColumn.variant === 'multiSelect'}
-						<Command>
-							<CommandInput
-								bind:ref={draftInputRef}
-								bind:value={getDraftValue, setDraftValue}
-								onkeydown={onDraftInputKeyDown}
-								placeholder="Search options..."
-							/>
-							<CommandList>
-								<CommandEmpty>No options found.</CommandEmpty>
-								<CommandGroup>
-									{#each selectedColumn.options ?? [] as option (option.value)}
-										<CommandItem
-											value={option.value}
-											onSelect={() => addFilterForColumn(selectedColumn, option.value)}
-										>
-											{#if option.icon}
-												{@const Icon = option.icon}
-												<Icon />
-											{/if}
-											<span class="truncate">{option.label}</span>
-											{#if option.count}
-												<span class="ml-auto font-mono text-xs">{option.count}</span>
-											{/if}
-										</CommandItem>
-									{/each}
-								</CommandGroup>
-							</CommandList>
-						</Command>
-					{:else}
-						<div class="space-y-2">
-							{#if selectedColumn.variant === 'range' || selectedColumn.variant === 'dateRange'}
-								<div class="grid gap-2 sm:grid-cols-2">
-									<Input
-										bind:ref={draftInputRef}
-										type={selectedColumn.variant === 'range' ? 'number' : 'date'}
-										bind:value={getDraftValue, setDraftValue}
-										onkeydown={onDraftInputKeyDown}
-										placeholder="From"
-									/>
-									<Input
-										type={selectedColumn.variant === 'range' ? 'number' : 'date'}
-										bind:value={getDraftSecondaryValue, setDraftSecondaryValue}
-										placeholder="To"
-									/>
-								</div>
-							{:else}
+					<div class="space-y-2">
+						{#if selectedColumn.variant === 'range' || selectedColumn.variant === 'dateRange'}
+							<div class="grid gap-2 sm:grid-cols-2">
 								<Input
 									bind:ref={draftInputRef}
-									type={selectedColumn.variant === 'number'
-										? 'number'
-										: selectedColumn.variant === 'date'
-											? 'date'
-											: 'text'}
+									type={selectedColumn.variant === 'range' ? 'number' : 'date'}
 									bind:value={getDraftValue, setDraftValue}
 									onkeydown={onDraftInputKeyDown}
-									placeholder={selectedColumn.variant === 'number'
-										? 'Enter number...'
-										: 'Enter value...'}
+									placeholder="From"
 								/>
-							{/if}
+								<Input
+									type={selectedColumn.variant === 'range' ? 'number' : 'date'}
+									bind:value={getDraftSecondaryValue, setDraftSecondaryValue}
+									placeholder="To"
+								/>
+							</div>
+						{:else}
+							<Input
+								bind:ref={draftInputRef}
+								type={selectedColumn.variant === 'date' ? 'date' : 'text'}
+								bind:value={getDraftValue, setDraftValue}
+								onkeydown={onDraftInputKeyDown}
+								placeholder="Enter value..."
+							/>
+						{/if}
 
-							<Button
-								variant="outline"
-								size="sm"
-								class="justify-start"
-								onclick={() => addFilterForColumn(selectedColumn)}
-								disabled={selectedColumn.variant === 'range' ||
-								selectedColumn.variant === 'dateRange'
-									? !draftValue || !draftSecondaryValue
-									: !draftValue}
-							>
-								<Text class="size-4 text-muted-foreground" />
-								Add filter
-							</Button>
-						</div>
-					{/if}
+						<Button
+							variant="outline"
+							size="sm"
+							class="justify-start"
+							onclick={() => addFilterForColumn(selectedColumn)}
+							disabled={selectedColumn.variant === 'range' || selectedColumn.variant === 'dateRange'
+								? !draftValue || !draftSecondaryValue
+								: !draftValue}
+						>
+							<Text class="size-4 text-muted-foreground" />
+							Add filter
+						</Button>
+					</div>
 
 					<div class="flex justify-between gap-2">
 						<Button variant="ghost" size="sm" onclick={resetDraft}>Back</Button>
