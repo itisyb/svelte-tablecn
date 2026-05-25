@@ -107,10 +107,12 @@ import dataTableSource from '$lib/components/data-table/data-table.svelte?raw';
 import typesIndexSource from '$lib/types/index.ts?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte?raw';
+import dropdownMenuContentSource from '$lib/components/ui/dropdown-menu/dropdown-menu-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
 import dropdownMenuItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-item.svelte?raw';
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
 import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte?raw';
+import dropdownMenuSubContentSource from '$lib/components/ui/dropdown-menu/dropdown-menu-sub-content.svelte?raw';
 import dropdownMenuSubTriggerSource from '$lib/components/ui/dropdown-menu/dropdown-menu-sub-trigger.svelte?raw';
 import facetedBadgeListSource from '$lib/components/ui/faceted/faceted-badge-list.svelte?raw';
 import facetedContentSource from '$lib/components/ui/faceted/faceted-content.svelte?raw';
@@ -118,6 +120,7 @@ import facetedItemSource from '$lib/components/ui/faceted/faceted-item.svelte?ra
 import fpsSource from '$lib/components/ui/fps/fps.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import labelSource from '$lib/components/ui/label/label.svelte?raw';
+import popoverContentSource from '$lib/components/ui/popover/popover-content.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import selectContentSource from '$lib/components/ui/select/select-content.svelte?raw';
 import selectGroupSource from '$lib/components/ui/select/select-group.svelte?raw';
@@ -136,6 +139,7 @@ import textareaSource from '$lib/components/ui/textarea/textarea.svelte?raw';
 import toggleSource from '$lib/components/ui/toggle/toggle.svelte?raw';
 import toggleGroupSource from '$lib/components/ui/toggle-group/toggle-group.svelte?raw';
 import toggleGroupItemSource from '$lib/components/ui/toggle-group/toggle-group-item.svelte?raw';
+import tooltipContentSource from '$lib/components/ui/tooltip/tooltip-content.svelte?raw';
 import tooltipSource from '$lib/components/ui/tooltip/tooltip.svelte?raw';
 import tooltipProviderSource from '$lib/components/ui/tooltip/tooltip-provider.svelte?raw';
 import dataGridSource from '$lib/components/data-grid/data-grid.svelte?raw';
@@ -1805,6 +1809,21 @@ describe('/+page.svelte', () => {
 		expect(selectContentSource).toContain('sideOffset = 0');
 		expect(selectContentSource).toContain('data-[side=bottom]:translate-y-1');
 		expect(selectContentSource).not.toContain('sideOffset = 4');
+	});
+
+	it('should keep floating content side animations aligned with the original ui primitives', () => {
+		for (const source of [
+			selectContentSource,
+			popoverContentSource,
+			dropdownMenuContentSource,
+			dropdownMenuSubContentSource,
+			tooltipContentSource
+		]) {
+			expect(source).toContain('data-[side=left]:slide-in-from-right-2');
+			expect(source).toContain('data-[side=right]:slide-in-from-left-2');
+			expect(source).not.toContain('data-[side=left]:slide-in-from-end-2');
+			expect(source).not.toContain('data-[side=right]:slide-in-from-start-2');
+		}
 	});
 
 	it('should forward select group refs like the original select primitive', () => {
