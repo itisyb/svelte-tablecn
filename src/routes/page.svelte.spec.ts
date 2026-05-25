@@ -1826,6 +1826,13 @@ describe('/+page.svelte', () => {
 		expect(selectItemSource).toContain('focus:text-accent-foreground');
 	});
 
+	it('should keep select item spacing aligned with the original ui select', () => {
+		expect(selectItemSource).toContain('py-1.5 pr-8 pl-2');
+		expect(selectItemSource).toContain('absolute right-2');
+		expect(selectItemSource).not.toContain('pe-8 ps-2');
+		expect(selectItemSource).not.toContain('absolute end-2');
+	});
+
 	it('should keep command input padding aligned with the original ui command', () => {
 		expect(commandInputSource).toContain('border-b px-3');
 		expect(commandInputSource).not.toContain('pe-8 ps-3');
