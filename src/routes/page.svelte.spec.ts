@@ -108,8 +108,10 @@ import typesIndexSource from '$lib/types/index.ts?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
+import dropdownMenuItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-item.svelte?raw';
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
 import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte?raw';
+import dropdownMenuSubTriggerSource from '$lib/components/ui/dropdown-menu/dropdown-menu-sub-trigger.svelte?raw';
 import facetedBadgeListSource from '$lib/components/ui/faceted/faceted-badge-list.svelte?raw';
 import facetedContentSource from '$lib/components/ui/faceted/faceted-content.svelte?raw';
 import facetedItemSource from '$lib/components/ui/faceted/faceted-item.svelte?raw';
@@ -1745,13 +1747,17 @@ describe('/+page.svelte', () => {
 		expect(dropdownMenuGroupHeadingSource).not.toContain('font-semibold');
 	});
 
-	it('should keep dropdown checked item highlight styling aligned with Bits menu state', () => {
+	it('should keep dropdown item focus styling aligned with the original ui menu', () => {
+		expect(dropdownMenuItemSource).toContain('data-highlighted:bg-accent');
+		expect(dropdownMenuItemSource).toContain('focus:bg-accent');
+		expect(dropdownMenuItemSource).toContain('data-[variant=destructive]:focus:bg-destructive/10');
 		expect(dropdownMenuCheckboxItemSource).toContain('data-highlighted:bg-accent');
 		expect(dropdownMenuCheckboxItemSource).toContain('data-highlighted:text-accent-foreground');
-		expect(dropdownMenuCheckboxItemSource).not.toContain('focus:bg-accent');
+		expect(dropdownMenuCheckboxItemSource).toContain('focus:bg-accent');
 		expect(dropdownMenuRadioItemSource).toContain('data-highlighted:bg-accent');
 		expect(dropdownMenuRadioItemSource).toContain('data-highlighted:text-accent-foreground');
-		expect(dropdownMenuRadioItemSource).not.toContain('focus:bg-accent');
+		expect(dropdownMenuRadioItemSource).toContain('focus:bg-accent');
+		expect(dropdownMenuSubTriggerSource).toContain('focus:bg-accent');
 	});
 
 	it('should keep command input padding aligned with the original ui command', () => {
