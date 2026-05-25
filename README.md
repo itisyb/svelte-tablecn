@@ -526,6 +526,9 @@ The data grid supports multiple cell types:
 | `rowHeight`     | `'short' \| 'medium' \| 'tall' \| 'extra-tall'` | Row height preset                            |
 | `initialState`  | `object`                                        | Initial table state (sorting, filters, etc.) |
 | `onDataChange`  | `(data: TData[]) => void`                       | Called when data changes                     |
+| `onSortingChange` | `(sorting) => void`                           | Called when sorting changes                  |
+| `onColumnFiltersChange` | `(filters) => void`                    | Called when column filters change            |
+| `onRowSelectionChange` | `(rowSelection) => void`               | Called when row selection changes            |
 | `onRowAdd`      | `(event?) => Partial<CellPosition> \| null \| void \| Promise<...>` | Called when a new row is added |
 | `onRowsAdd`     | `(count: number) => void`                       | Called when multiple rows are added          |
 | `onRowsDelete`  | `(rows, indices) => void`                       | Called when rows are deleted                 |

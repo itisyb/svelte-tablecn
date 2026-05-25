@@ -691,6 +691,49 @@ describe('README data-grid examples', () => {
 		}
 		expect(readme).toContain('It opens with `Ctrl/Cmd + /`.');
 	});
+
+	it('documents every shipped useDataGrid option', () => {
+		const hookSource = readFileSync('src/lib/hooks/use-data-grid.svelte.ts', 'utf8');
+		const optionsBlock = hookSource.match(
+			/export interface UseDataGridOptions<TData extends RowData> \{([\s\S]*?)\n\}/
+		)?.[1];
+
+		expect(optionsBlock).toBeDefined();
+		const optionNames = Array.from(optionsBlock?.matchAll(/^\t([A-Za-z]\w+)\??:/gm) ?? []).map(
+			([, name]) => name
+		);
+
+		expect(optionNames).toEqual([
+			'columns',
+			'data',
+			'rowHeight',
+			'autoFocus',
+			'enableColumnSelection',
+			'enableSingleCellSelection',
+			'enableSearch',
+			'enablePaste',
+			'readOnly',
+			'overscan',
+			'dir',
+			'getRowId',
+			'initialState',
+			'onDataChange',
+			'onSortingChange',
+			'onColumnFiltersChange',
+			'onRowSelectionChange',
+			'onRowAdd',
+			'onRowsAdd',
+			'onRowsDelete',
+			'onRowHeightChange',
+			'onPaste',
+			'onFilesUpload',
+			'onFilesDelete'
+		]);
+
+		for (const option of optionNames) {
+			expect(readme).toContain(`| \`${option}\``);
+		}
+	});
 });
 
 describe('README UI primitive docs', () => {
