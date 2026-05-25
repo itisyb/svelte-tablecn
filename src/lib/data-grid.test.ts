@@ -57,6 +57,18 @@ import {
 	SortableOverlay as ComponentSortableOverlay
 } from './components/ui/sortable/index.js';
 import {
+	Drawer as ComponentDrawer,
+	DrawerClose as ComponentDrawerClose,
+	DrawerContent as ComponentDrawerContent,
+	DrawerDescription as ComponentDrawerDescription,
+	DrawerFooter as ComponentDrawerFooter,
+	DrawerHeader as ComponentDrawerHeader,
+	DrawerOverlay as ComponentDrawerOverlay,
+	DrawerPortal as ComponentDrawerPortal,
+	DrawerTitle as ComponentDrawerTitle,
+	DrawerTrigger as ComponentDrawerTrigger
+} from './components/ui/drawer/index.js';
+import {
 	BOOLEAN_FILTER_OPERATORS as ROOT_BOOLEAN_FILTER_OPERATORS,
 	DataGrid as RootDataGrid,
 	DataGridActionBar as RootDataGridActionBar,
@@ -69,6 +81,16 @@ import {
 	DataGridSortMenu as RootDataGridSortMenu,
 	DataGridViewMenu as RootDataGridViewMenu,
 	DATE_FILTER_OPERATORS as ROOT_DATE_FILTER_OPERATORS,
+	Drawer as RootDrawer,
+	DrawerClose as RootDrawerClose,
+	DrawerContent as RootDrawerContent,
+	DrawerDescription as RootDrawerDescription,
+	DrawerFooter as RootDrawerFooter,
+	DrawerHeader as RootDrawerHeader,
+	DrawerOverlay as RootDrawerOverlay,
+	DrawerPortal as RootDrawerPortal,
+	DrawerTitle as RootDrawerTitle,
+	DrawerTrigger as RootDrawerTrigger,
 	FileCell as RootFileCell,
 	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
 	OVERSCAN as ROOT_OVERSCAN,
@@ -384,6 +406,21 @@ describe('package root sortable component exports', () => {
 	});
 });
 
+describe('package root drawer component exports', () => {
+	it('exposes the shipped drawer primitive from the package root', () => {
+		expect(RootDrawer).toBe(ComponentDrawer);
+		expect(RootDrawerClose).toBe(ComponentDrawerClose);
+		expect(RootDrawerContent).toBe(ComponentDrawerContent);
+		expect(RootDrawerDescription).toBe(ComponentDrawerDescription);
+		expect(RootDrawerFooter).toBe(ComponentDrawerFooter);
+		expect(RootDrawerHeader).toBe(ComponentDrawerHeader);
+		expect(RootDrawerOverlay).toBe(ComponentDrawerOverlay);
+		expect(RootDrawerPortal).toBe(ComponentDrawerPortal);
+		expect(RootDrawerTitle).toBe(ComponentDrawerTitle);
+		expect(RootDrawerTrigger).toBe(ComponentDrawerTrigger);
+	});
+});
+
 describe('data-grid registry item', () => {
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
@@ -417,6 +454,7 @@ describe('data-grid registry item', () => {
 		expect(itemNames.has('data-grid-skeleton')).toBe(true);
 		expect(itemNames.has('use-data-grid-undo-redo')).toBe(true);
 		expect(itemNames.has('sortable')).toBe(true);
+		expect(itemNames.has('drawer')).toBe(true);
 	});
 
 	it('ships a standalone sortable registry item', () => {
@@ -439,6 +477,36 @@ describe('data-grid registry item', () => {
 			'sortable/sortable-item-handle.svelte',
 			'sortable/sortable-overlay.svelte',
 			'sortable/sortable-context.ts'
+		]) {
+			expect(targets.has(target)).toBe(true);
+		}
+	});
+
+	it('ships a standalone drawer registry item', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				dependencies?: string[];
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const drawer = registry.items.find((item) => item.name === 'drawer');
+		const targets = new Set(drawer?.files?.map((file) => file.target));
+
+		expect(drawer?.dependencies).toContain('bits-ui');
+		for (const target of [
+			'drawer/index.ts',
+			'drawer/drawer.svelte',
+			'drawer/drawer-context.ts',
+			'drawer/drawer-trigger.svelte',
+			'drawer/drawer-close.svelte',
+			'drawer/drawer-portal.svelte',
+			'drawer/drawer-overlay.svelte',
+			'drawer/drawer-content.svelte',
+			'drawer/drawer-header.svelte',
+			'drawer/drawer-footer.svelte',
+			'drawer/drawer-title.svelte',
+			'drawer/drawer-description.svelte'
 		]) {
 			expect(targets.has(target)).toBe(true);
 		}

@@ -59,6 +59,18 @@ export {
 	DialogTrigger
 } from './dialog';
 export {
+	Drawer,
+	DrawerClose,
+	DrawerContent,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerHeader,
+	DrawerOverlay,
+	DrawerPortal,
+	DrawerTitle,
+	DrawerTrigger
+} from './drawer';
+export {
 	DropdownMenu,
 	DropdownMenuCheckboxGroup,
 	DropdownMenuCheckboxItem,

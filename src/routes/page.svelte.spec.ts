@@ -53,6 +53,7 @@ import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
+import DrawerFixture from './drawer-fixture.svelte';
 import FpsDocumentFragmentFixture from './fps-document-fragment-fixture.svelte';
 import HooksFixture from './hooks-fixture.svelte';
 import PopoverAnchorFixture from './popover-anchor-fixture.svelte';
@@ -117,6 +118,14 @@ import dialogHeaderSource from '$lib/components/ui/dialog/dialog-header.svelte?r
 import dialogOverlaySource from '$lib/components/ui/dialog/dialog-overlay.svelte?raw';
 import dialogPortalSource from '$lib/components/ui/dialog/dialog-portal.svelte?raw';
 import dialogRootSource from '$lib/components/ui/dialog/dialog.svelte?raw';
+import drawerContentSource from '$lib/components/ui/drawer/drawer-content.svelte?raw';
+import drawerDescriptionSource from '$lib/components/ui/drawer/drawer-description.svelte?raw';
+import drawerFooterSource from '$lib/components/ui/drawer/drawer-footer.svelte?raw';
+import drawerHeaderSource from '$lib/components/ui/drawer/drawer-header.svelte?raw';
+import drawerIndexSource from '$lib/components/ui/drawer/index.ts?raw';
+import drawerOverlaySource from '$lib/components/ui/drawer/drawer-overlay.svelte?raw';
+import drawerRootSource from '$lib/components/ui/drawer/drawer.svelte?raw';
+import drawerTitleSource from '$lib/components/ui/drawer/drawer-title.svelte?raw';
 import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte?raw';
 import dropdownMenuContentSource from '$lib/components/ui/dropdown-menu/dropdown-menu-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
@@ -248,6 +257,31 @@ describe('/+page.svelte', () => {
 		expect(document.querySelector<HTMLElement>('[data-slot="sheet-close"]')?.textContent).toContain(
 			'Close'
 		);
+	});
+
+	it('should render the original drawer primitive slot contract on top of dialog primitives', async () => {
+		await render(DrawerFixture);
+
+		await page.getByRole('button', { name: 'Open drawer' }).click();
+
+		const drawer = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="drawer-content"]')
+		);
+		const overlay = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="drawer-overlay"]')
+		);
+
+		expect(drawer.getAttribute('role')).toBe('dialog');
+		expect(drawer.dataset.vaulDrawerDirection).toBe('bottom');
+		expect(drawer.className).toContain('rounded-t-lg');
+		expect(drawer.className).toContain('slide-in-from-bottom');
+		expect(drawer.textContent).toContain('Task drawer');
+		expect(overlay.className).toContain('bg-black/50');
+		expect(document.querySelector('[data-slot="drawer-handle"]')).toBeTruthy();
+		expect(document.querySelector('[data-slot="drawer-header"]')).toBeTruthy();
+		expect(document.querySelector('[data-slot="drawer-footer"]')).toBeTruthy();
+		expect(document.querySelector('[data-slot="drawer-title"]')).toBeTruthy();
+		expect(document.querySelector('[data-slot="drawer-description"]')).toBeTruthy();
 	});
 
 	it('should only autofocus object targets with a column id like the original grid', async () => {
@@ -1930,6 +1964,28 @@ describe('/+page.svelte', () => {
 		expect(sheetContentSource).toContain('slide-in-from-bottom');
 		expect(sheetContentSource).toContain('data-slot="sheet-close"');
 		expect(sheetHeaderSource).toContain('flex flex-col gap-1.5 p-4');
+	});
+
+	it('should expose the original ui drawer primitive styling and API', () => {
+		expect(libIndexSource).toContain("} from './components/ui/drawer';");
+		expect(drawerIndexSource).toContain('Root as Drawer');
+		expect(drawerIndexSource).toContain('Content as DrawerContent');
+		expect(drawerIndexSource).toContain('Trigger as DrawerTrigger');
+		expect(drawerRootSource).toContain('"data-slot": "drawer"');
+		expect(drawerRootSource).toContain('direction = "bottom"');
+		expect(drawerOverlaySource).toContain('data-slot="drawer-overlay"');
+		expect(drawerOverlaySource).toContain('bg-black/50');
+		expect(drawerContentSource).toContain('data-slot="drawer-content"');
+		expect(drawerContentSource).toContain('data-vaul-drawer-direction={direction}');
+		expect(drawerContentSource).toContain('data-[vaul-drawer-direction=top]:rounded-b-lg');
+		expect(drawerContentSource).toContain('data-[vaul-drawer-direction=bottom]:rounded-t-lg');
+		expect(drawerContentSource).toContain('data-[vaul-drawer-direction=right]:border-l');
+		expect(drawerContentSource).toContain('data-[vaul-drawer-direction=left]:border-r');
+		expect(drawerContentSource).toContain('data-slot="drawer-handle"');
+		expect(drawerHeaderSource).toContain('data-slot="drawer-header"');
+		expect(drawerFooterSource).toContain('data-slot="drawer-footer"');
+		expect(drawerTitleSource).toContain('data-slot="drawer-title"');
+		expect(drawerDescriptionSource).toContain('data-slot="drawer-description"');
 	});
 
 	it('should expose remaining original lightweight ui primitives from the package root', () => {

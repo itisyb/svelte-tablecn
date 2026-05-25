@@ -1,0 +1,80 @@
+{
+	"$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+	"name": "drawer",
+	"title": "Drawer",
+	"type": "registry:ui",
+	"description": "A drawer primitive with the upstream tablecn slot and direction contract.",
+	"dependencies": [
+		"bits-ui"
+	],
+	"devDependencies": [
+		"bits-ui@^2.11.0",
+		"@internationalized/date@^3.8.1"
+	],
+	"meta": {
+		"author": "itisyb",
+		"originalAuthor": "tablecn.com"
+	},
+	"files": [
+		{
+			"content": "<script lang=\"ts\" module>\n\timport { Dialog as DialogPrimitive } from \"bits-ui\";\n\timport type { Snippet } from \"svelte\";\n\timport type { WithoutChildrenOrChild } from \"$UTILS$.js\";\n\n\texport type DrawerDirection = \"top\" | \"right\" | \"bottom\" | \"left\";\n\texport type DrawerProps = WithoutChildrenOrChild<DialogPrimitive.RootProps> & {\n\t\tchildren?: Snippet;\n\t\tdirection?: DrawerDirection;\n\t};\n</script>\n\n<script lang=\"ts\">\n\timport { setDrawerContext } from \"./drawer-context.js\";\n\n\tlet { open = $bindable(false), children, direction = \"bottom\", ...restProps }: DrawerProps = $props();\n\n\tconst rootProps = $derived(\n\t\t{\n\t\t\t\"data-slot\": \"drawer\",\n\t\t\t...restProps\n\t\t} as DialogPrimitive.RootProps & { \"data-slot\": string }\n\t);\n\n\tsetDrawerContext({\n\t\tget direction() {\n\t\t\treturn direction;\n\t\t}\n\t});\n</script>\n\n<DialogPrimitive.Root bind:open {...rootProps}>\n\t{@render children?.()}\n</DialogPrimitive.Root>\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer.svelte"
+		},
+		{
+			"content": "import { getContext, setContext } from \"svelte\";\nimport type { DrawerDirection } from \"./drawer.svelte\";\n\nexport interface DrawerContextValue {\n\tget direction(): DrawerDirection;\n}\n\nconst DRAWER_CONTEXT_KEY = Symbol(\"drawer-context\");\n\nexport function setDrawerContext(context: DrawerContextValue) {\n\tsetContext(DRAWER_CONTEXT_KEY, context);\n}\n\nexport function getDrawerContext(consumerName: string): DrawerContextValue {\n\tconst context = getContext<DrawerContextValue | undefined>(DRAWER_CONTEXT_KEY);\n\tif (!context) {\n\t\tthrow new Error(`\\`${consumerName}\\` must be used within \\`Drawer\\``);\n\t}\n\treturn context;\n}\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-context.ts"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport { Dialog as DialogPrimitive } from \"bits-ui\";\n\n\tlet { ref = $bindable(null), ...restProps }: DialogPrimitive.TriggerProps = $props();\n</script>\n\n<DialogPrimitive.Trigger bind:ref data-slot=\"drawer-trigger\" {...restProps} />\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-trigger.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport { Dialog as DialogPrimitive } from \"bits-ui\";\n\n\tlet { ref = $bindable(null), ...restProps }: DialogPrimitive.CloseProps = $props();\n</script>\n\n<DialogPrimitive.Close bind:ref data-slot=\"drawer-close\" {...restProps} />\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-close.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\" module>\n\timport { Dialog as DialogPrimitive } from \"bits-ui\";\n\timport type { Snippet } from \"svelte\";\n\n\texport type DrawerPortalProps = DialogPrimitive.PortalProps & {\n\t\tchildren?: Snippet;\n\t};\n</script>\n\n<script lang=\"ts\">\n\tlet { children, ...restProps }: DrawerPortalProps = $props();\n\n\tconst portalProps = $derived(\n\t\t{\n\t\t\t\"data-slot\": \"drawer-portal\",\n\t\t\t...restProps\n\t\t} as DialogPrimitive.PortalProps & { \"data-slot\": string }\n\t);\n</script>\n\n<DialogPrimitive.Portal {...portalProps}>\n\t{@render children?.()}\n</DialogPrimitive.Portal>\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-portal.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport { Dialog as DialogPrimitive } from \"bits-ui\";\n\timport { cn } from \"$UTILS$.js\";\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tclass: className,\n\t\t...restProps\n\t}: DialogPrimitive.OverlayProps = $props();\n</script>\n\n<DialogPrimitive.Overlay\n\tbind:ref\n\tdata-slot=\"drawer-overlay\"\n\tclass={cn(\n\t\t\"data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=open]:animate-in\",\n\t\tclassName\n\t)}\n\t{...restProps}\n/>\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-overlay.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\" module>\n\timport { Dialog as DialogPrimitive } from \"bits-ui\";\n\timport type { Snippet } from \"svelte\";\n\timport type { WithoutChildrenOrChild } from \"$UTILS$.js\";\n\timport type { DrawerDirection } from \"./drawer.svelte\";\n\n\texport type DrawerContentProps = WithoutChildrenOrChild<DialogPrimitive.ContentProps> & {\n\t\tchildren?: Snippet;\n\t\tportalProps?: DialogPrimitive.PortalProps;\n\t\tdirection?: DrawerDirection;\n\t};\n</script>\n\n<script lang=\"ts\">\n\timport * as Drawer from \"./index.js\";\n\timport { cn } from \"$UTILS$.js\";\n\timport { getDrawerContext } from \"./drawer-context.js\";\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tclass: className,\n\t\tportalProps,\n\t\tchildren,\n\t\tdirection: directionProp,\n\t\t...restProps\n\t}: DrawerContentProps = $props();\n\n\tconst drawer = getDrawerContext(\"DrawerContent\");\n\tconst direction = $derived(directionProp ?? drawer.direction);\n</script>\n\n<Drawer.Portal {...portalProps}>\n\t<Drawer.Overlay />\n\t<DialogPrimitive.Content\n\t\tbind:ref\n\t\tdata-slot=\"drawer-content\"\n\t\tdata-vaul-drawer-direction={direction}\n\t\tclass={cn(\n\t\t\t\"group/drawer-content fixed z-50 flex h-auto flex-col bg-background\",\n\t\t\t\"data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b data-[vaul-drawer-direction=top]:data-[state=closed]:slide-out-to-top data-[vaul-drawer-direction=top]:data-[state=open]:slide-in-from-top\",\n\t\t\t\"data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-lg data-[vaul-drawer-direction=bottom]:border-t data-[vaul-drawer-direction=bottom]:data-[state=closed]:slide-out-to-bottom data-[vaul-drawer-direction=bottom]:data-[state=open]:slide-in-from-bottom\",\n\t\t\t\"data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm data-[vaul-drawer-direction=right]:data-[state=closed]:slide-out-to-right data-[vaul-drawer-direction=right]:data-[state=open]:slide-in-from-right\",\n\t\t\t\"data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm data-[vaul-drawer-direction=left]:data-[state=closed]:slide-out-to-left data-[vaul-drawer-direction=left]:data-[state=open]:slide-in-from-left\",\n\t\t\t\"data-[state=closed]:animate-out data-[state=open]:animate-in\",\n\t\t\tclassName\n\t\t)}\n\t\t{...restProps}\n\t>\n\t\t<div\n\t\t\tdata-slot=\"drawer-handle\"\n\t\t\tclass=\"mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block\"\n\t\t></div>\n\t\t{@render children?.()}\n\t</DialogPrimitive.Content>\n</Drawer.Portal>\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-content.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport type { HTMLAttributes } from \"svelte/elements\";\n\timport { cn, type WithElementRef } from \"$UTILS$.js\";\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tclass: className,\n\t\tchildren,\n\t\t...restProps\n\t}: WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> = $props();\n</script>\n\n<div\n\tbind:this={ref}\n\tdata-slot=\"drawer-header\"\n\tclass={cn(\"flex flex-col gap-1.5 p-4\", className)}\n\t{...restProps}\n>\n\t{@render children?.()}\n</div>\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-header.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport type { HTMLAttributes } from \"svelte/elements\";\n\timport { cn, type WithElementRef } from \"$UTILS$.js\";\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tclass: className,\n\t\tchildren,\n\t\t...restProps\n\t}: WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> = $props();\n</script>\n\n<div\n\tbind:this={ref}\n\tdata-slot=\"drawer-footer\"\n\tclass={cn(\"mt-auto flex flex-col gap-2 p-4\", className)}\n\t{...restProps}\n>\n\t{@render children?.()}\n</div>\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-footer.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport { Dialog as DialogPrimitive } from \"bits-ui\";\n\timport { cn } from \"$UTILS$.js\";\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tclass: className,\n\t\t...restProps\n\t}: DialogPrimitive.TitleProps = $props();\n</script>\n\n<DialogPrimitive.Title\n\tbind:ref\n\tdata-slot=\"drawer-title\"\n\tclass={cn(\"font-semibold text-foreground\", className)}\n\t{...restProps}\n/>\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-title.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport { Dialog as DialogPrimitive } from \"bits-ui\";\n\timport { cn } from \"$UTILS$.js\";\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tclass: className,\n\t\t...restProps\n\t}: DialogPrimitive.DescriptionProps = $props();\n</script>\n\n<DialogPrimitive.Description\n\tbind:ref\n\tdata-slot=\"drawer-description\"\n\tclass={cn(\"text-muted-foreground text-sm\", className)}\n\t{...restProps}\n/>\n",
+			"type": "registry:ui",
+			"target": "drawer/drawer-description.svelte"
+		},
+		{
+			"content": "import Root from \"./drawer.svelte\";\nimport Portal from \"./drawer-portal.svelte\";\nimport Overlay from \"./drawer-overlay.svelte\";\nimport Trigger from \"./drawer-trigger.svelte\";\nimport Close from \"./drawer-close.svelte\";\nimport Content from \"./drawer-content.svelte\";\nimport Header from \"./drawer-header.svelte\";\nimport Footer from \"./drawer-footer.svelte\";\nimport Title from \"./drawer-title.svelte\";\nimport Description from \"./drawer-description.svelte\";\n\nexport {\n\tRoot,\n\tPortal,\n\tOverlay,\n\tTrigger,\n\tClose,\n\tContent,\n\tHeader,\n\tFooter,\n\tTitle,\n\tDescription,\n\tRoot as Drawer,\n\tPortal as DrawerPortal,\n\tOverlay as DrawerOverlay,\n\tTrigger as DrawerTrigger,\n\tClose as DrawerClose,\n\tContent as DrawerContent,\n\tHeader as DrawerHeader,\n\tFooter as DrawerFooter,\n\tTitle as DrawerTitle,\n\tDescription as DrawerDescription\n};\n\nexport type { DrawerDirection, DrawerProps } from \"./drawer.svelte\";\nexport type { DrawerContentProps } from \"./drawer-content.svelte\";\n",
+			"type": "registry:ui",
+			"target": "drawer/index.ts"
+		}
+	]
+}

@@ -1025,6 +1025,80 @@
 			}
 		},
 		{
+			"name": "drawer",
+			"type": "registry:ui",
+			"title": "Drawer",
+			"description": "A drawer primitive with the upstream tablecn slot and direction contract.",
+			"dependencies": ["bits-ui"],
+			"registryDependencies": [],
+			"files": [
+				{
+					"path": "src/lib/components/ui/drawer/drawer.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-context.ts",
+					"type": "registry:ui",
+					"target": "drawer/drawer-context.ts"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-trigger.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-trigger.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-close.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-close.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-portal.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-portal.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-overlay.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-overlay.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-content.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-content.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-header.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-header.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-footer.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-footer.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-title.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-title.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-description.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-description.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/index.ts",
+					"type": "registry:ui",
+					"target": "drawer/index.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
 			"name": "use-data-grid-undo-redo",
 			"type": "registry:hook",
 			"title": "Use Data Grid Undo Redo",

@@ -316,6 +316,21 @@
 		"relativeUrl": "sortable.json"
 	},
 	{
+		"name": "drawer",
+		"title": "Drawer",
+		"type": "registry:ui",
+		"description": "A drawer primitive with the upstream tablecn slot and direction contract.",
+		"dependencies": [
+			"bits-ui"
+		],
+		"registryDependencies": [],
+		"meta": {
+			"author": "itisyb",
+			"originalAuthor": "tablecn.com"
+		},
+		"relativeUrl": "drawer.json"
+	},
+	{
 		"name": "use-data-grid-undo-redo",
 		"title": "Use Data Grid Undo Redo",
 		"type": "registry:hook",

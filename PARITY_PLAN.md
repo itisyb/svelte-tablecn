@@ -26,13 +26,12 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - date, range, slider, faceted, and list-style data-table filters
 - core UI primitive styling and slot markers for the shipped Svelte primitives
 - `sortable` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests
+- `drawer` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using the existing Bits Dialog foundation
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
 1. keyboard shortcut verification against the shipped grid behavior and shortcut UI
-2. upstream UI primitives that are not shipped in the Svelte port yet:
-   - `drawer`
-   - `form`
+2. upstream `form` UI primitive is not shipped in the Svelte port yet
 3. a final documentation audit against newly completed parity surfaces
 4. documentation examples that still need to be checked against the current public API
 
@@ -46,7 +45,7 @@ Why this first:
 - it improves the existing `data-grid` directly
 - it is much smaller than the `data-table` surface
 - it reduces the biggest credibility gap before expanding scope
-- it does not require choosing new Svelte equivalents for React-only dependencies like `vaul` or `react-hook-form`
+- it does not require choosing new Svelte equivalents for React-only dependencies like `react-hook-form`
 
 ## Execution Order
 
@@ -67,10 +66,10 @@ Why this first:
 
 ### Phase 3: Close Missing UI Primitive Gaps
 
-1. Port `drawer` with an explicit Svelte dependency decision for Vaul-style behavior
-2. Port `form` only after choosing the Svelte form-state integration that replaces `react-hook-form`
+1. Port `form` only after choosing the Svelte form-state integration that replaces `react-hook-form`
+2. Keep `drawer` covered against the existing Bits Dialog implementation while deciding whether Vaul-style drag/snap behavior needs a Svelte dependency
 3. Keep `sortable` covered against the existing `svelte-dnd-action` implementation while closing the remaining primitive gaps
-4. Add source and browser tests for each remaining primitive's slot markers, classes, and core interaction behavior
+4. Add source and browser tests for the remaining primitive's slot markers, classes, and core interaction behavior
 
 ### Phase 4: Final Data Table API Audit
 
@@ -97,11 +96,12 @@ Why this first:
 
 - shipped primitives expose the same `data-slot` contract as upstream where the Svelte implementation has an equivalent component
 - `sortable` is ported with the existing Svelte drag dependency
-- `drawer` and `form` are either ported or explicitly documented as out of scope until their dependency decisions are made
+- `drawer` is ported with the existing Bits Dialog dependency and upstream slot/direction styling contract
+- `form` is either ported or explicitly documented as out of scope until its dependency decision is made
 
 ## Risks
 
-- `drawer` depends on Vaul in upstream React, so the Svelte port needs an equivalent behavior choice before implementation
+- `drawer` depends on Vaul in upstream React; the current Svelte port covers the modal drawer contract with Bits Dialog, but deeper drag/snap behavior still needs an explicit dependency decision if required
 - `form` depends on `react-hook-form`, so a direct port is not possible without choosing a Svelte form-state contract
 - `sortable` uses `svelte-dnd-action`, so any deeper keyboard or announcement parity work needs to respect that library's event model
 - naming can still drift if exports and registry entries are not checked after each parity slice
@@ -113,4 +113,4 @@ Ship this small, clean milestone next:
 1. continue shortcut verification beyond undo/redo, global Escape, and filter/search conflict paths
 2. finish any remaining broader documentation audit outside the README examples
 
-That gives the fastest path to a real parity improvement before opening larger dependency decisions for `drawer`, `form`, or `sortable`.
+That gives the fastest path to a real parity improvement before opening the remaining dependency decision for `form`.
