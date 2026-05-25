@@ -145,6 +145,7 @@
 		{:else}
 			<CalendarPicker
 				type="single"
+				captionLayout="dropdown"
 				value={toCalendarDate(values[0])}
 				onValueChange={(value: DateValue | undefined) => onSingleDateChange(value)}
 			/>

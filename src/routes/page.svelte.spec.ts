@@ -1759,6 +1759,9 @@ describe('/+page.svelte', () => {
 		expect(dataTableDateFilterSource).toContain('DataGridRangeCalendar');
 		expect(dataTableDateFilterSource).toContain('onValueChange={onRangeCalendarChange}');
 		expect(dataTableDateFilterSource).toContain('captionLayout="dropdown"');
+		expect(dataTableDateFilterSource).toContain(
+			'<CalendarPicker\n\t\t\t\ttype="single"\n\t\t\t\tcaptionLayout="dropdown"'
+		);
 		expect(dataTableDateFilterSource).not.toContain('class="w-72 space-y-3"');
 		expect(dataTableDateFilterSource).not.toContain('class="grid sm:grid-cols-2"');
 		expect(dataTableDateFilterSource).not.toContain('>Date</span>');
