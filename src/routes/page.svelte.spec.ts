@@ -1840,6 +1840,12 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep table checkbox alignment aligned with the original ui table', () => {
+		expect(tableHeadSource).toContain('text-left');
+		expect(tableHeadSource).not.toContain('text-start');
+		expect(tableHeadSource).toContain('[&:has([role=checkbox])]:pr-0');
+		expect(tableHeadSource).not.toContain('[&:has([role=checkbox])]:pe-0');
+		expect(tableCellSource).toContain('[&:has([role=checkbox])]:pr-0');
+		expect(tableCellSource).not.toContain('[&:has([role=checkbox])]:pe-0');
 		expect(tableHeadSource).toContain('[&>[role=checkbox]]:translate-y-[2px]');
 		expect(tableCellSource).toContain('[&>[role=checkbox]]:translate-y-[2px]');
 	});
