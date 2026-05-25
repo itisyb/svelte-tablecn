@@ -1561,6 +1561,10 @@ describe('/+page.svelte', () => {
 
 	it('should keep separator slot naming aligned with the original ui separator', () => {
 		expect(separatorSource).toContain('"data-slot": dataSlot = "separator-root"');
+		expect(separatorSource).toContain('orientation = "horizontal"');
+		expect(separatorSource).toContain('decorative = true');
+		expect(separatorSource).toContain('{orientation}');
+		expect(separatorSource).toContain('{decorative}');
 	});
 
 	it('should keep checkbox slots and state styling aligned with the original ui checkbox', () => {
