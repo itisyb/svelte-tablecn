@@ -596,6 +596,19 @@ describe('/+page.svelte', () => {
 		expect(trigger.textContent).toContain('Sales');
 	});
 
+	it('should allow empty select values like the original grid', async () => {
+		await render(DataGridSelectCellSyncFixture);
+
+		const trigger = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="select-trigger"]')
+		);
+		await waitFor(() => trigger.textContent?.includes('Engineering'));
+
+		await page.getByRole('option', { name: 'Unassigned' }).click();
+
+		await expect.element(page.getByLabelText('select value')).toHaveTextContent('empty');
+	});
+
 	it('should clear file cell errors when the external value changes', async () => {
 		await render(DataGridFileCellSyncFixture);
 

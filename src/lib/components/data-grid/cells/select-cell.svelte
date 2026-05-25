@@ -56,7 +56,7 @@
 	});
 
 	function handleValueChange(newValue: string | undefined) {
-		if (readOnly || !newValue) return;
+		if (readOnly || newValue === undefined) return;
 		localEditValue = newValue;
 		const meta = table.options.meta;
 		meta?.onDataUpdate?.({ rowIndex, columnId, value: newValue });

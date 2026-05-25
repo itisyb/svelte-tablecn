@@ -7,6 +7,7 @@
 	let value = $state('engineering');
 
 	const options = [
+		{ label: 'Unassigned', value: '' },
 		{ label: 'Engineering', value: 'engineering' },
 		{ label: 'Marketing', value: 'marketing' },
 		{ label: 'Sales', value: 'sales' }
@@ -57,3 +58,5 @@
 	isSelected={false}
 	cellValue={value}
 />
+
+<output aria-label="select value">{value === '' ? 'empty' : value}</output>
