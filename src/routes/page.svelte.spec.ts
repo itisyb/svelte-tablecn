@@ -102,6 +102,9 @@ import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dro
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
 import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte?raw';
+import facetedBadgeListSource from '$lib/components/ui/faceted/faceted-badge-list.svelte?raw';
+import facetedContentSource from '$lib/components/ui/faceted/faceted-content.svelte?raw';
+import facetedItemSource from '$lib/components/ui/faceted/faceted-item.svelte?raw';
 import fpsSource from '$lib/components/ui/fps/fps.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import labelSource from '$lib/components/ui/label/label.svelte?raw';
@@ -1694,6 +1697,17 @@ describe('/+page.svelte', () => {
 		expect(labelSource).toContain('flex select-none items-center gap-2');
 		expect(labelSource).toContain('peer-disabled:cursor-not-allowed');
 		expect(labelSource).toContain('group-data-[disabled=true]:pointer-events-none');
+	});
+
+	it('should expose the original ui faceted primitive styling', () => {
+		expect(libIndexSource).toContain('FacetedBadgeList');
+		expect(libIndexSource).toContain("} from './components/ui/faceted';");
+		expect(facetedBadgeListSource).toContain('Select options...');
+		expect(facetedBadgeListSource).toContain('rounded-sm px-1 font-normal');
+		expect(facetedContentSource).toContain('w-[200px]');
+		expect(facetedContentSource).toContain('p-0');
+		expect(facetedItemSource).toContain('data-selected={isSelected}');
+		expect(facetedItemSource).toContain('flex size-4 items-center justify-center rounded-sm border border-primary');
 	});
 
 	it('should expose the original ui fps primitive styling', () => {

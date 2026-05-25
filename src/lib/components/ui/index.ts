@@ -12,6 +12,18 @@ export {
 } from './table';
 
 export { Button, buttonVariants } from './button';
+export {
+	Faceted,
+	FacetedBadgeList,
+	FacetedContent,
+	FacetedEmpty,
+	FacetedGroup,
+	FacetedInput,
+	FacetedItem,
+	FacetedList,
+	FacetedSeparator,
+	FacetedTrigger
+} from './faceted';
 export { Fps, fpsVariants } from './fps';
 export { Input } from './input';
 export { Label } from './label';
