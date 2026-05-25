@@ -106,6 +106,7 @@ import dataTableViewOptionsSource from '$lib/components/data-table/data-table-vi
 import dataTableSource from '$lib/components/data-table/data-table.svelte?raw';
 import typesIndexSource from '$lib/types/index.ts?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
+import dialogHeaderSource from '$lib/components/ui/dialog/dialog-header.svelte?raw';
 import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte?raw';
 import dropdownMenuContentSource from '$lib/components/ui/dropdown-menu/dropdown-menu-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
@@ -1643,6 +1644,11 @@ describe('/+page.svelte', () => {
 		expect(dialogContentSource).not.toContain('absolute end-4 top-4');
 		expect(dialogContentSource).toContain('data-[state=open]:bg-accent');
 		expect(dialogContentSource).toContain('data-[state=open]:text-muted-foreground');
+	});
+
+	it('should keep dialog header alignment aligned with the original ui dialog', () => {
+		expect(dialogHeaderSource).toContain('flex flex-col gap-2 text-center sm:text-left');
+		expect(dialogHeaderSource).not.toContain('sm:text-start');
 	});
 
 	it('should expose the original ui sheet primitive styling and API', () => {
