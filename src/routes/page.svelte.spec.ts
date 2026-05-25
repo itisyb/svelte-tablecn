@@ -104,6 +104,7 @@ import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdo
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import selectContentSource from '$lib/components/ui/select/select-content.svelte?raw';
+import selectGroupSource from '$lib/components/ui/select/select-group.svelte?raw';
 import selectTriggerSource from '$lib/components/ui/select/select-trigger.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import sonnerSource from '$lib/components/ui/sonner/sonner.svelte?raw';
@@ -1620,6 +1621,11 @@ describe('/+page.svelte', () => {
 		expect(selectContentSource).toContain('sideOffset = 0');
 		expect(selectContentSource).toContain('data-[side=bottom]:translate-y-1');
 		expect(selectContentSource).not.toContain('sideOffset = 4');
+	});
+
+	it('should forward select group refs like the original select primitive', () => {
+		expect(selectGroupSource).toContain('let { ref = $bindable(null)');
+		expect(selectGroupSource).toContain('<SelectPrimitive.Group bind:ref');
 	});
 
 	it('should keep table checkbox alignment aligned with the original ui table', () => {
