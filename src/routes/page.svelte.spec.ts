@@ -118,7 +118,10 @@ import dropdownMenuContentSource from '$lib/components/ui/dropdown-menu/dropdown
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
 import dropdownMenuItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-item.svelte?raw';
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
+import dropdownMenuPortalSource from '$lib/components/ui/dropdown-menu/dropdown-menu-portal.svelte?raw';
 import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte?raw';
+import dropdownMenuRootSource from '$lib/components/ui/dropdown-menu/dropdown-menu.svelte?raw';
+import dropdownMenuSubSource from '$lib/components/ui/dropdown-menu/dropdown-menu-sub.svelte?raw';
 import dropdownMenuSubContentSource from '$lib/components/ui/dropdown-menu/dropdown-menu-sub-content.svelte?raw';
 import dropdownMenuSubTriggerSource from '$lib/components/ui/dropdown-menu/dropdown-menu-sub-trigger.svelte?raw';
 import facetedBadgeListSource from '$lib/components/ui/faceted/faceted-badge-list.svelte?raw';
@@ -137,6 +140,7 @@ import selectContentSource from '$lib/components/ui/select/select-content.svelte
 import selectGroupSource from '$lib/components/ui/select/select-group.svelte?raw';
 import selectItemSource from '$lib/components/ui/select/select-item.svelte?raw';
 import selectLabelSource from '$lib/components/ui/select/select-label.svelte?raw';
+import selectRootSource from '$lib/components/ui/select/select.svelte?raw';
 import selectTriggerSource from '$lib/components/ui/select/select-trigger.svelte?raw';
 import sheetContentSource from '$lib/components/ui/sheet/sheet-content.svelte?raw';
 import sheetHeaderSource from '$lib/components/ui/sheet/sheet-header.svelte?raw';
@@ -1850,6 +1854,15 @@ describe('/+page.svelte', () => {
 		expect(dropdownMenuSubTriggerSource).toContain('focus:bg-accent');
 	});
 
+	it('should keep dropdown menu wrapper slot markers aligned with the original ui menu', () => {
+		expect(dropdownMenuRootSource).toContain('"data-slot": "dropdown-menu"');
+		expect(dropdownMenuRootSource).toContain('<DropdownMenuPrimitive.Root bind:open {...rootProps}>');
+		expect(dropdownMenuPortalSource).toContain('"data-slot": "dropdown-menu-portal"');
+		expect(dropdownMenuPortalSource).toContain('<DropdownMenuPrimitive.Portal {...portalProps}>');
+		expect(dropdownMenuSubSource).toContain('"data-slot": "dropdown-menu-sub"');
+		expect(dropdownMenuSubSource).toContain('<DropdownMenuPrimitive.Sub bind:open {...subProps}>');
+	});
+
 	it('should keep dropdown menu item inset spacing aligned with the original ui menu', () => {
 		expect(dropdownMenuItemSource).toContain('data-[inset]:pl-8');
 		expect(dropdownMenuItemSource).not.toContain('data-[inset]:ps-8');
@@ -1915,6 +1928,8 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep select trigger disabled styling aligned with original and Bits state', () => {
+		expect(selectRootSource).toContain('"data-slot": "select"');
+		expect(selectRootSource).toContain('<SelectPrimitive.Root bind:open {...rootProps}>');
 		expect(selectTriggerSource).toContain('disabled:cursor-not-allowed');
 		expect(selectTriggerSource).toContain('data-[disabled]:cursor-not-allowed');
 		expect(selectTriggerSource).toContain('disabled:opacity-50');
