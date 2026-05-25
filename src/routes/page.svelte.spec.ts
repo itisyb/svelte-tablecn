@@ -52,6 +52,7 @@ import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
+import HooksFixture from './hooks-fixture.svelte';
 import libIndexSource from '$lib/index.ts?raw';
 import actionBarSource from '$lib/components/ui/action-bar/action-bar.svelte?raw';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
@@ -122,6 +123,8 @@ import toggleGroupItemSource from '$lib/components/ui/toggle-group/toggle-group-
 import tooltipProviderSource from '$lib/components/ui/tooltip/tooltip-provider.svelte?raw';
 import dataGridSource from '$lib/components/data-grid/data-grid.svelte?raw';
 import utilsSource from '$lib/utils.ts?raw';
+import useMediaQuerySource from '$lib/hooks/use-media-query.svelte.ts?raw';
+import useMountedSource from '$lib/hooks/use-mounted.svelte.ts?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -159,6 +162,13 @@ describe('/+page.svelte', () => {
 		await new Promise((resolve) => setTimeout(resolve, 80));
 
 		await expect.element(page.getByLabelText('debounced calls')).toHaveTextContent('0');
+	});
+
+	it('should expose mounted and media query hooks like the original hook set', async () => {
+		await render(HooksFixture);
+
+		await expect.element(page.getByLabelText('mounted')).toHaveTextContent('mounted');
+		await expect.element(page.getByLabelText('media query')).toHaveTextContent('matched');
 	});
 
 	it('should only autofocus object targets with a column id like the original grid', async () => {
@@ -1699,6 +1709,20 @@ describe('/+page.svelte', () => {
 		expect(utilsSource).toContain('typeof window !== "undefined"');
 		expect(utilsSource).toContain('process.env.VERCEL_URL');
 		expect(utilsSource).toContain('process.env.PORT ?? 3000');
+	});
+
+	it('should expose mounted and media query hooks from the package root like the original hooks', () => {
+		expect(libIndexSource).toContain(
+			"export { useMounted, type MountedState } from './hooks/use-mounted.svelte.js';"
+		);
+		expect(libIndexSource).toContain(
+			"export { useMediaQuery, type MediaQueryState } from './hooks/use-media-query.svelte.js';"
+		);
+		expect(useMountedSource).toContain('export function useMounted()');
+		expect(useMountedSource).toContain('mounted = true');
+		expect(useMediaQuerySource).toContain('export function useMediaQuery');
+		expect(useMediaQuerySource).toContain('window.matchMedia(currentQuery)');
+		expect(useMediaQuerySource).toContain("addEventListener('change', onChange)");
 	});
 
 	it('should expose the original ui label primitive styling', () => {
