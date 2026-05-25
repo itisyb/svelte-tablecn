@@ -1400,6 +1400,8 @@ describe('/+page.svelte', () => {
 		expect(dataGridColumnHeaderSource).toContain(
 			'<Icon {...props} class="size-3.5 shrink-0 text-muted-foreground" />'
 		);
+		expect(dataGridColumnHeaderSource).toContain('<span class="truncate">{label}</span>');
+		expect(dataGridColumnHeaderSource).not.toContain('truncate text-start');
 		expect(dataGridColumnHeaderSource).not.toContain('<span {...props}>');
 	});
 

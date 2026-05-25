@@ -172,7 +172,7 @@
 					</TooltipContent>
 				</Tooltip>
 			{/if}
-			<span class="truncate text-start">{label}</span>
+			<span class="truncate">{label}</span>
 		</div>
 		<!-- Right side: chevron -->
 		<ChevronDown class="shrink-0 text-muted-foreground" />
