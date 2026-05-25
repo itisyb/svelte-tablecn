@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone `drawer`, `form`, and `sortable` registry slices are documented and exported from the package root.
 - Package root and UI barrel now forward the Svelte-native form helper functions and the public `drawer`, `form`, and `sortable` primitive type contracts.
 - Adapter scope is documented for `drawer`, `form`, and `sortable`: current parity covers installable slots/styling/ARIA contracts without adding React-only runtime dependencies.
+- Registry audit coverage now verifies every installable registry item is emitted in `static/r` with the expected file targets.
 
 ### Fixed
 

@@ -794,6 +794,54 @@ describe('data-table registry items', () => {
 		return new Set(item?.files?.map((file) => file.target));
 	}
 
+	it('emits generated registry artifacts for every installable item', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const registryIndex = JSON.parse(readFileSync('static/r/index.json', 'utf8')) as Array<{
+			name: string;
+			relativeUrl: string;
+		}>;
+		const indexUrls = new Map(registryIndex.map((item) => [item.name, item.relativeUrl]));
+		const registryItemNames = registry.items.map((item) => item.name).sort();
+		const emittedItemNames = registryIndex.map((item) => item.name).sort();
+		const missing: string[] = [];
+		const mismatchedFiles: string[] = [];
+
+		expect(emittedItemNames).toEqual(registryItemNames);
+
+		for (const item of registry.items) {
+			const relativeUrl = `${item.name}.json`;
+			const emittedPath = `static/r/${relativeUrl}`;
+
+			if (indexUrls.get(item.name) !== relativeUrl) {
+				missing.push(`${item.name}: missing ${relativeUrl} from static/r/index.json`);
+				continue;
+			}
+
+			if (!existsSync(emittedPath)) {
+				missing.push(`${item.name}: missing ${emittedPath}`);
+				continue;
+			}
+
+			const emitted = JSON.parse(readFileSync(emittedPath, 'utf8')) as {
+				files?: Array<{ target: string }>;
+			};
+			const expectedTargets = (item.files?.map((file) => file.target) ?? []).sort();
+			const emittedTargets = (emitted.files?.map((file) => file.target) ?? []).sort();
+
+			if (emittedTargets.join('\n') !== expectedTargets.join('\n')) {
+				mismatchedFiles.push(`${item.name}: emitted artifact targets differ from registry.json`);
+			}
+		}
+
+		expect(missing).toEqual([]);
+		expect(mismatchedFiles).toEqual([]);
+	});
+
 	it('ships local helper modules used by the full data-table block', () => {
 		const targets = getRegistryTargets('data-table');
 

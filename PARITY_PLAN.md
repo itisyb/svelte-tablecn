@@ -31,6 +31,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README now documents the shortcut dialog and standalone `drawer`, `form`, and `sortable` registry slices against the shipped public API
 - The non-README docs now record the shipped shortcut dialog, standalone primitive registry slices, package-root/UI-barrel primitive helper/type exports, and select editor radius parity fix
 - The adapter decision for the current parity target is explicit: `drawer`, `form`, and `sortable` preserve the installable slots, styling, exported names, IDs, and ARIA contracts without pulling in React-only runtime dependencies
+- Generated `static/r` registry artifacts are checked against `registry.json` so installable slices cannot silently miss or drift from their declared file targets
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
