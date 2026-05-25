@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `DataGridKeyboardShortcuts` is documented with the shipped option surface and `Ctrl/Cmd + /` trigger.
 - Standalone `drawer`, `form`, and `sortable` registry slices are documented and exported from the package root.
-- Package root now forwards the Svelte-native form helper functions and the public `drawer`, `form`, and `sortable` primitive type contracts.
+- Package root and UI barrel now forward the Svelte-native form helper functions and the public `drawer`, `form`, and `sortable` primitive type contracts.
 
 ### Fixed
 

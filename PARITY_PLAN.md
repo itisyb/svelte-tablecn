@@ -29,7 +29,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - `drawer` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using the existing Bits Dialog foundation
 - `form` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using a Svelte-native error/context contract
 - README now documents the shortcut dialog and standalone `drawer`, `form`, and `sortable` registry slices against the shipped public API
-- The non-README docs now record the shipped shortcut dialog, standalone primitive registry slices, package-root primitive helper/type exports, and select editor radius parity fix
+- The non-README docs now record the shipped shortcut dialog, standalone primitive registry slices, package-root/UI-barrel primitive helper/type exports, and select editor radius parity fix
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

@@ -459,6 +459,7 @@ describe('package root form component exports', () => {
 
 	it('exposes the shipped primitive type contracts from the package root', () => {
 		const packageRoot = readFileSync('src/lib/index.ts', 'utf8');
+		const uiBarrel = readFileSync('src/lib/components/ui/index.ts', 'utf8');
 
 		for (const exportedType of [
 			'FormControlAttributes',
@@ -475,6 +476,7 @@ describe('package root form component exports', () => {
 			'SortableValue'
 		]) {
 			expect(packageRoot).toContain(`type ${exportedType}`);
+			expect(uiBarrel).toContain(`type ${exportedType}`);
 		}
 	});
 });
@@ -703,7 +705,7 @@ describe('non-README parity docs', () => {
 			expect(changelog).toContain(phrase);
 		}
 
-		expect(parityPlan).toContain('package-root primitive helper/type exports');
+		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
 		expect(parityPlan).toContain('select editor radius parity fix');
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'

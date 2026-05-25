@@ -68,7 +68,10 @@ export {
 	DrawerOverlay,
 	DrawerPortal,
 	DrawerTitle,
-	DrawerTrigger
+	DrawerTrigger,
+	type DrawerContentProps,
+	type DrawerDirection,
+	type DrawerProps
 } from './drawer';
 export {
 	DropdownMenu,
@@ -108,7 +111,15 @@ export {
 	FormField,
 	FormItem,
 	FormLabel,
-	FormMessage
+	FormMessage,
+	getFormErrorMessage,
+	getFormFieldState,
+	type FormControlAttributes,
+	type FormContextValue,
+	type FormFieldContextValue,
+	type FormFieldError,
+	type FormFieldState,
+	type FormItemContextValue
 } from './form';
 export { Fps, fpsVariants } from './fps';
 export { Input } from './input';
@@ -136,7 +147,10 @@ export {
 	SortableContent,
 	SortableItem,
 	SortableItemHandle,
-	SortableOverlay
+	SortableOverlay,
+	type SortableItemData,
+	type SortableOrientation,
+	type SortableValue
 } from './sortable';
 export {
 	Sheet,
