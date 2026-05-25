@@ -57,6 +57,7 @@ import FpsDocumentFragmentFixture from './fps-document-fragment-fixture.svelte';
 import HooksFixture from './hooks-fixture.svelte';
 import PopoverAnchorFixture from './popover-anchor-fixture.svelte';
 import SheetFixture from './sheet-fixture.svelte';
+import SortableFixture from './sortable-fixture.svelte';
 import uiIndexSource from '$lib/components/ui/index.ts?raw';
 import libIndexSource from '$lib/index.ts?raw';
 import actionBarSource from '$lib/components/ui/action-bar/action-bar.svelte?raw';
@@ -154,6 +155,12 @@ import sheetRootSource from '$lib/components/ui/sheet/sheet.svelte?raw';
 import skeletonSource from '$lib/components/ui/skeleton/skeleton.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import sonnerSource from '$lib/components/ui/sonner/sonner.svelte?raw';
+import sortableContentSource from '$lib/components/ui/sortable/sortable-content.svelte?raw';
+import sortableIndexSource from '$lib/components/ui/sortable/index.ts?raw';
+import sortableItemHandleSource from '$lib/components/ui/sortable/sortable-item-handle.svelte?raw';
+import sortableItemSource from '$lib/components/ui/sortable/sortable-item.svelte?raw';
+import sortableOverlaySource from '$lib/components/ui/sortable/sortable-overlay.svelte?raw';
+import sortableRootSource from '$lib/components/ui/sortable/sortable.svelte?raw';
 import tableCellSource from '$lib/components/ui/table/table-cell.svelte?raw';
 import tableHeadSource from '$lib/components/ui/table/table-head.svelte?raw';
 import textareaSource from '$lib/components/ui/textarea/textarea.svelte?raw';
@@ -1635,6 +1642,32 @@ describe('/+page.svelte', () => {
 		);
 		expect(dataGridSelectCellSource).not.toContain('rounded-sm');
 		expect(dataGridSelectCellSource).not.toContain('rounded-lg');
+	});
+
+	it('should expose sortable primitive slots and aliases like upstream', async () => {
+		await render(SortableFixture);
+
+		await expect.element(page.getByLabelText('sortable order')).toHaveTextContent('one,two,three');
+		expect(document.querySelector('[data-slot="sortable-content"]')).toBeTruthy();
+		expect(document.querySelectorAll('[data-slot="sortable-item"]')).toHaveLength(3);
+		expect(document.querySelectorAll('[data-slot="sortable-item-handle"]')).toHaveLength(3);
+
+		await page.getByRole('button', { name: 'Finalize reorder' }).click();
+
+		await expect.element(page.getByLabelText('sortable order')).toHaveTextContent('two,one,three');
+	});
+
+	it('should keep the sortable primitive source contract aligned with upstream slots', () => {
+		expect(sortableRootSource).toContain('getItemValue');
+		expect(sortableRootSource).toContain('`getItemValue` is required');
+		expect(sortableContentSource).toContain('data-slot="sortable-content"');
+		expect(sortableContentSource).toContain('use:dragHandleZone');
+		expect(sortableItemSource).toContain('data-slot="sortable-item"');
+		expect(sortableItemHandleSource).toContain('data-slot="sortable-item-handle"');
+		expect(sortableOverlaySource).toContain('data-slot="sortable-overlay"');
+		for (const alias of ['Sortable as Root', 'SortableContent as Content', 'SortableItem as Item']) {
+			expect(sortableIndexSource).toContain(alias);
+		}
 	});
 
 	it('should style row select debug hitboxes like the original grid', () => {

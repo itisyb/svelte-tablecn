@@ -301,6 +301,21 @@
 		"relativeUrl": "data-grid-skeleton.json"
 	},
 	{
+		"name": "sortable",
+		"title": "Sortable",
+		"type": "registry:ui",
+		"description": "A composable sortable primitive for drag-reordering lists.",
+		"dependencies": [
+			"svelte-dnd-action"
+		],
+		"registryDependencies": [],
+		"meta": {
+			"author": "itisyb",
+			"originalAuthor": "tablecn.com"
+		},
+		"relativeUrl": "sortable.json"
+	},
+	{
 		"name": "use-data-grid-undo-redo",
 		"title": "Use Data Grid Undo Redo",
 		"type": "registry:hook",

@@ -976,6 +976,55 @@
 			}
 		},
 		{
+			"name": "sortable",
+			"type": "registry:ui",
+			"title": "Sortable",
+			"description": "A composable sortable primitive for drag-reordering lists.",
+			"dependencies": ["svelte-dnd-action"],
+			"registryDependencies": [],
+			"files": [
+				{
+					"path": "src/lib/components/ui/sortable/sortable.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-content.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable-content.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-item.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable-item.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-item-handle.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable-item-handle.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-overlay.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable-overlay.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-context.ts",
+					"type": "registry:ui",
+					"target": "sortable/sortable-context.ts"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/index.ts",
+					"type": "registry:ui",
+					"target": "sortable/index.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
 			"name": "use-data-grid-undo-redo",
 			"type": "registry:hook",
 			"title": "Use Data Grid Undo Redo",

@@ -111,6 +111,13 @@ export {
 } from './select';
 export { Slider } from './slider';
 export {
+	Sortable,
+	SortableContent,
+	SortableItem,
+	SortableItemHandle,
+	SortableOverlay
+} from './sortable';
+export {
 	Sheet,
 	SheetClose,
 	SheetContent,

@@ -50,6 +50,13 @@ import {
 	useDataGridUndoRedo as useComponentDataGridUndoRedo
 } from './components/data-grid/index.js';
 import {
+	Sortable as ComponentSortable,
+	SortableContent as ComponentSortableContent,
+	SortableItem as ComponentSortableItem,
+	SortableItemHandle as ComponentSortableItemHandle,
+	SortableOverlay as ComponentSortableOverlay
+} from './components/ui/sortable/index.js';
+import {
 	BOOLEAN_FILTER_OPERATORS as ROOT_BOOLEAN_FILTER_OPERATORS,
 	DataGrid as RootDataGrid,
 	DataGridActionBar as RootDataGridActionBar,
@@ -68,6 +75,11 @@ import {
 	RowSelectCell as RootRowSelectCell,
 	RowSelectHeader as RootRowSelectHeader,
 	SELECT_FILTER_OPERATORS as ROOT_SELECT_FILTER_OPERATORS,
+	Sortable as RootSortable,
+	SortableContent as RootSortableContent,
+	SortableItem as RootSortableItem,
+	SortableItemHandle as RootSortableItemHandle,
+	SortableOverlay as RootSortableOverlay,
 	TEXT_FILTER_OPERATORS as ROOT_TEXT_FILTER_OPERATORS,
 	formatDateForDisplay as rootFormatDateForDisplay,
 	formatDateToString as rootFormatDateToString,
@@ -362,6 +374,16 @@ describe('package root data-grid component exports', () => {
 	});
 });
 
+describe('package root sortable component exports', () => {
+	it('exposes the shipped sortable primitive from the package root', () => {
+		expect(RootSortable).toBe(ComponentSortable);
+		expect(RootSortableContent).toBe(ComponentSortableContent);
+		expect(RootSortableItem).toBe(ComponentSortableItem);
+		expect(RootSortableItemHandle).toBe(ComponentSortableItemHandle);
+		expect(RootSortableOverlay).toBe(ComponentSortableOverlay);
+	});
+});
+
 describe('data-grid registry item', () => {
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
@@ -394,6 +416,32 @@ describe('data-grid registry item', () => {
 		expect(itemNames.has('data-grid-filter-menu')).toBe(true);
 		expect(itemNames.has('data-grid-skeleton')).toBe(true);
 		expect(itemNames.has('use-data-grid-undo-redo')).toBe(true);
+		expect(itemNames.has('sortable')).toBe(true);
+	});
+
+	it('ships a standalone sortable registry item', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				dependencies?: string[];
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const sortable = registry.items.find((item) => item.name === 'sortable');
+		const targets = new Set(sortable?.files?.map((file) => file.target));
+
+		expect(sortable?.dependencies).toContain('svelte-dnd-action');
+		for (const target of [
+			'sortable/index.ts',
+			'sortable/sortable.svelte',
+			'sortable/sortable-content.svelte',
+			'sortable/sortable-item.svelte',
+			'sortable/sortable-item-handle.svelte',
+			'sortable/sortable-overlay.svelte',
+			'sortable/sortable-context.ts'
+		]) {
+			expect(targets.has(target)).toBe(true);
+		}
 	});
 });
 

@@ -25,6 +25,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - `data-table`, pagination, toolbar, advanced toolbar, view options, skeletons, and filter/sort menus
 - date, range, slider, faceted, and list-style data-table filters
 - core UI primitive styling and slot markers for the shipped Svelte primitives
+- `sortable` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
@@ -32,7 +33,6 @@ The biggest remaining gaps versus upstream React `tablecn` are:
 2. upstream UI primitives that are not shipped in the Svelte port yet:
    - `drawer`
    - `form`
-   - `sortable`
 3. a final documentation audit against newly completed parity surfaces
 4. documentation examples that still need to be checked against the current public API
 
@@ -69,8 +69,8 @@ Why this first:
 
 1. Port `drawer` with an explicit Svelte dependency decision for Vaul-style behavior
 2. Port `form` only after choosing the Svelte form-state integration that replaces `react-hook-form`
-3. Port `sortable` against the existing `svelte-dnd-action` dependency
-4. Add source and browser tests for each primitive's slot markers, classes, and core interaction behavior
+3. Keep `sortable` covered against the existing `svelte-dnd-action` implementation while closing the remaining primitive gaps
+4. Add source and browser tests for each remaining primitive's slot markers, classes, and core interaction behavior
 
 ### Phase 4: Final Data Table API Audit
 
@@ -96,13 +96,14 @@ Why this first:
 ### UI Primitive Parity
 
 - shipped primitives expose the same `data-slot` contract as upstream where the Svelte implementation has an equivalent component
-- `drawer`, `form`, and `sortable` are either ported or explicitly documented as out of scope until their dependency decisions are made
+- `sortable` is ported with the existing Svelte drag dependency
+- `drawer` and `form` are either ported or explicitly documented as out of scope until their dependency decisions are made
 
 ## Risks
 
 - `drawer` depends on Vaul in upstream React, so the Svelte port needs an equivalent behavior choice before implementation
 - `form` depends on `react-hook-form`, so a direct port is not possible without choosing a Svelte form-state contract
-- `sortable` is feasible with `svelte-dnd-action`, but it has a larger interaction surface than the slot-marker parity fixes
+- `sortable` uses `svelte-dnd-action`, so any deeper keyboard or announcement parity work needs to respect that library's event model
 - naming can still drift if exports and registry entries are not checked after each parity slice
 
 ## Next Milestone

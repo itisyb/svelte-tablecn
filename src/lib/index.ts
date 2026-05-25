@@ -234,6 +234,13 @@ export {
 	SheetTrigger
 } from './components/ui/sheet';
 export { Slider } from './components/ui/slider';
+export {
+	Sortable,
+	SortableContent,
+	SortableItem,
+	SortableItemHandle,
+	SortableOverlay
+} from './components/ui/sortable';
 export { Skeleton } from './components/ui/skeleton';
 export { Toaster } from './components/ui/sonner';
 export { Textarea } from './components/ui/textarea';
