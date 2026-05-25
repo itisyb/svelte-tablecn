@@ -158,6 +158,7 @@ import useAsRefSource from '$lib/hooks/use-as-ref.svelte.ts?raw';
 import useLazyRefSource from '$lib/hooks/use-lazy-ref.ts?raw';
 import useMediaQuerySource from '$lib/hooks/use-media-query.svelte.ts?raw';
 import useMountedSource from '$lib/hooks/use-mounted.svelte.ts?raw';
+import useWindowSizeSource from '$lib/hooks/use-window-size.svelte.ts?raw';
 
 async function waitFor<T>(callback: () => T | undefined | null, timeout = 5_000): Promise<T> {
 	const startedAt = Date.now();
@@ -2046,6 +2047,7 @@ describe('/+page.svelte', () => {
 		expect(libIndexSource).toContain(
 			"export { useMediaQuery, type MediaQueryState } from './hooks/use-media-query.svelte.js';"
 		);
+		expect(libIndexSource).toContain("export { useWindowSize } from './hooks/use-window-size.svelte.js';");
 		expect(useAsRefSource).toContain('export function useAsRef');
 		expect(useAsRefSource).toContain('const current = $derived(getValue(value))');
 		expect(useLazyRefSource).toContain('export function useLazyRef');
@@ -2055,6 +2057,12 @@ describe('/+page.svelte', () => {
 		expect(useMediaQuerySource).toContain('export function useMediaQuery');
 		expect(useMediaQuerySource).toContain('window.matchMedia(currentQuery)');
 		expect(useMediaQuerySource).toContain("addEventListener('change', onChange)");
+		expect(useWindowSizeSource).toContain('let width = $state(defaultWidth)');
+		expect(useWindowSizeSource).toContain('let height = $state(defaultHeight)');
+		expect(useWindowSizeSource).toContain('width = window.innerWidth');
+		expect(useWindowSizeSource).toContain('height = window.innerHeight');
+		expect(useWindowSizeSource).not.toContain('browser ? window.innerWidth : defaultWidth');
+		expect(useWindowSizeSource).not.toContain('browser ? window.innerHeight : defaultHeight');
 	});
 
 	it('should expose the original ui label primitive styling', () => {
