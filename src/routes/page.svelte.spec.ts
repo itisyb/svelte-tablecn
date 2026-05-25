@@ -48,6 +48,7 @@ import DataGridSearchStateFixture from './data-grid-search-state-fixture.svelte'
 import DataGridShortcutsWithoutFocusFixture from './data-grid-shortcuts-without-focus-fixture.svelte';
 import DataGridShortTextCellSyncFixture from './data-grid-short-text-cell-sync-fixture.svelte';
 import DataGridSortMenuFixture from './data-grid-sort-menu-fixture.svelte';
+import DataGridUndoRedoFixture from './data-grid-undo-redo-fixture.svelte';
 import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte';
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
@@ -81,6 +82,7 @@ import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFileCellSource from '$lib/components/data-grid/cells/file-cell.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
+import gridDemoSource from './grid-demo.svelte?raw';
 import dataGridRangeCalendarSource from '$lib/components/data-grid/data-grid-range-calendar.svelte?raw';
 import dataGridRowSource from '$lib/components/data-grid/data-grid-row.svelte?raw';
 import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row-height-menu.svelte?raw';
@@ -315,10 +317,11 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.getAttribute('style') ?? '').toContain('border-radius: 4px');
-		expect(contentStyle.borderTopLeftRadius).toBe('4px');
+		expect(content.getAttribute('style') ?? '').toContain('border-radius: 2px');
+		expect(contentStyle.borderTopLeftRadius).toBe('2px');
+		expect(content.className).toContain('rounded-md');
 		expect(content.className).not.toContain('rounded-sm');
-		expect(content.className).not.toContain('rounded-[2px]');
+		expect(content.className).not.toContain('rounded-lg');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
 			'size-full !w-full items-start border-none p-0 shadow-none focus-visible:ring-0 dark:bg-transparent'
@@ -1483,12 +1486,12 @@ describe('/+page.svelte', () => {
 		expect(dataGridCellWrapperSource).not.toContain("dir === 'rtl' ? 'text-right' : 'text-left'");
 	});
 
-	it('should keep data grid select editor content radius tight inside grid cells', () => {
+	it('should keep data grid select editor content radius tighter inside grid cells', () => {
 		expect(dataGridSelectCellSource).toContain(
 			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"'
 		);
 		expect(dataGridSelectCellSource).toContain(
-			'style="min-width: calc(var(--bits-select-anchor-width) + 16px); border-radius: 4px;"'
+			'style="min-width: calc(var(--bits-select-anchor-width) + 16px); border-radius: 2px;"'
 		);
 		expect(dataGridSelectCellSource).not.toContain('rounded-sm');
 		expect(dataGridSelectCellSource).not.toContain('rounded-lg');
@@ -3268,6 +3271,35 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
 		expect(document.body.textContent).toContain('Insert row below');
 		expect(document.body.textContent).toContain('Delete selected rows');
+	});
+
+	it('should wire data grid undo redo cell tracking like the original demo', () => {
+		expect(gridDemoSource).toContain('type UndoRedoCellUpdate');
+		expect(gridDemoSource).toContain('trackCellsUpdate');
+		expect(gridDemoSource).toContain('const cellUpdates: UndoRedoCellUpdate[] = []');
+		expect(gridDemoSource).toContain('trackCellsUpdate(cellUpdates)');
+		expect(gridDemoSource).not.toContain('data = nextData;\\n\\t\\tonDataChange(nextData);');
+	});
+
+	it('should undo and redo tracked cell edits like the original grid hook', async () => {
+		await render(DataGridUndoRedoFixture);
+
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+		await expect.element(page.getByLabelText('can undo')).toHaveTextContent('no');
+		await expect.element(page.getByLabelText('can redo')).toHaveTextContent('no');
+
+		await page.getByRole('button', { name: 'Edit first name' }).click();
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
+		await expect.element(page.getByLabelText('can undo')).toHaveTextContent('yes');
+
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
+		await expect.element(page.getByLabelText('can redo')).toHaveTextContent('yes');
+
+		window.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, shiftKey: true, bubbles: true })
+		);
+		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
 	});
 
 	it('should not wrap horizontal arrow navigation across rows', async () => {
