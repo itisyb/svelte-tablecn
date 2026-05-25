@@ -3,6 +3,7 @@
 
 import type {
 	ColumnDef,
+	Row,
 	Table,
 	SortingState,
 	ColumnFiltersState,
@@ -38,17 +39,9 @@ export type {
 // Local type alias for use in this file
 type FilterOperator = FilterOperatorType;
 
-export type FilterVariant =
-	| 'text'
-	| 'number'
-	| 'range'
-	| 'date'
-	| 'dateRange'
-	| 'boolean'
-	| 'select'
-	| 'multiSelect';
+export type FilterVariant = (typeof dataTableConfig)['filterVariants'][number];
 
-export type JoinOperator = 'and' | 'or';
+export type JoinOperator = (typeof dataTableConfig)['joinOperators'][number];
 
 export interface DataTableOption {
 	label: string;
@@ -96,6 +89,11 @@ export interface ExtendedColumnFilter<TData> {
 export interface ExtendedColumnSort<TData> {
 	id: keyof TData & string;
 	desc: boolean;
+}
+
+export interface DataTableRowAction<TData> {
+	row: Row<TData>;
+	variant: 'update' | 'delete';
 }
 
 // ============================================

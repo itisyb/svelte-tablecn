@@ -70,6 +70,8 @@ import commandDialogSource from '$lib/components/ui/command/command-dialog.svelt
 import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
 import commandItemSource from '$lib/components/ui/command/command-item.svelte?raw';
 import commandLinkItemSource from '$lib/components/ui/command/command-link-item.svelte?raw';
+import dataTableConfigSource from '$lib/config/data-table.ts?raw';
+import dataTableTypesSource from '$lib/types/data-table.ts?raw';
 import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
 import dataGridHelpersSource from '$lib/data-grid.ts?raw';
 import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-wrapper.svelte?raw';
@@ -1687,6 +1689,23 @@ describe('/+page.svelte', () => {
 		expect(libIndexSource).toContain('serializeCellsToTsv');
 		expect(libIndexSource).toContain('scrollCellIntoView');
 		expect(libIndexSource).toContain('toPinningStyleString');
+	});
+
+	it('should expose original-style data table config and row action types', () => {
+		expect(dataTableConfigSource).toContain('export type DataTableConfig = typeof dataTableConfig');
+		expect(dataTableTypesSource).toContain(
+			"export type FilterVariant = (typeof dataTableConfig)['filterVariants'][number];"
+		);
+		expect(dataTableTypesSource).toContain(
+			"export type JoinOperator = (typeof dataTableConfig)['joinOperators'][number];"
+		);
+		expect(dataTableTypesSource).toContain('export interface DataTableRowAction<TData>');
+		expect(libIndexSource).toContain('DataTableRowAction');
+		expect(libIndexSource).toContain('MULTI_SELECT_OPERATORS');
+		expect(libIndexSource).toContain("export type { DataTableConfig } from './config/data-table';");
+		expect(libIndexSource).toContain('SearchMatch');
+		expect(libIndexSource).toContain('SearchStateData');
+		expect(libIndexSource).toContain('FilterValue');
 	});
 
 	it('should keep button shadows aligned with the original ui button', () => {

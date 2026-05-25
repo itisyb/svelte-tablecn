@@ -107,3 +107,5 @@ export const dataTableConfig = {
 		)
 	]
 } as const;
+
+export type DataTableConfig = typeof dataTableConfig;

@@ -299,6 +299,7 @@ export type {
 	CellSelectOption,
 	FileCellData,
 	CellOpts,
+	Option,
 	CellPosition,
 	CellRange,
 	SelectionState,
@@ -306,7 +307,10 @@ export type {
 	DataGridSelectHitboxSize,
 	ContextMenuState,
 	PasteDialogState,
+	SearchMatch,
+	SearchStateData,
 	SearchState,
+	FilterValue,
 	UpdateCell,
 	NavigationDirection,
 	DataGridProps,
@@ -336,7 +340,8 @@ export type {
 	JoinOperator,
 	FilterOperatorDef,
 	ExtendedColumnFilter,
-	ExtendedColumnSort
+	ExtendedColumnSort,
+	DataTableRowAction
 } from './types/data-table';
 
 export {
@@ -344,6 +349,7 @@ export {
 	NUMBER_OPERATORS,
 	DATE_OPERATORS,
 	SELECT_OPERATORS,
+	MULTI_SELECT_OPERATORS,
 	BOOLEAN_OPERATORS,
 	getFilterOperators,
 	getDefaultFilterOperator,
@@ -388,6 +394,7 @@ export {
 	DATA_TABLE_DEFAULTS,
 	dataTableConfig
 } from './config/data-table';
+export type { DataTableConfig } from './config/data-table';
 
 // ==============================================
 // Hooks
