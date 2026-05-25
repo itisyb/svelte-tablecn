@@ -19,6 +19,8 @@ import {
 } from './data-grid.js';
 import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
 import { filterRows } from './filter-rows.js';
+import { formatDate } from './format.js';
+import { generateId } from './id.js';
 import { getFiltersStateParser, getSortingStateParser } from './parsers.js';
 import {
 	getColumnPinningStyle as getDataTableColumnPinningStyle,
@@ -47,6 +49,24 @@ import {
 	parseLocalDate as rootParseLocalDate
 } from './index.js';
 import { OVERSCAN } from './config/data-grid.js';
+
+describe('shared upstream utilities', () => {
+	it('formats dates with the original en-US long date defaults', () => {
+		expect(formatDate('2024-02-29T00:00:00Z')).toBe('February 29, 2024');
+		expect(formatDate('2024-02-29T00:00:00Z', { month: 'short', day: 'numeric' })).toBe(
+			'Feb 29, 2024'
+		);
+		expect(formatDate(undefined)).toBe('');
+		expect(formatDate('not-a-date')).toBe('');
+	});
+
+	it('generates IDs with the original options shape and default length', () => {
+		expect(generateId()).toHaveLength(12);
+		expect(generateId({ length: 8 })).toHaveLength(8);
+		expect(generateId('unknown-prefix', { length: 6 })).toHaveLength(6);
+		expect(generateId({ length: 40 })).toMatch(/^[0-9A-Za-z]+$/);
+	});
+});
 
 describe('parseTsv', () => {
 	it('parses simple multi-row TSV', () => {

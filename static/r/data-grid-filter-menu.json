@@ -51,7 +51,7 @@
 			"target": "data-grid-filters.ts"
 		},
 		{
-			"content": "export function formatDate(\n\tvalue: Date | string | number | undefined,\n\toptions: Intl.DateTimeFormatOptions = {\n\t\tmonth: 'short',\n\t\tday: 'numeric',\n\t\tyear: 'numeric'\n\t}\n): string {\n\tif (value === undefined || value === null || value === '') {\n\t\treturn '';\n\t}\n\n\tconst date = value instanceof Date ? value : new Date(value);\n\tif (Number.isNaN(date.getTime())) {\n\t\treturn '';\n\t}\n\n\treturn new Intl.DateTimeFormat(undefined, options).format(date);\n}\n",
+			"content": "export function formatDate(\n\tdate: Date | string | number | undefined,\n\topts: Intl.DateTimeFormatOptions = {}\n): string {\n\tif (!date) return '';\n\n\ttry {\n\t\treturn new Intl.DateTimeFormat('en-US', {\n\t\t\tmonth: opts.month ?? 'long',\n\t\t\tday: opts.day ?? 'numeric',\n\t\t\tyear: opts.year ?? 'numeric',\n\t\t\t...opts\n\t\t}).format(new Date(date));\n\t} catch {\n\t\treturn '';\n\t}\n}\n",
 			"type": "registry:lib",
 			"target": "format.ts"
 		},

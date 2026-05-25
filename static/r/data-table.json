@@ -153,12 +153,12 @@
 			"target": "data-grid-filters.ts"
 		},
 		{
-			"content": "export function formatDate(\n\tvalue: Date | string | number | undefined,\n\toptions: Intl.DateTimeFormatOptions = {\n\t\tmonth: 'short',\n\t\tday: 'numeric',\n\t\tyear: 'numeric'\n\t}\n): string {\n\tif (value === undefined || value === null || value === '') {\n\t\treturn '';\n\t}\n\n\tconst date = value instanceof Date ? value : new Date(value);\n\tif (Number.isNaN(date.getTime())) {\n\t\treturn '';\n\t}\n\n\treturn new Intl.DateTimeFormat(undefined, options).format(date);\n}\n",
+			"content": "export function formatDate(\n\tdate: Date | string | number | undefined,\n\topts: Intl.DateTimeFormatOptions = {}\n): string {\n\tif (!date) return '';\n\n\ttry {\n\t\treturn new Intl.DateTimeFormat('en-US', {\n\t\t\tmonth: opts.month ?? 'long',\n\t\t\tday: opts.day ?? 'numeric',\n\t\t\tyear: opts.year ?? 'numeric',\n\t\t\t...opts\n\t\t}).format(new Date(date));\n\t} catch {\n\t\treturn '';\n\t}\n}\n",
 			"type": "registry:lib",
 			"target": "format.ts"
 		},
 		{
-			"content": "export function generateId({ length = 8 }: { length?: number } = {}): string {\n\tconst alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';\n\n\tif (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {\n\t\tconst values = new Uint8Array(length);\n\t\tcrypto.getRandomValues(values);\n\t\treturn Array.from(values, (value) => alphabet[value % alphabet.length]).join('');\n\t}\n\n\treturn Array.from({ length }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join(\n\t\t''\n\t);\n}\n",
+			"content": "const prefixes: Record<string, unknown> = {};\n\ninterface GenerateIdOptions {\n\tlength?: number;\n\tseparator?: string;\n}\n\nfunction createId(length: number) {\n\tconst alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';\n\tif (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {\n\t\tconst values = new Uint8Array(length);\n\t\tcrypto.getRandomValues(values);\n\t\treturn Array.from(values, (value) => alphabet[value % alphabet.length]).join('');\n\t}\n\n\treturn Array.from({ length }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join(\n\t\t''\n\t);\n}\n\nexport function generateId(\n\tprefixOrOptions?: keyof typeof prefixes | GenerateIdOptions,\n\tinputOptions: GenerateIdOptions = {}\n): string {\n\tconst finalOptions = typeof prefixOrOptions === 'object' ? prefixOrOptions : inputOptions;\n\tconst prefix = typeof prefixOrOptions === 'object' ? undefined : prefixOrOptions;\n\tconst { length = 12, separator = '_' } = finalOptions;\n\tconst id = createId(length);\n\n\treturn prefix && prefix in prefixes ? `${prefixes[prefix]}${separator}${id}` : id;\n}\n",
 			"type": "registry:lib",
 			"target": "id.ts"
 		},
