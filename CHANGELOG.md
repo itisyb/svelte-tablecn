@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-table README component documentation now includes the exported date and slider filter components and is checked against package-root exports.
 - UI primitive README export documentation now includes drawer portal/overlay and form helper exports.
 - Data-grid README option documentation now includes sorting, filter, and row-selection change callbacks and is checked against `UseDataGridOptions`.
+- Data-table README option documentation now includes required `data` and `columns` options and is checked against `UseDataTableOptions`.
 
 ### Fixed
 

@@ -36,6 +36,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-table component documentation is now checked against the package-root export surface, including `DataTableDateFilter` and `DataTableSliderFilter`
 - README primitive export documentation is checked against the package-root export surface, including `DrawerPortal`, `DrawerOverlay`, `getFormFieldState`, and `getFormErrorMessage`
 - README data-grid option documentation is checked against `UseDataGridOptions`, including sorting, filter, and row-selection change callbacks
+- README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

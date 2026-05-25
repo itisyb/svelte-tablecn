@@ -882,8 +882,22 @@ describe('README data-table examples', () => {
 		}
 	});
 
-	it('documents the shipped data-table option surface', () => {
-		for (const option of [
+	it('documents every shipped useDataTable option', () => {
+		const typesSource = readFileSync('src/lib/types/data-table.ts', 'utf8');
+		const optionsBlock = typesSource.match(
+			/export interface UseDataTableOptions<TData> \{([\s\S]*?)\n\}/
+		)?.[1];
+
+		expect(optionsBlock).toBeDefined();
+		const optionNames = Array.from(optionsBlock?.matchAll(/^\t([A-Za-z]\w+)\??:/gm) ?? []).map(
+			([, name]) => name
+		);
+
+		expect(optionNames).toEqual([
+			'data',
+			'columns',
+			'pageCount',
+			'getRowId',
 			'queryKeys',
 			'history',
 			'debounceMs',
@@ -892,15 +906,15 @@ describe('README data-table examples', () => {
 			'enableAdvancedFilter',
 			'scroll',
 			'shallow',
-			'pageCount',
-			'getRowId',
 			'initialState',
 			'enableRowSelection',
 			'enableMultiSort',
 			'manualPagination',
 			'manualSorting',
 			'manualFiltering'
-		]) {
+		]);
+
+		for (const option of optionNames) {
 			expect(readme).toContain(`- \`${option}\``);
 		}
 	});

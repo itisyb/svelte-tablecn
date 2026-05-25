@@ -433,6 +433,8 @@ The package also includes the core non-editable `data-table` surface:
 
 Relevant options:
 
+- `data`
+- `columns`
 - `queryKeys`
 - `history`
 - `debounceMs`
