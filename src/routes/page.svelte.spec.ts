@@ -52,6 +52,7 @@ import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
+import libIndexSource from '$lib/index.ts?raw';
 import actionBarSource from '$lib/components/ui/action-bar/action-bar.svelte?raw';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
 import checkboxSource from '$lib/components/ui/checkbox/checkbox.svelte?raw';
@@ -1675,6 +1676,11 @@ describe('/+page.svelte', () => {
 			'@apply min-h-screen bg-background font-sans text-foreground antialiased'
 		);
 		expect(layoutCssSource).not.toContain('@apply bg-background text-foreground');
+	});
+
+	it('should export table footer from the package root like the original table primitive', () => {
+		expect(libIndexSource).toContain('TableFooter');
+		expect(libIndexSource).toContain("} from './components/ui/table';");
 	});
 
 	it('should keep data table slider filter inputs compact like the original table', () => {
