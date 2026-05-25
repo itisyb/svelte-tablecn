@@ -92,7 +92,7 @@
 											month={month.value}
 											class={cn(
 												'relative h-full w-full aspect-square p-0 text-center text-sm select-none focus-within:z-20',
-												'[&:first-child_[data-bits-day]]:rounded-s-md [&:last-child_[data-bits-day]]:rounded-e-md',
+												'[&:first-child_[data-bits-day]]:rounded-l-md [&:last-child_[data-bits-day]]:rounded-r-md',
 												'[&[data-range-middle]_[data-bits-day]]:rounded-none [&[data-range-middle]_[data-bits-day]]:bg-accent [&[data-range-middle]_[data-bits-day]]:text-accent-foreground',
 												'[&[data-highlighted]_[data-bits-day]]:bg-accent [&[data-highlighted]_[data-bits-day]]:text-accent-foreground'
 											)}
@@ -103,7 +103,7 @@
 													'flex aspect-square size-auto w-full min-w-(--cell-size) select-none flex-col items-center justify-center gap-1 whitespace-nowrap p-0 font-normal leading-none',
 													'[&[data-today]:not([data-selected])]:bg-accent [&[data-today]:not([data-selected])]:text-accent-foreground [&[data-today][data-disabled]]:text-muted-foreground',
 													'data-[selected]:bg-primary data-[selected]:text-primary-foreground dark:data-[selected]:hover:bg-accent/50',
-													'data-[range-start]:rounded-e-none data-[range-end]:rounded-s-none data-[range-start][data-range-end]:rounded-md',
+													'data-[range-start]:rounded-r-none data-[range-end]:rounded-l-none data-[range-start][data-range-end]:rounded-md',
 													'[&[data-outside-month]:not([data-selected])]:text-muted-foreground [&[data-outside-month]:not([data-selected])]:hover:text-accent-foreground',
 													'data-[disabled]:pointer-events-none data-[disabled]:text-muted-foreground data-[disabled]:opacity-50',
 													'data-[unavailable]:text-muted-foreground data-[unavailable]:line-through',

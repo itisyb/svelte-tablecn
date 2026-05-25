@@ -1629,6 +1629,27 @@ describe('/+page.svelte', () => {
 		expect(calendarCellSource).not.toContain('size-(--cell-size) relative');
 	});
 
+	it('should keep calendar range edge rounding aligned with the original ui calendar', () => {
+		expect(calendarCellSource).toContain(
+			'[&:first-child[data-selected]_[data-bits-day]]:rounded-l-md'
+		);
+		expect(calendarCellSource).toContain(
+			'[&:last-child[data-selected]_[data-bits-day]]:rounded-r-md'
+		);
+		expect(calendarCellSource).not.toContain('rounded-s-md');
+		expect(calendarCellSource).not.toContain('rounded-e-md');
+		expect(dataGridRangeCalendarSource).toContain(
+			'[&:first-child_[data-bits-day]]:rounded-l-md'
+		);
+		expect(dataGridRangeCalendarSource).toContain(
+			'[&:last-child_[data-bits-day]]:rounded-r-md'
+		);
+		expect(dataGridRangeCalendarSource).toContain('data-[range-start]:rounded-r-none');
+		expect(dataGridRangeCalendarSource).toContain('data-[range-end]:rounded-l-none');
+		expect(dataGridRangeCalendarSource).not.toContain('rounded-s-none');
+		expect(dataGridRangeCalendarSource).not.toContain('rounded-e-none');
+	});
+
 	it('should keep calendar day focus treatment aligned with the original ui calendar', () => {
 		expect(calendarDaySource).toContain(
 			'focus:relative focus:z-10 focus:border-ring focus:ring-[3px] focus:ring-ring/50'
