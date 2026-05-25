@@ -1633,6 +1633,8 @@ describe('/+page.svelte', () => {
 
 	it('should keep dialog close marker and state styling aligned with the original ui dialog', () => {
 		expect(dialogContentSource).toContain('data-slot="dialog-close"');
+		expect(dialogContentSource).toContain('left-[50%] top-[50%]');
+		expect(dialogContentSource).not.toContain('start-[50%]');
 		expect(dialogContentSource).toContain('data-[state=open]:bg-accent');
 		expect(dialogContentSource).toContain('data-[state=open]:text-muted-foreground');
 	});
