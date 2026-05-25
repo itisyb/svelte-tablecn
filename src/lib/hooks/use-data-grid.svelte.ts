@@ -1613,7 +1613,7 @@ export function useDataGrid<TData extends RowData>(
 
 	function handleKeyDown(event: KeyboardEvent) {
 		// Search shortcut
-		if ((event.ctrlKey || event.metaKey) && event.key === 'f' && enableSearch) {
+		if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key === 'f' && enableSearch) {
 			event.preventDefault();
 			event.stopPropagation();
 			handleSearchOpenChange(true);

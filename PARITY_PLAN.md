@@ -40,7 +40,7 @@ Start with the remaining shortcut and documentation audits, then evaluate the mi
 
 Why this first:
 
-- the undo/redo hook is shipped and the demo wiring tracks cells and rows, with focused edit, paste-batch, paste-expansion, selected-cell clear, document-level redo shortcut, and global Escape selection-clear coverage now in place
+- the undo/redo hook is shipped and the demo wiring tracks cells and rows, with focused edit, paste-batch, paste-expansion, selected-cell clear, document-level redo shortcut, global Escape selection-clear, and Ctrl/Cmd+Shift+F filter/search shortcut conflict coverage now in place
 - it improves the existing `data-grid` directly
 - it is much smaller than the `data-table` surface
 - it reduces the biggest credibility gap before expanding scope
@@ -107,7 +107,7 @@ Why this first:
 
 Ship this small, clean milestone next:
 
-1. finish shortcut verification beyond undo/redo and global Escape paths
+1. continue shortcut verification beyond undo/redo, global Escape, and filter/search conflict paths
 2. README correction or confirmation
 
 That gives the fastest path to a real parity improvement before opening larger dependency decisions for `drawer`, `form`, or `sortable`.

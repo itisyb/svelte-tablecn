@@ -3250,6 +3250,31 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByRole('heading', { name: 'Filter by' })).toBeInTheDocument();
 	});
 
+	it('should not intercept Ctrl Shift F as the search shortcut', async () => {
+		await render(DataGridSearchStateFixture);
+
+		const grid = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid"]'));
+		let bubbledToWindow = false;
+		const onWindowKeyDown = () => {
+			bubbledToWindow = true;
+		};
+		window.addEventListener('keydown', onWindowKeyDown);
+
+		const event = new KeyboardEvent('keydown', {
+			key: 'f',
+			ctrlKey: true,
+			shiftKey: true,
+			bubbles: true,
+			cancelable: true
+		});
+		grid.dispatchEvent(event);
+		window.removeEventListener('keydown', onWindowKeyDown);
+
+		expect(event.defaultPrevented).toBe(false);
+		expect(bubbledToWindow).toBe(true);
+		expect(document.querySelector<HTMLElement>('[data-slot="grid-search"]')).toBeNull();
+	});
+
 	it('should reset search state when toggled closed from the keyboard shortcut', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
