@@ -49,8 +49,13 @@ export const DATA_TABLE_DATE_OPERATORS = [
 export const DATA_TABLE_SELECT_OPERATORS = [
 	{ label: 'Is', value: 'is' },
 	{ label: 'Is not', value: 'isNot' },
-	{ label: 'Is any of', value: 'isAnyOf' },
-	{ label: 'Is none of', value: 'isNoneOf' },
+	{ label: 'Is empty', value: 'isEmpty' },
+	{ label: 'Is not empty', value: 'isNotEmpty' }
+] as const;
+
+export const DATA_TABLE_MULTI_SELECT_OPERATORS = [
+	{ label: 'Has any of', value: 'isAnyOf' },
+	{ label: 'Has none of', value: 'isNoneOf' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
 ] as const;
@@ -86,7 +91,7 @@ export const dataTableConfig = {
 	numericOperators: DATA_TABLE_NUMERIC_OPERATORS,
 	dateOperators: DATA_TABLE_DATE_OPERATORS,
 	selectOperators: DATA_TABLE_SELECT_OPERATORS,
-	multiSelectOperators: DATA_TABLE_SELECT_OPERATORS,
+	multiSelectOperators: DATA_TABLE_MULTI_SELECT_OPERATORS,
 	booleanOperators: DATA_TABLE_BOOLEAN_OPERATORS,
 	sortOrders: DATA_TABLE_SORT_ORDERS,
 	operators: [
@@ -96,6 +101,7 @@ export const dataTableConfig = {
 				...DATA_TABLE_NUMERIC_OPERATORS,
 				...DATA_TABLE_DATE_OPERATORS,
 				...DATA_TABLE_SELECT_OPERATORS,
+				...DATA_TABLE_MULTI_SELECT_OPERATORS,
 				...DATA_TABLE_BOOLEAN_OPERATORS
 			].map((operator) => operator.value)
 		)

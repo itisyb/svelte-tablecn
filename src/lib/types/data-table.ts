@@ -103,8 +103,13 @@ export const DATE_OPERATORS: FilterOperatorDef[] = [
 export const SELECT_OPERATORS: FilterOperatorDef[] = [
 	{ label: 'Is', value: 'is' },
 	{ label: 'Is not', value: 'isNot' },
-	{ label: 'Is any of', value: 'isAnyOf' },
-	{ label: 'Is none of', value: 'isNoneOf' },
+	{ label: 'Is empty', value: 'isEmpty' },
+	{ label: 'Is not empty', value: 'isNotEmpty' }
+];
+
+export const MULTI_SELECT_OPERATORS: FilterOperatorDef[] = [
+	{ label: 'Has any of', value: 'isAnyOf' },
+	{ label: 'Has none of', value: 'isNoneOf' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
 ];
@@ -222,8 +227,9 @@ export function getFilterOperators(variant: FilterVariant): FilterOperatorDef[] 
 		case 'dateRange':
 			return DATE_OPERATORS;
 		case 'select':
-		case 'multiSelect':
 			return SELECT_OPERATORS;
+		case 'multiSelect':
+			return MULTI_SELECT_OPERATORS;
 		case 'boolean':
 			return BOOLEAN_OPERATORS;
 		default:

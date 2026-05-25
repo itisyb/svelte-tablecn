@@ -612,6 +612,16 @@ describe('getColumnPinningStyle', () => {
 		expect(
 			getDataTableFilterOperators('boolean').find((item) => item.value === 'isFalse')
 		).toEqual({ label: 'Is not', value: 'isFalse' });
+		expect(getDataTableFilterOperators('select')).not.toContainEqual({
+			label: 'Has any of',
+			value: 'isAnyOf'
+		});
+		expect(getDataTableFilterOperators('multiSelect')).toEqual([
+			{ label: 'Has any of', value: 'isAnyOf' },
+			{ label: 'Has none of', value: 'isNoneOf' },
+			{ label: 'Is empty', value: 'isEmpty' },
+			{ label: 'Is not empty', value: 'isNotEmpty' }
+		]);
 		expect(getDataTableDefaultFilterOperator('range')).toBe('isBetween');
 		expect(
 			getDataTableValidFilters([
