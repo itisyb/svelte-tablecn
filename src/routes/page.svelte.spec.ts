@@ -24,6 +24,7 @@ import DataGridFilterSelectPlaceholderFixture from './data-grid-filter-select-pl
 import DataGridFileCellLocalFixture from './data-grid-file-cell-local-fixture.svelte';
 import DataGridFileCellSyncFixture from './data-grid-file-cell-sync-fixture.svelte';
 import DataGridFocusoutFixture from './data-grid-focusout-fixture.svelte';
+import DataGridKeyboardShortcutsAllFixture from './data-grid-keyboard-shortcuts-all-fixture.svelte';
 import DataGridKeyboardShortcutsDefaultFixture from './data-grid-keyboard-shortcuts-default-fixture.svelte';
 import DataGridKeyboardShortcutsEnabledFixture from './data-grid-keyboard-shortcuts-enabled-fixture.svelte';
 import DataGridLongTextCellSyncFixture from './data-grid-long-text-cell-sync-fixture.svelte';
@@ -85,6 +86,7 @@ import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridFileCellSource from '$lib/components/data-grid/cells/file-cell.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
+import dataGridKeyboardShortcutsSource from '$lib/components/data-grid/data-grid-keyboard-shortcuts.svelte?raw';
 import gridDemoSource from './grid-demo.svelte?raw';
 import dataGridRangeCalendarSource from '$lib/components/data-grid/data-grid-range-calendar.svelte?raw';
 import dataGridRowSource from '$lib/components/data-grid/data-grid-row.svelte?raw';
@@ -3575,6 +3577,68 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
 		expect(document.body.textContent).toContain('Insert row below');
 		expect(document.body.textContent).toContain('Delete selected rows');
+	});
+
+	it('should show all optional keyboard shortcuts like the original grid dialog', async () => {
+		await render(DataGridKeyboardShortcutsAllFixture);
+
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', ctrlKey: true, bubbles: true }));
+
+		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
+		for (const text of [
+			'Open search',
+			'Paste cells',
+			'Undo last action',
+			'Redo last action',
+			'Insert row below',
+			'Delete selected rows',
+			'Toggle the filter menu',
+			'Toggle the sort menu',
+			'Show keyboard shortcuts'
+		]) {
+			expect(document.body.textContent).toContain(text);
+		}
+	});
+
+	it('should filter keyboard shortcuts and show the upstream empty state', async () => {
+		await render(DataGridKeyboardShortcutsAllFixture);
+
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', ctrlKey: true, bubbles: true }));
+		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
+
+		const searchInput = page.getByPlaceholder('Search shortcuts...');
+		await searchInput.fill('redo');
+		expect(document.body.textContent).toContain('Redo last action');
+		expect(document.body.textContent).not.toContain('Navigate between cells');
+
+		await searchInput.fill('no matching shortcut');
+		await expect.element(page.getByText('No shortcuts found')).toBeInTheDocument();
+		await expect.element(page.getByText('Try searching for a different term.')).toBeInTheDocument();
+	});
+
+	it('should keep keyboard shortcut groups aligned with the original grid dialog source', () => {
+		for (const source of [dataGridKeyboardShortcutsSource, gridDemoSource]) {
+			expect(source).toContain('enableUndoRedo');
+			expect(source).toContain('enablePaste');
+			expect(source).toContain('enableRowAdd');
+			expect(source).toContain('enableRowsDelete');
+		}
+		for (const text of [
+			'Move to first row (same column)',
+			'Select to bottom of table',
+			'Undo last action',
+			'Redo last action',
+			'Open search',
+			'Toggle the filter menu',
+			'Toggle the sort menu',
+			'Show keyboard shortcuts',
+			'No shortcuts found',
+			'Try searching for a different term.'
+		]) {
+			expect(dataGridKeyboardShortcutsSource).toContain(text);
+		}
+		expect(dataGridKeyboardShortcutsSource).toContain("const SHORTCUT_KEY = '/'");
+		expect(dataGridKeyboardShortcutsSource).toContain('<svelte:window onkeydown={handleKeyDown} />');
 	});
 
 	it('should wire data grid undo redo cell tracking like the original demo', () => {
