@@ -107,6 +107,7 @@ import dataTableSource from '$lib/components/data-table/data-table.svelte?raw';
 import typesIndexSource from '$lib/types/index.ts?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dialogHeaderSource from '$lib/components/ui/dialog/dialog-header.svelte?raw';
+import dialogOverlaySource from '$lib/components/ui/dialog/dialog-overlay.svelte?raw';
 import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte?raw';
 import dropdownMenuContentSource from '$lib/components/ui/dropdown-menu/dropdown-menu-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
@@ -1649,6 +1650,14 @@ describe('/+page.svelte', () => {
 	it('should keep dialog header alignment aligned with the original ui dialog', () => {
 		expect(dialogHeaderSource).toContain('flex flex-col gap-2 text-center sm:text-left');
 		expect(dialogHeaderSource).not.toContain('sm:text-start');
+	});
+
+	it('should keep dialog overlay animation aligned with the original ui dialog', () => {
+		expect(dialogOverlaySource).toContain('data-slot="dialog-overlay"');
+		expect(dialogOverlaySource).toContain('data-[state=closed]:animate-out');
+		expect(dialogOverlaySource).toContain('data-[state=open]:animate-in');
+		expect(dialogOverlaySource).toContain('data-[state=closed]:fade-out-0');
+		expect(dialogOverlaySource).toContain('data-[state=open]:fade-in-0');
 	});
 
 	it('should expose the original ui sheet primitive styling and API', () => {
