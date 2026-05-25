@@ -22,6 +22,7 @@ import { filterRows } from './filter-rows.js';
 import { formatDate } from './format.js';
 import { generateId } from './id.js';
 import { getFiltersStateParser, getSortingStateParser } from './parsers.js';
+import { useCallbackRef } from './hooks/use-callback-ref.js';
 import {
 	getColumnPinningStyle as getDataTableColumnPinningStyle,
 	getDefaultFilterOperator as getDataTableDefaultFilterOperator,
@@ -65,6 +66,17 @@ describe('shared upstream utilities', () => {
 		expect(generateId({ length: 8 })).toHaveLength(8);
 		expect(generateId('unknown-prefix', { length: 6 })).toHaveLength(6);
 		expect(generateId({ length: 40 })).toMatch(/^[0-9A-Za-z]+$/);
+	});
+
+	it('wraps callback refs like the original Radix-derived helper', () => {
+		const callback = (value: string) => `received:${value}`;
+		const callbackRef = useCallbackRef(callback);
+		const emptyCallbackRef = useCallbackRef<typeof callback>(undefined);
+
+		expect(callbackRef).not.toBe(callback);
+		expect(callbackRef('Ada')).toBe('received:Ada');
+		expect(() => emptyCallbackRef('Ada')).not.toThrow();
+		expect(emptyCallbackRef('Ada')).toBeUndefined();
 	});
 });
 

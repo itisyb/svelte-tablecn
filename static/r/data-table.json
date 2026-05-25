@@ -123,7 +123,7 @@
 			"target": "use-data-table.svelte.ts"
 		},
 		{
-			"content": "export function useCallbackRef<T extends (...args: any[]) => any>(callback: T): T {\n\treturn ((...args: Parameters<T>) => callback(...args)) as T;\n}\n",
+			"content": "export function useCallbackRef<T extends (...args: any[]) => any>(callback: T | undefined): T {\n\treturn ((...args: Parameters<T>) => callback?.(...args)) as T;\n}\n",
 			"type": "registry:hook",
 			"target": "use-callback-ref.ts"
 		},
