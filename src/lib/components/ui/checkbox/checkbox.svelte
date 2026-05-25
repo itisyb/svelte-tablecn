@@ -7,6 +7,7 @@
 	type Props = CheckboxPrimitive.RootProps;
 
 	let {
+		ref = $bindable(null),
 		checked = $bindable(false),
 		indeterminate = false,
 		class: className,
@@ -15,6 +16,7 @@
 </script>
 
 <CheckboxPrimitive.Root
+	bind:ref
 	bind:checked
 	{indeterminate}
 	data-slot="checkbox"

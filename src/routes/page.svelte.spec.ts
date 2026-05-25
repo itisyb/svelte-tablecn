@@ -1574,6 +1574,8 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep checkbox slots and state styling aligned with the original ui checkbox', () => {
+		expect(checkboxSource).toContain('ref = $bindable(null)');
+		expect(checkboxSource).toContain('bind:ref');
 		expect(checkboxSource).toContain('data-slot="checkbox"');
 		expect(checkboxSource).toContain('data-slot="checkbox-indicator"');
 		expect(checkboxSource).toContain('aria-invalid:border-destructive');
