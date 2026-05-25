@@ -622,7 +622,8 @@ describe('getColumnPinningStyle', () => {
 			{ label: 'Is empty', value: 'isEmpty' },
 			{ label: 'Is not empty', value: 'isNotEmpty' }
 		]);
-		expect(getDataTableDefaultFilterOperator('range')).toBe('isBetween');
+		expect(getDataTableDefaultFilterOperator('range')).toBe('equals');
+		expect(getDataTableDefaultFilterOperator('multiSelect')).toBe('isAnyOf');
 		expect(
 			getDataTableValidFilters([
 				{

@@ -14,6 +14,15 @@ import type {
 } from '@tanstack/table-core';
 import type { Component } from 'svelte';
 import { isCompleteRangeFilterValue } from '$lib/data-table-range-utils.js';
+import {
+	dataTableConfig,
+	DATA_TABLE_BOOLEAN_OPERATORS,
+	DATA_TABLE_DATE_OPERATORS,
+	DATA_TABLE_MULTI_SELECT_OPERATORS,
+	DATA_TABLE_NUMERIC_OPERATORS,
+	DATA_TABLE_SELECT_OPERATORS,
+	DATA_TABLE_TEXT_OPERATORS
+} from '$lib/config/data-table.js';
 
 // Re-export filter operator types from data-grid to avoid duplication
 import type { FilterOperator as FilterOperatorType } from './data-grid.js';
@@ -65,59 +74,12 @@ export interface FilterOperatorDef {
 	value: FilterOperator;
 }
 
-export const TEXT_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Contains', value: 'contains' },
-	{ label: 'Does not contain', value: 'notContains' },
-	{ label: 'Is', value: 'equals' },
-	{ label: 'Is not', value: 'notEquals' },
-	{ label: 'Starts with', value: 'startsWith' },
-	{ label: 'Ends with', value: 'endsWith' },
-	{ label: 'Is empty', value: 'isEmpty' },
-	{ label: 'Is not empty', value: 'isNotEmpty' }
-];
-
-export const NUMBER_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Is', value: 'equals' },
-	{ label: 'Is not', value: 'notEquals' },
-	{ label: 'Is less than', value: 'lessThan' },
-	{ label: 'Is less than or equal to', value: 'lessThanOrEqual' },
-	{ label: 'Is greater than', value: 'greaterThan' },
-	{ label: 'Is greater than or equal to', value: 'greaterThanOrEqual' },
-	{ label: 'Is between', value: 'isBetween' },
-	{ label: 'Is empty', value: 'isEmpty' },
-	{ label: 'Is not empty', value: 'isNotEmpty' }
-];
-
-export const DATE_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Is', value: 'equals' },
-	{ label: 'Is not', value: 'notEquals' },
-	{ label: 'Is before', value: 'before' },
-	{ label: 'Is after', value: 'after' },
-	{ label: 'Is on or before', value: 'onOrBefore' },
-	{ label: 'Is on or after', value: 'onOrAfter' },
-	{ label: 'Is between', value: 'isBetween' },
-	{ label: 'Is empty', value: 'isEmpty' },
-	{ label: 'Is not empty', value: 'isNotEmpty' }
-];
-
-export const SELECT_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Is', value: 'is' },
-	{ label: 'Is not', value: 'isNot' },
-	{ label: 'Is empty', value: 'isEmpty' },
-	{ label: 'Is not empty', value: 'isNotEmpty' }
-];
-
-export const MULTI_SELECT_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Has any of', value: 'isAnyOf' },
-	{ label: 'Has none of', value: 'isNoneOf' },
-	{ label: 'Is empty', value: 'isEmpty' },
-	{ label: 'Is not empty', value: 'isNotEmpty' }
-];
-
-export const BOOLEAN_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Is', value: 'isTrue' },
-	{ label: 'Is not', value: 'isFalse' }
-];
+export const TEXT_OPERATORS = DATA_TABLE_TEXT_OPERATORS;
+export const NUMBER_OPERATORS = DATA_TABLE_NUMERIC_OPERATORS;
+export const DATE_OPERATORS = DATA_TABLE_DATE_OPERATORS;
+export const SELECT_OPERATORS = DATA_TABLE_SELECT_OPERATORS;
+export const MULTI_SELECT_OPERATORS = DATA_TABLE_MULTI_SELECT_OPERATORS;
+export const BOOLEAN_OPERATORS = DATA_TABLE_BOOLEAN_OPERATORS;
 
 // ============================================
 // Extended Column Types
@@ -216,49 +178,26 @@ export interface UseDataTableReturn<TData> {
 /**
  * Gets the filter operators for a given filter variant
  */
-export function getFilterOperators(variant: FilterVariant): FilterOperatorDef[] {
-	switch (variant) {
-		case 'text':
-			return TEXT_OPERATORS;
-		case 'number':
-		case 'range':
-			return NUMBER_OPERATORS;
-		case 'date':
-		case 'dateRange':
-			return DATE_OPERATORS;
-		case 'select':
-			return SELECT_OPERATORS;
-		case 'multiSelect':
-			return MULTI_SELECT_OPERATORS;
-		case 'boolean':
-			return BOOLEAN_OPERATORS;
-		default:
-			return TEXT_OPERATORS;
-	}
+export function getFilterOperators(variant: FilterVariant): ReadonlyArray<FilterOperatorDef> {
+	const operatorMap = {
+		text: dataTableConfig.textOperators,
+		number: dataTableConfig.numericOperators,
+		range: dataTableConfig.numericOperators,
+		date: dataTableConfig.dateOperators,
+		dateRange: dataTableConfig.dateOperators,
+		boolean: dataTableConfig.booleanOperators,
+		select: dataTableConfig.selectOperators,
+		multiSelect: dataTableConfig.multiSelectOperators
+	} satisfies Record<FilterVariant, ReadonlyArray<FilterOperatorDef>>;
+
+	return operatorMap[variant] ?? dataTableConfig.textOperators;
 }
 
 /**
  * Gets the default filter operator for a given filter variant
  */
 export function getDefaultFilterOperator(variant: FilterVariant): FilterOperator {
-	switch (variant) {
-		case 'text':
-			return 'contains';
-		case 'number':
-			return 'equals';
-		case 'range':
-			return 'isBetween';
-		case 'date':
-		case 'dateRange':
-			return 'equals';
-		case 'select':
-		case 'multiSelect':
-			return 'is';
-		case 'boolean':
-			return 'isTrue';
-		default:
-			return 'contains';
-	}
+	return getFilterOperators(variant)[0]?.value ?? (variant === 'text' ? 'contains' : 'equals');
 }
 
 /**
