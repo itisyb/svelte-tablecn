@@ -71,6 +71,7 @@ import commandDialogSource from '$lib/components/ui/command/command-dialog.svelt
 import commandInputSource from '$lib/components/ui/command/command-input.svelte?raw';
 import commandItemSource from '$lib/components/ui/command/command-item.svelte?raw';
 import commandLinkItemSource from '$lib/components/ui/command/command-link-item.svelte?raw';
+import commandShortcutSource from '$lib/components/ui/command/command-shortcut.svelte?raw';
 import dataTableConfigSource from '$lib/config/data-table.ts?raw';
 import dataTableTypesSource from '$lib/types/data-table.ts?raw';
 import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-bar.svelte?raw';
@@ -1827,6 +1828,11 @@ describe('/+page.svelte', () => {
 	it('should keep command dialog default description aligned with the original ui command', () => {
 		expect(commandDialogSource).toContain('description = "Search for a command to run..."');
 		expect(commandDialogSource).not.toContain('description = "Search for a command to run",');
+	});
+
+	it('should keep command shortcut spacing aligned with the original ui command', () => {
+		expect(commandShortcutSource).toContain('ml-auto text-muted-foreground text-xs tracking-widest');
+		expect(commandShortcutSource).not.toContain('ms-auto');
 	});
 
 	it('should keep select trigger disabled styling aligned with original and Bits state', () => {
