@@ -103,6 +103,7 @@ import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dro
 import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-menu-label.svelte?raw';
 import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
+import labelSource from '$lib/components/ui/label/label.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
 import selectContentSource from '$lib/components/ui/select/select-content.svelte?raw';
 import selectGroupSource from '$lib/components/ui/select/select-group.svelte?raw';
@@ -1681,6 +1682,14 @@ describe('/+page.svelte', () => {
 	it('should export table footer from the package root like the original table primitive', () => {
 		expect(libIndexSource).toContain('TableFooter');
 		expect(libIndexSource).toContain("} from './components/ui/table';");
+	});
+
+	it('should expose the original ui label primitive styling', () => {
+		expect(libIndexSource).toContain("export { Label } from './components/ui/label';");
+		expect(labelSource).toContain('data-slot="label"');
+		expect(labelSource).toContain('flex select-none items-center gap-2');
+		expect(labelSource).toContain('peer-disabled:cursor-not-allowed');
+		expect(labelSource).toContain('group-data-[disabled=true]:pointer-events-none');
 	});
 
 	it('should keep data table slider filter inputs compact like the original table', () => {
