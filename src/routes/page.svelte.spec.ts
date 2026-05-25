@@ -146,6 +146,8 @@ import sheetContentSource from '$lib/components/ui/sheet/sheet-content.svelte?ra
 import sheetHeaderSource from '$lib/components/ui/sheet/sheet-header.svelte?raw';
 import sheetIndexSource from '$lib/components/ui/sheet/index.ts?raw';
 import sheetOverlaySource from '$lib/components/ui/sheet/sheet-overlay.svelte?raw';
+import sheetPortalSource from '$lib/components/ui/sheet/sheet-portal.svelte?raw';
+import sheetRootSource from '$lib/components/ui/sheet/sheet.svelte?raw';
 import skeletonSource from '$lib/components/ui/skeleton/skeleton.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import sonnerSource from '$lib/components/ui/sonner/sonner.svelte?raw';
@@ -1736,6 +1738,10 @@ describe('/+page.svelte', () => {
 		expect(sheetIndexSource).toContain('Root as Sheet');
 		expect(sheetIndexSource).toContain('Content as SheetContent');
 		expect(sheetIndexSource).toContain('Trigger as SheetTrigger');
+		expect(sheetRootSource).toContain('"data-slot": "sheet"');
+		expect(sheetRootSource).toContain('<DialogPrimitive.Root bind:open {...rootProps}>');
+		expect(sheetPortalSource).toContain('"data-slot": "sheet-portal"');
+		expect(sheetPortalSource).toContain('<DialogPrimitive.Portal {...portalProps}>');
 		expect(sheetContentSource).toContain('data-slot="sheet-content"');
 		expect(sheetOverlaySource).toContain('data-slot="sheet-overlay"');
 		expect(sheetOverlaySource).toContain('bg-black/50');
