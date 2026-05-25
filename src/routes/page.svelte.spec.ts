@@ -103,6 +103,7 @@ import dropdownMenuLabelSource from '$lib/components/ui/dropdown-menu/dropdown-m
 import dropdownMenuRadioItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-radio-item.svelte?raw';
 import inputSource from '$lib/components/ui/input/input.svelte?raw';
 import separatorSource from '$lib/components/ui/separator/separator.svelte?raw';
+import selectContentSource from '$lib/components/ui/select/select-content.svelte?raw';
 import selectTriggerSource from '$lib/components/ui/select/select-trigger.svelte?raw';
 import sliderSource from '$lib/components/ui/slider/slider.svelte?raw';
 import sonnerSource from '$lib/components/ui/sonner/sonner.svelte?raw';
@@ -1613,6 +1614,12 @@ describe('/+page.svelte', () => {
 		expect(selectTriggerSource).toContain('data-[disabled]:cursor-not-allowed');
 		expect(selectTriggerSource).toContain('disabled:opacity-50');
 		expect(selectTriggerSource).toContain('data-[disabled]:opacity-50');
+	});
+
+	it('should keep select content popper offset aligned with original', () => {
+		expect(selectContentSource).toContain('sideOffset = 0');
+		expect(selectContentSource).toContain('data-[side=bottom]:translate-y-1');
+		expect(selectContentSource).not.toContain('sideOffset = 4');
 	});
 
 	it('should keep table checkbox alignment aligned with the original ui table', () => {
