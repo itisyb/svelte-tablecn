@@ -28,12 +28,13 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - `sortable` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests
 - `drawer` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using the existing Bits Dialog foundation
 - `form` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using a Svelte-native error/context contract
+- README now documents the shortcut dialog and standalone `drawer`, `form`, and `sortable` registry slices against the shipped public API
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
 1. keyboard shortcut verification against the shipped grid behavior and shortcut UI
-2. a final documentation audit against newly completed parity surfaces
-3. documentation examples that still need to be checked against the current public API
+2. a final documentation audit against any newly completed parity surfaces outside the README examples
+3. a completion audit across exports, registry items, docs, and runtime behavior
 
 ## Recommended Starting Point
 
@@ -110,7 +111,7 @@ Why this first:
 
 Ship this small, clean milestone next:
 
-1. continue shortcut verification beyond undo/redo, global Escape, and filter/search conflict paths
-2. finish any remaining broader documentation audit outside the README examples
+1. finish any remaining broader documentation audit outside the README examples
+2. complete a requirement-by-requirement parity audit across exports, registry items, docs, and runtime behavior
 
 That gives the fastest path to a real parity improvement before opening richer adapter decisions for `drawer` drag/snap behavior or `form` controller-level integration.

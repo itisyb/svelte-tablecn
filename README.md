@@ -330,6 +330,24 @@ Use `useDataGridUndoRedo` to track cell edits, row adds, and row deletes:
 </DataGridSkeleton>
 ```
 
+## Keyboard Shortcuts Dialog
+
+Use `DataGridKeyboardShortcuts` to expose the same searchable shortcut dialog as the original grid. It opens with `Ctrl/Cmd + /`.
+
+```svelte
+<script lang="ts">
+	import { DataGridKeyboardShortcuts } from '$lib';
+</script>
+
+<DataGridKeyboardShortcuts
+	enableSearch
+	enableUndoRedo
+	enablePaste
+	enableRowAdd
+	enableRowsDelete
+/>
+```
+
 ## Data Table
 
 The package also includes the core non-editable `data-table` surface:
@@ -432,6 +450,22 @@ Relevant options:
 For advanced filters (multi-rule, AND/OR, operators), see [docs/ADVANCED_FILTERS.md](./docs/ADVANCED_FILTERS.md). The demo toggles **Filter list** vs **Filter menu** like tablecn’s `filterFlag`.
 
 For how Svelte 5 and TanStack Table interact (and why filters used to loop), see [docs/REACTIVITY.md](./docs/REACTIVITY.md).
+
+## UI Primitives
+
+The Svelte port also ships the upstream-style UI primitives used by the grid and table. These are exported from `$lib` and available as standalone registry items.
+
+| Primitive  | Public exports                                                                   | Registry item       |
+| ---------- | -------------------------------------------------------------------------------- | ------------------- |
+| `drawer`   | `Drawer`, `DrawerContent`, `DrawerTrigger`, `DrawerClose`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription` | `/r/drawer.json`    |
+| `form`     | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage` | `/r/form.json`      |
+| `sortable` | `Sortable`, `SortableContent`, `SortableItem`, `SortableItemHandle`, `SortableOverlay` | `/r/sortable.json`  |
+
+Install a primitive directly with the shadcn-svelte CLI:
+
+```bash
+npx shadcn-svelte@latest add https://svelte-tablecn.vercel.app/r/sortable.json
+```
 
 ## Cell Variants
 

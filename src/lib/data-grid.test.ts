@@ -591,6 +591,72 @@ describe('README data-grid examples', () => {
 		expect(readme).toContain('trackRowsDelete(rows);');
 		expect(readme).toContain('<DataGrid {...dataGrid} height={600} />');
 	});
+
+	it('documents the shipped keyboard shortcuts dialog options', () => {
+		expect(readme).toContain('## Keyboard Shortcuts Dialog');
+		expect(readme).toContain('import { DataGridKeyboardShortcuts } from');
+		expect(readme).toContain('<DataGridKeyboardShortcuts');
+		for (const option of [
+			'enableSearch',
+			'enableUndoRedo',
+			'enablePaste',
+			'enableRowAdd',
+			'enableRowsDelete'
+		]) {
+			expect(readme).toContain(option);
+		}
+		expect(readme).toContain('It opens with `Ctrl/Cmd + /`.');
+	});
+});
+
+describe('README UI primitive docs', () => {
+	const readme = readFileSync('README.md', 'utf8');
+	const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+		items: Array<{ name: string }>;
+	};
+	const registryItems = new Set(registry.items.map((item) => item.name));
+
+	it('documents standalone registry slices for shipped upstream ui primitives', () => {
+		expect(readme).toContain('## UI Primitives');
+		for (const primitive of ['drawer', 'form', 'sortable']) {
+			expect(registryItems.has(primitive)).toBe(true);
+			expect(readme).toContain(`| \`${primitive}\``);
+			expect(readme).toContain(`/r/${primitive}.json`);
+		}
+		expect(readme).toContain(
+			'npx shadcn-svelte@latest add https://svelte-tablecn.vercel.app/r/sortable.json'
+		);
+	});
+
+	it('keeps documented primitive exports aligned with the package root', () => {
+		const documentedExports = [
+			['Drawer', RootDrawer],
+			['DrawerContent', RootDrawerContent],
+			['DrawerTrigger', RootDrawerTrigger],
+			['DrawerClose', RootDrawerClose],
+			['DrawerHeader', RootDrawerHeader],
+			['DrawerFooter', RootDrawerFooter],
+			['DrawerTitle', RootDrawerTitle],
+			['DrawerDescription', RootDrawerDescription],
+			['Form', RootForm],
+			['FormField', RootFormField],
+			['FormItem', RootFormItem],
+			['FormLabel', RootFormLabel],
+			['FormControl', RootFormControl],
+			['FormDescription', RootFormDescription],
+			['FormMessage', RootFormMessage],
+			['Sortable', RootSortable],
+			['SortableContent', RootSortableContent],
+			['SortableItem', RootSortableItem],
+			['SortableItemHandle', RootSortableItemHandle],
+			['SortableOverlay', RootSortableOverlay]
+		] as const;
+
+		for (const [name, component] of documentedExports) {
+			expect(component).toBeTruthy();
+			expect(readme).toContain(name);
+		}
+	});
 });
 
 describe('README data-table examples', () => {
