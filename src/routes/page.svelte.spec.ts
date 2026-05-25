@@ -301,7 +301,9 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.className).toContain('rounded-sm');
+		expect(content.getAttribute('style') ?? '').toContain('border-radius: 4px');
+		expect(contentStyle.borderTopLeftRadius).toBe('4px');
+		expect(content.className).not.toContain('rounded-sm');
 		expect(content.className).not.toContain('rounded-[2px]');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
@@ -1454,8 +1456,12 @@ describe('/+page.svelte', () => {
 
 	it('should keep data grid select editor content radius tight inside grid cells', () => {
 		expect(dataGridSelectCellSource).toContain(
-			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-sm"'
+			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"'
 		);
+		expect(dataGridSelectCellSource).toContain(
+			'style="min-width: calc(var(--bits-select-anchor-width) + 16px); border-radius: 4px;"'
+		);
+		expect(dataGridSelectCellSource).not.toContain('rounded-sm');
 		expect(dataGridSelectCellSource).not.toContain('rounded-lg');
 	});
 
