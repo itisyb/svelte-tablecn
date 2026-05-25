@@ -54,6 +54,7 @@ import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import HooksFixture from './hooks-fixture.svelte';
 import SheetFixture from './sheet-fixture.svelte';
+import uiIndexSource from '$lib/components/ui/index.ts?raw';
 import libIndexSource from '$lib/index.ts?raw';
 import actionBarSource from '$lib/components/ui/action-bar/action-bar.svelte?raw';
 import buttonSource from '$lib/components/ui/button/button.svelte?raw';
@@ -1646,6 +1647,29 @@ describe('/+page.svelte', () => {
 		expect(textareaSource).toContain('data-slot={dataSlot}');
 		expect(textareaSource).toContain('field-sizing-content');
 		expect(textareaSource).toContain('focus-visible:ring-[3px]');
+	});
+
+	it('should expose existing original ui primitive modules through public barrels', () => {
+		expect(uiIndexSource).toContain("export { Badge, badgeVariants, type BadgeVariant } from './badge';");
+		expect(uiIndexSource).toContain('CalendarNextButton');
+		expect(uiIndexSource).toContain('CommandDialog');
+		expect(uiIndexSource).toContain('DialogContent');
+		expect(uiIndexSource).toContain('DropdownMenuContent');
+		expect(uiIndexSource).toContain("export { Kbd, KbdGroup } from './kbd';");
+		expect(uiIndexSource).toContain('PopoverContent');
+		expect(uiIndexSource).toContain("export { Toaster } from './sonner';");
+		expect(uiIndexSource).toContain('TooltipProvider');
+		expect(libIndexSource).toContain("export { Badge, badgeVariants, type BadgeVariant } from './components/ui/badge';");
+		expect(libIndexSource).toContain('CalendarNextButton');
+		expect(libIndexSource).toContain('CommandDialog');
+		expect(libIndexSource).toContain('DialogContent');
+		expect(libIndexSource).toContain('DropdownMenuContent');
+		expect(libIndexSource).toContain("export { Kbd, KbdGroup } from './components/ui/kbd';");
+		expect(libIndexSource).toContain('PopoverContent');
+		expect(libIndexSource).toContain("export { Toaster } from './components/ui/sonner';");
+		expect(libIndexSource).toContain('TooltipProvider');
+		expect(libIndexSource).toContain('SelectContent');
+		expect(libIndexSource).toContain('SelectTrigger');
 	});
 
 	it('should keep button shadows aligned with the original ui button', () => {

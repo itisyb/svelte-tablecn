@@ -12,6 +12,70 @@ export {
 } from './table';
 
 export { Button, buttonVariants } from './button';
+export { Badge, badgeVariants, type BadgeVariant } from './badge';
+export {
+	Calendar,
+	Cell as CalendarCell,
+	Day as CalendarDay,
+	Grid as CalendarGrid,
+	Header as CalendarHeader,
+	Months as CalendarMonths,
+	GridRow as CalendarGridRow,
+	Heading as CalendarHeading,
+	GridBody as CalendarGridBody,
+	GridHead as CalendarGridHead,
+	HeadCell as CalendarHeadCell,
+	NextButton as CalendarNextButton,
+	PrevButton as CalendarPrevButton,
+	Nav as CalendarNav,
+	Month as CalendarMonth,
+	YearSelect as CalendarYearSelect,
+	MonthSelect as CalendarMonthSelect,
+	Caption as CalendarCaption
+} from './calendar';
+export {
+	Command,
+	CommandDialog,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandLinkItem,
+	CommandList,
+	CommandLoading,
+	CommandSeparator,
+	CommandShortcut
+} from './command';
+export {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogOverlay,
+	DialogPortal,
+	DialogTitle,
+	DialogTrigger
+} from './dialog';
+export {
+	DropdownMenu,
+	DropdownMenuCheckboxGroup,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuGroupHeading,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSeparator,
+	DropdownMenuShortcut,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger
+} from './dropdown-menu';
 export {
 	Faceted,
 	FacetedBadgeList,
@@ -26,8 +90,10 @@ export {
 } from './faceted';
 export { Fps, fpsVariants } from './fps';
 export { Input } from './input';
+export { Kbd, KbdGroup } from './kbd';
 export { Label } from './label';
 export { Checkbox } from './checkbox';
+export { Popover, PopoverClose, PopoverContent, PopoverTrigger } from './popover';
 export { Separator } from './separator';
 export {
 	Select,
@@ -53,7 +119,9 @@ export {
 	SheetTitle,
 	SheetTrigger
 } from './sheet';
+export { Toaster } from './sonner';
 export { Toggle, toggleVariants } from './toggle';
 export { Skeleton } from './skeleton';
 export { Textarea } from './textarea';
 export { ToggleGroup, ToggleGroupItem } from './toggle-group';
+export { Tooltip, TooltipContent, TooltipPortal, TooltipProvider, TooltipTrigger } from './tooltip';
