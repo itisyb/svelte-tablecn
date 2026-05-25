@@ -111,6 +111,8 @@ import typesIndexSource from '$lib/types/index.ts?raw';
 import dialogContentSource from '$lib/components/ui/dialog/dialog-content.svelte?raw';
 import dialogHeaderSource from '$lib/components/ui/dialog/dialog-header.svelte?raw';
 import dialogOverlaySource from '$lib/components/ui/dialog/dialog-overlay.svelte?raw';
+import dialogPortalSource from '$lib/components/ui/dialog/dialog-portal.svelte?raw';
+import dialogRootSource from '$lib/components/ui/dialog/dialog.svelte?raw';
 import dropdownMenuCheckboxItemSource from '$lib/components/ui/dropdown-menu/dropdown-menu-checkbox-item.svelte?raw';
 import dropdownMenuContentSource from '$lib/components/ui/dropdown-menu/dropdown-menu-content.svelte?raw';
 import dropdownMenuGroupHeadingSource from '$lib/components/ui/dropdown-menu/dropdown-menu-group-heading.svelte?raw';
@@ -1716,6 +1718,13 @@ describe('/+page.svelte', () => {
 		expect(dialogOverlaySource).toContain('data-[state=open]:animate-in');
 		expect(dialogOverlaySource).toContain('data-[state=closed]:fade-out-0');
 		expect(dialogOverlaySource).toContain('data-[state=open]:fade-in-0');
+	});
+
+	it('should keep dialog root and portal slot markers aligned with the original ui dialog', () => {
+		expect(dialogRootSource).toContain('"data-slot": "dialog"');
+		expect(dialogRootSource).toContain('<DialogPrimitive.Root bind:open {...rootProps}>');
+		expect(dialogPortalSource).toContain('"data-slot": "dialog-portal"');
+		expect(dialogPortalSource).toContain('<DialogPrimitive.Portal {...portalProps}>');
 	});
 
 	it('should expose the original ui sheet primitive styling and API', () => {
