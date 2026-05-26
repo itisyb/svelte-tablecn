@@ -58,6 +58,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - `DataTableFilterMenu` forwards popover content classes and props to the command menu surface like the original table
 - Data-table `isBetween` filters preserve partial range values like upstream, and the in-memory row filter reference mirrors upstream one-sided numeric range handling
 - Data-grid single-select editors now use a square cell-editor surface like the other grid popover editors while keeping the original select item radius
+- Registry audit coverage now directly fails on unresolved `registry.json` source paths before import/dependency checks inspect shipped files
 
 ## Audit Evidence
 

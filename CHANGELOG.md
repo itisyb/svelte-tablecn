@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Data-table range filters now preserve incomplete `isBetween` values like upstream and apply the same one-sided numeric behavior in the in-memory row filter reference.
 - Data grid select editor popovers now use a square cell-editor surface while keeping the original select item radius.
+- Parity audit tests now fail directly when a `registry.json` source path stops resolving.
 - `DataTableFilterMenu` now forwards custom classes to the command popover content like upstream instead of styling the outer filter list.
 - Data grid select editor popovers now use a softer cell-editor radius while preserving the original item radius, width, and offset.
 - Data grid select editor popovers no longer override the shared select offset, matching the original menu placement.

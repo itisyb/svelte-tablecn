@@ -1462,6 +1462,22 @@ describe('data-table registry items', () => {
 		expect(mismatchedFiles).toEqual([]);
 	});
 
+	it('keeps every registry source file path resolvable', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				files?: Array<{ path: string; target: string }>;
+			}>;
+		};
+		const missing = registry.items.flatMap((item) =>
+			(item.files ?? [])
+				.filter((file) => !existsSync(file.path))
+				.map((file) => `${item.name}: ${file.path} -> ${file.target}`)
+		);
+
+		expect(missing).toEqual([]);
+	});
+
 	it('ships local helper modules used by the full data-table block', () => {
 		const targets = getRegistryTargets('data-table');
 
