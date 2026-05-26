@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Data grid select editor popovers now use a compact cell-editor radius instead of the shared menu radius.
 - Data-grid filter-menu row reordering now composes the shared sortable primitive like the original grid.
 - Data-grid sort-menu row reordering now composes the shared sortable primitive like the original grid.
 - Data-table sort-list row reordering now composes the shared sortable primitive like the original table.
