@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `DataTableFilterMenu` now forwards custom classes to the command popover content like upstream instead of styling the outer filter list.
 - Data grid select editor popovers now use a softer cell-editor radius while preserving the original item radius, width, and offset.
 - Data grid select editor popovers no longer override the shared select offset, matching the original menu placement.
 - Short text and URL cell editors now restore the original value on `Escape`, matching upstream edit cancellation behavior.

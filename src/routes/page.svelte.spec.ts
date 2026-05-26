@@ -2788,7 +2788,13 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).toContain('requestAnimationFrame(() => triggerRef?.focus())');
 		expect(dataTableFilterMenuSource).toContain('removeFilter(getFilterKey(lastFilter');
 		expect(dataTableFilterMenuSource).toContain(
-			'class="w-full max-w-[var(--bits-popover-content-available-width)] p-0"'
+			"class={cn('w-full max-w-[var(--bits-popover-content-available-width)] p-0', className)}"
+		);
+		expect(dataTableFilterMenuSource).toContain(
+			'<div role="list" class="flex flex-wrap items-center gap-2">'
+		);
+		expect(dataTableFilterMenuSource).not.toContain(
+			"<div role=\"list\" class={cn('flex flex-wrap items-center gap-2', className)}>"
 		);
 		expect(dataTableFilterMenuSource).not.toContain('sm:w-80');
 		expect(dataTableFilterMenuSource).toContain(

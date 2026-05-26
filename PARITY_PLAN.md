@@ -55,6 +55,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Standalone row-height, view, and keyboard-shortcut registry slices declare only packages directly imported by those Svelte files; UI primitive packages stay behind `registryDependencies`
 - The `data-grid.ts` module exports upstream cell-key and row-height helpers directly, even though their implementations live in Svelte type utilities
 - Data-table date operators include upstream `isRelativeToToday`, and the in-memory filter reference maps/applies it using the same relative day/week/month windows as the original SQL filter helper
+- `DataTableFilterMenu` forwards popover content classes and props to the command menu surface like the original table
 
 ## Audit Evidence
 

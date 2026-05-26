@@ -377,7 +377,7 @@
 
 <svelte:window onkeydown={handleKeyDown} />
 
-<div role="list" class={cn('flex flex-wrap items-center gap-2', className)}>
+<div role="list" class="flex flex-wrap items-center gap-2">
 	{#each filters as filter, index (getFilterKey(filter, index))}
 		{@const filterKey = getFilterKey(filter, index)}
 		{@const filterItemId = `${id}-filter-${filterKey}`}
@@ -699,7 +699,7 @@
 			{/snippet}
 		</PopoverTrigger>
 		<PopoverContent
-			class="w-full max-w-[var(--bits-popover-content-available-width)] p-0"
+			class={cn('w-full max-w-[var(--bits-popover-content-available-width)] p-0', className)}
 			{...contentProps}
 		>
 			{#if !selectedColumn}
