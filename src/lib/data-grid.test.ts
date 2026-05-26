@@ -25,6 +25,7 @@ import {
 import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
 import { filterRows } from './filter-rows.js';
 import { formatDate } from './format.js';
+import { getErrorMessage } from './handle-error.js';
 import { generateId } from './id.js';
 import { fromSqlFilterOperator, toSqlFilterOperator } from './map-sql-filter-operators.js';
 import { getFiltersStateParser, getSortingStateParser } from './parsers.js';
@@ -169,6 +170,7 @@ import {
 	formatFileSize as rootFormatFileSize,
 	getColumnVariant as getRootColumnVariant,
 	getDefaultOperator as getRootDefaultOperator,
+	getErrorMessage as getRootErrorMessage,
 	getFileIcon as getRootFileIcon,
 	getFilterFn as getRootFilterFn,
 	getOperatorsForVariant as getRootOperatorsForVariant,
@@ -201,6 +203,24 @@ describe('shared upstream utilities', () => {
 		expect(generateId({ length: 8 })).toHaveLength(8);
 		expect(generateId('unknown-prefix', { length: 6 })).toHaveLength(6);
 		expect(generateId({ length: 40 })).toMatch(/^[0-9A-Za-z]+$/);
+	});
+
+	it('normalizes unknown errors like the original handle-error helper', () => {
+		expect(getErrorMessage(new Error('Saved filter failed'))).toBe('Saved filter failed');
+		expect(
+			getErrorMessage({
+				issues: [{ message: 'Title is required' }, { message: 'Status is invalid' }]
+			})
+		).toBe('Title is required\nStatus is invalid');
+		expect(getErrorMessage('plain string')).toBe('Something went wrong, please try again later.');
+		expect(getRootErrorMessage).toBe(getErrorMessage);
+		const redirectError = { digest: 'NEXT_REDIRECT;replace;/tasks;307;' };
+		try {
+			getErrorMessage(redirectError);
+			throw new Error('Expected redirect error to be rethrown');
+		} catch (err) {
+			expect(err).toBe(redirectError);
+		}
 	});
 
 	it('renders data-grid cell/header definitions with the original flexRender helper shape', () => {

@@ -73,6 +73,7 @@ export {
 	getColumnPinningStyle as getDataTableColumnPinningStyle
 } from './data-table';
 export { formatDate } from './format';
+export { getErrorMessage } from './handle-error';
 export { generateId } from './id';
 export { getAbsoluteUrl } from './utils';
 export { getSortingStateParser, getFiltersStateParser, type FilterItemSchema } from './parsers';
