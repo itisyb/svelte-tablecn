@@ -89,6 +89,7 @@ import dataGridFileCellSource from '$lib/components/data-grid/cells/file-cell.sv
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridKeyboardShortcutsSource from '$lib/components/data-grid/data-grid-keyboard-shortcuts.svelte?raw';
 import gridDemoSource from './grid-demo.svelte?raw';
+import dataGridPasteDialogSource from '$lib/components/data-grid/data-grid-paste-dialog.svelte?raw';
 import dataGridRangeCalendarSource from '$lib/components/data-grid/data-grid-range-calendar.svelte?raw';
 import dataGridRowSource from '$lib/components/data-grid/data-grid-row.svelte?raw';
 import dataGridRowHeightMenuSource from '$lib/components/data-grid/data-grid-row-height-menu.svelte?raw';
@@ -1778,6 +1779,31 @@ describe('/+page.svelte', () => {
 		expect(dataGridCellWrapperSource).toContain('onKeyDownProp?.(event)');
 		expect(dataGridCellWrapperSource).toContain('text-start');
 		expect(dataGridCellWrapperSource).not.toContain("dir === 'rtl' ? 'text-right' : 'text-left'");
+	});
+
+	it('should keep data grid paste dialog structure aligned with the original dialog', () => {
+		for (const text of [
+			'Do you want to add more rows?',
+			'additional row',
+			'to paste everything from your clipboard.',
+			'Create new rows',
+			'Keep current rows',
+			'Paste only what fits in the existing rows',
+			'Cancel',
+			'Continue'
+		]) {
+			expect(dataGridPasteDialogSource).toContain(text);
+		}
+
+		expect(dataGridPasteDialogSource).toContain('data-grid-popover=""');
+		expect(dataGridPasteDialogSource).toContain('name="expand-option"');
+		expect(dataGridPasteDialogSource).toContain('value="expand"');
+		expect(dataGridPasteDialogSource).toContain('value="no-expand"');
+		expect(dataGridPasteDialogSource).toContain('onCellsPaste(expand)');
+		expect(dataGridPasteDialogSource).toContain('onPasteDialogOpenChange?.(false)');
+		expect(dataGridPasteDialogSource).toContain(
+			"'relative size-4 shrink-0 appearance-none rounded-full border border-input bg-background shadow-xs outline-none transition-[color,box-shadow]'"
+		);
 	});
 
 	it('should keep data grid select editor geometry aligned with the cell box', () => {

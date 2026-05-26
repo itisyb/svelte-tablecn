@@ -1243,6 +1243,8 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('Escape-only key containment in the file editor popover');
 		expect(parityPlan).toContain('Data-grid search, row-height, view-menu, skeleton, context-menu, and column-header surfaces were rechecked against upstream');
 		expect(parityPlan).toContain('grid search open/reset/result behavior');
+		expect(parityPlan).toContain('Data-grid paste dialog and cell-wrapper surfaces were rechecked against upstream');
+		expect(parityPlan).toContain('paste dialog expansion/fit-existing flows');
 		expect(parityPlan).not.toContain('squares the nested option highlights');
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'

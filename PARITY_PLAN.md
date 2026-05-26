@@ -60,6 +60,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Data-grid single-select editors now use a square cell-editor surface like the other grid popover editors while keeping the original select item radius
 - Registry audit coverage now directly fails on unresolved `registry.json` source paths before import/dependency checks inspect shipped files
 - Data-grid search, row-height, view-menu, skeleton, context-menu, and column-header surfaces were rechecked against upstream; existing Svelte differences are adapter/reactivity differences, and the search structure now has explicit source assertions
+- Data-grid paste dialog and cell-wrapper surfaces were rechecked against upstream; the dialog structure now has explicit source assertions for copy, radio options, callbacks, and popover containment
 
 ## Audit Evidence
 
@@ -68,7 +69,7 @@ Latest upstream reference checked: `374e6aec098890a28a2cf36880be22c884b642dd`.
 - Registry item names: local includes every upstream installable item; the only local-only registry items are the intentional Svelte primitive additions `drawer`, `form`, and `sortable`.
 - Registry source paths: every `registry.json` file path resolves to an existing local source file.
 - Package root exports: the root entrypoint exposes the shipped grid/table surfaces used by the README and upstream demos, including grid menus, skeletons, `getDataGridSelectColumn`, `useDataGrid`, `useDataGridUndoRedo`, table toolbars, table filters, table menus, pagination, and table skeletons.
-- Runtime editor behavior: focused browser coverage now checks select editor geometry/radius, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, and grid search open/reset/result behavior.
+- Runtime editor behavior: focused browser coverage now checks select editor geometry/radius, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, and grid search open/reset/result behavior.
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
