@@ -52,10 +52,27 @@
 	function searchReview() {
 		dataGrid.searchState?.onSearch('Review');
 	}
+
+	function selectAllFromFocusedCell() {
+		const grid = document.querySelector<HTMLElement>('[data-slot="grid"]');
+		const firstCell = document.querySelector<HTMLElement>('[data-slot="grid-cell-wrapper"]');
+		firstCell?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		firstCell?.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+		firstCell?.click();
+		grid?.dispatchEvent(
+			new KeyboardEvent('keydown', {
+				key: 'a',
+				ctrlKey: true,
+				bubbles: true,
+				cancelable: true
+			})
+		);
+	}
 </script>
 
 <button type="button" onclick={searchAda}>Search Ada</button>
 <button type="button" onclick={searchReview}>Search Review</button>
+<button type="button" onclick={selectAllFromFocusedCell}>Select all from focused cell</button>
 <DataGrid {...dataGrid} height={160} />
 <output aria-label="initial match index">{dataGrid.searchState?.matchIndex}</output>
 <output aria-label="active search match">
@@ -68,4 +85,10 @@
 </output>
 <output aria-label="action search match">
 	{dataGrid.searchMatchesByRow?.get(0)?.has('actions') ? 'row0-actions' : 'none'}
+</output>
+<output aria-label="selected cells">{dataGrid.selectedCellsSet.size}</output>
+<output aria-label="selection range">
+	{dataGrid.tableMeta.selectionState?.selectionRange
+		? `${dataGrid.tableMeta.selectionState.selectionRange.start.rowIndex}:${dataGrid.tableMeta.selectionState.selectionRange.start.columnId}-${dataGrid.tableMeta.selectionState.selectionRange.end.rowIndex}:${dataGrid.tableMeta.selectionState.selectionRange.end.columnId}`
+		: 'none'}
 </output>

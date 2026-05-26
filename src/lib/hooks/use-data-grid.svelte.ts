@@ -1004,19 +1004,28 @@ export function useDataGrid<TData extends RowData>(
 
 	function selectAll() {
 		const rows = table.getRowModel().rows;
-		const cols = getNavigableColumns();
+		const columnIds = getColumnIds();
 		const newSelected = new Set<string>();
 
 		for (let row = 0; row < rows.length; row++) {
-			for (const col of cols) {
-				newSelected.add(getCellKey(row, col.id));
+			for (const columnId of columnIds) {
+				newSelected.add(getCellKey(row, columnId));
 			}
 		}
+
+		const firstColumnId = columnIds[0];
+		const lastColumnId = columnIds[columnIds.length - 1];
 
 		syncSelectedCellsSet(newSelected);
 		selectionState = {
 			selectedCells: newSelected,
-			selectionRange: null,
+			selectionRange:
+				columnIds.length > 0 && rows.length > 0 && firstColumnId && lastColumnId
+					? {
+							start: { rowIndex: 0, columnId: firstColumnId },
+							end: { rowIndex: rows.length - 1, columnId: lastColumnId }
+						}
+					: null,
 			isSelecting: false
 		};
 	}

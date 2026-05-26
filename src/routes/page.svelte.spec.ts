@@ -3515,6 +3515,15 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('action search match')).toHaveTextContent('row0-actions');
 	});
 
+	it('should select all column ids and record the original selection range', async () => {
+		await render(DataGridSearchStateFixture);
+
+		await page.getByRole('button', { name: 'Select all from focused cell' }).click();
+
+		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('2');
+		await expect.element(page.getByLabelText('selection range')).toHaveTextContent('0:name-0:actions');
+	});
+
 	it('should focus direct meta editing starts before navigating on stop', async () => {
 		await render(DataGridEditingMetaFixture);
 
