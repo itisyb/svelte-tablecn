@@ -294,7 +294,7 @@
 			"target": "action-bar/action-bar-context.ts"
 		},
 		{
-			"content": "import ActionBar from './action-bar.svelte';\nimport ActionBarSelection from './action-bar-selection.svelte';\nimport ActionBarGroup from './action-bar-group.svelte';\nimport ActionBarItem from './action-bar-item.svelte';\nimport ActionBarClose from './action-bar-close.svelte';\nimport ActionBarSeparator from './action-bar-separator.svelte';\n\nexport {\n\tActionBar,\n\tActionBarSelection,\n\tActionBarGroup,\n\tActionBarItem,\n\tActionBarClose,\n\tActionBarSeparator\n};\n",
+			"content": "import ActionBar from './action-bar.svelte';\nimport ActionBarSelection from './action-bar-selection.svelte';\nimport ActionBarGroup from './action-bar-group.svelte';\nimport ActionBarItem from './action-bar-item.svelte';\nimport ActionBarClose from './action-bar-close.svelte';\nimport ActionBarSeparator from './action-bar-separator.svelte';\nimport type { ComponentProps } from 'svelte';\n\nexport type ActionBarProps = ComponentProps<typeof ActionBar>;\n\nexport {\n\tActionBar,\n\tActionBarSelection,\n\tActionBarGroup,\n\tActionBarItem,\n\tActionBarClose,\n\tActionBarSeparator\n};\n",
 			"type": "registry:ui",
 			"target": "action-bar/index.ts"
 		}

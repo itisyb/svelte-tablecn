@@ -121,7 +121,8 @@ export {
 	ActionBarGroup,
 	ActionBarItem,
 	ActionBarClose,
-	ActionBarSeparator
+	ActionBarSeparator,
+	type ActionBarProps
 } from './components/ui/action-bar';
 export { exportTableToCSV } from './export';
 export { Badge, badgeVariants, type BadgeVariant } from './components/ui/badge';

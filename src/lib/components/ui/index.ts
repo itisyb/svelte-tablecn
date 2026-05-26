@@ -1,6 +1,15 @@
 // UI Components barrel export
 // Note: We use explicit exports to avoid naming conflicts (e.g., both table and select export 'Root')
 export {
+	ActionBar,
+	ActionBarSelection,
+	ActionBarGroup,
+	ActionBarItem,
+	ActionBarClose,
+	ActionBarSeparator,
+	type ActionBarProps
+} from './action-bar';
+export {
 	Table,
 	TableBody,
 	TableCaption,
