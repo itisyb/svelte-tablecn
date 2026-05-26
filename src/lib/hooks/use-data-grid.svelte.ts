@@ -98,7 +98,24 @@ import {
 // Types
 // ============================================
 
-export interface UseDataGridOptions<TData extends RowData> {
+export interface UseDataGridOptions<TData extends RowData>
+	extends Omit<
+		Partial<TableOptions<TData>>,
+		| 'data'
+		| 'columns'
+		| 'state'
+		| 'getCoreRowModel'
+		| 'getSortedRowModel'
+		| 'getFilteredRowModel'
+		| 'onColumnSizingChange'
+		| 'onColumnSizingInfoChange'
+		| 'onColumnPinningChange'
+		| 'onColumnVisibilityChange'
+		| 'onSortingChange'
+		| 'onColumnFiltersChange'
+		| 'onRowSelectionChange'
+		| 'initialState'
+	> {
 	columns: ColumnDef<TData, unknown>[];
 	/** Pass data as a getter function for reactivity: () => data */
 	data: TData[] | (() => TData[]);
@@ -112,6 +129,7 @@ export interface UseDataGridOptions<TData extends RowData> {
 	overscan?: number;
 	dir?: Direction | (() => Direction);
 	getRowId?: (row: TData, index: number) => string;
+	state?: Partial<TableState>;
 	initialState?: {
 		sorting?: SortingState;
 		columnFilters?: ColumnFiltersState;
@@ -264,6 +282,7 @@ export function useDataGrid<TData extends RowData>(
 		overscan = OVERSCAN,
 		dir: dirProp = 'ltr',
 		getRowId,
+		state: tableStateProp,
 		initialState,
 		onDataChange,
 		onSortingChange: onSortingChangeProp,
@@ -275,7 +294,8 @@ export function useDataGrid<TData extends RowData>(
 		onRowHeightChange: onRowHeightChangeProp,
 		onPaste,
 		onFilesUpload,
-		onFilesDelete
+		onFilesDelete,
+		...tableOptions
 	} = options;
 
 	function getDir(): Direction {
@@ -2335,6 +2355,7 @@ export function useDataGrid<TData extends RowData>(
 	// Create a reactive meta object using getters so that components always get fresh values
 	// This is critical - without getters, the meta values are captured at creation time and never update
 	const meta = {
+		...tableOptions.meta,
 		get dataGridRef() {
 			return dataGridRef;
 		},
@@ -2426,11 +2447,13 @@ export function useDataGrid<TData extends RowData>(
 
 	// Create the base table options
 	const baseTableOptions: TableOptionsResolved<TData> = {
+		...tableOptions,
 		data: getData(),
 		columns,
 		...(getRowId ? { getRowId } : {}),
 		get state() {
 			return {
+				...tableStateProp,
 				sorting,
 				columnFilters,
 				rowSelection,
@@ -2500,23 +2523,25 @@ export function useDataGrid<TData extends RowData>(
 		getFilteredRowModel: getFilteredRowModel(),
 		columnResizeMode: 'onChange',
 		columnResizeDirection: getDir(),
-		enableColumnResizing: true,
+		enableColumnResizing: tableOptions.enableColumnResizing ?? true,
 		defaultColumn: {
 			minSize: MIN_COLUMN_SIZE,
 			maxSize: MAX_COLUMN_SIZE,
-			size: DEFAULT_COLUMN_SIZE
+			size: DEFAULT_COLUMN_SIZE,
+			...tableOptions.defaultColumn
 		},
-		enableRowSelection: true,
-		enableColumnFilters: true,
-		enableFilters: true,
-		renderFallbackValue: null,
-		onStateChange: () => {},
-		mergeOptions: (
-			defaultOptions: TableOptions<TData>,
-			newOptions: Partial<TableOptions<TData>>
-		) => {
-			return { ...defaultOptions, ...newOptions };
+		enableRowSelection: tableOptions.enableRowSelection ?? true,
+		enableColumnFilters: tableOptions.enableColumnFilters ?? true,
+		enableFilters: tableOptions.enableFilters ?? true,
+		renderFallbackValue: tableOptions.renderFallbackValue ?? null,
+		onStateChange: (updater) => {
+			tableOptions.onStateChange?.(updater);
 		},
+		mergeOptions:
+			tableOptions.mergeOptions ??
+			((defaultOptions: TableOptions<TData>, newOptions: Partial<TableOptions<TData>>) => {
+				return { ...defaultOptions, ...newOptions };
+			}),
 		meta
 	};
 

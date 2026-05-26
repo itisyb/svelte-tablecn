@@ -1086,10 +1086,19 @@ describe('README data-grid examples', () => {
 	it('documents every shipped useDataGrid option', () => {
 		const hookSource = readFileSync('src/lib/hooks/use-data-grid.svelte.ts', 'utf8');
 		const optionsBlock = hookSource.match(
-			/export interface UseDataGridOptions<TData extends RowData> \{([\s\S]*?)\n\}/
+			/export interface UseDataGridOptions<TData extends RowData>[\s\S]*?> \{([\s\S]*?)\n\}/
 		)?.[1];
 
 		expect(optionsBlock).toBeDefined();
+		expect(hookSource).toContain('Partial<TableOptions<TData>>');
+		expect(hookSource).toContain("'data'");
+		expect(hookSource).toContain("'columns'");
+		expect(hookSource).toContain("'state'");
+		expect(hookSource).toContain('...tableOptions');
+		expect(hookSource).toContain('...tableOptions.meta');
+		expect(hookSource).toContain('...tableOptions.defaultColumn');
+		expect(hookSource).toContain('tableOptions.enableRowSelection ?? true');
+
 		const optionNames = Array.from(optionsBlock?.matchAll(/^\t([A-Za-z]\w+)\??:/gm) ?? []).map(
 			([, name]) => name
 		);
@@ -1107,6 +1116,7 @@ describe('README data-grid examples', () => {
 			'overscan',
 			'dir',
 			'getRowId',
+			'state',
 			'initialState',
 			'onDataChange',
 			'onSortingChange',

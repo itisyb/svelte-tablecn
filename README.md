@@ -551,6 +551,7 @@ The data grid supports multiple cell types:
 | `readOnly`      | `boolean`                                       | Make grid read-only                          |
 | `overscan`      | `number`                                        | Virtual row overscan count                   |
 | `rowHeight`     | `'short' \| 'medium' \| 'tall' \| 'extra-tall'` | Row height preset                            |
+| `state`         | `Partial<TableState>`                           | Additional TanStack table state merged under grid-owned state |
 | `initialState`  | `object`                                        | Initial table state (sorting, filters, etc.) |
 | `onDataChange`  | `(data: TData[]) => void`                       | Called when data changes                     |
 | `onSortingChange` | `(sorting) => void`                           | Called when sorting changes                  |
@@ -563,6 +564,8 @@ The data grid supports multiple cell types:
 | `onPaste`       | `(updates) => void \| Promise<void>`            | Called before pasted updates are applied     |
 | `onFilesUpload` | `(params) => Promise<FileCellData[]>`           | Handle file uploads                          |
 | `onFilesDelete` | `(params) => void`                              | Handle file deletions                        |
+
+The hook also forwards additional TanStack Table options such as `defaultColumn`, `meta`, `filterFns`, and `getSubRows` when they are not controlled by the grid state adapter.
 
 ### Column Meta Options
 
