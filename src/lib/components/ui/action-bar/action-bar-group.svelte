@@ -84,6 +84,16 @@
 		if (target instanceof HTMLElement && target.matches('[data-action-bar-item]')) {
 			setTabStop(target);
 		} else if (event.target === event.currentTarget && !isPointerFocus) {
+			const entryFocusEvent = new CustomEvent('actionbarFocusGroup.onEntryFocus', {
+				bubbles: false,
+				cancelable: true
+			});
+			event.currentTarget.dispatchEvent(entryFocusEvent);
+			if (entryFocusEvent.defaultPrevented) {
+				isPointerFocus = false;
+				return;
+			}
+
 			const items = getItems();
 			focusItem(lastFocusedItem && items.includes(lastFocusedItem) ? lastFocusedItem : items[0]);
 		}

@@ -41,6 +41,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - The data-grid single-select cell editor keeps the original select content radius, item radius, and popper offset while matching the active cell width
 - Short text and URL editors cancel Escape edits back to the original cell value, matching the upstream contenteditable cell behavior
 - The file editor popover only contains Escape key propagation, matching the upstream file-cell popover escape handling while allowing ordinary keys to bubble normally
+- The action bar exposes the upstream cancelable entry-focus event and item-select event ordering, with browser coverage for both paths
 - README registry documentation is checked against `registry.json` so every installable `/r/*.json` slice is listed
 - Registry item names are checked against the original installable set, with `drawer`, `form`, and `sortable` recorded as intentional Svelte-only primitive additions
 - Common registry items are checked to preserve upstream UI registry dependencies while allowing Svelte-specific additions

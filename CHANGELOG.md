@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Generated registry artifact coverage now verifies item metadata and file `type`/`target` entries against `registry.json`.
 - Data grid select editor popovers now keep the original select radius and offset while matching the cell width.
 - Data grid select editor options now keep the original select item radius inside the cell-width editor surface.
+- Action bar browser coverage now verifies upstream entry-focus cancellation and item-select event ordering.
 - README registry documentation now lists every installable `/r/*.json` item and is checked against `registry.json`.
 - Registry parity coverage now asserts every original installable item remains present, with only `drawer`, `form`, and `sortable` as intentional Svelte additions.
 - Registry parity coverage now asserts common installable items preserve upstream UI registry dependencies while allowing Svelte-specific additions.
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - File editor popovers now only stop `Escape` key propagation, allowing ordinary keys to bubble like the upstream file editor.
 - Data-table sort/filter keyboard shortcuts now remain wired like upstream even when the trigger button is disabled.
 - Data-table slider filters now keep user-selected default-range values active until the explicit clear action, matching upstream behavior.
+- Action bar groups now dispatch the cancelable upstream entry-focus event before moving focus into items, and action bar item `onselect` handlers now run during `actionbar.itemSelect` dispatch before the event bubbles.
 - Standalone data-table sort/filter menu registry slices no longer over-ship unrelated advanced toolbar, view options, parser, config, or drag dependencies.
 - Standalone data-grid keyboard shortcuts no longer ships the full data-grid type module or declares `@tanstack/table-core`.
 - Data-grid components import Svelte table render helpers directly, so the data-grid and select-column registry slices no longer ship the full `$lib/table` barrel or table creation files.

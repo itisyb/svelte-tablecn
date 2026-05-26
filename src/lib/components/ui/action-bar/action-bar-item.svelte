@@ -9,6 +9,7 @@
 		variant?: ButtonVariant;
 		size?: ButtonSize;
 		onSelect?: (event: Event) => void;
+		onselect?: (event: Event) => void;
 		children?: Snippet;
 	}
 
@@ -16,6 +17,7 @@
 		class: className,
 		onclick,
 		onSelect,
+		onselect,
 		variant = 'secondary',
 		size = 'sm',
 		children,
@@ -25,6 +27,7 @@
 	}: Props = $props();
 
 	const { onOpenChange, orientation } = getActionBarContext('ActionBarItem');
+	const selectHandler = $derived(onSelect ?? onselect);
 
 	function handleClick(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
 		onclick?.(event);
@@ -34,8 +37,10 @@
 			bubbles: true,
 			cancelable: true
 		});
-		event.currentTarget?.dispatchEvent(itemSelectEvent);
-		onSelect?.(itemSelectEvent);
+		if (selectHandler) {
+			event.currentTarget.addEventListener('actionbar.itemSelect', selectHandler, { once: true });
+		}
+		event.currentTarget.dispatchEvent(itemSelectEvent);
 
 		if (!itemSelectEvent.defaultPrevented) {
 			onOpenChange?.(false);

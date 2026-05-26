@@ -5,6 +5,7 @@ import { toast } from 'svelte-sonner';
 import Page from './+page.svelte';
 import layoutCssSource from './layout.css?raw';
 import ActionBarEmptyFixture from './action-bar-empty-fixture.svelte';
+import ActionBarEventFixture from './action-bar-event-fixture.svelte';
 import ActionBarLoopFixture from './action-bar-loop-fixture.svelte';
 import ActionBarPortalFixture from './action-bar-portal-fixture.svelte';
 import DataGridAutoFocusFixture from './data-grid-auto-focus-fixture.svelte';
@@ -3142,6 +3143,33 @@ describe('/+page.svelte', () => {
 		);
 
 		expect(group.tabIndex).toBe(-1);
+	});
+
+	it('should let action bar entry focus be cancelled like the original component', async () => {
+		await render(ActionBarEventFixture);
+
+		await page.getByRole('button', { name: 'Focus entry group' }).click();
+
+		await expect.element(page.getByLabelText('entry focus canceled')).toHaveTextContent('yes');
+		await expect.element(page.getByLabelText('entry focus active element')).toHaveTextContent('group');
+	});
+
+	it('should run action bar onSelect before item select bubbles like the original component', async () => {
+		await render(ActionBarEventFixture);
+
+		const preventSelectItem = await waitFor(() =>
+			Array.from(document.querySelectorAll<HTMLElement>('[data-action-bar-item]')).find(
+				(element) => element.textContent?.includes('Prevent select')
+			)
+		);
+
+		preventSelectItem.click();
+
+		await expect.element(page.getByLabelText('item select called')).toHaveTextContent('yes');
+		await expect
+			.element(page.getByLabelText('item select default prevented'))
+			.toHaveTextContent('yes');
+		await expect.element(page.getByLabelText('action bar open')).toHaveTextContent('open');
 	});
 
 	it('should portal action bars to body and custom containers like the original component', async () => {
