@@ -384,7 +384,7 @@ describe('/+page.svelte', () => {
 		expect(triggerRect.top).toBeGreaterThanOrEqual(wrapperRect.top);
 		expect(Math.abs(Math.round(triggerRect.height) - 32)).toBeLessThanOrEqual(1);
 		expect(Math.round(contentRect.left)).toBe(Math.round(wrapperRect.left));
-		expect(contentRect.top).toBeGreaterThanOrEqual(wrapperRect.top);
+		expect(contentRect.top).toBeGreaterThanOrEqual(wrapperRect.bottom - 8);
 		expect(contentRect.top).toBeLessThanOrEqual(wrapperRect.bottom + 8);
 
 		const contentStyle = getComputedStyle(content);
@@ -393,7 +393,7 @@ describe('/+page.svelte', () => {
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
 		expect(content.getAttribute('style') ?? '').not.toContain('border-radius');
 		expect(content.className).toContain('rounded-md');
-		expect(content.className).toContain('data-[side=bottom]:translate-y-0');
+		expect(content.className).toContain('data-[side=bottom]:translate-y-1');
 		expect(content.className).not.toContain('rounded-none');
 		expect(content.className).not.toContain('rounded-lg');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
@@ -1701,7 +1701,7 @@ describe('/+page.svelte', () => {
 
 	it('should keep data grid select editor geometry aligned with the cell box', () => {
 		expect(dataGridSelectCellSource).toContain(
-			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] data-[side=bottom]:translate-y-0 data-[side=left]:translate-x-0 data-[side=right]:translate-x-0 data-[side=top]:translate-y-0"'
+			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"'
 		);
 		expect(dataGridSelectCellSource).toContain(
 			'style="min-width: calc(var(--bits-select-anchor-width) + 16px);"'
@@ -1709,7 +1709,10 @@ describe('/+page.svelte', () => {
 		expect(dataGridSelectCellSource).not.toContain('border-radius');
 		expect(dataGridSelectCellSource).toContain('!w-full');
 		expect(dataGridSelectCellSource).toContain('width: calc(100% - 16px)');
-		expect(dataGridSelectCellSource).toContain('data-[side=bottom]:translate-y-0');
+		expect(dataGridSelectCellSource).not.toContain('data-[side=bottom]:translate-y-0');
+		expect(dataGridSelectCellSource).not.toContain('data-[side=left]:translate-x-0');
+		expect(dataGridSelectCellSource).not.toContain('data-[side=right]:translate-x-0');
+		expect(dataGridSelectCellSource).not.toContain('data-[side=top]:translate-y-0');
 		expect(dataGridSelectCellSource).toContain(
 			'<SelectItem value={option.value} label={option.label}>'
 		);
