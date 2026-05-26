@@ -392,9 +392,9 @@ describe('/+page.svelte', () => {
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
 		expect(content.getAttribute('style') ?? '').not.toContain('border-radius');
-		expect(content.className).toContain('rounded-none');
+		expect(content.className).toContain('rounded-md');
 		expect(content.className).toContain('data-[side=bottom]:translate-y-0');
-		expect(content.className).not.toContain('rounded-md');
+		expect(content.className).not.toContain('rounded-none');
 		expect(content.className).not.toContain('rounded-lg');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
@@ -404,9 +404,8 @@ describe('/+page.svelte', () => {
 		const firstItem = await waitFor(() =>
 			content.querySelector<HTMLElement>('[data-slot="select-item"]')
 		);
-		expect(getComputedStyle(firstItem).borderRadius).toBe('0px');
-		expect(firstItem.className).toContain('rounded-none');
-		expect(firstItem.className).not.toContain('rounded-sm');
+		expect(firstItem.className).toContain('rounded-sm');
+		expect(firstItem.className).not.toContain('rounded-none');
 
 		let bubbledToGrid = false;
 		const onGridKeyDown = () => {
@@ -1702,7 +1701,7 @@ describe('/+page.svelte', () => {
 
 	it('should keep data grid select editor geometry aligned with the cell box', () => {
 		expect(dataGridSelectCellSource).toContain(
-			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-none data-[side=bottom]:translate-y-0 data-[side=left]:translate-x-0 data-[side=right]:translate-x-0 data-[side=top]:translate-y-0"'
+			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] data-[side=bottom]:translate-y-0 data-[side=left]:translate-x-0 data-[side=right]:translate-x-0 data-[side=top]:translate-y-0"'
 		);
 		expect(dataGridSelectCellSource).toContain(
 			'style="min-width: calc(var(--bits-select-anchor-width) + 16px);"'
@@ -1710,12 +1709,11 @@ describe('/+page.svelte', () => {
 		expect(dataGridSelectCellSource).not.toContain('border-radius');
 		expect(dataGridSelectCellSource).toContain('!w-full');
 		expect(dataGridSelectCellSource).toContain('width: calc(100% - 16px)');
-		expect(dataGridSelectCellSource).toContain('rounded-none');
 		expect(dataGridSelectCellSource).toContain('data-[side=bottom]:translate-y-0');
 		expect(dataGridSelectCellSource).toContain(
-			'<SelectItem value={option.value} label={option.label} class="rounded-none">'
+			'<SelectItem value={option.value} label={option.label}>'
 		);
-		expect(dataGridSelectCellSource).not.toContain('rounded-md');
+		expect(dataGridSelectCellSource).not.toContain('rounded-none');
 		expect(dataGridSelectCellSource).not.toContain('rounded-lg');
 	});
 
