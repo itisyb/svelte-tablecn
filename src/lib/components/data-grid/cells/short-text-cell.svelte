@@ -113,7 +113,10 @@
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
 				event.stopPropagation();
-				localEditValue = null;
+				localEditValue = initialValue;
+				if (cellRef) {
+					cellRef.textContent = initialValue;
+				}
 				cellRef?.blur();
 			}
 		} else if (isFocused && event.key.length === 1 && !event.ctrlKey && !event.metaKey) {

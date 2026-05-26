@@ -121,7 +121,10 @@
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
 				event.stopPropagation();
-				localEditValue = null;
+				localEditValue = initialValue;
+				if (cellRef) {
+					cellRef.textContent = initialValue;
+				}
 				cellRef?.blur();
 			}
 		} else if (

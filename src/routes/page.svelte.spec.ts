@@ -642,6 +642,19 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('saved name')).toHaveTextContent('Committed name');
 	});
 
+	it('should cancel short text edits on Escape like the original grid', async () => {
+		await render(DataGridShortTextCellSyncFixture);
+
+		const textbox = page.getByRole('textbox');
+		const element = textbox.element() as HTMLElement;
+		element.textContent = 'Cancelled name';
+		element.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+		element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+		await expect.element(page.getByLabelText('saved name')).toHaveTextContent('Original name');
+		await expect.element(textbox).toHaveTextContent('Original name');
+	});
+
 	it('should sync URL editor when the external value changes', async () => {
 		await render(DataGridUrlCellSyncFixture);
 
@@ -668,6 +681,21 @@ describe('/+page.svelte', () => {
 		await expect
 			.element(page.getByLabelText('saved url'))
 			.toHaveTextContent('https://committed.example');
+	});
+
+	it('should cancel URL edits on Escape like the original grid', async () => {
+		await render(DataGridUrlCellSyncFixture);
+
+		const textbox = page.getByRole('textbox');
+		const element = textbox.element() as HTMLElement;
+		element.textContent = 'https://cancelled.example';
+		element.dispatchEvent(new InputEvent('input', { bubbles: true, cancelable: true }));
+		element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+		await expect
+			.element(page.getByLabelText('saved url'))
+			.toHaveTextContent('https://original.example');
+		await expect.element(textbox).toHaveTextContent('https://original.example');
 	});
 
 	it('should sync select editor when the external value changes', async () => {
