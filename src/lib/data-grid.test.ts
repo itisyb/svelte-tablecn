@@ -30,6 +30,7 @@ import { generateId } from './id.js';
 import { fromSqlFilterOperator, toSqlFilterOperator } from './map-sql-filter-operators.js';
 import { getFiltersStateParser, getSortingStateParser } from './parsers.js';
 import { useCallbackRef } from './hooks/use-callback-ref.js';
+import { useLazyRef } from './hooks/use-lazy-ref.js';
 import {
 	getColumnPinningStyle as getDataTableColumnPinningStyle,
 	getDefaultFilterOperator as getDataTableDefaultFilterOperator,
@@ -241,6 +242,18 @@ describe('shared upstream utilities', () => {
 		expect(callbackRef('Ada')).toBe('received:Ada');
 		expect(() => emptyCallbackRef('Ada')).not.toThrow();
 		expect(emptyCallbackRef('Ada')).toBeUndefined();
+	});
+
+	it('initializes lazy refs once like the original hook', () => {
+		let calls = 0;
+		const ref = useLazyRef(() => {
+			calls += 1;
+			return { id: calls };
+		});
+
+		expect(ref.current).toEqual({ id: 1 });
+		expect(ref.current).toBe(ref.current);
+		expect(calls).toBe(1);
 	});
 });
 

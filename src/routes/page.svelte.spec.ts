@@ -2409,7 +2409,8 @@ describe('/+page.svelte', () => {
 		expect(useAsRefSource).toContain('export function useAsRef');
 		expect(useAsRefSource).toContain('const current = $derived(getValue(value))');
 		expect(useLazyRefSource).toContain('export function useLazyRef');
-		expect(useLazyRefSource).toContain('current: fn()');
+		expect(useLazyRefSource).toContain('const current = fn()');
+		expect(useLazyRefSource).toContain('current');
 		expect(useMountedSource).toContain('export function useMounted()');
 		expect(useMountedSource).toContain('mounted = true');
 		expect(useMediaQuerySource).toContain('export function useMediaQuery');
