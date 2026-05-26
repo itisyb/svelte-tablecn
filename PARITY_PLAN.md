@@ -38,7 +38,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-grid option documentation is checked against `UseDataGridOptions`, including sorting, filter, and row-selection change callbacks
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
-- The data-grid single-select cell editor keeps a compact editor surface radius, original item radius, popper offset, and trigger width model while matching the active cell width
+- The data-grid single-select cell editor keeps the shared select content radius, original item radius, popper offset, and trigger width model while matching the active cell width
 - Short text and URL editors cancel Escape edits back to the original cell value, matching the upstream contenteditable cell behavior
 - The file editor popover only contains Escape key propagation, matching the upstream file-cell popover escape handling while allowing ordinary keys to bubble normally
 - The action bar exposes the upstream cancelable entry-focus event and item-select event ordering, with browser coverage for both paths
@@ -57,7 +57,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Data-table date operators include upstream `isRelativeToToday`, and the in-memory filter reference maps/applies it using the same relative day/week/month windows as the original SQL filter helper
 - `DataTableFilterMenu` forwards popover content classes and props to the command menu surface like the original table
 - Data-table `isBetween` filters preserve partial range values like upstream, and the in-memory row filter reference mirrors upstream one-sided numeric range handling
-- Data-grid single-select editors now use a compact cell-editor content radius and the upstream trigger width/offset geometry while keeping the original select item radius
+- Data-grid single-select editors now preserve the shared select content radius and the upstream trigger width/offset geometry while keeping the original select item radius
 - Registry audit coverage now directly fails on unresolved `registry.json` source paths before import/dependency checks inspect shipped files
 - Data-grid search, row-height, view-menu, skeleton, context-menu, and column-header surfaces were rechecked against upstream; existing Svelte differences are adapter/reactivity differences, and the search structure now has explicit source assertions
 - Data-grid paste dialog and cell-wrapper surfaces were rechecked against upstream; the dialog structure now has explicit source assertions for copy, radio options, callbacks, and popover containment
@@ -67,7 +67,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - The package root and UI barrel now expose the faceted primitive value type, keeping the Svelte faceted contract available anywhere the exported primitive is consumed
 - README UI primitive docs now distinguish package-root exports from standalone registry items and include the exported faceted primitive surface
 - README UI primitive docs now list the full exported faceted primitive surface, matching the package root and UI barrel aliases
-- Data-grid single-select editor popovers now use a compact editor radius while preserving the cell-width and offset alignment.
+- Data-grid single-select editor popovers now preserve the shared select content radius while keeping the cell-width and offset alignment.
 - Sheet portal and overlay slots now have public `SheetPortal` and `SheetOverlay` aliases in the sheet, UI, and package-root barrels.
 - Data-table filter-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 - Data-table sort-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
@@ -81,7 +81,7 @@ Latest upstream reference checked: `374e6aec098890a28a2cf36880be22c884b642dd`.
 - Registry item names: local includes every upstream installable item; the only local-only registry items are the intentional Svelte primitive additions `drawer`, `form`, and `sortable`.
 - Registry source paths: every `registry.json` file path resolves to an existing local source file.
 - Package root exports: the root entrypoint exposes the shipped grid/table surfaces used by the README and upstream demos, including grid menus, skeletons, `getDataGridSelectColumn`, `useDataGrid`, `useDataGridUndoRedo`, table shell, table toolbars, table filters, table menus, pagination, and table skeletons.
-- Runtime editor behavior: focused browser coverage now checks select editor geometry and compact radius, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, grid search open/reset/result behavior, and faceted data-table filter-list option selection structure.
+- Runtime editor behavior: focused browser coverage now checks select editor geometry and shared radius, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, grid search open/reset/result behavior, and faceted data-table filter-list option selection structure.
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
