@@ -44,6 +44,7 @@ export {
 // Data Grid filter utilities
 export * from './data-grid-filters';
 export {
+	flexRender,
 	formatDateForDisplay,
 	formatDateToString,
 	formatFileSize,

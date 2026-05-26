@@ -6,6 +6,7 @@ import {
 	formatDateForDisplay,
 	formatDateToString,
 	formatFileSize,
+	flexRender as dataGridFlexRender,
 	getCellKey as getDataGridCellKey,
 	getColumnVariant,
 	getColumnPinningStyle,
@@ -160,6 +161,7 @@ import {
 	SortableItemHandle as RootSortableItemHandle,
 	SortableOverlay as RootSortableOverlay,
 	TEXT_FILTER_OPERATORS as ROOT_TEXT_FILTER_OPERATORS,
+	flexRender as rootDataGridFlexRender,
 	formatDateForDisplay as rootFormatDateForDisplay,
 	formatDateToString as rootFormatDateToString,
 	formatFileSize as rootFormatFileSize,
@@ -192,6 +194,15 @@ describe('shared upstream utilities', () => {
 		expect(generateId({ length: 8 })).toHaveLength(8);
 		expect(generateId('unknown-prefix', { length: 6 })).toHaveLength(6);
 		expect(generateId({ length: 40 })).toMatch(/^[0-9A-Za-z]+$/);
+	});
+
+	it('renders data-grid cell/header definitions with the original flexRender helper shape', () => {
+		expect(dataGridFlexRender('Name', { value: 'Ada' })).toBe('Name');
+		expect(dataGridFlexRender((props: { value: string }) => props.value.toUpperCase(), {
+			value: 'Ada'
+		})).toBe('ADA');
+		expect(dataGridFlexRender(undefined, { value: 'Ada' })).toBeUndefined();
+		expect(rootDataGridFlexRender).toBe(dataGridFlexRender);
 	});
 
 	it('wraps callback refs like the original Radix-derived helper', () => {

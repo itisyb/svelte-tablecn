@@ -47,6 +47,17 @@ const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}.*)?$/;
 const TRUTHY_BOOLEANS = new Set(['true', '1', 'yes', 'checked']);
 const VALID_BOOLEANS = new Set(['true', 'false', '1', '0', 'yes', 'no', 'checked', 'unchecked']);
 
+export function flexRender<TProps extends object>(
+	content: ((props: TProps) => unknown) | string | undefined,
+	props: TProps
+): unknown {
+	if (typeof content === 'string') {
+		return content;
+	}
+
+	return content?.(props);
+}
+
 /** Index in the current row model (filtered/sorted), not TanStack's preserved core `row.index`. */
 export function getRowModelPosition<TData>(table: Table<TData>, row: Row<TData>): number {
 	const rows = table.getRowModel().rows;
