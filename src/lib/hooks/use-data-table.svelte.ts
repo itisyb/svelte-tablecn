@@ -173,9 +173,9 @@ export function useDataTable<TData>(
 		initialState,
 		enableRowSelection = true,
 		enableMultiSort = true,
-		manualPagination = false,
-		manualSorting = false,
-		manualFiltering = false,
+		manualPagination = true,
+		manualSorting = true,
+		manualFiltering = true,
 		...tableOptions
 	} = options;
 

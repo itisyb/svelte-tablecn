@@ -1316,6 +1316,9 @@ describe('README data-table examples', () => {
 		expect(hookSource).toContain('...tableOptions');
 		expect(hookSource).toContain('...tableOptions.defaultColumn');
 		expect(hookSource).toContain('...tableOptions.meta');
+		expect(hookSource).toContain('manualPagination = true');
+		expect(hookSource).toContain('manualSorting = true');
+		expect(hookSource).toContain('manualFiltering = true');
 
 		const optionNames = Array.from(optionsBlock?.matchAll(/^\t([A-Za-z]\w+)\??:/gm) ?? []).map(
 			([, name]) => name
