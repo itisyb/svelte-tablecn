@@ -3044,6 +3044,21 @@ describe('/+page.svelte', () => {
 		expect(dataTableSource).toContain('{...restProps}');
 	});
 
+	it('should keep data table shell structure aligned with the original table', () => {
+		expect(dataTableSource).toContain(
+			"class={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}"
+		);
+		expect(dataTableSource).toContain('{@render children?.()}');
+		expect(dataTableSource).toContain('<div class="overflow-hidden rounded-md border">');
+		expect(dataTableSource).toContain('getColumnPinningStyle({ column: header.column })');
+		expect(dataTableSource).toContain('getColumnPinningStyle({ column: cell.column })');
+		expect(dataTableSource).toContain('data-state={row.getIsSelected() ?');
+		expect(dataTableSource).toContain('No results.');
+		expect(dataTableSource).toContain('colspan={table.getAllColumns().length}');
+		expect(dataTableSource).toContain('<DataTablePagination {table} />');
+		expect(dataTableSource).toContain('selectedRowCount > 0');
+	});
+
 	it('should forward data table range filter root props like the original table', () => {
 		expect(dataTableRangeFilterSource).toContain(
 			'interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement>'
@@ -3060,6 +3075,28 @@ describe('/+page.svelte', () => {
 		expect(dataTableSkeletonSource).toContain('...restProps');
 		expect(dataTableSkeletonSource).toContain('bind:this={ref}');
 		expect(dataTableSkeletonSource).toContain('{...restProps}');
+	});
+
+	it('should keep data table skeleton layout aligned with the original table', () => {
+		expect(dataTableSkeletonSource).toContain("cellWidths = ['auto']");
+		expect(dataTableSkeletonSource).toContain('withViewOptions = true');
+		expect(dataTableSkeletonSource).toContain('withPagination = true');
+		expect(dataTableSkeletonSource).toContain('shrinkZero = false');
+		expect(dataTableSkeletonSource).toContain(
+			"class={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}"
+		);
+		expect(dataTableSkeletonSource).toContain(
+			'class="flex w-full items-center justify-between gap-2 overflow-auto p-1"'
+		);
+		expect(dataTableSkeletonSource).toContain('class="h-7 w-18 border-dashed"');
+		expect(dataTableSkeletonSource).toContain('class="ml-auto hidden h-7 w-18 lg:flex"');
+		expect(dataTableSkeletonSource).toContain('<div class="rounded-md border">');
+		expect(dataTableSkeletonSource).toContain('class="hover:bg-transparent"');
+		expect(dataTableSkeletonSource).toContain('class="h-6 w-full"');
+		expect(dataTableSkeletonSource).toContain(
+			'class="flex w-full items-center justify-between gap-4 overflow-auto p-1 sm:gap-8"'
+		);
+		expect(dataTableSkeletonSource).toContain('class="hidden size-7 lg:block"');
 	});
 
 	it('should rove action bar focus with arrow keys like the original grid', async () => {

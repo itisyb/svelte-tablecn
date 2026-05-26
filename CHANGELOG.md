@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Parity audit tests now fail directly when a `registry.json` source path stops resolving.
 - Data grid search parity now has explicit source assertions for the original search role, slot, controls, pointer handling, and status text.
 - Data grid paste dialog parity now has explicit source assertions for the original copy, radio options, callbacks, and popover containment.
+- Data table shell and skeleton parity now have explicit source assertions for the original layout, pinning, empty state, pagination/action-bar placement, and loading placeholders.
 - `DataTableFilterMenu` now forwards custom classes to the command popover content like upstream instead of styling the outer filter list.
 - Data grid select editor popovers now use a softer cell-editor radius while preserving the original item radius, width, and offset.
 - Data grid select editor popovers no longer override the shared select offset, matching the original menu placement.
