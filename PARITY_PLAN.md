@@ -39,6 +39,8 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
 - The data-grid single-select cell editor keeps the original select content radius, item radius, and popper offset while matching the active cell width
+- Short text and URL editors cancel Escape edits back to the original cell value, matching the upstream contenteditable cell behavior
+- The file editor popover only contains Escape key propagation, matching the upstream file-cell popover escape handling while allowing ordinary keys to bubble normally
 - README registry documentation is checked against `registry.json` so every installable `/r/*.json` slice is listed
 - Registry item names are checked against the original installable set, with `drawer`, `form`, and `sortable` recorded as intentional Svelte-only primitive additions
 - Common registry items are checked to preserve upstream UI registry dependencies while allowing Svelte-specific additions
@@ -51,6 +53,15 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Standalone row-height, view, and keyboard-shortcut registry slices declare only packages directly imported by those Svelte files; UI primitive packages stay behind `registryDependencies`
 - The `data-grid.ts` module exports upstream cell-key and row-height helpers directly, even though their implementations live in Svelte type utilities
 - Data-table date operators include upstream `isRelativeToToday`, and the in-memory filter reference maps/applies it using the same relative day/week/month windows as the original SQL filter helper
+
+## Audit Evidence
+
+Latest upstream reference checked: `374e6aec098890a28a2cf36880be22c884b642dd`.
+
+- Registry item names: local includes every upstream installable item; the only local-only registry items are the intentional Svelte primitive additions `drawer`, `form`, and `sortable`.
+- Registry source paths: every `registry.json` file path resolves to an existing local source file.
+- Package root exports: the root entrypoint exposes the shipped grid/table surfaces used by the README and upstream demos, including grid menus, skeletons, `getDataGridSelectColumn`, `useDataGrid`, `useDataGridUndoRedo`, table toolbars, table filters, table menus, pagination, and table skeletons.
+- Runtime editor behavior: focused browser coverage now checks select editor geometry/radius, Escape cancel for short text and URL cells, and Escape-only key containment in the file editor popover.
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

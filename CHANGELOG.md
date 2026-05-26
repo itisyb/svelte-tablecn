@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Data grid select editor popovers no longer override the shared select offset, matching the original menu placement.
+- Short text and URL cell editors now restore the original value on `Escape`, matching upstream edit cancellation behavior.
+- File editor popovers now only stop `Escape` key propagation, allowing ordinary keys to bubble like the upstream file editor.
 - Standalone data-table sort/filter menu registry slices no longer over-ship unrelated advanced toolbar, view options, parser, config, or drag dependencies.
 - Standalone data-grid keyboard shortcuts no longer ships the full data-grid type module or declares `@tanstack/table-core`.
 - Data-grid components import Svelte table render helpers directly, so the data-grid and select-column registry slices no longer ship the full `$lib/table` barrel or table creation files.

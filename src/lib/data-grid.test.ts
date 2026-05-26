@@ -1220,7 +1220,9 @@ describe('non-README parity docs', () => {
 			'DataGridKeyboardShortcuts',
 			'Standalone `drawer`, `form`, and `sortable` registry slices',
 			'primitive type contracts',
-			'original select radius and offset'
+			'original select radius and offset',
+			'Short text and URL cell editors now restore the original value on `Escape`',
+			'File editor popovers now only stop `Escape` key propagation'
 		]) {
 			expect(changelog).toContain(phrase);
 		}
@@ -1228,6 +1230,14 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
 		expect(parityPlan).toContain('original select content radius, item radius, and popper offset');
+		expect(parityPlan).toContain('Latest upstream reference checked');
+		expect(parityPlan).toContain('374e6aec098890a28a2cf36880be22c884b642dd');
+		expect(parityPlan).toContain(
+			'the only local-only registry items are the intentional Svelte primitive additions `drawer`, `form`, and `sortable`'
+		);
+		expect(parityPlan).toContain('every `registry.json` file path resolves');
+		expect(parityPlan).toContain('Escape cancel for short text and URL cells');
+		expect(parityPlan).toContain('Escape-only key containment in the file editor popover');
 		expect(parityPlan).not.toContain('squares the nested option highlights');
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'
