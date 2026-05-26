@@ -2774,6 +2774,7 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterMenuSource).toContain('<svelte:window onkeydown={handleKeyDown} />');
 		expect(dataTableFilterMenuSource).toContain('FILTER_SHORTCUT_KEY');
 		expect(dataTableFilterMenuSource).toContain('onTriggerKeyDown');
+		expect(dataTableFilterMenuSource).not.toContain('if (\n\t\t\tdisabled ||');
 		expect(dataTableFilterMenuSource).toContain('bind:ref={triggerRef}');
 		expect(dataTableFilterMenuSource).toContain('requestAnimationFrame(() => triggerRef?.focus())');
 		expect(dataTableFilterMenuSource).toContain('removeFilter(getFilterKey(lastFilter');
@@ -2826,6 +2827,7 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).toContain('removeFilter(getFilterKey(lastFilter');
 		expect(dataTableFilterListSource).toContain('requestAnimationFrame(() => addButtonRef?.focus())');
 		expect(dataTableFilterListSource).not.toContain('event.preventDefault();\n\t\t\tresetFilters();');
+		expect(dataTableFilterListSource).not.toContain('if (\n\t\t\tdisabled ||');
 	});
 
 	it('should remove data table filter rows only when child selectors are closed like the original table', () => {
@@ -2940,6 +2942,7 @@ describe('/+page.svelte', () => {
 		expect(dataTableSortListSource).toContain('openDirectionSelectors.has(sort.id)');
 		expect(dataTableSortListSource).toContain('onSortItemKeyDown(event, sort.id)');
 		expect(dataTableSortListSource).toContain('onSortRemove(sortId)');
+		expect(dataTableSortListSource).not.toContain('if (\n\t\t\tdisabled ||');
 	});
 
 	it('should keep data table sort list aria wiring aligned with the original table', () => {

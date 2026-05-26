@@ -1222,7 +1222,8 @@ describe('non-README parity docs', () => {
 			'primitive type contracts',
 			'original select radius and offset',
 			'Short text and URL cell editors now restore the original value on `Escape`',
-			'File editor popovers now only stop `Escape` key propagation'
+			'File editor popovers now only stop `Escape` key propagation',
+			'Data-table sort/filter keyboard shortcuts now remain wired like upstream'
 		]) {
 			expect(changelog).toContain(phrase);
 		}
