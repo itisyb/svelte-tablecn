@@ -64,6 +64,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Data-table shell, pagination, toolbar, advanced-toolbar, view-options, filter-list, and skeleton surfaces were rechecked against upstream; the table shell and skeleton now have explicit source assertions for layout, pinning, empty state, pagination/action-bar placement, and loading placeholders
 - Data-table filter-list select and multi-select value editors now use the shared faceted primitive like upstream, preserving the original badge-list trigger, option search, check item, count, and icon structure
 - The package root and UI barrel now expose the faceted primitive value type, keeping the Svelte faceted contract available anywhere the exported primitive is consumed
+- README UI primitive docs now distinguish package-root exports from standalone registry items and include the exported faceted primitive surface
 
 ## Audit Evidence
 

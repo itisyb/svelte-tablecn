@@ -483,13 +483,14 @@ For how Svelte 5 and TanStack Table interact (and why filters used to loop), see
 
 ## UI Primitives
 
-The Svelte port also ships the upstream-style UI primitives used by the grid and table. These are exported from `$lib` and available as standalone registry items.
+The Svelte port also ships upstream-style UI primitives used by the grid and table. These are exported from `$lib`; `drawer`, `form`, and `sortable` are also available as standalone registry items.
 
-| Primitive  | Public exports                                                                   | Registry item       |
-| ---------- | -------------------------------------------------------------------------------- | ------------------- |
-| `drawer`   | `Drawer`, `DrawerPortal`, `DrawerOverlay`, `DrawerContent`, `DrawerTrigger`, `DrawerClose`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription` | `/r/drawer.json`    |
-| `form`     | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, `useFormField`, `getFormFieldState`, `getFormErrorMessage` | `/r/form.json`      |
-| `sortable` | `Sortable`, `SortableContent`, `SortableItem`, `SortableItemHandle`, `SortableOverlay` | `/r/sortable.json`  |
+| Primitive  | Public exports                                                                   | Registry availability |
+| ---------- | -------------------------------------------------------------------------------- | --------------------- |
+| `faceted`  | `Faceted`, `FacetedTrigger`, `FacetedContent`, `FacetedBadgeList`, `FacetedItem`, `FacetedValue` | Bundled with table filter registry items |
+| `drawer`   | `Drawer`, `DrawerPortal`, `DrawerOverlay`, `DrawerContent`, `DrawerTrigger`, `DrawerClose`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription` | `/r/drawer.json` |
+| `form`     | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, `useFormField`, `getFormFieldState`, `getFormErrorMessage` | `/r/form.json` |
+| `sortable` | `Sortable`, `SortableContent`, `SortableItem`, `SortableItemHandle`, `SortableOverlay` | `/r/sortable.json` |
 
 Install a primitive directly with the shadcn-svelte CLI:
 

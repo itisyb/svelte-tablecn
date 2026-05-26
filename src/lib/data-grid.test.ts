@@ -143,6 +143,11 @@ import {
 	DrawerPortal as RootDrawerPortal,
 	DrawerTitle as RootDrawerTitle,
 	DrawerTrigger as RootDrawerTrigger,
+	Faceted as RootFaceted,
+	FacetedBadgeList as RootFacetedBadgeList,
+	FacetedContent as RootFacetedContent,
+	FacetedItem as RootFacetedItem,
+	FacetedTrigger as RootFacetedTrigger,
 	FileCell as RootFileCell,
 	Form as RootForm,
 	FormControl as RootFormControl,
@@ -1163,11 +1168,18 @@ describe('README UI primitive docs', () => {
 
 	it('documents standalone registry slices for shipped upstream ui primitives', () => {
 		expect(readme).toContain('## UI Primitives');
+		expect(readme).toContain(
+			'These are exported from `$lib`; `drawer`, `form`, and `sortable` are also available as standalone registry items.'
+		);
+		expect(readme).not.toContain('These are exported from `$lib` and available as standalone registry items.');
 		for (const primitive of ['drawer', 'form', 'sortable']) {
 			expect(registryItems.has(primitive)).toBe(true);
 			expect(readme).toContain(`| \`${primitive}\``);
 			expect(readme).toContain(`/r/${primitive}.json`);
 		}
+		expect(registryItems.has('faceted')).toBe(false);
+		expect(readme).toContain('| `faceted`');
+		expect(readme).toContain('Bundled with table filter registry items');
 		expect(readme).toContain(
 			'npx shadcn-svelte@latest add https://svelte-tablecn.vercel.app/r/sortable.json'
 		);
@@ -1185,6 +1197,11 @@ describe('README UI primitive docs', () => {
 			['DrawerFooter', RootDrawerFooter],
 			['DrawerTitle', RootDrawerTitle],
 			['DrawerDescription', RootDrawerDescription],
+			['Faceted', RootFaceted],
+			['FacetedTrigger', RootFacetedTrigger],
+			['FacetedContent', RootFacetedContent],
+			['FacetedBadgeList', RootFacetedBadgeList],
+			['FacetedItem', RootFacetedItem],
 			['Form', RootForm],
 			['FormField', RootFormField],
 			['FormItem', RootFormItem],
@@ -1205,6 +1222,10 @@ describe('README UI primitive docs', () => {
 			expect(component).toBeTruthy();
 			expect(readme).toContain(name);
 		}
+
+		const packageRoot = readFileSync('src/lib/index.ts', 'utf8');
+		expect(packageRoot).toContain('type FacetedValue');
+		expect(readme).toContain('FacetedValue');
 	});
 });
 
@@ -1252,6 +1273,7 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('Data-table filter-list select and multi-select value editors now use the shared faceted primitive like upstream');
 		expect(parityPlan).toContain('faceted data-table filter-list option selection structure');
 		expect(parityPlan).toContain('faceted primitive value type');
+		expect(parityPlan).toContain('README UI primitive docs now distinguish package-root exports from standalone registry items');
 		expect(parityPlan).not.toContain('squares the nested option highlights');
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'
