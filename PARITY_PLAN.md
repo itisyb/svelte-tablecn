@@ -43,6 +43,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Registry item names are checked against the original installable set, with `drawer`, `form`, and `sortable` recorded as intentional Svelte-only primitive additions
 - Common registry items are checked to preserve upstream UI registry dependencies while allowing Svelte-specific additions
 - The full `data-grid` registry bundle is checked for Svelte equivalents to the original core grid components, hook, helper, and type files
+- The full `data-table` registry bundle is checked for Svelte equivalents to the original table components, hook, helper, parser, config, and type files
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

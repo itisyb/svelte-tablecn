@@ -675,6 +675,52 @@ describe('data-grid registry item', () => {
 		}
 	});
 
+	it('ships Svelte equivalents for the original full data-table registry bundle', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const dataTable = registry.items.find((item) => item.name === 'data-table');
+		const targets = new Set(dataTable?.files?.map((file) => file.target));
+		const originalEquivalentTargets = [
+			'data-table/data-table.svelte',
+			'data-table/data-table-column-header.svelte',
+			'data-table/data-table-pagination.svelte',
+			'data-table/data-table-view-options.svelte',
+			'data-table/data-table-faceted-filter.svelte',
+			'data-table/data-table-toolbar.svelte',
+			'data-table/data-table-slider-filter.svelte',
+			'data-table/data-table-date-filter.svelte',
+			'data-table/data-table-skeleton.svelte',
+			'use-callback-ref.ts',
+			'use-data-table.svelte.ts',
+			'use-debounced-callback.ts',
+			'data-table.ts',
+			'format.ts',
+			'parsers.ts',
+			'config/data-table.ts',
+			'types/data-table.ts'
+		];
+
+		for (const target of originalEquivalentTargets) {
+			expect(targets.has(target)).toBe(true);
+		}
+
+		for (const addedParityTarget of [
+			'data-table/data-table-advanced-toolbar.svelte',
+			'data-table/data-table-sort-list.svelte',
+			'data-table/data-table-filter-list.svelte',
+			'data-table/data-table-filter-menu.svelte',
+			'data-table/data-table-range-filter.svelte',
+			'data-table-range-utils.ts',
+			'filter-rows.ts'
+		]) {
+			expect(targets.has(addedParityTarget)).toBe(true);
+		}
+	});
+
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{
