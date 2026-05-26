@@ -240,7 +240,6 @@
 		"type": "registry:component",
 		"description": "A keyboard shortcuts dialog component for the data grid.",
 		"dependencies": [
-			"@tanstack/table-core",
 			"bits-ui",
 			"@lucide/svelte"
 		],

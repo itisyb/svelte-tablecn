@@ -16,9 +16,9 @@
 	// Icons
 	import Search from '@lucide/svelte/icons/search';
 	import X from '@lucide/svelte/icons/x';
-	import type { Direction } from '$lib/types/data-grid.js';
 
 	const SHORTCUT_KEY = '/';
+	type Direction = 'ltr' | 'rtl';
 
 	interface ShortcutGroup {
 		title: string;

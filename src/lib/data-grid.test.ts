@@ -776,6 +776,24 @@ describe('data-grid registry item', () => {
 		).toContain('svelte-dnd-action');
 	});
 
+	it('keeps the standalone keyboard shortcuts registry slice scoped to its Svelte imports', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				dependencies?: string[];
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const shortcuts = registry.items.find(
+			(registryItem) => registryItem.name === 'data-grid-keyboard-shortcuts'
+		);
+
+		expect(shortcuts?.files?.map((file) => file.target)).toEqual([
+			'data-grid/data-grid-keyboard-shortcuts.svelte'
+		]);
+		expect(shortcuts?.dependencies).toEqual(['bits-ui', '@lucide/svelte']);
+	});
+
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{

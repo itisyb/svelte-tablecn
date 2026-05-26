@@ -803,18 +803,13 @@
 			"type": "registry:component",
 			"title": "Data Grid Keyboard Shortcuts",
 			"description": "A keyboard shortcuts dialog component for the data grid.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"dependencies": ["bits-ui", "@lucide/svelte"],
 			"registryDependencies": ["button", "dialog", "input", "kbd", "separator"],
 			"files": [
 				{
 					"path": "src/lib/components/data-grid/data-grid-keyboard-shortcuts.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-keyboard-shortcuts.svelte"
-				},
-				{
-					"path": "src/lib/types/data-grid.ts",
-					"type": "registry:lib",
-					"target": "types/data-grid.ts"
 				}
 			],
 			"meta": {
