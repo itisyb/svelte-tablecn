@@ -26,10 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Registry parity coverage now asserts common installable items preserve upstream UI registry dependencies while allowing Svelte-specific additions.
 - Data-grid registry coverage now asserts the full bundle ships Svelte equivalents for the original grid components, hook, helper, and type files.
 - Data-table registry coverage now asserts the full bundle ships Svelte equivalents for the original table components, hook, helper, parser, config, and type files.
+- Standalone data-table sort/filter menu registry slices are now checked and scoped to the files their Svelte implementations actually import.
 
 ### Fixed
 
 - Data grid select editor popovers no longer inherit extra rounded corners or side translation that can make the editor look dropped from the cell.
+- Standalone data-table sort/filter menu registry slices no longer over-ship unrelated advanced toolbar, view options, parser, config, or drag dependencies.
 - Cell and row selection after filtering: use row-model position (not core `row.index`) so shift-select and counts only include visible rows ([#20](https://github.com/itisyb/svelte-tablecn/issues/20))
 - Click outside the grid clears cell focus (tablecn behavior); no longer re-focuses the cell on `focusout`
 

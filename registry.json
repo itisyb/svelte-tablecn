@@ -513,26 +513,6 @@
 					"path": "src/lib/components/data-table/data-table-sort-list.svelte",
 					"type": "registry:component",
 					"target": "data-table/data-table-sort-list.svelte"
-				},
-				{
-					"path": "src/lib/data-table-range-utils.ts",
-					"type": "registry:lib",
-					"target": "data-table-range-utils.ts"
-				},
-				{
-					"path": "src/lib/config/data-table.ts",
-					"type": "registry:lib",
-					"target": "config/data-table.ts"
-				},
-				{
-					"path": "src/lib/types/data-grid.ts",
-					"type": "registry:lib",
-					"target": "types/data-grid.ts"
-				},
-				{
-					"path": "src/lib/types/data-table.ts",
-					"type": "registry:lib",
-					"target": "types/data-table.ts"
 				}
 			],
 			"meta": {
@@ -579,21 +559,6 @@
 					"target": "data-grid/data-grid-range-calendar.svelte"
 				},
 				{
-					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",
-					"type": "registry:component",
-					"target": "data-table/data-table-advanced-toolbar.svelte"
-				},
-				{
-					"path": "src/lib/components/data-table/data-table-view-options.svelte",
-					"type": "registry:component",
-					"target": "data-table/data-table-view-options.svelte"
-				},
-				{
-					"path": "src/lib/hooks/use-debounced-callback.ts",
-					"type": "registry:hook",
-					"target": "use-debounced-callback.ts"
-				},
-				{
 					"path": "src/lib/data-table-range-utils.ts",
 					"type": "registry:lib",
 					"target": "data-table-range-utils.ts"
@@ -607,11 +572,6 @@
 					"path": "src/lib/id.ts",
 					"type": "registry:lib",
 					"target": "id.ts"
-				},
-				{
-					"path": "src/lib/parsers.ts",
-					"type": "registry:lib",
-					"target": "parsers.ts"
 				},
 				{
 					"path": "src/lib/config/data-table.ts",
@@ -643,7 +603,6 @@
 				"@tanstack/table-core",
 				"@internationalized/date",
 				"bits-ui",
-				"svelte-dnd-action",
 				"@lucide/svelte"
 			],
 			"registryDependencies": [
@@ -663,11 +622,6 @@
 					"target": "data-table/data-table-filter-menu.svelte"
 				},
 				{
-					"path": "src/lib/components/data-table/data-table-filter-list.svelte",
-					"type": "registry:component",
-					"target": "data-table/data-table-filter-list.svelte"
-				},
-				{
 					"path": "src/lib/components/data-table/data-table-range-filter.svelte",
 					"type": "registry:component",
 					"target": "data-table/data-table-range-filter.svelte"
@@ -676,21 +630,6 @@
 					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-range-calendar.svelte"
-				},
-				{
-					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",
-					"type": "registry:component",
-					"target": "data-table/data-table-advanced-toolbar.svelte"
-				},
-				{
-					"path": "src/lib/components/data-table/data-table-view-options.svelte",
-					"type": "registry:component",
-					"target": "data-table/data-table-view-options.svelte"
-				},
-				{
-					"path": "src/lib/hooks/use-debounced-callback.ts",
-					"type": "registry:hook",
-					"target": "use-debounced-callback.ts"
 				},
 				{
 					"path": "src/lib/data-table-range-utils.ts",
@@ -706,11 +645,6 @@
 					"path": "src/lib/id.ts",
 					"type": "registry:lib",
 					"target": "id.ts"
-				},
-				{
-					"path": "src/lib/parsers.ts",
-					"type": "registry:lib",
-					"target": "parsers.ts"
 				},
 				{
 					"path": "src/lib/config/data-table.ts",

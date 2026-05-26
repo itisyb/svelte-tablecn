@@ -44,6 +44,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Common registry items are checked to preserve upstream UI registry dependencies while allowing Svelte-specific additions
 - The full `data-grid` registry bundle is checked for Svelte equivalents to the original core grid components, hook, helper, and type files
 - The full `data-table` registry bundle is checked for Svelte equivalents to the original table components, hook, helper, parser, config, and type files
+- Standalone data-table sort/filter menu registry slices are checked against the files their Svelte implementations actually import, avoiding unrelated advanced-toolbar/view-options/parser/config payload drift
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

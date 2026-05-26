@@ -134,7 +134,6 @@
 			"@tanstack/table-core",
 			"@internationalized/date",
 			"bits-ui",
-			"svelte-dnd-action",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [

@@ -721,6 +721,61 @@ describe('data-grid registry item', () => {
 		}
 	});
 
+	it('keeps standalone data-table menu registry slices scoped to their Svelte imports', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				dependencies?: string[];
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const expectedTargets = new Map([
+			['data-table-sort-list', ['data-table/data-table-sort-list.svelte']],
+			[
+				'data-table-filter-list',
+				[
+					'data-table/data-table-filter-list.svelte',
+					'data-table/data-table-range-filter.svelte',
+					'data-grid/data-grid-range-calendar.svelte',
+					'data-table-range-utils.ts',
+					'format.ts',
+					'id.ts',
+					'config/data-table.ts',
+					'types/data-grid.ts',
+					'types/data-table.ts'
+				]
+			],
+			[
+				'data-table-filter-menu',
+				[
+					'data-table/data-table-filter-menu.svelte',
+					'data-table/data-table-range-filter.svelte',
+					'data-grid/data-grid-range-calendar.svelte',
+					'data-table-range-utils.ts',
+					'format.ts',
+					'id.ts',
+					'config/data-table.ts',
+					'types/data-grid.ts',
+					'types/data-table.ts'
+				]
+			]
+		] as const);
+
+		for (const [name, targets] of expectedTargets) {
+			const item = registry.items.find((registryItem) => registryItem.name === name);
+			expect(item?.files?.map((file) => file.target)).toEqual(targets);
+		}
+
+		expect(
+			registry.items.find((registryItem) => registryItem.name === 'data-table-filter-menu')
+				?.dependencies
+		).not.toContain('svelte-dnd-action');
+		expect(
+			registry.items.find((registryItem) => registryItem.name === 'data-table-filter-list')
+				?.dependencies
+		).toContain('svelte-dnd-action');
+	});
+
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{
@@ -1228,8 +1283,9 @@ describe('data-table registry items', () => {
 			const targets = getRegistryTargets(name);
 
 			expect(targets.has('data-table-range-utils.ts')).toBe(true);
+			expect(targets.has('config/data-table.ts')).toBe(true);
 			expect(targets.has('types/data-grid.ts')).toBe(true);
-			expect(targets.has('data-table/data-table-view-options.svelte')).toBe(true);
+			expect(targets.has('data-table/data-table-view-options.svelte')).toBe(false);
 		}
 	});
 
