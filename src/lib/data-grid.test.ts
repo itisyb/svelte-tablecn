@@ -1005,13 +1005,13 @@ describe('non-README parity docs', () => {
 			'DataGridKeyboardShortcuts',
 			'Standalone `drawer`, `form`, and `sortable` registry slices',
 			'primitive type contracts',
-			'upstream select content radius'
+			'square, cell-aligned content'
 		]) {
 			expect(changelog).toContain(phrase);
 		}
 
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
-		expect(parityPlan).toContain('select editor radius parity fix');
+		expect(parityPlan).toContain('cell-aligned select editor fix');
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'
 		);

@@ -391,7 +391,8 @@ describe('/+page.svelte', () => {
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
 		expect(content.getAttribute('style') ?? '').not.toContain('border-radius');
-		expect(content.className).toContain('rounded-sm');
+		expect(content.className).toContain('rounded-none');
+		expect(content.className).toContain('data-[side=bottom]:translate-y-0');
 		expect(content.className).not.toContain('rounded-md');
 		expect(content.className).not.toContain('rounded-lg');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
@@ -1697,9 +1698,9 @@ describe('/+page.svelte', () => {
 		expect(dataGridCellWrapperSource).not.toContain("dir === 'rtl' ? 'text-right' : 'text-left'");
 	});
 
-	it('should keep data grid select editor geometry aligned with a cell-scoped radius', () => {
+	it('should keep data grid select editor geometry aligned with the cell box', () => {
 		expect(dataGridSelectCellSource).toContain(
-			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-sm"'
+			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-none data-[side=bottom]:translate-y-0 data-[side=left]:translate-x-0 data-[side=right]:translate-x-0 data-[side=top]:translate-y-0"'
 		);
 		expect(dataGridSelectCellSource).toContain(
 			'style="min-width: calc(var(--bits-select-anchor-width) + 16px);"'
@@ -1707,7 +1708,8 @@ describe('/+page.svelte', () => {
 		expect(dataGridSelectCellSource).not.toContain('border-radius');
 		expect(dataGridSelectCellSource).toContain('!w-full');
 		expect(dataGridSelectCellSource).toContain('width: calc(100% - 16px)');
-		expect(dataGridSelectCellSource).toContain('rounded-sm');
+		expect(dataGridSelectCellSource).toContain('rounded-none');
+		expect(dataGridSelectCellSource).toContain('data-[side=bottom]:translate-y-0');
 		expect(dataGridSelectCellSource).not.toContain('rounded-md');
 		expect(dataGridSelectCellSource).not.toContain('rounded-lg');
 	});

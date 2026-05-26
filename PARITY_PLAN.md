@@ -29,7 +29,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - `drawer` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using the existing Bits Dialog foundation
 - `form` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using a Svelte-native error/context contract
 - README now documents the shortcut dialog and standalone `drawer`, `form`, and `sortable` registry slices against the shipped public API
-- The non-README docs now record the shipped shortcut dialog, standalone primitive registry slices, package-root/UI-barrel primitive helper/type exports, and select editor radius parity fix
+- The non-README docs now record the shipped shortcut dialog, standalone primitive registry slices, package-root/UI-barrel primitive helper/type exports, and cell-aligned select editor fix
 - The adapter decision for the current parity target is explicit: `drawer`, `form`, and `sortable` preserve the installable slots, styling, exported names, IDs, and ARIA contracts without pulling in React-only runtime dependencies
 - Generated `static/r` registry artifacts are checked against `registry.json` so installable slices cannot silently miss or drift from their declared file targets
 - The keyboard shortcuts dialog is source-checked against the original 50-row shortcut map, and browser coverage exercises gated row mutation shortcuts, optional shortcuts, filtering, and the upstream empty state
@@ -38,7 +38,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-grid option documentation is checked against `UseDataGridOptions`, including sorting, filter, and row-selection change callbacks
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
-- The data-grid single-select cell editor uses a smaller cell-scoped content radius, leaving the shared select primitive default radius intact
+- The data-grid single-select cell editor uses square cell-scoped content and cancels select side translation, leaving the shared select primitive default shape intact
 - README registry documentation is checked against `registry.json` so every installable `/r/*.json` slice is listed
 - Registry item names are checked against the original installable set, with `drawer`, `form`, and `sortable` recorded as intentional Svelte-only primitive additions
 - Common registry items are checked to preserve upstream UI registry dependencies while allowing Svelte-specific additions

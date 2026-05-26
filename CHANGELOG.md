@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-grid README option documentation now includes sorting, filter, and row-selection change callbacks and is checked against `UseDataGridOptions`.
 - Data-table README option documentation now includes required `data` and `columns` options and is checked against `UseDataTableOptions`.
 - Generated registry artifact coverage now verifies item metadata and file `type`/`target` entries against `registry.json`.
-- Data grid select editor popovers now use a smaller in-cell radius while keeping the shared select primitive unchanged.
+- Data grid select editor popovers now use square, cell-aligned content and cancel the shared select side translation while keeping shared selects unchanged.
 - README registry documentation now lists every installable `/r/*.json` item and is checked against `registry.json`.
 - Registry parity coverage now asserts every original installable item remains present, with only `drawer`, `form`, and `sortable` as intentional Svelte additions.
 - Registry parity coverage now asserts common installable items preserve upstream UI registry dependencies while allowing Svelte-specific additions.
@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Data grid select editor popovers use the upstream select content radius instead of forcing square corners.
+- Data grid select editor popovers no longer inherit extra rounded corners or side translation that can make the editor look dropped from the cell.
 - Cell and row selection after filtering: use row-model position (not core `row.index`) so shift-select and counts only include visible rows ([#20](https://github.com/itisyb/svelte-tablecn/issues/20))
 - Click outside the grid clears cell focus (tablecn behavior); no longer re-focuses the cell on `focusout`
 
