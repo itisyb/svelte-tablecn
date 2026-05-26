@@ -392,9 +392,10 @@ describe('/+page.svelte', () => {
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
 		expect(content.getAttribute('style') ?? '').not.toContain('border-radius');
-		expect(content.className).toContain('rounded-md');
+		expect(content.className).toContain('rounded-sm');
 		expect(content.className).toContain('data-[side=bottom]:translate-y-1');
 		expect(content.className).not.toContain('rounded-none');
+		expect(content.className).not.toContain('rounded-md');
 		expect(content.className).not.toContain('rounded-lg');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
@@ -1714,7 +1715,7 @@ describe('/+page.svelte', () => {
 
 	it('should keep data grid select editor geometry aligned with the cell box', () => {
 		expect(dataGridSelectCellSource).toContain(
-			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"'
+			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-sm"'
 		);
 		expect(dataGridSelectCellSource).toContain(
 			'style="min-width: calc(var(--bits-select-anchor-width) + 16px);"'
