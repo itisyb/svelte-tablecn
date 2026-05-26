@@ -1292,11 +1292,20 @@ describe('README data-table examples', () => {
 
 	it('documents every shipped useDataTable option', () => {
 		const typesSource = readFileSync('src/lib/types/data-table.ts', 'utf8');
+		const hookSource = readFileSync('src/lib/hooks/use-data-table.svelte.ts', 'utf8');
 		const optionsBlock = typesSource.match(
-			/export interface UseDataTableOptions<TData> \{([\s\S]*?)\n\}/
+			/export interface UseDataTableOptions<TData>[\s\S]*?> \{([\s\S]*?)\n\}/
 		)?.[1];
 
 		expect(optionsBlock).toBeDefined();
+		expect(typesSource).toContain('Partial<TableOptions<TData>>');
+		expect(typesSource).toContain("'data'");
+		expect(typesSource).toContain("'columns'");
+		expect(typesSource).toContain("'state'");
+		expect(hookSource).toContain('...tableOptions');
+		expect(hookSource).toContain('...tableOptions.defaultColumn');
+		expect(hookSource).toContain('...tableOptions.meta');
+
 		const optionNames = Array.from(optionsBlock?.matchAll(/^\t([A-Za-z]\w+)\??:/gm) ?? []).map(
 			([, name]) => name
 		);

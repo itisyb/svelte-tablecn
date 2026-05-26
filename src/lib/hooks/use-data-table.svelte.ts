@@ -175,7 +175,8 @@ export function useDataTable<TData>(
 		enableMultiSort = true,
 		manualPagination = false,
 		manualSorting = false,
-		manualFiltering = false
+		manualFiltering = false,
+		...tableOptions
 	} = options;
 
 	const getData = typeof dataProp === 'function' ? dataProp : () => dataProp;
@@ -488,6 +489,7 @@ export function useDataTable<TData>(
 	});
 
 	const table = createSvelteTable<TData>({
+		...tableOptions,
 		get data() {
 			return tableData;
 		},
@@ -506,6 +508,7 @@ export function useDataTable<TData>(
 			};
 		},
 		defaultColumn: {
+			...tableOptions.defaultColumn,
 			enableColumnFilter: false
 		},
 		enableRowSelection,
@@ -541,6 +544,7 @@ export function useDataTable<TData>(
 			return useClientAdvancedFiltering ? true : manualFiltering;
 		},
 		meta: {
+			...tableOptions.meta,
 			queryKeys: resolvedQueryKeys,
 			get joinOperator() {
 				return joinOperator;

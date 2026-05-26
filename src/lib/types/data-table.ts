@@ -11,6 +11,7 @@ import type {
 	PaginationState,
 	RowSelectionState,
 	RowData,
+	TableOptions,
 	Updater
 } from '@tanstack/table-core';
 import type { Component } from 'svelte';
@@ -126,7 +127,24 @@ declare module '@tanstack/table-core' {
 // Data Table Props
 // ============================================
 
-export interface UseDataTableOptions<TData> {
+export interface UseDataTableOptions<TData>
+	extends Omit<
+		Partial<TableOptions<TData>>,
+		| 'data'
+		| 'columns'
+		| 'state'
+		| 'pageCount'
+		| 'getCoreRowModel'
+		| 'getFilteredRowModel'
+		| 'getPaginationRowModel'
+		| 'getSortedRowModel'
+		| 'getFacetedRowModel'
+		| 'getFacetedUniqueValues'
+		| 'getFacetedMinMaxValues'
+		| 'manualPagination'
+		| 'manualSorting'
+		| 'manualFiltering'
+	> {
 	data: TData[] | (() => TData[]);
 	columns: ColumnDef<TData, unknown>[] | (() => ColumnDef<TData, unknown>[]);
 	pageCount?: number;
