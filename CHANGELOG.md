@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README registry documentation now lists every installable `/r/*.json` item and is checked against `registry.json`.
 - Registry parity coverage now asserts every original installable item remains present, with only `drawer`, `form`, and `sortable` as intentional Svelte additions.
 - Registry parity coverage now asserts common installable items preserve upstream UI registry dependencies while allowing Svelte-specific additions.
+- Data-grid registry coverage now asserts the full bundle ships Svelte equivalents for the original grid components, hook, helper, and type files.
 
 ### Fixed
 

@@ -631,6 +631,50 @@ describe('data-grid registry item', () => {
 		expect(missing).toEqual([]);
 	});
 
+	it('ships Svelte equivalents for the original full data-grid registry bundle', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const dataGrid = registry.items.find((item) => item.name === 'data-grid');
+		const targets = new Set(dataGrid?.files?.map((file) => file.target));
+		const originalEquivalentTargets = [
+			'data-grid/data-grid.svelte',
+			'data-grid/data-grid-cell.svelte',
+			'data-grid/data-grid-cell-wrapper.svelte',
+			'data-grid/data-grid-column-header.svelte',
+			'data-grid/data-grid-context-menu.svelte',
+			'data-grid/data-grid-paste-dialog.svelte',
+			'data-grid/data-grid-row.svelte',
+			'data-grid/data-grid-search.svelte',
+			'use-badge-overflow.svelte.ts',
+			'use-data-grid.svelte.ts',
+			'use-debounced-callback.ts',
+			'data-grid.ts',
+			'types/data-grid.ts'
+		];
+
+		for (const target of originalEquivalentTargets) {
+			expect(targets.has(target)).toBe(true);
+		}
+
+		for (const cellTarget of [
+			'data-grid/cells/short-text-cell.svelte',
+			'data-grid/cells/long-text-cell.svelte',
+			'data-grid/cells/number-cell.svelte',
+			'data-grid/cells/checkbox-cell.svelte',
+			'data-grid/cells/select-cell.svelte',
+			'data-grid/cells/multi-select-cell.svelte',
+			'data-grid/cells/date-cell.svelte',
+			'data-grid/cells/url-cell.svelte',
+			'data-grid/cells/file-cell.svelte'
+		]) {
+			expect(targets.has(cellTarget)).toBe(true);
+		}
+	});
+
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{
