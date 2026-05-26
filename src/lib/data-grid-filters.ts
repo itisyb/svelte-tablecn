@@ -111,6 +111,38 @@ export function getOperatorsForVariant(variant: string): ReadonlyArray<{
 	}
 }
 
+function getRelativeDateRange(value: string): { startDate: Date; endDate: Date } | null {
+	const [amount, unit] = value.split(' ');
+	if (!amount || !unit) return null;
+
+	const amountValue = Number.parseInt(amount, 10);
+	if (Number.isNaN(amountValue)) return null;
+
+	const today = new Date();
+	const startDate = new Date(today);
+	startDate.setHours(0, 0, 0, 0);
+
+	switch (unit) {
+		case 'days':
+			startDate.setDate(startDate.getDate() + amountValue);
+			break;
+		case 'weeks':
+			startDate.setDate(startDate.getDate() + amountValue * 7);
+			break;
+		case 'months':
+			startDate.setDate(startDate.getDate() + amountValue * 30);
+			break;
+		default:
+			return null;
+	}
+
+	const endDate = new Date(startDate);
+	endDate.setDate(endDate.getDate() + (unit === 'days' ? 0 : unit === 'weeks' ? 6 : 29));
+	endDate.setHours(23, 59, 59, 999);
+
+	return { startDate, endDate };
+}
+
 export function getFilterFn<TData>(): FilterFn<TData> {
 	return (row: Row<TData>, columnId: string, filterValue: unknown): boolean => {
 		if (!filterValue || typeof filterValue !== 'object') {
@@ -220,6 +252,11 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 		if (cellValue instanceof Date || typeof cellValue === 'string') {
 			const cellDate = new Date(cellValue);
 			if (!Number.isNaN(cellDate.getTime()) && typeof value === 'string') {
+				if (operator === 'isRelativeToToday') {
+					const range = getRelativeDateRange(value);
+					return range ? cellDate >= range.startDate && cellDate <= range.endDate : true;
+				}
+
 				const filterDate = new Date(value);
 
 				if (operator === 'before') {

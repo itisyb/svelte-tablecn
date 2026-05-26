@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-grid registry coverage now guards against bundling the demo-only window size hook.
 - Standalone grid menu/dialog registry dependency coverage now checks direct package imports rather than primitive implementation packages.
 - Data-grid module coverage now checks upstream cell-key and row-height helpers are exported from `data-grid.ts`.
+- Data-table filter coverage now checks the upstream `isRelativeToToday` date operator is accepted, mapped, and applied by the in-memory filter reference.
 
 ### Fixed
 
@@ -44,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone row-height, view, and keyboard-shortcut registry slices no longer declare `bits-ui` directly when it is only provided through UI primitive registry dependencies.
 - `data-grid.ts` now re-exports cell-key and row-height helpers so module-level utility imports match the original API.
 - Data grid select editor option highlights no longer keep the shared select item radius inside the square cell editor surface.
+- Data-table date filter operators now include the upstream `isRelativeToToday` option, with UI-to-SQL mapping and client-side row filtering support.
 - Cell and row selection after filtering: use row-model position (not core `row.index`) so shift-select and counts only include visible rows ([#20](https://github.com/itisyb/svelte-tablecn/issues/20))
 - Click outside the grid clears cell focus (tablecn behavior); no longer re-focuses the cell on `focusout`
 

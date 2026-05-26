@@ -42,6 +42,7 @@ export const DATA_TABLE_DATE_OPERATORS = [
 	{ label: 'Is on or before', value: 'onOrBefore' },
 	{ label: 'Is on or after', value: 'onOrAfter' },
 	{ label: 'Is between', value: 'isBetween' },
+	{ label: 'Is relative to today', value: 'isRelativeToToday' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
 ] as const;

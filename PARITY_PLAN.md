@@ -51,6 +51,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - The full data-grid registry bundle excludes the demo-only `use-window-size.svelte.ts` hook, matching the original installable registry scope
 - Standalone row-height, view, and keyboard-shortcut registry slices declare only packages directly imported by those Svelte files; UI primitive packages stay behind `registryDependencies`
 - The `data-grid.ts` module exports upstream cell-key and row-height helpers directly, even though their implementations live in Svelte type utilities
+- Data-table date operators include upstream `isRelativeToToday`, and the in-memory filter reference maps/applies it using the same relative day/week/month windows as the original SQL filter helper
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

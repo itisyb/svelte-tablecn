@@ -208,6 +208,7 @@ export type DateFilterOperator =
 	| 'onOrBefore'
 	| 'onOrAfter'
 	| 'isBetween'
+	| 'isRelativeToToday'
 	| 'isEmpty'
 	| 'isNotEmpty';
 

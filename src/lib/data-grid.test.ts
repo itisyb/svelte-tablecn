@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, normalize } from 'node:path';
 import type { Row } from '@tanstack/table-core';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
 	formatDateForDisplay,
 	formatDateToString,
@@ -25,6 +25,7 @@ import { getFilterFn, NUMBER_FILTER_OPERATORS } from './data-grid-filters.js';
 import { filterRows } from './filter-rows.js';
 import { formatDate } from './format.js';
 import { generateId } from './id.js';
+import { fromSqlFilterOperator, toSqlFilterOperator } from './map-sql-filter-operators.js';
 import { getFiltersStateParser, getSortingStateParser } from './parsers.js';
 import { useCallbackRef } from './hooks/use-callback-ref.js';
 import {
@@ -1660,6 +1661,10 @@ describe('getColumnPinningStyle', () => {
 		expect(getDataTableFilterOperators('date').some((item) => item.value === 'onOrAfter')).toBe(
 			true
 		);
+		expect(getDataTableFilterOperators('date')).toContainEqual({
+			label: 'Is relative to today',
+			value: 'isRelativeToToday'
+		});
 		expect(
 			getDataTableFilterOperators('boolean').find((item) => item.value === 'isFalse')
 		).toEqual({ label: 'Is not', value: 'isFalse' });
@@ -1675,6 +1680,29 @@ describe('getColumnPinningStyle', () => {
 		]);
 		expect(getDataTableDefaultFilterOperator('range')).toBe('equals');
 		expect(getDataTableDefaultFilterOperator('multiSelect')).toBe('isAnyOf');
+		expect(toSqlFilterOperator('isRelativeToToday')).toBe('isRelativeToToday');
+		expect(fromSqlFilterOperator('isRelativeToToday')).toBe('isRelativeToToday');
+		expect(
+			getFiltersStateParser(new Set(['startedAt'])).parse(
+				JSON.stringify([
+					{
+						id: 'startedAt',
+						value: '0 days',
+						variant: 'date',
+						operator: 'isRelativeToToday',
+						filterId: 'relative-date'
+					}
+				])
+			)
+		).toEqual([
+			{
+				id: 'startedAt',
+				value: '0 days',
+				variant: 'date',
+				operator: 'isRelativeToToday',
+				filterId: 'relative-date'
+			}
+		]);
 		expect(
 			getDataTableValidFilters([
 				{
@@ -1701,6 +1729,35 @@ describe('getColumnPinningStyle', () => {
 				filterId: 'boolean'
 			}
 		]);
+	});
+
+	it('applies upstream relative-to-today date filters for data-table rows', () => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date(2024, 2, 10, 12));
+
+		try {
+			expect(
+				filterRows(
+					[
+						{ startedAt: new Date(2024, 2, 9, 12) },
+						{ startedAt: new Date(2024, 2, 10, 12) },
+						{ startedAt: new Date(2024, 2, 11, 12) }
+					],
+					[
+						{
+							id: 'startedAt',
+							value: '0 days',
+							variant: 'date',
+							operator: 'isRelativeToToday',
+							filterId: 'relative-date'
+						}
+					],
+					'and'
+				)
+			).toEqual([{ startedAt: new Date(2024, 2, 10, 12) }]);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 
 	it('parses and applies upstream date boundary operators for data-table filters', () => {
