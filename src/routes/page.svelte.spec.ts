@@ -2128,6 +2128,8 @@ describe('/+page.svelte', () => {
 		expect(dataTableTypesSource).toContain(
 			"export type JoinOperator = (typeof dataTableConfig)['joinOperators'][number];"
 		);
+		expect(dataTableTypesSource).toContain('export type Option = DataTableOption;');
+		expect(dataTableTypesSource).toContain('options?: Option[];');
 		expect(dataTableTypesSource).toContain('export interface DataTableRowAction<TData>');
 		expect(libIndexSource).toContain('DataTableRowAction');
 		expect(libIndexSource).toContain('MULTI_SELECT_OPERATORS');
@@ -2140,6 +2142,8 @@ describe('/+page.svelte', () => {
 	it('should expose original-style general utility types without server-only dependencies', () => {
 		expect(typesIndexSource).toContain('export type Prettify<T>');
 		expect(typesIndexSource).toContain('export interface SearchParams');
+		expect(typesIndexSource).toContain('DataTableOption');
+		expect(typesIndexSource).not.toContain("export * from './data-table';");
 		expect(typesIndexSource).not.toContain('drizzle-orm');
 		expect(typesIndexSource).not.toContain('React.ElementType');
 		expect(libIndexSource).toContain("export type { Prettify, SearchParams } from './types';");

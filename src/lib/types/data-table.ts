@@ -50,6 +50,8 @@ export interface DataTableOption {
 	count?: number;
 }
 
+export type Option = DataTableOption;
+
 export interface QueryKeys {
 	page: string;
 	perPage: string;
@@ -114,7 +116,7 @@ declare module '@tanstack/table-core' {
 		icon?: Component<{ class?: string }>;
 		placeholder?: string;
 		variant?: FilterVariant;
-		options?: DataTableOption[];
+		options?: Option[];
 		range?: [number, number];
 		unit?: string;
 	}
