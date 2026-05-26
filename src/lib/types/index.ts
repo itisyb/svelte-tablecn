@@ -1,6 +1,10 @@
+import type { Component, ComponentProps } from 'svelte';
+
 export type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & {};
+
+export type EmptyProps<T extends Component> = Omit<ComponentProps<T>, keyof ComponentProps<T>>;
 
 export interface SearchParams {
 	[key: string]: string | string[] | undefined;

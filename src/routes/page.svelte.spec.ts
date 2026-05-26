@@ -2141,12 +2141,13 @@ describe('/+page.svelte', () => {
 
 	it('should expose original-style general utility types without server-only dependencies', () => {
 		expect(typesIndexSource).toContain('export type Prettify<T>');
+		expect(typesIndexSource).toContain('export type EmptyProps<T extends Component>');
 		expect(typesIndexSource).toContain('export interface SearchParams');
 		expect(typesIndexSource).toContain('DataTableOption');
 		expect(typesIndexSource).not.toContain("export * from './data-table';");
 		expect(typesIndexSource).not.toContain('drizzle-orm');
 		expect(typesIndexSource).not.toContain('React.ElementType');
-		expect(libIndexSource).toContain("export type { Prettify, SearchParams } from './types';");
+		expect(libIndexSource).toContain("export type { EmptyProps, Prettify, SearchParams } from './types';");
 	});
 
 	it('should keep button shadows aligned with the original ui button', () => {
