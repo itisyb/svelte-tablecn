@@ -8,6 +8,7 @@
 	import {
 		formatRangeValue,
 		getColumnRangeBounds,
+		isCompleteRangeFilterValue,
 		isValidRangeValue,
 		parseRangeFilterValue,
 		type RangeValue
@@ -49,16 +50,14 @@
 	});
 
 	const hasActiveFilter = $derived.by(() => {
-		const parsed = parseRangeFilterValue(filterValue, [bounds.min, bounds.max]);
-		return parsed[0] !== bounds.min || parsed[1] !== bounds.max;
+		return isCompleteRangeFilterValue(filterValue);
 	});
 
 	let range = $derived(parseRangeFilterValue(filterValue, [bounds.min, bounds.max]));
 
 	function commitRange(next: RangeValue) {
 		range = next;
-		const isDefault = next[0] === bounds.min && next[1] === bounds.max;
-		resolvedColumn?.setFilterValue(isDefault ? undefined : next);
+		resolvedColumn?.setFilterValue(next);
 	}
 
 	function onFromInputChange(event: Event) {

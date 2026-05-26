@@ -1223,7 +1223,8 @@ describe('non-README parity docs', () => {
 			'original select radius and offset',
 			'Short text and URL cell editors now restore the original value on `Escape`',
 			'File editor popovers now only stop `Escape` key propagation',
-			'Data-table sort/filter keyboard shortcuts now remain wired like upstream'
+			'Data-table sort/filter keyboard shortcuts now remain wired like upstream',
+			'Data-table slider filters now keep user-selected default-range values active'
 		]) {
 			expect(changelog).toContain(phrase);
 		}

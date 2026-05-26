@@ -2893,6 +2893,9 @@ describe('/+page.svelte', () => {
 		expect(dataTableSliderFilterSource).toContain('tabindex={0}');
 		expect(dataTableSliderFilterSource).toContain('<span>{title}</span>');
 		expect(dataTableSliderFilterSource).toContain('resolvedColumn?.getFilterValue()');
+		expect(dataTableSliderFilterSource).toContain('isCompleteRangeFilterValue(filterValue)');
+		expect(dataTableSliderFilterSource).toContain('resolvedColumn?.setFilterValue(next)');
+		expect(dataTableSliderFilterSource).not.toContain('isDefault ? undefined : next');
 		expect(dataTableSliderFilterSource).not.toContain('rounded-r-none');
 		expect(dataTableSliderFilterSource).not.toContain('rounded-l-none');
 		expect(dataTableSliderFilterSource).not.toContain('max-w-40 truncate text-muted-foreground text-xs');
