@@ -132,7 +132,7 @@
 				align="start"
 				alignOffset={-8}
 				sideOffset={-8}
-				class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-none"
+				class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"
 				style="min-width: calc(var(--bits-select-anchor-width) + 16px);"
 			>
 				{#each options as option (option.value)}

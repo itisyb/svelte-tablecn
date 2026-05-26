@@ -10,6 +10,7 @@ import {
 	CommandList,
 	CommandSeparator,
 } from "$lib/components/ui/command/index.js";
+import type { FacetedValue } from "./faceted-context.js";
 
 export {
 	Root,
@@ -34,3 +35,5 @@ export {
 	CommandSeparator as FacetedSeparator,
 	Trigger as FacetedTrigger,
 };
+
+export type { FacetedValue };

@@ -5,12 +5,21 @@
 	import { cn, type WithoutChildrenOrChild } from "$lib/utils.js";
 
 	type Props = WithoutChildrenOrChild<ComponentProps<typeof PopoverTrigger>> & {
+		child?: Snippet<[{ props: Record<string, unknown> }]>;
 		children?: Snippet;
 	};
 
-	let { class: className, children, ...triggerProps }: Props = $props();
+	let { class: className, child: childSnippet, children, ...triggerProps }: Props = $props();
 </script>
 
 <PopoverTrigger class={cn("justify-between text-left", className)} {...triggerProps}>
-	{@render children?.()}
+	{#snippet child({ props })}
+		{#if childSnippet}
+			{@render childSnippet({ props })}
+		{:else}
+			<button type="button" {...props}>
+				{@render children?.()}
+			</button>
+		{/if}
+	{/snippet}
 </PopoverTrigger>

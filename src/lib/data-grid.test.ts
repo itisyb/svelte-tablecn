@@ -1231,8 +1231,9 @@ describe('non-README parity docs', () => {
 
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
-		expect(parityPlan).toContain('original select item radius and popper offset');
-		expect(parityPlan).toContain('square editor surface');
+		expect(parityPlan).toContain('original select content radius');
+		expect(parityPlan).toContain('item radius, popper offset');
+		expect(parityPlan).toContain('upstream trigger width/offset geometry');
 		expect(parityPlan).toContain('Latest upstream reference checked');
 		expect(parityPlan).toContain('374e6aec098890a28a2cf36880be22c884b642dd');
 		expect(parityPlan).toContain(
@@ -1247,6 +1248,8 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('paste dialog expansion/fit-existing flows');
 		expect(parityPlan).toContain('Data-table shell, pagination, toolbar, advanced-toolbar, view-options, filter-list, and skeleton surfaces were rechecked against upstream');
 		expect(parityPlan).toContain('table shell, table toolbars, table filters, table menus, pagination, and table skeletons');
+		expect(parityPlan).toContain('Data-table filter-list select and multi-select value editors now use the shared faceted primitive like upstream');
+		expect(parityPlan).toContain('faceted data-table filter-list option selection structure');
 		expect(parityPlan).not.toContain('squares the nested option highlights');
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'

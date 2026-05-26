@@ -146,6 +146,7 @@ import dropdownMenuSubTriggerSource from '$lib/components/ui/dropdown-menu/dropd
 import facetedBadgeListSource from '$lib/components/ui/faceted/faceted-badge-list.svelte?raw';
 import facetedContentSource from '$lib/components/ui/faceted/faceted-content.svelte?raw';
 import facetedItemSource from '$lib/components/ui/faceted/faceted-item.svelte?raw';
+import facetedTriggerSource from '$lib/components/ui/faceted/faceted-trigger.svelte?raw';
 import formContextSource from '$lib/components/ui/form/form-context.ts?raw';
 import formControlSource from '$lib/components/ui/form/form-control.svelte?raw';
 import formDescriptionSource from '$lib/components/ui/form/form-description.svelte?raw';
@@ -395,10 +396,9 @@ describe('/+page.svelte', () => {
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
 		expect(content.getAttribute('style') ?? '').not.toContain('border-radius');
 		expect(content.className).toContain('data-[side=bottom]:translate-y-1');
-		expect(content.className).toContain('rounded-none');
-		expect(contentStyle.borderRadius).toBe('0px');
+		expect(content.className).not.toContain('rounded-none');
+		expect(content.className).toContain('rounded-md');
 		expect(content.className).not.toContain('rounded-sm');
-		expect(content.className).not.toContain('rounded-md');
 		expect(content.className).not.toContain('rounded-lg');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
@@ -1808,7 +1808,7 @@ describe('/+page.svelte', () => {
 
 	it('should keep data grid select editor geometry aligned with the cell box', () => {
 		expect(dataGridSelectCellSource).toContain(
-			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-none"'
+			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"'
 		);
 		expect(dataGridSelectCellSource).toContain(
 			'style="min-width: calc(var(--bits-select-anchor-width) + 16px);"'
@@ -1824,6 +1824,8 @@ describe('/+page.svelte', () => {
 		expect(dataGridSelectCellSource).toContain(
 			'<SelectItem value={option.value} label={option.label}>'
 		);
+		expect(dataGridSelectCellSource).not.toContain('rounded-none');
+		expect(dataGridSelectCellSource).not.toContain('rounded-sm"');
 		expect(dataGridSelectCellSource).not.toContain('rounded-lg');
 	});
 
@@ -2558,6 +2560,9 @@ describe('/+page.svelte', () => {
 		expect(facetedContentSource).toContain('p-0');
 		expect(facetedItemSource).toContain('data-selected={isSelected}');
 		expect(facetedItemSource).toContain('flex size-4 items-center justify-center rounded-sm border border-primary');
+		expect(facetedTriggerSource).toContain('child?: Snippet');
+		expect(facetedTriggerSource).toContain('child: childSnippet');
+		expect(facetedTriggerSource).toContain('@render childSnippet({ props })');
 	});
 
 	it('should expose the original ui fps primitive styling', () => {
@@ -2846,7 +2851,33 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).not.toContain(
 			"variant === 'range' ? 'min-w-52' : 'min-w-36'"
 		);
-		expect(dataTableFilterListSource).toContain('class="w-[200px] p-0"');
+		expect(dataTableFilterListSource).toContain('<FacetedContent id={inputListboxId} class="w-[200px]">');
+		expect(dataTableFilterListSource).not.toContain('class="w-[200px] p-0"');
+	});
+
+	it('should use the shared faceted primitive for data table filter list options like the original table', () => {
+		for (const name of [
+			'Faceted',
+			'FacetedBadgeList',
+			'FacetedContent',
+			'FacetedEmpty',
+			'FacetedGroup',
+			'FacetedInput',
+			'FacetedItem',
+			'FacetedList',
+			'FacetedTrigger'
+		]) {
+			expect(dataTableFilterListSource).toContain(name);
+		}
+
+		expect(dataTableFilterListSource).toContain('value={allowsMultiple ? filterValues.values : filterValues.primary || undefined}');
+		expect(dataTableFilterListSource).toContain('multiple={allowsMultiple}');
+		expect(dataTableFilterListSource).toContain('setFacetedFilterValue(filterKey, value, allowsMultiple)');
+		expect(dataTableFilterListSource).toContain('<FacetedBadgeList');
+		expect(dataTableFilterListSource).toContain('placeholder={columnLabel}');
+		expect(dataTableFilterListSource).toContain('<FacetedItem value={option.value}>');
+		expect(dataTableFilterListSource).not.toContain("'Select values'");
+		expect(dataTableFilterListSource).not.toContain("'Select value'");
 	});
 
 	it('should use calendar popovers for data table filter list dates like the original table', () => {

@@ -28,6 +28,18 @@
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import DataGridRangeCalendar from '$lib/components/data-grid/data-grid-range-calendar.svelte';
 	import {
+		Faceted,
+		FacetedBadgeList,
+		FacetedContent,
+		FacetedEmpty,
+		FacetedGroup,
+		FacetedInput,
+		FacetedItem,
+		FacetedList,
+		FacetedTrigger,
+		type FacetedValue
+	} from '$lib/components/ui/faceted/index.js';
+	import {
 		Command,
 		CommandEmpty,
 		CommandGroup,
@@ -174,6 +186,14 @@
 
 	function setScalarFilterValue(filterKey: string, value: string | number | undefined) {
 		updateFilter(filterKey, { value: value == null ? '' : String(value) });
+	}
+
+	function setFacetedFilterValue(
+		filterKey: string,
+		value: FacetedValue | undefined,
+		allowsMultiple: boolean
+	) {
+		updateFilter(filterKey, { value: value ?? (allowsMultiple ? [] : '') });
 	}
 
 	function calendarDateToString(value: DateValue): string {
@@ -414,7 +434,6 @@
 					{@const filterValues = getFilterValues(filter)}
 					{@const allowsMultiple =
 						variant === 'multiSelect' || operator === 'isAnyOf' || operator === 'isNoneOf'}
-					{@const isSingleSelect = variant === 'select' && !allowsMultiple}
 					{@const needsValue = !['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(operator)}
 					{@const selectOptions = getColumnOptions(filter.id)}
 					{@const columnLabel = columns.find((column) => column.id === filter.id)?.label ?? filter.id}
@@ -629,38 +648,16 @@
 										aria-live="polite"
 										class="h-8 w-full rounded border bg-transparent dark:bg-input/30"
 									></div>
-								{:else if isSingleSelect && selectOptions.length > 0}
-									<Select
-										type="single"
-										open={openValueSelectors.has(filterKey)}
-										value={filterValues.primary}
-										onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
-										onValueChange={(value: string) => updateFilter(filterKey, { value })}
-									>
-										<SelectTrigger
-											id={inputId}
-											aria-controls={inputListboxId}
-											aria-label={`Change ${columnLabel} value`}
-											size="sm"
-											class="w-full rounded"
-										>
-											<span data-slot="select-value" class="truncate">
-												{selectOptions.find((option) => option.value === filterValues.primary)
-												?.label ?? 'Select value'}
-											</span>
-										</SelectTrigger>
-										<SelectContent id={inputListboxId}>
-											{#each selectOptions as option (option.value)}
-												<SelectItem value={option.value}>{option.label}</SelectItem>
-											{/each}
-										</SelectContent>
-									</Select>
 								{:else if (variant === 'select' || variant === 'multiSelect') && selectOptions.length > 0}
-									<Popover
+									<Faceted
 										open={openValueSelectors.has(filterKey)}
 										onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
+										value={allowsMultiple ? filterValues.values : filterValues.primary || undefined}
+										onValueChange={(value) =>
+											setFacetedFilterValue(filterKey, value, allowsMultiple)}
+										multiple={allowsMultiple}
 									>
-										<PopoverTrigger>
+										<FacetedTrigger>
 											{#snippet child({ props })}
 												<Button
 													{...props}
@@ -671,51 +668,37 @@
 													size="sm"
 													class="h-8 w-full justify-start rounded font-normal"
 												>
-													<span class="truncate">
-														{#if allowsMultiple}
-															{filterValues.values.length > 0
-																? `${filterValues.values.length} selected`
-																: 'Select values'}
-														{:else}
-															{selectOptions.find((option) => option.value === filterValues.primary)
-																?.label ?? 'Select value'}
-														{/if}
-													</span>
+													<FacetedBadgeList
+														options={selectOptions}
+														placeholder={columnLabel}
+													/>
 												</Button>
 											{/snippet}
-										</PopoverTrigger>
-										<PopoverContent id={inputListboxId} align="start" class="w-[200px] p-0">
-											<Command>
-												<CommandInput placeholder="Search options..." />
-												<CommandList>
-													<CommandEmpty>No options found.</CommandEmpty>
-													<CommandGroup>
-														{#each selectOptions as option (option.value)}
-															{@const isSelected = filterValues.values.includes(option.value)}
-															<CommandItem
-																value={option.value}
-																onSelect={() =>
-																	updateFilter(filterKey, {
-																		value: allowsMultiple
-																			? isSelected
-																				? filterValues.values.filter(
-																						(value) => value !== option.value
-																					)
-																				: [...filterValues.values, option.value]
-																			: option.value
-																	})}
-															>
-																<span class="truncate">{option.label}</span>
-																<Check
-																	class={cn('ml-auto', isSelected ? 'opacity-100' : 'opacity-0')}
-																/>
-															</CommandItem>
-														{/each}
-													</CommandGroup>
-												</CommandList>
-											</Command>
-										</PopoverContent>
-									</Popover>
+										</FacetedTrigger>
+										<FacetedContent id={inputListboxId} class="w-[200px]">
+											<FacetedInput
+												aria-label={`Search ${columnLabel} options`}
+												placeholder="Search options..."
+											/>
+											<FacetedList>
+												<FacetedEmpty>No options found.</FacetedEmpty>
+												<FacetedGroup>
+													{#each selectOptions as option (option.value)}
+														<FacetedItem value={option.value}>
+															{#if option.icon}
+																{@const Icon = option.icon}
+																<Icon />
+															{/if}
+															<span>{option.label}</span>
+															{#if option.count}
+																<span class="ml-auto font-mono text-xs">{option.count}</span>
+															{/if}
+														</FacetedItem>
+													{/each}
+												</FacetedGroup>
+											</FacetedList>
+										</FacetedContent>
+									</Faceted>
 								{:else}
 									<Input
 										id={inputId}

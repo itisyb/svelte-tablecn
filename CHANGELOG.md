@@ -40,13 +40,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Data-table range filters now preserve incomplete `isBetween` values like upstream and apply the same one-sided numeric behavior in the in-memory row filter reference.
-- Data grid select editor popovers now use a square cell-editor surface while keeping the original select item radius.
+- Data grid select editor popovers now inherit the original select content radius and use the upstream trigger width/offset geometry.
 - Parity audit tests now fail directly when a `registry.json` source path stops resolving.
 - Data grid search parity now has explicit source assertions for the original search role, slot, controls, pointer handling, and status text.
 - Data grid paste dialog parity now has explicit source assertions for the original copy, radio options, callbacks, and popover containment.
 - Data table shell and skeleton parity now have explicit source assertions for the original layout, pinning, empty state, pagination/action-bar placement, and loading placeholders.
+- Data table filter-list option values now use the shared faceted primitive like the original table instead of a custom command popover.
 - `DataTableFilterMenu` now forwards custom classes to the command popover content like upstream instead of styling the outer filter list.
-- Data grid select editor popovers now use a softer cell-editor radius while preserving the original item radius, width, and offset.
+- Data grid select editor popovers now preserve the original item radius, content radius, width, and offset.
 - Data grid select editor popovers no longer override the shared select offset, matching the original menu placement.
 - Short text and URL cell editors now restore the original value on `Escape`, matching upstream edit cancellation behavior.
 - File editor popovers now only stop `Escape` key propagation, allowing ordinary keys to bubble like the upstream file editor.
