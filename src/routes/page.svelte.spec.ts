@@ -2269,6 +2269,9 @@ describe('/+page.svelte', () => {
 		expect(selectContentSource).toContain('sideOffset = 0');
 		expect(selectContentSource).toContain('data-[side=bottom]:translate-y-1');
 		expect(selectContentSource).not.toContain('sideOffset = 4');
+		expect(layoutCssSource).toContain('--radius: 0.5rem;');
+		expect(layoutCssSource).toContain('--radius-md: calc(var(--radius) - 2px);');
+		expect(layoutCssSource).toContain('--radius-sm: calc(var(--radius) - 4px);');
 	});
 
 	it('should keep floating content side animations aligned with the original ui primitives', () => {
