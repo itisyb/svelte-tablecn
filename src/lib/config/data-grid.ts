@@ -1,6 +1,7 @@
 // Data Grid Configuration Constants
 
 // Virtualization settings
+export const DEFAULT_ROW_HEIGHT = 'short';
 export const OVERSCAN = 6;
 export const VIEWPORT_OFFSET = 1;
 export const SCROLL_SYNC_RETRY_COUNT = 16;

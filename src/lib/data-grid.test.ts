@@ -149,6 +149,7 @@ import {
 	getFormErrorMessage as getRootFormErrorMessage,
 	getFormFieldState as getRootFormFieldState,
 	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
+	DEFAULT_ROW_HEIGHT as ROOT_DEFAULT_ROW_HEIGHT,
 	OVERSCAN as ROOT_OVERSCAN,
 	RowSelectCell as RootRowSelectCell,
 	RowSelectHeader as RootRowSelectHeader,
@@ -174,7 +175,7 @@ import {
 	useDataTable as useRootDataTable,
 	useDataGridUndoRedo as useRootDataGridUndoRedo
 } from './index.js';
-import { OVERSCAN } from './config/data-grid.js';
+import { DEFAULT_ROW_HEIGHT, OVERSCAN } from './config/data-grid.js';
 
 describe('shared upstream utilities', () => {
 	it('formats dates with the original en-US long date defaults', () => {
@@ -318,6 +319,8 @@ describe('data-grid formatting helpers', () => {
 
 describe('data-grid config', () => {
 	it('keeps the virtual row overscan default aligned with upstream', () => {
+		expect(DEFAULT_ROW_HEIGHT).toBe('short');
+		expect(ROOT_DEFAULT_ROW_HEIGHT).toBe(DEFAULT_ROW_HEIGHT);
 		expect(OVERSCAN).toBe(6);
 		expect(ROOT_OVERSCAN).toBe(OVERSCAN);
 	});

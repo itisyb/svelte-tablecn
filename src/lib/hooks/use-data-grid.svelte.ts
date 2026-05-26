@@ -84,6 +84,7 @@ import {
 import { toast } from 'svelte-sonner';
 import {
 	DEFAULT_COLUMN_SIZE,
+	DEFAULT_ROW_HEIGHT,
 	HORIZONTAL_PAGE_SIZE,
 	MAX_COLUMN_SIZE,
 	MIN_COLUMN_SIZE,
@@ -252,7 +253,7 @@ export function useDataGrid<TData extends RowData>(
 	const {
 		columns,
 		data: dataProp,
-		rowHeight: initialRowHeight = 'short',
+		rowHeight: initialRowHeight = DEFAULT_ROW_HEIGHT,
 		autoFocus = false,
 		enableColumnSelection = false,
 		enableSingleCellSelection = false,

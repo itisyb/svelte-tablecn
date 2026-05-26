@@ -412,6 +412,7 @@ export {
 // Config
 // ==============================================
 export {
+	DEFAULT_ROW_HEIGHT,
 	OVERSCAN,
 	VIEWPORT_OFFSET,
 	SCROLL_SYNC_RETRY_COUNT,
