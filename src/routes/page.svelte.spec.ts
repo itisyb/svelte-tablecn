@@ -1938,6 +1938,7 @@ describe('/+page.svelte', () => {
 	it('should keep data grid drag handle focus styling aligned with outline buttons', () => {
 		expect(dataGridFilterMenuSource).toContain('Button, buttonVariants');
 		expect(dataGridFilterMenuSource).toContain('aria-label="drag handle for filter"');
+		expect(dataGridFilterMenuSource).toContain('SortableItemHandle');
 		expect(dataGridFilterMenuSource).toContain(
 			"buttonVariants({ variant: 'outline', size: 'icon' })"
 		);
@@ -1971,6 +1972,26 @@ describe('/+page.svelte', () => {
 		expect(dataGridSortMenuSource).toContain('h-8 w-44 rounded-sm bg-primary/10');
 		expect(dataGridSortMenuSource).not.toContain('use:dragHandleZone');
 		expect(dataGridSortMenuSource).not.toContain("from 'svelte-dnd-action'");
+	});
+
+	it('should use the shared sortable primitive for data grid filter menu reordering like the original grid', () => {
+		for (const name of [
+			'Sortable',
+			'SortableContent',
+			'SortableItem',
+			'SortableItemHandle',
+			'SortableOverlay'
+		]) {
+			expect(dataGridFilterMenuSource).toContain(name);
+		}
+
+		expect(dataGridFilterMenuSource).toContain("from '$lib/components/ui/sortable/index.js'");
+		expect(dataGridFilterMenuSource).toContain('value={columnFilters}');
+		expect(dataGridFilterMenuSource).toContain('getItemValue={getSortableFilterValue}');
+		expect(dataGridFilterMenuSource).toContain('type="data-grid-filter-items"');
+		expect(dataGridFilterMenuSource).toContain('h-8 min-w-[72px] rounded-sm bg-primary/10');
+		expect(dataGridFilterMenuSource).not.toContain('use:dragHandleZone');
+		expect(dataGridFilterMenuSource).not.toContain("from 'svelte-dnd-action'");
 	});
 
 	it('should forward row height select content props like the original grid', () => {

@@ -71,6 +71,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Data-table filter-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 - Data-table sort-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 - Data-grid sort-menu row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
+- Data-grid filter-menu row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 
 ## Audit Evidence
 

@@ -947,6 +947,9 @@ describe('data-grid registry item', () => {
 		const sortMenu = registry.items.find(
 			(registryItem) => registryItem.name === 'data-grid-sort-menu'
 		);
+		const filterMenu = registry.items.find(
+			(registryItem) => registryItem.name === 'data-grid-filter-menu'
+		);
 
 		expect(shortcuts?.files?.map((file) => file.target)).toEqual([
 			'data-grid/data-grid-keyboard-shortcuts.svelte'
@@ -956,6 +959,8 @@ describe('data-grid registry item', () => {
 		expect(view?.dependencies).toEqual(['@tanstack/table-core', '@lucide/svelte']);
 		expect(sortMenu?.dependencies).not.toContain('svelte-dnd-action');
 		expect(sortMenu?.registryDependencies).toContain('sortable');
+		expect(filterMenu?.dependencies).not.toContain('svelte-dnd-action');
+		expect(filterMenu?.registryDependencies).toContain('sortable');
 	});
 
 	it('keeps the standalone select-column registry slice scoped to row selection rendering', () => {

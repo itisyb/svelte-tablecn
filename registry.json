@@ -16,7 +16,6 @@
 				"clsx",
 				"tailwind-merge",
 				"svelte-sonner",
-				"svelte-dnd-action",
 				"@lucide/svelte"
 			],
 			"registryDependencies": [
@@ -788,7 +787,6 @@
 			"dependencies": [
 				"@tanstack/table-core",
 				"bits-ui",
-				"svelte-dnd-action",
 				"@internationalized/date",
 				"@lucide/svelte"
 			],
@@ -799,7 +797,8 @@
 				"command",
 				"input",
 				"popover",
-				"select"
+				"select",
+				"sortable"
 			],
 			"files": [
 				{
