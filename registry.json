@@ -33,6 +33,7 @@
 				"select",
 				"separator",
 				"skeleton",
+				"sortable",
 				"table",
 				"textarea",
 				"tooltip"
@@ -693,8 +694,8 @@
 			"type": "registry:component",
 			"title": "Data Grid Sort Menu",
 			"description": "A sort menu component for the data grid.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "popover", "select"],
+			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"registryDependencies": ["badge", "button", "command", "popover", "select", "sortable"],
 			"files": [
 				{
 					"path": "src/lib/components/data-grid/data-grid-sort-menu.svelte",

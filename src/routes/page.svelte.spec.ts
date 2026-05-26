@@ -1945,11 +1945,32 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
 		expect(dataGridSortMenuSource).toContain('Button, buttonVariants');
 		expect(dataGridSortMenuSource).toContain('aria-label="drag handle for sort"');
+		expect(dataGridSortMenuSource).toContain('SortableItemHandle');
 		expect(dataGridSortMenuSource).toContain(
 			"buttonVariants({ variant: 'outline', size: 'icon' })"
 		);
 		expect(dataGridSortMenuSource).toContain("'size-8 shrink-0 cursor-grab rounded'");
 		expect(dataGridSortMenuSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
+	});
+
+	it('should use the shared sortable primitive for data grid sort menu reordering like the original grid', () => {
+		for (const name of [
+			'Sortable',
+			'SortableContent',
+			'SortableItem',
+			'SortableItemHandle',
+			'SortableOverlay'
+		]) {
+			expect(dataGridSortMenuSource).toContain(name);
+		}
+
+		expect(dataGridSortMenuSource).toContain("from '$lib/components/ui/sortable/index.js'");
+		expect(dataGridSortMenuSource).toContain('value={sorting}');
+		expect(dataGridSortMenuSource).toContain('getItemValue={getSortableSortValue}');
+		expect(dataGridSortMenuSource).toContain('type="data-grid-sort-items"');
+		expect(dataGridSortMenuSource).toContain('h-8 w-44 rounded-sm bg-primary/10');
+		expect(dataGridSortMenuSource).not.toContain('use:dragHandleZone');
+		expect(dataGridSortMenuSource).not.toContain("from 'svelte-dnd-action'");
 	});
 
 	it('should forward row height select content props like the original grid', () => {

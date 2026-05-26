@@ -1,7 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Table, ColumnSort, SortDirection, SortingState } from '@tanstack/table-core';
 	import type { Direction } from '$lib/types/data-grid.js';
-	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
@@ -20,6 +19,13 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
+	import {
+		Sortable,
+		SortableContent,
+		SortableItem,
+		SortableItemHandle,
+		SortableOverlay
+	} from '$lib/components/ui/sortable/index.js';
 	import { useId } from 'bits-ui';
 	import type { ComponentProps } from 'svelte';
 
@@ -43,13 +49,7 @@
 		dir?: Direction;
 	}
 
-	let {
-		table,
-		disabled = false,
-		dir = 'ltr',
-		class: className,
-		...contentProps
-	}: Props = $props();
+	let { table, disabled = false, dir = 'ltr', class: className, ...contentProps }: Props = $props();
 
 	const id = useId();
 	const labelId = `${id}-label`;
@@ -58,11 +58,8 @@
 
 	const sorting = $derived(table.getState().sorting);
 
-	let isDragging = $state(false);
-	let dragSorting = $state<ColumnSort[]>([]);
 	let openFieldSelectors = $state<Set<string>>(new Set());
 	let openDirectionSelectors = $state<Set<string>>(new Set());
-	const sortingItems = $derived(isDragging ? dragSorting : sorting);
 
 	const { columnLabels, columns } = $derived.by(() => {
 		const labels = new Map<string, string>();
@@ -113,6 +110,10 @@
 		table.setSorting(table.initialState.sorting);
 	}
 
+	function getSortableSortValue(sort: ColumnSort): string {
+		return sort.id;
+	}
+
 	function handleKeyDown(event: KeyboardEvent) {
 		if (
 			event.target instanceof HTMLInputElement ||
@@ -137,19 +138,6 @@
 			event.preventDefault();
 			onSortingReset();
 		}
-	}
-
-	function handleDndConsider(e: CustomEvent<{ items: ColumnSort[] }>) {
-		isDragging = true;
-		dragSorting = e.detail.items;
-	}
-
-	function handleDndFinalize(e: CustomEvent<{ items: ColumnSort[] }>) {
-		isDragging = false;
-		const cleanItems = e.detail.items.filter(
-			(item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]
-		);
-		table.setSorting(cleanItems);
 	}
 
 	function setFieldSelectorOpen(sortId: string, isOpen: boolean) {
@@ -190,183 +178,185 @@
 
 <svelte:window onkeydown={handleKeyDown} />
 
-<Popover bind:open>
-	<PopoverTrigger>
-		{#snippet child({ props })}
-			<Button
-				{...props}
-				{dir}
-				variant="outline"
-				size="sm"
-				class="font-normal"
-				onkeydown={onTriggerKeyDown}
-				{disabled}
-			>
-				<ArrowDownUp class="text-muted-foreground" />
-				Sort
-				{#if sorting.length > 0}
-					<Badge
-						variant="secondary"
-						class="h-[18.24px] rounded-[3.2px] px-[5.12px] font-mono font-normal text-[10.4px]"
-					>
-						{sorting.length}
-					</Badge>
-				{/if}
-			</Button>
-		{/snippet}
-	</PopoverTrigger>
-	<PopoverContent
-		aria-labelledby={labelId}
-		aria-describedby={descriptionId}
-		{dir}
-		class={cn(
-			'flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[380px]',
-			className
-		)}
-		{...contentProps}
-	>
-		<div class="flex flex-col gap-1">
-			<h4 id={labelId} class="font-medium leading-none">
-				{sorting.length > 0 ? 'Sort by' : 'No sorting applied'}
-			</h4>
-			<p
-				id={descriptionId}
-				class={cn('text-muted-foreground text-sm', sorting.length > 0 && 'sr-only')}
-			>
-				{sorting.length > 0
-					? 'Modify sorting to organize your rows.'
-					: 'Add sorting to organize your rows.'}
-			</p>
-		</div>
-		{#if sortingItems.length > 0}
-			<ul
-				role="list"
-				class="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1"
-				use:dragHandleZone={{
-					items: sortingItems,
-					flipDurationMs: 150,
-					dropTargetStyle: {},
-					type: 'sort-items'
-				}}
-				onconsider={handleDndConsider}
-				onfinalize={handleDndFinalize}
-			>
-				{#each sortingItems as sort (sort.id)}
-					{@const sortItemId = `${id}-sort-${sort.id}`}
-					{@const fieldListboxId = `${sortItemId}-field-listbox`}
-					{@const fieldTriggerId = `${sortItemId}-field-trigger`}
-					{@const directionListboxId = `${sortItemId}-direction-listbox`}
-					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-					<li
-						role="listitem"
-						id={sortItemId}
-						tabindex={-1}
-						class="flex items-center gap-2"
-						onkeydown={(event) => onSortItemKeyDown(event, sort.id)}
-					>
-						<Popover
-							open={openFieldSelectors.has(sort.id)}
-							onOpenChange={(isOpen) => setFieldSelectorOpen(sort.id, isOpen)}
+<Sortable
+	value={sorting}
+	getItemValue={getSortableSortValue}
+	onValueChange={(items) => table.setSorting(items as SortingState)}
+>
+	<Popover bind:open>
+		<PopoverTrigger>
+			{#snippet child({ props })}
+				<Button
+					{...props}
+					{dir}
+					variant="outline"
+					size="sm"
+					class="font-normal"
+					onkeydown={onTriggerKeyDown}
+					{disabled}
+				>
+					<ArrowDownUp class="text-muted-foreground" />
+					Sort
+					{#if sorting.length > 0}
+						<Badge
+							variant="secondary"
+							class="h-[18.24px] rounded-[3.2px] px-[5.12px] font-mono font-normal text-[10.4px]"
 						>
-							<PopoverTrigger>
-								{#snippet child({ props })}
-									<Button
-										{...props}
-										id={fieldTriggerId}
-										aria-controls={fieldListboxId}
-										variant="outline"
-										size="sm"
-										class="w-44 justify-between rounded font-normal"
-									>
-										<span class="truncate">{columnLabels.get(sort.id)}</span>
-										<ChevronsUpDown class="opacity-50" />
-									</Button>
-								{/snippet}
-							</PopoverTrigger>
-							<PopoverContent
-								id={fieldListboxId}
-								{dir}
-								class="w-[var(--bits-popover-anchor-width)] p-0"
-							>
-								<Command>
-									<CommandInput placeholder="Search fields..." />
-									<CommandList>
-										<CommandEmpty>No fields found.</CommandEmpty>
-										<CommandGroup>
-											{#each columns as column (column.id)}
-												<CommandItem
-													value={column.id}
-													onSelect={() => onSortUpdate(sort.id, { id: column.id })}
-												>
-													<span class="truncate">{column.label}</span>
-												</CommandItem>
-											{/each}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
-						<Select
-							type="single"
-							open={openDirectionSelectors.has(sort.id)}
-							value={sort.desc ? 'desc' : 'asc'}
-							onOpenChange={(isOpen) => setDirectionSelectorOpen(sort.id, isOpen)}
-							onValueChange={(value: string) => onSortUpdate(sort.id, { desc: value === 'desc' })}
-						>
-							<SelectTrigger
-								aria-controls={directionListboxId}
-								size="sm"
-								class="w-24 rounded"
-							>
-								<span data-slot="select-value">
-									{sort.desc ? 'Desc' : 'Asc'}
-								</span>
-							</SelectTrigger>
-							<SelectContent
-								id={directionListboxId}
-								class="min-w-[var(--bits-select-anchor-width)]"
-							>
-								{#each SORT_ORDERS as order (order.value)}
-									<SelectItem value={order.value}>
-										{order.label}
-									</SelectItem>
-								{/each}
-							</SelectContent>
-						</Select>
-						<Button
-							aria-controls={sortItemId}
-							variant="outline"
-							size="icon"
-							class="size-8 shrink-0 rounded"
-							onclick={() => onSortRemove(sort.id)}
-						>
-							<Trash2 />
-						</Button>
-						<button
-							type="button"
-							use:dragHandle
-							aria-label="drag handle for sort"
-							class={cn(
-								buttonVariants({ variant: 'outline', size: 'icon' }),
-								'size-8 shrink-0 cursor-grab rounded'
-							)}
-						>
-							<GripVertical class="size-4" />
-						</button>
-					</li>
-				{/each}
-			</ul>
-		{/if}
-		<div class="flex w-full items-center gap-2">
-			<Button size="sm" class="rounded" onclick={onSortAdd} disabled={columns.length === 0}>
-				Add sort
-			</Button>
-			{#if sorting.length > 0}
-				<Button variant="outline" size="sm" class="rounded" onclick={onSortingReset}>
-					Reset sorting
+							{sorting.length}
+						</Badge>
+					{/if}
 				</Button>
+			{/snippet}
+		</PopoverTrigger>
+		<PopoverContent
+			aria-labelledby={labelId}
+			aria-describedby={descriptionId}
+			{dir}
+			class={cn(
+				'flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[380px]',
+				className
+			)}
+			{...contentProps}
+		>
+			<div class="flex flex-col gap-1">
+				<h4 id={labelId} class="font-medium leading-none">
+					{sorting.length > 0 ? 'Sort by' : 'No sorting applied'}
+				</h4>
+				<p
+					id={descriptionId}
+					class={cn('text-muted-foreground text-sm', sorting.length > 0 && 'sr-only')}
+				>
+					{sorting.length > 0
+						? 'Modify sorting to organize your rows.'
+						: 'Add sorting to organize your rows.'}
+				</p>
+			</div>
+			{#if sorting.length > 0}
+				<SortableContent
+					role="list"
+					class="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1"
+					type="data-grid-sort-items"
+				>
+					{#each sorting as sort (sort.id)}
+						{@const sortItemId = `${id}-sort-${sort.id}`}
+						{@const fieldListboxId = `${sortItemId}-field-listbox`}
+						{@const fieldTriggerId = `${sortItemId}-field-trigger`}
+						{@const directionListboxId = `${sortItemId}-direction-listbox`}
+						<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+						<SortableItem
+							value={sort.id}
+							role="listitem"
+							id={sortItemId}
+							tabindex={-1}
+							class="flex items-center gap-2"
+							onkeydown={(event) => onSortItemKeyDown(event, sort.id)}
+						>
+							<Popover
+								open={openFieldSelectors.has(sort.id)}
+								onOpenChange={(isOpen) => setFieldSelectorOpen(sort.id, isOpen)}
+							>
+								<PopoverTrigger>
+									{#snippet child({ props })}
+										<Button
+											{...props}
+											id={fieldTriggerId}
+											aria-controls={fieldListboxId}
+											variant="outline"
+											size="sm"
+											class="w-44 justify-between rounded font-normal"
+										>
+											<span class="truncate">{columnLabels.get(sort.id)}</span>
+											<ChevronsUpDown class="opacity-50" />
+										</Button>
+									{/snippet}
+								</PopoverTrigger>
+								<PopoverContent
+									id={fieldListboxId}
+									{dir}
+									class="w-[var(--bits-popover-anchor-width)] p-0"
+								>
+									<Command>
+										<CommandInput placeholder="Search fields..." />
+										<CommandList>
+											<CommandEmpty>No fields found.</CommandEmpty>
+											<CommandGroup>
+												{#each columns as column (column.id)}
+													<CommandItem
+														value={column.id}
+														onSelect={() => onSortUpdate(sort.id, { id: column.id })}
+													>
+														<span class="truncate">{column.label}</span>
+													</CommandItem>
+												{/each}
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
+							<Select
+								type="single"
+								open={openDirectionSelectors.has(sort.id)}
+								value={sort.desc ? 'desc' : 'asc'}
+								onOpenChange={(isOpen) => setDirectionSelectorOpen(sort.id, isOpen)}
+								onValueChange={(value: string) => onSortUpdate(sort.id, { desc: value === 'desc' })}
+							>
+								<SelectTrigger aria-controls={directionListboxId} size="sm" class="w-24 rounded">
+									<span data-slot="select-value">
+										{sort.desc ? 'Desc' : 'Asc'}
+									</span>
+								</SelectTrigger>
+								<SelectContent
+									id={directionListboxId}
+									class="min-w-[var(--bits-select-anchor-width)]"
+								>
+									{#each SORT_ORDERS as order (order.value)}
+										<SelectItem value={order.value}>
+											{order.label}
+										</SelectItem>
+									{/each}
+								</SelectContent>
+							</Select>
+							<Button
+								aria-controls={sortItemId}
+								variant="outline"
+								size="icon"
+								class="size-8 shrink-0 rounded"
+								onclick={() => onSortRemove(sort.id)}
+							>
+								<Trash2 />
+							</Button>
+							<SortableItemHandle
+								aria-label="drag handle for sort"
+								class={cn(
+									buttonVariants({ variant: 'outline', size: 'icon' }),
+									'size-8 shrink-0 cursor-grab rounded'
+								)}
+							>
+								<GripVertical class="size-4" />
+							</SortableItemHandle>
+						</SortableItem>
+					{/each}
+				</SortableContent>
 			{/if}
+			<div class="flex w-full items-center gap-2">
+				<Button size="sm" class="rounded" onclick={onSortAdd} disabled={columns.length === 0}>
+					Add sort
+				</Button>
+				{#if sorting.length > 0}
+					<Button variant="outline" size="sm" class="rounded" onclick={onSortingReset}>
+						Reset sorting
+					</Button>
+				{/if}
+			</div>
+		</PopoverContent>
+	</Popover>
+	<SortableOverlay>
+		<div {dir} class="flex items-center gap-2">
+			<div class="h-8 w-44 rounded-sm bg-primary/10"></div>
+			<div class="h-8 w-24 rounded-sm bg-primary/10"></div>
+			<div class="size-8 shrink-0 rounded-sm bg-primary/10"></div>
+			<div class="size-8 shrink-0 rounded-sm bg-primary/10"></div>
 		</div>
-	</PopoverContent>
-</Popover>
+	</SortableOverlay>
+</Sortable>

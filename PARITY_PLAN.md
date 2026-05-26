@@ -70,6 +70,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Sheet portal and overlay slots now have public `SheetPortal` and `SheetOverlay` aliases in the sheet, UI, and package-root barrels.
 - Data-table filter-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 - Data-table sort-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
+- Data-grid sort-menu row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 
 ## Audit Evidence
 
