@@ -1252,7 +1252,7 @@ describe('non-README parity docs', () => {
 			'DataGridKeyboardShortcuts',
 			'Standalone `drawer`, `form`, and `sortable` registry slices',
 			'primitive type contracts',
-			'original select radius and offset',
+			'tighter cell-editor radius and offset',
 			'Short text and URL cell editors now restore the original value on `Escape`',
 			'File editor popovers now only stop `Escape` key propagation',
 			'Data-table sort/filter keyboard shortcuts now remain wired like upstream',
@@ -1263,7 +1263,7 @@ describe('non-README parity docs', () => {
 
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
-		expect(parityPlan).toContain('original select content radius');
+		expect(parityPlan).toContain('tighter content radius');
 		expect(parityPlan).toContain('item radius, popper offset');
 		expect(parityPlan).toContain('upstream trigger width/offset geometry');
 		expect(parityPlan).toContain('Latest upstream reference checked');
