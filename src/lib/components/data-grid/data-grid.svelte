@@ -14,7 +14,7 @@
 		toPinningStyleString
 	} from '$lib/data-grid.js';
 	import { cn, type WithElementRef } from '$lib/utils.js';
-	import { FlexRender } from '$lib/table';
+	import FlexRender from '$lib/components/ui/data-table/flex-render.svelte';
 	import DataGridRow from './data-grid-row.svelte';
 	import DataGridColumnHeader from './data-grid-column-header.svelte';
 	import DataGridSearch from './data-grid-search.svelte';

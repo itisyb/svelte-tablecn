@@ -794,6 +794,26 @@ describe('data-grid registry item', () => {
 		expect(shortcuts?.dependencies).toEqual(['bits-ui', '@lucide/svelte']);
 	});
 
+	it('keeps the standalone select-column registry slice scoped to row selection rendering', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				files?: Array<{ target: string }>;
+			}>;
+		};
+		const selectColumn = registry.items.find(
+			(registryItem) => registryItem.name === 'data-grid-select-column'
+		);
+
+		expect(selectColumn?.files?.map((file) => file.target)).toEqual([
+			'data-grid/data-grid-select-column.ts',
+			'data-grid/cells/row-select-cell.svelte',
+			'data-grid/cells/row-select-header.svelte',
+			'types/data-grid.ts',
+			'data-table/render-helpers.ts'
+		]);
+	});
+
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{

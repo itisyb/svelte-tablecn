@@ -249,11 +249,6 @@
 					"target": "format.ts"
 				},
 				{
-					"path": "src/lib/components/ui/data-table/data-table.svelte.ts",
-					"type": "registry:ui",
-					"target": "data-table/data-table.svelte.ts"
-				},
-				{
 					"path": "src/lib/components/ui/data-table/flex-render.svelte",
 					"type": "registry:ui",
 					"target": "data-table/flex-render.svelte"
@@ -262,11 +257,6 @@
 					"path": "src/lib/components/ui/data-table/render-helpers.ts",
 					"type": "registry:ui",
 					"target": "data-table/render-helpers.ts"
-				},
-				{
-					"path": "src/lib/components/ui/data-table/index.ts",
-					"type": "registry:ui",
-					"target": "data-table/index.ts"
 				},
 				{
 					"path": "src/lib/components/ui/action-bar/action-bar.svelte",
@@ -307,11 +297,6 @@
 					"path": "src/lib/components/ui/action-bar/index.ts",
 					"type": "registry:ui",
 					"target": "action-bar/index.ts"
-				},
-				{
-					"path": "src/lib/table/index.ts",
-					"type": "registry:lib",
-					"target": "table/index.ts"
 				}
 			],
 			"docs": "This is a Svelte 5 port of tablecn.com - a feature-rich data grid with cell editing, keyboard navigation, search, filtering, sorting, and more. Visit https://tablecn.com for the original React version.",
@@ -696,29 +681,9 @@
 					"target": "types/data-grid.ts"
 				},
 				{
-					"path": "src/lib/components/ui/data-table/data-table.svelte.ts",
-					"type": "registry:ui",
-					"target": "data-table/data-table.svelte.ts"
-				},
-				{
-					"path": "src/lib/components/ui/data-table/flex-render.svelte",
-					"type": "registry:ui",
-					"target": "data-table/flex-render.svelte"
-				},
-				{
 					"path": "src/lib/components/ui/data-table/render-helpers.ts",
 					"type": "registry:ui",
 					"target": "data-table/render-helpers.ts"
-				},
-				{
-					"path": "src/lib/components/ui/data-table/index.ts",
-					"type": "registry:ui",
-					"target": "data-table/index.ts"
-				},
-				{
-					"path": "src/lib/table/index.ts",
-					"type": "registry:lib",
-					"target": "table/index.ts"
 				}
 			],
 			"meta": {

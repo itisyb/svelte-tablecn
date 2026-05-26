@@ -16,7 +16,7 @@
 		toPinningStyleString
 	} from '$lib/data-grid.js';
 	import { cn, type WithElementRef } from '$lib/utils.js';
-	import { FlexRender } from '$lib/table';
+	import FlexRender from '$lib/components/ui/data-table/flex-render.svelte';
 	import DataGridCell from './data-grid-cell.svelte';
 
 	// Use 'any' for VirtualizerReturn to avoid type conflicts between different definitions

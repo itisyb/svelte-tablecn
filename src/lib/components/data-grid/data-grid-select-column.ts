@@ -1,7 +1,7 @@
 import type { ColumnDef, RowData } from '@tanstack/table-core';
 import RowSelectCell from './cells/row-select-cell.svelte';
 import RowSelectHeader from './cells/row-select-header.svelte';
-import { renderComponent } from '$lib/table';
+import { renderComponent } from '$lib/components/ui/data-table/render-helpers.js';
 import type { DataGridSelectHitboxSize } from '$lib/types/data-grid.js';
 
 export interface GetDataGridSelectColumnOptions<TData extends RowData> extends Omit<
