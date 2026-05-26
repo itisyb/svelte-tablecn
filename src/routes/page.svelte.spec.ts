@@ -400,7 +400,8 @@ describe('/+page.svelte', () => {
 		expect(trigger.className).toContain(
 			'size-full !w-full items-start border-none p-0 shadow-none focus-visible:ring-0 dark:bg-transparent'
 		);
-		expect(trigger.getAttribute('style') ?? '').toContain('width: calc(100% - 16px)');
+		expect(trigger.getAttribute('style') ?? '').toContain('width: calc(100% - 1rem)');
+		expect(trigger.getAttribute('style') ?? '').not.toContain('width: calc(100% - 16px)');
 		const firstItem = await waitFor(() =>
 			content.querySelector<HTMLElement>('[data-slot="select-item"]')
 		);
@@ -1707,8 +1708,9 @@ describe('/+page.svelte', () => {
 			'style="min-width: calc(var(--bits-select-anchor-width) + 16px);"'
 		);
 		expect(dataGridSelectCellSource).not.toContain('border-radius');
-		expect(dataGridSelectCellSource).toContain('!w-full');
-		expect(dataGridSelectCellSource).toContain('width: calc(100% - 16px)');
+		expect(dataGridSelectCellSource).toContain('class="size-full !w-full items-start border-none p-0');
+		expect(dataGridSelectCellSource).toContain('style="width: calc(100% - 1rem);"');
+		expect(dataGridSelectCellSource).not.toContain('width: calc(100% - 16px)');
 		expect(dataGridSelectCellSource).not.toContain('data-[side=bottom]:translate-y-0');
 		expect(dataGridSelectCellSource).not.toContain('data-[side=left]:translate-x-0');
 		expect(dataGridSelectCellSource).not.toContain('data-[side=right]:translate-x-0');

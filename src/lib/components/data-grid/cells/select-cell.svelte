@@ -117,7 +117,7 @@
 				bind:ref={triggerRef}
 				onkeydowncapture={handleWrapperKeyDown}
 				class="size-full !w-full items-start border-none p-0 shadow-none focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
-				style="width: calc(100% - 16px);"
+				style="width: calc(100% - 1rem);"
 			>
 				{#if displayLabel}
 					<Badge variant="secondary" class="whitespace-pre-wrap px-1.5 py-px">
