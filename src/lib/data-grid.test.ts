@@ -1897,6 +1897,43 @@ describe('getColumnPinningStyle', () => {
 				filterId: 'boolean'
 			}
 		]);
+		expect(
+			getDataTableValidFilters([
+				{
+					id: 'salary',
+					value: ['50000', ''],
+					variant: 'range',
+					operator: 'isBetween',
+					filterId: 'partial-range'
+				}
+			])
+		).toEqual([
+			{
+				id: 'salary',
+				value: ['50000', ''],
+				variant: 'range',
+				operator: 'isBetween',
+				filterId: 'partial-range'
+			}
+		]);
+	});
+
+	it('applies one-sided upstream numeric between filters for data-table rows', () => {
+		expect(
+			filterRows(
+				[{ salary: 40000 }, { salary: 50000 }, { salary: 60000 }],
+				[
+					{
+						id: 'salary',
+						value: ['50000', ''],
+						variant: 'range',
+						operator: 'isBetween',
+						filterId: 'partial-range'
+					}
+				],
+				'and'
+			)
+		).toEqual([{ salary: 50000 }]);
 	});
 
 	it('applies upstream relative-to-today date filters for data-table rows', () => {
