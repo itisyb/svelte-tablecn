@@ -2082,6 +2082,7 @@ describe('/+page.svelte', () => {
 	it('should expose existing original ui primitive modules through public barrels', () => {
 		expect(uiIndexSource).toContain("export { Badge, badgeVariants, type BadgeVariant } from './badge';");
 		expect(uiIndexSource).toContain('type ActionBarProps');
+		expect(uiIndexSource).toContain('CalendarDayButton');
 		expect(uiIndexSource).toContain('CalendarNextButton');
 		expect(uiIndexSource).toContain('CommandDialog');
 		expect(uiIndexSource).toContain('DialogContent');
@@ -2093,6 +2094,7 @@ describe('/+page.svelte', () => {
 		expect(uiIndexSource).toContain('TooltipProvider');
 		expect(libIndexSource).toContain("export { Badge, badgeVariants, type BadgeVariant } from './components/ui/badge';");
 		expect(libIndexSource).toContain('type ActionBarProps');
+		expect(libIndexSource).toContain('CalendarDayButton');
 		expect(libIndexSource).toContain('CalendarNextButton');
 		expect(libIndexSource).toContain('CommandDialog');
 		expect(libIndexSource).toContain('DialogContent');

@@ -40,7 +40,8 @@ export {
 	Month as CalendarMonth,
 	YearSelect as CalendarYearSelect,
 	MonthSelect as CalendarMonthSelect,
-	Caption as CalendarCaption
+	Caption as CalendarCaption,
+	CalendarDayButton
 } from './calendar';
 export {
 	Command,

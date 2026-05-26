@@ -129,6 +129,7 @@ export { Badge, badgeVariants, type BadgeVariant } from './components/ui/badge';
 export { Button, buttonVariants } from './components/ui/button';
 export {
 	Calendar,
+	CalendarDayButton,
 	Caption as CalendarCaption,
 	Cell as CalendarCell,
 	Day as CalendarDay,

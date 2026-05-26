@@ -37,4 +37,5 @@ export {
 	Caption,
 	//
 	Root as Calendar,
+	Day as CalendarDayButton,
 };
