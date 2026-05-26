@@ -347,7 +347,7 @@ export { type VirtualItem } from '@tanstack/virtual-core';
 // ==============================================
 // Types
 // ==============================================
-export type { EmptyProps, Prettify, SearchParams } from './types';
+export type { EmptyProps, Prettify, QueryBuilderOpts, SearchParams } from './types';
 export type {
 	CellSelectOption,
 	FileCellData,

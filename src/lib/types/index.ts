@@ -10,6 +10,13 @@ export interface SearchParams {
 	[key: string]: string | string[] | undefined;
 }
 
+export interface QueryBuilderOpts<TExpression = unknown> {
+	where?: TExpression;
+	orderBy?: TExpression;
+	distinct?: boolean;
+	nullish?: boolean;
+}
+
 // Re-export data-grid wholesale to preserve the existing top-level `Option` type.
 export * from './data-grid';
 

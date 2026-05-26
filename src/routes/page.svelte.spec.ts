@@ -2143,11 +2143,16 @@ describe('/+page.svelte', () => {
 		expect(typesIndexSource).toContain('export type Prettify<T>');
 		expect(typesIndexSource).toContain('export type EmptyProps<T extends Component>');
 		expect(typesIndexSource).toContain('export interface SearchParams');
+		expect(typesIndexSource).toContain('export interface QueryBuilderOpts<TExpression = unknown>');
+		expect(typesIndexSource).toContain('where?: TExpression;');
+		expect(typesIndexSource).toContain('orderBy?: TExpression;');
 		expect(typesIndexSource).toContain('DataTableOption');
 		expect(typesIndexSource).not.toContain("export * from './data-table';");
 		expect(typesIndexSource).not.toContain('drizzle-orm');
 		expect(typesIndexSource).not.toContain('React.ElementType');
-		expect(libIndexSource).toContain("export type { EmptyProps, Prettify, SearchParams } from './types';");
+		expect(libIndexSource).toContain(
+			"export type { EmptyProps, Prettify, QueryBuilderOpts, SearchParams } from './types';"
+		);
 	});
 
 	it('should keep button shadows aligned with the original ui button', () => {
