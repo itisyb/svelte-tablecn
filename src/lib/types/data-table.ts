@@ -173,6 +173,9 @@ export interface UseDataTableOptions<TData>
 
 export interface UseDataTableReturn<TData> {
 	table: Table<TData>;
+	shallow: boolean;
+	debounceMs: number;
+	throttleMs: number;
 	// State
 	sorting: SortingState;
 	columnFilters: ColumnFiltersState;

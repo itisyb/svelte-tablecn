@@ -557,6 +557,9 @@ export function useDataTable<TData>(
 
 	return {
 		table,
+		shallow,
+		debounceMs,
+		throttleMs,
 		get sorting() {
 			return sorting;
 		},

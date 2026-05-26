@@ -1319,6 +1319,12 @@ describe('README data-table examples', () => {
 		expect(hookSource).toContain('manualPagination = true');
 		expect(hookSource).toContain('manualSorting = true');
 		expect(hookSource).toContain('manualFiltering = true');
+		expect(typesSource).toContain('shallow: boolean;');
+		expect(typesSource).toContain('debounceMs: number;');
+		expect(typesSource).toContain('throttleMs: number;');
+		expect(hookSource).toContain('shallow,');
+		expect(hookSource).toContain('debounceMs,');
+		expect(hookSource).toContain('throttleMs,');
 
 		const optionNames = Array.from(optionsBlock?.matchAll(/^\t([A-Za-z]\w+)\??:/gm) ?? []).map(
 			([, name]) => name
