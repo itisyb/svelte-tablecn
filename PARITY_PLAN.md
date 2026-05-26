@@ -47,6 +47,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Standalone data-table sort/filter menu registry slices are checked against the files their Svelte implementations actually import, avoiding unrelated advanced-toolbar/view-options/parser/config payload drift
 - Standalone data-grid keyboard shortcuts registry coverage checks the slice stays scoped to the component instead of over-shipping data-grid types or table-core
 - Standalone data-grid select-column registry coverage checks the slice stays scoped to row-selection rendering helpers instead of over-shipping the full table barrel
+- The full data-grid registry bundle excludes the demo-only `use-window-size.svelte.ts` hook, matching the original installable registry scope
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

@@ -209,11 +209,6 @@
 					"target": "use-badge-overflow.svelte.ts"
 				},
 				{
-					"path": "src/lib/hooks/use-window-size.svelte.ts",
-					"type": "registry:hook",
-					"target": "use-window-size.svelte.ts"
-				},
-				{
 					"path": "src/lib/hooks/use-data-grid-undo-redo.svelte.ts",
 					"type": "registry:hook",
 					"target": "use-data-grid-undo-redo.svelte.ts"

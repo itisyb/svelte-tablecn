@@ -673,6 +673,8 @@ describe('data-grid registry item', () => {
 		]) {
 			expect(targets.has(cellTarget)).toBe(true);
 		}
+
+		expect(targets.has('use-window-size.svelte.ts')).toBe(false);
 	});
 
 	it('ships Svelte equivalents for the original full data-table registry bundle', () => {

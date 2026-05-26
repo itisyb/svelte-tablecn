@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone data-table sort/filter menu registry slices are now checked and scoped to the files their Svelte implementations actually import.
 - Standalone data-grid keyboard shortcuts registry coverage now checks the slice stays scoped to its Svelte implementation.
 - Standalone data-grid select-column registry coverage now checks the slice stays scoped to row-selection rendering helpers.
+- Data-grid registry coverage now guards against bundling the demo-only window size hook.
 
 ### Fixed
 
@@ -36,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone data-table sort/filter menu registry slices no longer over-ship unrelated advanced toolbar, view options, parser, config, or drag dependencies.
 - Standalone data-grid keyboard shortcuts no longer ships the full data-grid type module or declares `@tanstack/table-core`.
 - Data-grid components import Svelte table render helpers directly, so the data-grid and select-column registry slices no longer ship the full `$lib/table` barrel or table creation files.
+- The full data-grid registry bundle no longer ships `use-window-size.svelte.ts`, matching the original registry where window sizing is demo-only.
 - Cell and row selection after filtering: use row-model position (not core `row.index`) so shift-select and counts only include visible rows ([#20](https://github.com/itisyb/svelte-tablecn/issues/20))
 - Click outside the grid clears cell focus (tablecn behavior); no longer re-focuses the cell on `focusout`
 
