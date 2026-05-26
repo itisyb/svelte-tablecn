@@ -770,6 +770,34 @@ describe('/+page.svelte', () => {
 		expect(committed).toBe(true);
 	});
 
+	it('should only stop Escape from the file editor popover like the original grid', async () => {
+		await render(DataGridFileCellLocalFixture);
+
+		const dropzoneElement = await waitFor(() =>
+			document.querySelector<HTMLElement>('[role="region"][aria-labelledby]')
+		);
+		const bubbledKeys: string[] = [];
+		const onDocumentKeyDown = (event: KeyboardEvent) => {
+			bubbledKeys.push(event.key);
+		};
+
+		document.addEventListener('keydown', onDocumentKeyDown);
+		try {
+			dropzoneElement.dispatchEvent(
+				new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true })
+			);
+			expect(bubbledKeys).toContain('a');
+
+			bubbledKeys.length = 0;
+			dropzoneElement.dispatchEvent(
+				new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+			);
+			expect(bubbledKeys).not.toContain('Escape');
+		} finally {
+			document.removeEventListener('keydown', onDocumentKeyDown);
+		}
+	});
+
 	it('should space file count labels like the original grid', () => {
 		expect(dataGridFileCellSource).toContain("{' '}");
 		expect(dataGridFileCellSource).toContain("{files.length === 1 ? 'file' : 'files'}");

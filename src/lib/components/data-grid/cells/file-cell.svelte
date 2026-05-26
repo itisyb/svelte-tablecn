@@ -417,8 +417,10 @@
 		}
 	}
 
-	function handleEscapeKeyDown(event: KeyboardEvent) {
-		event.stopPropagation();
+	function handlePopoverKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			event.stopPropagation();
+		}
 	}
 
 	function handleOpenAutoFocus(event: Event) {
@@ -504,7 +506,7 @@
 				align="start"
 				{sideOffset}
 				class="w-[400px] rounded-none p-0"
-				onkeydown={handleEscapeKeyDown}
+				onkeydown={handlePopoverKeyDown}
 				onOpenAutoFocus={handleOpenAutoFocus}
 				customAnchor={containerRef}
 			>
