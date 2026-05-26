@@ -9,6 +9,7 @@
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
+	import { DEFAULT_ROW_HEIGHT } from '$lib/config/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import { toast } from 'svelte-sonner';
 	import Upload from '@lucide/svelte/icons/upload';
@@ -459,7 +460,7 @@
 		}
 	}
 
-	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
+	const rowHeight = $derived(table.options.meta?.rowHeight ?? DEFAULT_ROW_HEIGHT);
 	const lineCount = $derived(getLineCount(rowHeight));
 
 	// Use the badge overflow hook for accurate measurement

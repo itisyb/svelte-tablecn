@@ -95,6 +95,7 @@ import dataGridRowSelectCellSource from '$lib/components/data-grid/cells/row-sel
 import dataGridRowSelectHeaderSource from '$lib/components/data-grid/cells/row-select-header.svelte?raw';
 import dataGridSearchSource from '$lib/components/data-grid/data-grid-search.svelte?raw';
 import dataGridSelectCellSource from '$lib/components/data-grid/cells/select-cell.svelte?raw';
+import dataGridMultiSelectCellSource from '$lib/components/data-grid/cells/multi-select-cell.svelte?raw';
 import dataGridSkeletonGridSource from '$lib/components/data-grid/data-grid-skeleton-grid.svelte?raw';
 import dataGridSkeletonToolbarSource from '$lib/components/data-grid/data-grid-skeleton-toolbar.svelte?raw';
 import dataGridSkeletonSource from '$lib/components/data-grid/data-grid-skeleton.svelte?raw';
@@ -1815,6 +1816,22 @@ describe('/+page.svelte', () => {
 			'<SelectContent class={className} {...contentProps}>'
 		);
 		expect(dataGridRowHeightMenuSource).not.toContain("align = 'start'");
+	});
+
+	it('should share the upstream row height default across grid render fallbacks', () => {
+		for (const source of [
+			dataGridSource,
+			dataGridCellWrapperSource,
+			dataGridMultiSelectCellSource,
+			dataGridFileCellSource
+		]) {
+			expect(source).toContain('DEFAULT_ROW_HEIGHT');
+			expect(source).not.toContain("rowHeight ?? 'short'");
+			expect(source).not.toContain("meta?.rowHeight ?? 'short'");
+		}
+		expect(dataGridRowHeightMenuSource).toContain("const defaultRowHeight = rowHeights[0]?.value");
+		expect(dataGridRowHeightMenuSource).not.toContain("rowHeight ?? 'short'");
+		expect(dataGridRowHeightMenuSource).not.toContain("meta?.rowHeight ?? 'short'");
 	});
 
 	it('should forward view menu popover content props like the original grid', () => {

@@ -5,6 +5,7 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { getCellKey, type Direction, type RowHeightValue } from '$lib/types/data-grid.js';
 	import { cn, type WithElementRef } from '$lib/utils.js';
+	import { DEFAULT_ROW_HEIGHT } from '$lib/config/data-grid.js';
 	import { GRID_DIR_CONTEXT_KEY, type GridDirGetter } from './grid-dir-context.js';
 
 	interface Props extends WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement> {
@@ -77,7 +78,7 @@
 	});
 	const rowHeight = $derived.by<RowHeightValue>(() => {
 		const meta = table.options.meta;
-		return meta?.rowHeight ?? 'short';
+		return meta?.rowHeight ?? DEFAULT_ROW_HEIGHT;
 	});
 	const readOnly = $derived(table.options.meta?.readOnly ?? false);
 

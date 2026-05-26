@@ -35,7 +35,8 @@
 
 	let { table, disabled = false, class: className, ...contentProps }: Props = $props();
 
-	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
+	const defaultRowHeight = rowHeights[0]?.value ?? 'short';
+	const rowHeight = $derived(table.options.meta?.rowHeight ?? defaultRowHeight);
 	const onRowHeightChange = $derived(table.options.meta?.onRowHeightChange);
 
 	const selectedRowHeight = $derived(

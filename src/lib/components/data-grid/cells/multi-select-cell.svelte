@@ -15,6 +15,7 @@
 		CommandSeparator
 	} from '$lib/components/ui/command/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { DEFAULT_ROW_HEIGHT } from '$lib/config/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import Check from '@lucide/svelte/icons/check';
 	import X from '@lucide/svelte/icons/x';
@@ -152,7 +153,7 @@
 			.filter((item) => item.label)
 	);
 
-	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
+	const rowHeight = $derived(table.options.meta?.rowHeight ?? DEFAULT_ROW_HEIGHT);
 	const lineCount = $derived(getLineCount(rowHeight));
 
 	// Use the badge overflow hook for accurate measurement

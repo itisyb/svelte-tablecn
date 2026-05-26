@@ -21,6 +21,7 @@
 	import DataGridContextMenu from './data-grid-context-menu.svelte';
 	import DataGridPasteDialog from './data-grid-paste-dialog.svelte';
 	import { TooltipProvider } from '$lib/components/ui/tooltip/index.js';
+	import { DEFAULT_ROW_HEIGHT } from '$lib/config/data-grid.js';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { setContext } from 'svelte';
 	import { GRID_DIR_CONTEXT_KEY, type GridDirGetter } from './grid-dir-context.js';
@@ -125,7 +126,7 @@
 
 	const meta = $derived(table.options.meta);
 	const readOnly = $derived(meta?.readOnly ?? false);
-	const rowHeight = $derived<RowHeightValue>(meta?.rowHeight ?? 'short');
+	const rowHeight = $derived<RowHeightValue>(meta?.rowHeight ?? DEFAULT_ROW_HEIGHT);
 	const focusedCell = $derived<CellPosition | null>(meta?.focusedCell ?? null);
 	// selectedCellsSet and selectionVersion are now received as props from hook return
 
