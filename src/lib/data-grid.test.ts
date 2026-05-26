@@ -245,9 +245,11 @@ describe('shared upstream utilities', () => {
 
 	it('renders data-grid cell/header definitions with the original flexRender helper shape', () => {
 		expect(dataGridFlexRender('Name', { value: 'Ada' })).toBe('Name');
-		expect(dataGridFlexRender((props: { value: string }) => props.value.toUpperCase(), {
-			value: 'Ada'
-		})).toBe('ADA');
+		expect(
+			dataGridFlexRender((props: { value: string }) => props.value.toUpperCase(), {
+				value: 'Ada'
+			})
+		).toBe('ADA');
 		expect(dataGridFlexRender(undefined, { value: 'Ada' })).toBeUndefined();
 		expect(rootDataGridFlexRender).toBe(dataGridFlexRender);
 	});
@@ -711,8 +713,14 @@ describe('data-grid registry item', () => {
 				]
 			],
 			['data-table-sort-list', ['badge', 'button', 'command', 'popover', 'select']],
-			['data-table-filter-list', ['badge', 'button', 'calendar', 'command', 'input', 'popover', 'select']],
-			['data-table-filter-menu', ['badge', 'button', 'calendar', 'command', 'input', 'popover', 'select']],
+			[
+				'data-table-filter-list',
+				['badge', 'button', 'calendar', 'command', 'input', 'popover', 'select']
+			],
+			[
+				'data-table-filter-menu',
+				['badge', 'button', 'calendar', 'command', 'input', 'popover', 'select']
+			],
 			[
 				'data-grid',
 				[
@@ -737,7 +745,10 @@ describe('data-grid registry item', () => {
 			['data-grid-row-height-menu', ['select']],
 			['data-grid-view-menu', ['button', 'command', 'popover']],
 			['data-grid-keyboard-shortcuts', ['button', 'dialog', 'input', 'kbd', 'separator']],
-			['data-grid-filter-menu', ['badge', 'button', 'calendar', 'command', 'input', 'popover', 'select']],
+			[
+				'data-grid-filter-menu',
+				['badge', 'button', 'calendar', 'command', 'input', 'popover', 'select']
+			],
 			['data-grid-skeleton', ['skeleton']],
 			['use-data-grid-undo-redo', []]
 		] as const);
@@ -854,6 +865,7 @@ describe('data-grid registry item', () => {
 			items: Array<{
 				name: string;
 				dependencies?: string[];
+				registryDependencies?: string[];
 				files?: Array<{ target: string }>;
 			}>;
 		};
@@ -901,7 +913,11 @@ describe('data-grid registry item', () => {
 		expect(
 			registry.items.find((registryItem) => registryItem.name === 'data-table-filter-list')
 				?.dependencies
-		).toContain('svelte-dnd-action');
+		).not.toContain('svelte-dnd-action');
+		expect(
+			registry.items.find((registryItem) => registryItem.name === 'data-table-filter-list')
+				?.registryDependencies
+		).toContain('sortable');
 	});
 
 	it('keeps standalone grid utility registry dependencies scoped to direct imports', () => {
@@ -918,9 +934,7 @@ describe('data-grid registry item', () => {
 		const rowHeight = registry.items.find(
 			(registryItem) => registryItem.name === 'data-grid-row-height-menu'
 		);
-		const view = registry.items.find(
-			(registryItem) => registryItem.name === 'data-grid-view-menu'
-		);
+		const view = registry.items.find((registryItem) => registryItem.name === 'data-grid-view-menu');
 
 		expect(shortcuts?.files?.map((file) => file.target)).toEqual([
 			'data-grid/data-grid-keyboard-shortcuts.svelte'
@@ -1189,7 +1203,9 @@ describe('README UI primitive docs', () => {
 		expect(readme).toContain(
 			'These are exported from `$lib`; `drawer`, `form`, and `sortable` are also available as standalone registry items.'
 		);
-		expect(readme).not.toContain('These are exported from `$lib` and available as standalone registry items.');
+		expect(readme).not.toContain(
+			'These are exported from `$lib` and available as standalone registry items.'
+		);
 		for (const primitive of ['drawer', 'form', 'sortable']) {
 			expect(registryItems.has(primitive)).toBe(true);
 			expect(readme).toContain(`| \`${primitive}\``);
@@ -1265,7 +1281,7 @@ describe('non-README parity docs', () => {
 			'DataGridKeyboardShortcuts',
 			'Standalone `drawer`, `form`, and `sortable` registry slices',
 			'primitive type contracts',
-			'tighter cell-editor radius and offset',
+			'shared select surface radius and offset',
 			'Short text and URL cell editors now restore the original value on `Escape`',
 			'File editor popovers now only stop `Escape` key propagation',
 			'Data-table sort/filter keyboard shortcuts now remain wired like upstream',
@@ -1276,7 +1292,7 @@ describe('non-README parity docs', () => {
 
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
-		expect(parityPlan).toContain('tighter content radius');
+		expect(parityPlan).toContain('shared select content radius');
 		expect(parityPlan).toContain('item radius, popper offset');
 		expect(parityPlan).toContain('upstream trigger width/offset geometry');
 		expect(parityPlan).toContain('Latest upstream reference checked');
@@ -1287,16 +1303,28 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('every `registry.json` file path resolves');
 		expect(parityPlan).toContain('Escape cancel for short text and URL cells');
 		expect(parityPlan).toContain('Escape-only key containment in the file editor popover');
-		expect(parityPlan).toContain('Data-grid search, row-height, view-menu, skeleton, context-menu, and column-header surfaces were rechecked against upstream');
+		expect(parityPlan).toContain(
+			'Data-grid search, row-height, view-menu, skeleton, context-menu, and column-header surfaces were rechecked against upstream'
+		);
 		expect(parityPlan).toContain('grid search open/reset/result behavior');
-		expect(parityPlan).toContain('Data-grid paste dialog and cell-wrapper surfaces were rechecked against upstream');
+		expect(parityPlan).toContain(
+			'Data-grid paste dialog and cell-wrapper surfaces were rechecked against upstream'
+		);
 		expect(parityPlan).toContain('paste dialog expansion/fit-existing flows');
-		expect(parityPlan).toContain('Data-table shell, pagination, toolbar, advanced-toolbar, view-options, filter-list, and skeleton surfaces were rechecked against upstream');
-		expect(parityPlan).toContain('table shell, table toolbars, table filters, table menus, pagination, and table skeletons');
-		expect(parityPlan).toContain('Data-table filter-list select and multi-select value editors now use the shared faceted primitive like upstream');
+		expect(parityPlan).toContain(
+			'Data-table shell, pagination, toolbar, advanced-toolbar, view-options, filter-list, and skeleton surfaces were rechecked against upstream'
+		);
+		expect(parityPlan).toContain(
+			'table shell, table toolbars, table filters, table menus, pagination, and table skeletons'
+		);
+		expect(parityPlan).toContain(
+			'Data-table filter-list select and multi-select value editors now use the shared faceted primitive like upstream'
+		);
 		expect(parityPlan).toContain('faceted data-table filter-list option selection structure');
 		expect(parityPlan).toContain('faceted primitive value type');
-		expect(parityPlan).toContain('README UI primitive docs now distinguish package-root exports from standalone registry items');
+		expect(parityPlan).toContain(
+			'README UI primitive docs now distinguish package-root exports from standalone registry items'
+		);
 		expect(parityPlan).toContain('full exported faceted primitive surface');
 		expect(parityPlan).not.toContain('squares the nested option highlights');
 		expect(parityPlan).not.toContain(
@@ -1507,10 +1535,14 @@ describe('data-table registry items', () => {
 			}
 
 			const expectedFiles = (item.files?.map((file) => `${file.type}:${file.target}`) ?? []).sort();
-			const emittedFiles = (emitted.files?.map((file) => `${file.type}:${file.target}`) ?? []).sort();
+			const emittedFiles = (
+				emitted.files?.map((file) => `${file.type}:${file.target}`) ?? []
+			).sort();
 
 			if (emittedFiles.join('\n') !== expectedFiles.join('\n')) {
-				mismatchedFiles.push(`${item.name}: emitted artifact file entries differ from registry.json`);
+				mismatchedFiles.push(
+					`${item.name}: emitted artifact file entries differ from registry.json`
+				);
 			}
 		}
 
@@ -1839,12 +1871,14 @@ describe('getColumnPinningStyle', () => {
 			position: 'sticky',
 			zIndex: 1
 		});
-		expect(getDataTableColumnPinningStyle({ column: rightColumn, withBorder: true })).toMatchObject({
-			boxShadow: '4px 0 4px -4px var(--border) inset',
-			right: '16px',
-			position: 'sticky',
-			zIndex: 1
-		});
+		expect(getDataTableColumnPinningStyle({ column: rightColumn, withBorder: true })).toMatchObject(
+			{
+				boxShadow: '4px 0 4px -4px var(--border) inset',
+				right: '16px',
+				position: 'sticky',
+				zIndex: 1
+			}
+		);
 	});
 
 	it('treats negative scrollLeft as RTL like the original scroll helper', () => {
@@ -1887,18 +1921,19 @@ describe('getColumnPinningStyle', () => {
 		expect(getDataTableFilterOperators('number').some((item) => item.value === 'isBetween')).toBe(
 			true
 		);
-		expect(getDataTableFilterOperators('number').find((item) => item.value === 'equals')).toEqual(
-			{ label: 'Is', value: 'equals' }
-		);
+		expect(getDataTableFilterOperators('number').find((item) => item.value === 'equals')).toEqual({
+			label: 'Is',
+			value: 'equals'
+		});
 		expect(
 			getDataTableFilterOperators('number').find((item) => item.value === 'lessThanOrEqual')
 		).toEqual({ label: 'Is less than or equal to', value: 'lessThanOrEqual' });
-		expect(
-			getDataTableFilterOperators('date').some((item) => item.value === 'onOrBefore')
-		).toBe(true);
-		expect(
-			getDataTableFilterOperators('date').find((item) => item.value === 'onOrBefore')
-		).toEqual({ label: 'Is on or before', value: 'onOrBefore' });
+		expect(getDataTableFilterOperators('date').some((item) => item.value === 'onOrBefore')).toBe(
+			true
+		);
+		expect(getDataTableFilterOperators('date').find((item) => item.value === 'onOrBefore')).toEqual(
+			{ label: 'Is on or before', value: 'onOrBefore' }
+		);
 		expect(getDataTableFilterOperators('date').some((item) => item.value === 'onOrAfter')).toBe(
 			true
 		);
@@ -1906,9 +1941,9 @@ describe('getColumnPinningStyle', () => {
 			label: 'Is relative to today',
 			value: 'isRelativeToToday'
 		});
-		expect(
-			getDataTableFilterOperators('boolean').find((item) => item.value === 'isFalse')
-		).toEqual({ label: 'Is not', value: 'isFalse' });
+		expect(getDataTableFilterOperators('boolean').find((item) => item.value === 'isFalse')).toEqual(
+			{ label: 'Is not', value: 'isFalse' }
+		);
 		expect(getDataTableFilterOperators('select')).not.toContainEqual({
 			label: 'Has any of',
 			value: 'isAnyOf'
@@ -2117,15 +2152,11 @@ describe('data grid filters', () => {
 
 	it('does not coerce numeric strings for equality filters like upstream', () => {
 		expect(filterFn(row, 'score', { operator: 'equals', value: '042' }, () => {})).toBe(false);
-		expect(filterFn(row, 'score', { operator: 'notEquals', value: '042' }, () => {})).toBe(
-			true
-		);
+		expect(filterFn(row, 'score', { operator: 'notEquals', value: '042' }, () => {})).toBe(true);
 	});
 
 	it('falls back when numeric comparison values are not numbers like upstream', () => {
-		expect(filterFn(row, 'score', { operator: 'greaterThan', value: '100' }, () => {})).toBe(
-			true
-		);
+		expect(filterFn(row, 'score', { operator: 'greaterThan', value: '100' }, () => {})).toBe(true);
 		expect(
 			filterFn(row, 'score', { operator: 'isBetween', value: '1', endValue: '10' }, () => {})
 		).toBe(true);

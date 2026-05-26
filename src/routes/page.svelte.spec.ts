@@ -397,8 +397,8 @@ describe('/+page.svelte', () => {
 		expect(content.getAttribute('style') ?? '').not.toContain('border-radius');
 		expect(content.className).toContain('data-[side=bottom]:translate-y-1');
 		expect(content.className).not.toContain('rounded-none');
-		expect(content.className).toContain('rounded-sm');
-		expect(content.className).not.toContain('rounded-md');
+		expect(content.className).toContain('rounded-md');
+		expect(content.className).not.toContain('rounded-sm');
 		expect(content.className).not.toContain('rounded-lg');
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
@@ -424,7 +424,9 @@ describe('/+page.svelte', () => {
 
 		expect(tabEvent.defaultPrevented).toBe(true);
 		expect(bubbledToGrid).toBe(false);
-		await waitFor(() => document.querySelector<HTMLElement>('[data-slot="select-content"]') === null);
+		await waitFor(
+			() => document.querySelector<HTMLElement>('[data-slot="select-content"]') === null
+		);
 	});
 
 	it('should suppress native text selection while drag-selecting cells', async () => {
@@ -610,7 +612,9 @@ describe('/+page.svelte', () => {
 		try {
 			await render(DataGridNumberCellSyncFixture);
 
-			const input = await waitFor(() => document.querySelector<HTMLInputElement>('input[type="number"]'));
+			const input = await waitFor(() =>
+				document.querySelector<HTMLInputElement>('input[type="number"]')
+			);
 			await waitFor(() => document.activeElement === input);
 
 			expect(selectSpy).not.toHaveBeenCalled();
@@ -731,7 +735,9 @@ describe('/+page.svelte', () => {
 	it('should clear file cell errors when the external value changes', async () => {
 		await render(DataGridFileCellSyncFixture);
 
-		const input = await waitFor(() => document.querySelector<HTMLInputElement>('input[type="file"]'));
+		const input = await waitFor(() =>
+			document.querySelector<HTMLInputElement>('input[type="file"]')
+		);
 		const dropzone = page.getByRole('region', { name: 'File upload' });
 		const dropzoneElement = await waitFor(() =>
 			document.querySelector<HTMLElement>('[role="region"][aria-labelledby]')
@@ -741,7 +747,9 @@ describe('/+page.svelte', () => {
 		input.files = dataTransfer.files;
 		input.dispatchEvent(new Event('change', { bubbles: true }));
 
-		expect(input.getAttribute('aria-labelledby')).toBe(dropzoneElement.getAttribute('aria-labelledby'));
+		expect(input.getAttribute('aria-labelledby')).toBe(
+			dropzoneElement.getAttribute('aria-labelledby')
+		);
 		expect(input.getAttribute('aria-describedby')).toBe(
 			dropzoneElement.getAttribute('aria-describedby')
 		);
@@ -750,7 +758,9 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Replace files' }).click();
 
-		await waitFor(() => !dropzoneElement.isConnected || !dropzoneElement.hasAttribute('data-invalid'));
+		await waitFor(
+			() => !dropzoneElement.isConnected || !dropzoneElement.hasAttribute('data-invalid')
+		);
 		await expect.element(dropzone).not.toBeInTheDocument();
 		await expect.element(page.getByLabelText('file names')).toHaveTextContent('server.txt');
 	});
@@ -758,7 +768,9 @@ describe('/+page.svelte', () => {
 	it('should commit local file selection without an artificial upload delay', async () => {
 		await render(DataGridFileCellLocalFixture);
 
-		const input = await waitFor(() => document.querySelector<HTMLInputElement>('input[type="file"]'));
+		const input = await waitFor(() =>
+			document.querySelector<HTMLInputElement>('input[type="file"]')
+		);
 		const dataTransfer = new DataTransfer();
 		dataTransfer.items.add(new File(['ok'], 'local.txt', { type: 'text/plain' }));
 		input.files = dataTransfer.files;
@@ -767,7 +779,8 @@ describe('/+page.svelte', () => {
 		const committed = await waitFor(
 			() =>
 				document.querySelector<HTMLElement>('[aria-label="file count"]')?.textContent === '1' &&
-				document.querySelector<HTMLElement>('[aria-label="first file"]')?.textContent === 'local.txt',
+				document.querySelector<HTMLElement>('[aria-label="first file"]')?.textContent ===
+					'local.txt',
 			300
 		);
 		expect(committed).toBe(true);
@@ -879,7 +892,9 @@ describe('/+page.svelte', () => {
 		wrapper.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
 
 		await waitFor(() => wrapper.dataset.focused !== undefined);
-		wrapper.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', bubbles: true, cancelable: true }));
+		wrapper.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'z', bubbles: true, cancelable: true })
+		);
 
 		const textarea = await waitFor(() => document.querySelector<HTMLTextAreaElement>('textarea'));
 		await waitFor(() => textarea.value === `${initialText}z`);
@@ -1045,7 +1060,9 @@ describe('/+page.svelte', () => {
 		const errorToast = await waitFor(() =>
 			toast
 				.getActiveToasts()
-				.find((activeToast) => activeToast.type === 'error' && activeToast.title === 'Clipboard denied')
+				.find(
+					(activeToast) => activeToast.type === 'error' && activeToast.title === 'Clipboard denied'
+				)
 		);
 		expect(errorToast).toBeTruthy();
 		toast.dismiss(errorToast.id);
@@ -1224,12 +1241,16 @@ describe('/+page.svelte', () => {
 
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('3');
 
-		grid.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+		);
 
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
 		expect(focusedCell.hasAttribute('data-focused')).toBe(true);
 
-		grid.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+		);
 
 		await waitFor(() => !focusedCell.hasAttribute('data-focused'));
 	});
@@ -1286,7 +1307,9 @@ describe('/+page.svelte', () => {
 		await waitFor(() => firstCell.hasAttribute('data-focused'));
 		firstCell.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
 
-		const editor = await waitFor(() => firstCell.querySelector<HTMLElement>('[contenteditable="true"]'));
+		const editor = await waitFor(() =>
+			firstCell.querySelector<HTMLElement>('[contenteditable="true"]')
+		);
 		editor.dispatchEvent(
 			new KeyboardEvent('keydown', {
 				key: 'a',
@@ -1389,7 +1412,9 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('second value')).toHaveTextContent('B');
 		await expect.element(page.getByLabelText('third value')).toHaveTextContent('C');
 
-		grid.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true }));
+		grid.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true })
+		);
 
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
 		await expect.element(page.getByLabelText('first value')).toHaveTextContent('');
@@ -1397,7 +1422,9 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('third value')).toHaveTextContent('');
 		await expect.element(page.getByLabelText('can undo')).toHaveTextContent('yes');
 
-		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true })
+		);
 
 		await expect.element(page.getByLabelText('first value')).toHaveTextContent('A');
 		await expect.element(page.getByLabelText('second value')).toHaveTextContent('B');
@@ -1433,7 +1460,9 @@ describe('/+page.svelte', () => {
 		await waitFor(() => firstCell.hasAttribute('data-focused'));
 
 		await page.getByRole('button', { name: 'Paste from clipboard' }).click();
-		await expect.element(page.getByRole('heading', { name: 'Do you want to add more rows?' })).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: 'Do you want to add more rows?' }))
+			.toBeInTheDocument();
 
 		const keepCurrentRows = await waitFor(() =>
 			Array.from(document.querySelectorAll<HTMLInputElement>('input[name="expand-option"]')).find(
@@ -1595,7 +1624,9 @@ describe('/+page.svelte', () => {
 		await render(DataGridCustomCellFixture);
 
 		const cells = await waitFor(() => {
-			const currentCells = Array.from(document.querySelectorAll<HTMLElement>('[data-slot="grid-cell"]'));
+			const currentCells = Array.from(
+				document.querySelectorAll<HTMLElement>('[data-slot="grid-cell"]')
+			);
 			return currentCells.length >= 2 ? currentCells : null;
 		});
 
@@ -1761,9 +1792,7 @@ describe('/+page.svelte', () => {
 			"'absolute flex w-full border-b [content-visibility:auto]'"
 		);
 		expect(dataGridRowSource).toContain('content-visibility: auto;');
-		expect(dataGridRowSource).toContain(
-			"typeof cell.column.columnDef.header === 'function'"
-		);
+		expect(dataGridRowSource).toContain("typeof cell.column.columnDef.header === 'function'");
 		expect(dataGridRowSource).not.toContain('hasGridCellVariant');
 	});
 
@@ -1808,13 +1837,15 @@ describe('/+page.svelte', () => {
 
 	it('should keep data grid select editor geometry aligned with the cell box', () => {
 		expect(dataGridSelectCellSource).toContain(
-			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-sm"'
+			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"'
 		);
 		expect(dataGridSelectCellSource).toContain(
 			'style="min-width: calc(var(--bits-select-anchor-width) + 16px);"'
 		);
 		expect(dataGridSelectCellSource).not.toContain('border-radius');
-		expect(dataGridSelectCellSource).toContain('class="size-full !w-full items-start border-none p-0');
+		expect(dataGridSelectCellSource).toContain(
+			'class="size-full !w-full items-start border-none p-0'
+		);
 		expect(dataGridSelectCellSource).toContain('style="width: calc(100% - 1rem);"');
 		expect(dataGridSelectCellSource).not.toContain('width: calc(100% - 16px)');
 		expect(dataGridSelectCellSource).not.toContain('data-[side=bottom]:translate-y-0');
@@ -1825,6 +1856,7 @@ describe('/+page.svelte', () => {
 			'<SelectItem value={option.value} label={option.label}>'
 		);
 		expect(dataGridSelectCellSource).not.toContain('rounded-none');
+		expect(dataGridSelectCellSource).not.toContain('rounded-sm');
 		expect(dataGridSelectCellSource).not.toContain('rounded-lg');
 	});
 
@@ -1849,7 +1881,11 @@ describe('/+page.svelte', () => {
 		expect(sortableItemSource).toContain('data-slot="sortable-item"');
 		expect(sortableItemHandleSource).toContain('data-slot="sortable-item-handle"');
 		expect(sortableOverlaySource).toContain('data-slot="sortable-overlay"');
-		for (const alias of ['Sortable as Root', 'SortableContent as Content', 'SortableItem as Item']) {
+		for (const alias of [
+			'Sortable as Root',
+			'SortableContent as Content',
+			'SortableItem as Item'
+		]) {
 			expect(sortableIndexSource).toContain(alias);
 		}
 	});
@@ -1938,7 +1974,7 @@ describe('/+page.svelte', () => {
 			expect(source).not.toContain("rowHeight ?? 'short'");
 			expect(source).not.toContain("meta?.rowHeight ?? 'short'");
 		}
-		expect(dataGridRowHeightMenuSource).toContain("const defaultRowHeight = rowHeights[0]?.value");
+		expect(dataGridRowHeightMenuSource).toContain('const defaultRowHeight = rowHeights[0]?.value');
 		expect(dataGridRowHeightMenuSource).not.toContain("rowHeight ?? 'short'");
 		expect(dataGridRowHeightMenuSource).not.toContain("meta?.rowHeight ?? 'short'");
 	});
@@ -1953,9 +1989,11 @@ describe('/+page.svelte', () => {
 		);
 		expect(dataGridViewMenuSource).toContain('void columnVisibility;');
 		expect(dataGridViewMenuSource).toContain('return column.getIsVisible();');
-		expect(dataGridViewMenuSource).toContain('onSelect={() => column.toggleVisibility(!isVisible)}');
+		expect(dataGridViewMenuSource).toContain(
+			'onSelect={() => column.toggleVisibility(!isVisible)}'
+		);
 		expect(dataGridViewMenuSource).not.toContain("align = 'start'");
-		expect(dataGridViewMenuSource).not.toContain("columnVisibility[columnId] !== false");
+		expect(dataGridViewMenuSource).not.toContain('columnVisibility[columnId] !== false');
 	});
 
 	it('should forward data grid skeleton root props like the original grid', () => {
@@ -1986,7 +2024,7 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep input styling aligned with the original ui input', () => {
-		expect(inputSource).toContain("import { cn");
+		expect(inputSource).toContain('import { cn');
 		expect(inputSource).toContain('data-slot="input"');
 		expect(inputSource).toContain('class={cn(');
 		expect(inputSource).toContain('className');
@@ -2038,9 +2076,7 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep calendar day sizing aligned with the original ui calendar', () => {
-		expect(calendarDaySource).toContain(
-			'flex aspect-square size-auto w-full min-w-(--cell-size)'
-		);
+		expect(calendarDaySource).toContain('flex aspect-square size-auto w-full min-w-(--cell-size)');
 		expect(dataGridRangeCalendarSource).toContain(
 			'flex aspect-square size-auto w-full min-w-(--cell-size)'
 		);
@@ -2062,12 +2098,8 @@ describe('/+page.svelte', () => {
 		);
 		expect(calendarCellSource).not.toContain('rounded-s-md');
 		expect(calendarCellSource).not.toContain('rounded-e-md');
-		expect(dataGridRangeCalendarSource).toContain(
-			'[&:first-child_[data-bits-day]]:rounded-l-md'
-		);
-		expect(dataGridRangeCalendarSource).toContain(
-			'[&:last-child_[data-bits-day]]:rounded-r-md'
-		);
+		expect(dataGridRangeCalendarSource).toContain('[&:first-child_[data-bits-day]]:rounded-l-md');
+		expect(dataGridRangeCalendarSource).toContain('[&:last-child_[data-bits-day]]:rounded-r-md');
 		expect(dataGridRangeCalendarSource).toContain('data-[range-start]:rounded-r-none');
 		expect(dataGridRangeCalendarSource).toContain('data-[range-end]:rounded-l-none');
 		expect(dataGridRangeCalendarSource).not.toContain('rounded-s-none');
@@ -2198,7 +2230,9 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should expose existing original ui primitive modules through public barrels', () => {
-		expect(uiIndexSource).toContain("export { Badge, badgeVariants, type BadgeVariant } from './badge';");
+		expect(uiIndexSource).toContain(
+			"export { Badge, badgeVariants, type BadgeVariant } from './badge';"
+		);
 		expect(uiIndexSource).toContain('type ActionBarProps');
 		expect(uiIndexSource).toContain('CalendarDayButton');
 		expect(uiIndexSource).toContain('CalendarNextButton');
@@ -2211,7 +2245,9 @@ describe('/+page.svelte', () => {
 		expect(uiIndexSource).toContain('PopoverContent');
 		expect(uiIndexSource).toContain("export { Toaster } from './sonner';");
 		expect(uiIndexSource).toContain('TooltipProvider');
-		expect(libIndexSource).toContain("export { Badge, badgeVariants, type BadgeVariant } from './components/ui/badge';");
+		expect(libIndexSource).toContain(
+			"export { Badge, badgeVariants, type BadgeVariant } from './components/ui/badge';"
+		);
 		expect(libIndexSource).toContain('type ActionBarProps');
 		expect(libIndexSource).toContain('CalendarDayButton');
 		expect(libIndexSource).toContain('CalendarNextButton');
@@ -2281,9 +2317,13 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep button shadows aligned with the original ui button', () => {
-		expect(buttonSource).toContain('default: "bg-primary text-primary-foreground hover:bg-primary/90"');
+		expect(buttonSource).toContain(
+			'default: "bg-primary text-primary-foreground hover:bg-primary/90"'
+		);
 		expect(buttonSource).toContain('"bg-destructive hover:bg-destructive/90');
-		expect(buttonSource).toContain('secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80"');
+		expect(buttonSource).toContain(
+			'secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80"'
+		);
 		expect(buttonSource).toContain('"bg-background shadow-xs hover:bg-accent');
 	});
 
@@ -2309,7 +2349,9 @@ describe('/+page.svelte', () => {
 
 	it('should keep dropdown menu wrapper slot markers aligned with the original ui menu', () => {
 		expect(dropdownMenuRootSource).toContain('"data-slot": "dropdown-menu"');
-		expect(dropdownMenuRootSource).toContain('<DropdownMenuPrimitive.Root bind:open {...rootProps}>');
+		expect(dropdownMenuRootSource).toContain(
+			'<DropdownMenuPrimitive.Root bind:open {...rootProps}>'
+		);
 		expect(dropdownMenuPortalSource).toContain('"data-slot": "dropdown-menu-portal"');
 		expect(dropdownMenuPortalSource).toContain('<DropdownMenuPrimitive.Portal {...portalProps}>');
 		expect(dropdownMenuSubSource).toContain('"data-slot": "dropdown-menu-sub"');
@@ -2376,7 +2418,9 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep command shortcut spacing aligned with the original ui command', () => {
-		expect(commandShortcutSource).toContain('ml-auto text-muted-foreground text-xs tracking-widest');
+		expect(commandShortcutSource).toContain(
+			'ml-auto text-muted-foreground text-xs tracking-widest'
+		);
 		expect(commandShortcutSource).not.toContain('ms-auto');
 	});
 
@@ -2484,7 +2528,9 @@ describe('/+page.svelte', () => {
 
 	it('should keep dark theme surface tokens aligned with the original table', () => {
 		expect(layoutCssSource).toContain('--destructive-foreground: oklch(0.577 0.245 27.325)');
-		expect(layoutCssSource).toContain('--color-destructive-foreground: var(--destructive-foreground)');
+		expect(layoutCssSource).toContain(
+			'--color-destructive-foreground: var(--destructive-foreground)'
+		);
 		expect(layoutCssSource).toContain('--card: oklch(0.145 0 0)');
 		expect(layoutCssSource).toContain('--popover: oklch(0.145 0 0)');
 		expect(layoutCssSource).toContain('--primary: oklch(0.985 0 0)');
@@ -2522,14 +2568,18 @@ describe('/+page.svelte', () => {
 		expect(libIndexSource).toContain(
 			"export { useAsRef, type AsRef } from './hooks/use-as-ref.svelte.js';"
 		);
-		expect(libIndexSource).toContain("export { useLazyRef, type LazyRef } from './hooks/use-lazy-ref';");
+		expect(libIndexSource).toContain(
+			"export { useLazyRef, type LazyRef } from './hooks/use-lazy-ref';"
+		);
 		expect(libIndexSource).toContain(
 			"export { useMounted, type MountedState } from './hooks/use-mounted.svelte.js';"
 		);
 		expect(libIndexSource).toContain(
 			"export { useMediaQuery, type MediaQueryState } from './hooks/use-media-query.svelte.js';"
 		);
-		expect(libIndexSource).toContain("export { useWindowSize } from './hooks/use-window-size.svelte.js';");
+		expect(libIndexSource).toContain(
+			"export { useWindowSize } from './hooks/use-window-size.svelte.js';"
+		);
 		expect(useAsRefSource).toContain('export function useAsRef');
 		expect(useAsRefSource).toContain('const current = $derived(getValue(value))');
 		expect(useLazyRefSource).toContain('export function useLazyRef');
@@ -2564,7 +2614,9 @@ describe('/+page.svelte', () => {
 		expect(facetedContentSource).toContain('w-[200px]');
 		expect(facetedContentSource).toContain('p-0');
 		expect(facetedItemSource).toContain('data-selected={isSelected}');
-		expect(facetedItemSource).toContain('flex size-4 items-center justify-center rounded-sm border border-primary');
+		expect(facetedItemSource).toContain(
+			'flex size-4 items-center justify-center rounded-sm border border-primary'
+		);
 		expect(facetedTriggerSource).toContain('child?: Snippet');
 		expect(facetedTriggerSource).toContain('child: childSnippet');
 		expect(facetedTriggerSource).toContain('@render childSnippet({ props })');
@@ -2577,7 +2629,7 @@ describe('/+page.svelte', () => {
 		expect(fpsSource).toContain('font-mono text-foreground text-sm backdrop-blur-sm');
 		expect(fpsSource).toContain('"top-right": "top-4 right-4"');
 		expect(fpsSource).toContain('warning: "text-orange-500"');
-		expect(fpsSource).toContain("isDocumentFragment(portalContainer)");
+		expect(fpsSource).toContain('isDocumentFragment(portalContainer)');
 	});
 
 	it('should portal fps into document fragments like the original ui fps', async () => {
@@ -2586,7 +2638,9 @@ describe('/+page.svelte', () => {
 		const host = await waitFor(() =>
 			document.querySelector<HTMLElement>('[data-testid="fps-shadow-host"]')
 		);
-		const fps = await waitFor(() => host.shadowRoot?.querySelector<HTMLElement>('[data-slot="fps"]'));
+		const fps = await waitFor(() =>
+			host.shadowRoot?.querySelector<HTMLElement>('[data-slot="fps"]')
+		);
 
 		expect(fps).toBeTruthy();
 		expect(fps.getAttribute('aria-hidden')).toBe('true');
@@ -2619,10 +2673,18 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep data table slider filter labels aligned with the original table', () => {
-		expect(dataTableSliderFilterSource).toContain('class="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"');
-		expect(dataTableSliderFilterSource).toContain('<label for={`${inputId}-from`} class="sr-only">From</label>');
-		expect(dataTableSliderFilterSource).toContain('<label for={`${inputId}-to`} class="sr-only">to</label>');
-		expect(dataTableSliderFilterSource).toContain('<label for={`${inputId}-slider`} class="sr-only">{title} slider</label>');
+		expect(dataTableSliderFilterSource).toContain(
+			'class="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"'
+		);
+		expect(dataTableSliderFilterSource).toContain(
+			'<label for={`${inputId}-from`} class="sr-only">From</label>'
+		);
+		expect(dataTableSliderFilterSource).toContain(
+			'<label for={`${inputId}-to`} class="sr-only">to</label>'
+		);
+		expect(dataTableSliderFilterSource).toContain(
+			'<label for={`${inputId}-slider`} class="sr-only">{title} slider</label>'
+		);
 		expect(dataTableSliderFilterSource).toContain('pattern="[0-9]*"');
 		expect(dataTableSliderFilterSource).toContain('id={`${inputId}-slider`}');
 		expect(dataTableSliderFilterSource).not.toContain(
@@ -2643,7 +2705,7 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should keep data table view option class passthrough aligned with the original table', () => {
-		expect(dataTableViewOptionsSource).toContain("class=\"ml-auto hidden h-8 font-normal lg:flex\"");
+		expect(dataTableViewOptionsSource).toContain('class="ml-auto hidden h-8 font-normal lg:flex"');
 		expect(dataTableViewOptionsSource).toContain(
 			'interface Props extends ComponentProps<typeof PopoverContent>'
 		);
@@ -2726,9 +2788,7 @@ describe('/+page.svelte', () => {
 			'class="h-full min-w-16 rounded-none border px-1.5 font-normal dark:bg-input/30"'
 		);
 		expect(dataTableFilterMenuSource).not.toContain('ChevronsUpDown');
-		expect(dataTableFilterMenuSource).not.toContain(
-			'rounded-none border-l-0 px-2.5 lowercase'
-		);
+		expect(dataTableFilterMenuSource).not.toContain('rounded-none border-l-0 px-2.5 lowercase');
 		expect(dataTableFilterMenuSource).not.toContain(
 			'h-8 rounded-none border-l-0 px-2.5 data-size:h-8 [&_svg]:hidden'
 		);
@@ -2792,7 +2852,9 @@ describe('/+page.svelte', () => {
 
 	it('should keep data table filter menu draft keyboard back behavior aligned with the original table', () => {
 		expect(dataTableFilterMenuSource).toContain('function selectColumnForDraft');
-		expect(dataTableFilterMenuSource).toContain('requestAnimationFrame(() => draftInputRef?.focus())');
+		expect(dataTableFilterMenuSource).toContain(
+			'requestAnimationFrame(() => draftInputRef?.focus())'
+		);
 		expect(dataTableFilterMenuSource).toContain('function onDraftInputKeyDown');
 		expect(dataTableFilterMenuSource).toContain('selectedColumnId = null;');
 		expect(dataTableFilterMenuSource).toContain('onkeydown={onDraftInputKeyDown}');
@@ -2830,7 +2892,7 @@ describe('/+page.svelte', () => {
 			'<div role="list" class="flex flex-wrap items-center gap-2">'
 		);
 		expect(dataTableFilterMenuSource).not.toContain(
-			"<div role=\"list\" class={cn('flex flex-wrap items-center gap-2', className)}>"
+			'<div role="list" class={cn(\'flex flex-wrap items-center gap-2\', className)}>'
 		);
 		expect(dataTableFilterMenuSource).not.toContain('sm:w-80');
 		expect(dataTableFilterMenuSource).toContain(
@@ -2856,7 +2918,9 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).not.toContain(
 			"variant === 'range' ? 'min-w-52' : 'min-w-36'"
 		);
-		expect(dataTableFilterListSource).toContain('<FacetedContent id={inputListboxId} class="w-[200px]">');
+		expect(dataTableFilterListSource).toContain(
+			'<FacetedContent id={inputListboxId} class="w-[200px]">'
+		);
 		expect(dataTableFilterListSource).not.toContain('class="w-[200px] p-0"');
 	});
 
@@ -2875,9 +2939,13 @@ describe('/+page.svelte', () => {
 			expect(dataTableFilterListSource).toContain(name);
 		}
 
-		expect(dataTableFilterListSource).toContain('value={allowsMultiple ? filterValues.values : filterValues.primary || undefined}');
+		expect(dataTableFilterListSource).toContain('value={allowsMultiple');
+		expect(dataTableFilterListSource).toContain('? filterValues.values');
+		expect(dataTableFilterListSource).toContain(': filterValues.primary || undefined}');
 		expect(dataTableFilterListSource).toContain('multiple={allowsMultiple}');
-		expect(dataTableFilterListSource).toContain('setFacetedFilterValue(filterKey, value, allowsMultiple)');
+		expect(dataTableFilterListSource).toContain(
+			'setFacetedFilterValue(filterKey, value, allowsMultiple)'
+		);
 		expect(dataTableFilterListSource).toContain('<FacetedBadgeList');
 		expect(dataTableFilterListSource).toContain('placeholder={columnLabel}');
 		expect(dataTableFilterListSource).toContain('<FacetedItem value={option.value}>');
@@ -2902,8 +2970,12 @@ describe('/+page.svelte', () => {
 
 	it('should remove the last data table filter from the trigger shortcut like the original table', () => {
 		expect(dataTableFilterListSource).toContain('removeFilter(getFilterKey(lastFilter');
-		expect(dataTableFilterListSource).toContain('requestAnimationFrame(() => addButtonRef?.focus())');
-		expect(dataTableFilterListSource).not.toContain('event.preventDefault();\n\t\t\tresetFilters();');
+		expect(dataTableFilterListSource).toContain(
+			'requestAnimationFrame(() => addButtonRef?.focus())'
+		);
+		expect(dataTableFilterListSource).not.toContain(
+			'event.preventDefault();\n\t\t\tresetFilters();'
+		);
 		expect(dataTableFilterListSource).not.toContain('if (\n\t\t\tdisabled ||');
 	});
 
@@ -2951,11 +3023,32 @@ describe('/+page.svelte', () => {
 	it('should keep data table filter drag handle focus styling aligned with outline buttons', () => {
 		expect(dataTableFilterListSource).toContain('Button, buttonVariants');
 		expect(dataTableFilterListSource).toContain('aria-label="drag handle for filter"');
+		expect(dataTableFilterListSource).toContain('SortableItemHandle');
 		expect(dataTableFilterListSource).toContain(
 			"buttonVariants({ variant: 'outline', size: 'icon' })"
 		);
 		expect(dataTableFilterListSource).toContain("'size-8 shrink-0 cursor-grab rounded'");
 		expect(dataTableFilterListSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
+	});
+
+	it('should use the shared sortable primitive for data table filter list reordering like the original table', () => {
+		for (const name of [
+			'Sortable',
+			'SortableContent',
+			'SortableItem',
+			'SortableItemHandle',
+			'SortableOverlay'
+		]) {
+			expect(dataTableFilterListSource).toContain(name);
+		}
+
+		expect(dataTableFilterListSource).toContain("from '$lib/components/ui/sortable/index.js'");
+		expect(dataTableFilterListSource).toContain('value={columnFilters}');
+		expect(dataTableFilterListSource).toContain('getItemValue={getSortableFilterValue}');
+		expect(dataTableFilterListSource).toContain('type="data-table-filter-items"');
+		expect(dataTableFilterListSource).toContain('h-8 min-w-[72px] rounded-sm bg-primary/10');
+		expect(dataTableFilterListSource).not.toContain('use:dragHandleZone');
+		expect(dataTableFilterListSource).not.toContain("from 'svelte-dnd-action'");
 	});
 
 	it('should keep data table slider filter popover sizing aligned with the original table', () => {
@@ -2975,7 +3068,9 @@ describe('/+page.svelte', () => {
 		expect(dataTableSliderFilterSource).not.toContain('isDefault ? undefined : next');
 		expect(dataTableSliderFilterSource).not.toContain('rounded-r-none');
 		expect(dataTableSliderFilterSource).not.toContain('rounded-l-none');
-		expect(dataTableSliderFilterSource).not.toContain('max-w-40 truncate text-muted-foreground text-xs');
+		expect(dataTableSliderFilterSource).not.toContain(
+			'max-w-40 truncate text-muted-foreground text-xs'
+		);
 	});
 
 	it('should keep data table range filters in the original two-input shape by default', () => {
@@ -2986,13 +3081,13 @@ describe('/+page.svelte', () => {
 		expect(dataTableRangeFilterSource).not.toContain(
 			"'flex w-full flex-col gap-2', !showSlider && 'flex-row items-center gap-2'"
 		);
-		expect(dataTableRangeFilterSource).not.toContain(
-			'shrink-0 text-muted-foreground text-xs">to'
-		);
+		expect(dataTableRangeFilterSource).not.toContain('shrink-0 text-muted-foreground text-xs">to');
 	});
 
 	it('should keep data table range filter unit adornments aligned with original numeric inputs', () => {
-		expect(dataTableRangeFilterSource).toContain("class={cn('h-8 w-full rounded', unit && 'pr-8')}");
+		expect(dataTableRangeFilterSource).toContain(
+			"class={cn('h-8 w-full rounded', unit && 'pr-8')}"
+		);
 		expect(dataTableRangeFilterSource).toContain(
 			'rounded-r-md bg-accent px-2 text-muted-foreground text-sm'
 		);
@@ -3264,15 +3359,17 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Focus entry group' }).click();
 
 		await expect.element(page.getByLabelText('entry focus canceled')).toHaveTextContent('yes');
-		await expect.element(page.getByLabelText('entry focus active element')).toHaveTextContent('group');
+		await expect
+			.element(page.getByLabelText('entry focus active element'))
+			.toHaveTextContent('group');
 	});
 
 	it('should run action bar onSelect before item select bubbles like the original component', async () => {
 		await render(ActionBarEventFixture);
 
 		const preventSelectItem = await waitFor(() =>
-			Array.from(document.querySelectorAll<HTMLElement>('[data-action-bar-item]')).find(
-				(element) => element.textContent?.includes('Prevent select')
+			Array.from(document.querySelectorAll<HTMLElement>('[data-action-bar-item]')).find((element) =>
+				element.textContent?.includes('Prevent select')
 			)
 		);
 
@@ -3405,7 +3502,9 @@ describe('/+page.svelte', () => {
 		sortItem.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
 
 		await waitFor(() => document.querySelector('[role="listitem"]') === null);
-		await expect.element(page.getByRole('heading', { name: 'No sorting applied' })).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: 'No sorting applied' }))
+			.toBeInTheDocument();
 	});
 
 	it('should keep sort item when delete is pressed with the direction selector open', async () => {
@@ -3475,12 +3574,16 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Filter 1' }).click();
 
-		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const filterItem = await waitFor(() =>
+			document.querySelector<HTMLElement>('[role="listitem"]')
+		);
 		filterItem.focus();
 		filterItem.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }));
 
 		await waitFor(() => document.querySelector('[role="listitem"]') === null);
-		await expect.element(page.getByRole('heading', { name: 'No filters applied' })).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: 'No filters applied' }))
+			.toBeInTheDocument();
 	});
 
 	it('should align filter item controls like the original menu', async () => {
@@ -3493,7 +3596,9 @@ describe('/+page.svelte', () => {
 		);
 		const labelId = content.getAttribute('aria-labelledby');
 		const descriptionId = content.getAttribute('aria-describedby');
-		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const filterItem = await waitFor(() =>
+			document.querySelector<HTMLElement>('[role="listitem"]')
+		);
 		const valueInput = await waitFor(() =>
 			filterItem.querySelector<HTMLInputElement>('input[placeholder="Value"]')
 		);
@@ -3560,7 +3665,9 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Filter 1' }).click();
 
-		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const filterItem = await waitFor(() =>
+			document.querySelector<HTMLElement>('[role="listitem"]')
+		);
 		await expect
 			.element(page.getByRole('button', { name: 'Pick a date', exact: true }))
 			.toBeInTheDocument();
@@ -3580,7 +3687,9 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Filter 1' }).click();
 
-		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const filterItem = await waitFor(() =>
+			document.querySelector<HTMLElement>('[role="listitem"]')
+		);
 		await expect
 			.element(page.getByRole('button', { name: 'Pick a range', exact: true }))
 			.toBeInTheDocument();
@@ -3605,7 +3714,9 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Filter 1' }).click();
 
-		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const filterItem = await waitFor(() =>
+			document.querySelector<HTMLElement>('[role="listitem"]')
+		);
 		await expect
 			.element(page.getByRole('button', { name: 'Value', exact: true }))
 			.toBeInTheDocument();
@@ -3640,7 +3751,9 @@ describe('/+page.svelte', () => {
 		activeOption.click();
 
 		await waitFor(() => (listboxId ? document.getElementById(listboxId) === null : null));
-		await expect.element(page.getByRole('button', { name: 'Active', exact: true })).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: 'Active', exact: true }))
+			.toBeInTheDocument();
 	});
 
 	it('should keep filter item when delete is pressed with the operator selector open', async () => {
@@ -3648,7 +3761,9 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Filter 1' }).click();
 
-		const filterItem = await waitFor(() => document.querySelector<HTMLElement>('[role="listitem"]'));
+		const filterItem = await waitFor(() =>
+			document.querySelector<HTMLElement>('[role="listitem"]')
+		);
 		const trigger = await waitFor(() =>
 			document.querySelector<HTMLElement>('[data-slot="select-trigger"]')
 		);
@@ -3730,7 +3845,9 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should use the shared input primitive for grid search like the original component', () => {
-		expect(dataGridSearchSource).toContain("import { Input } from '$lib/components/ui/input/index.js'");
+		expect(dataGridSearchSource).toContain(
+			"import { Input } from '$lib/components/ui/input/index.js'"
+		);
 		expect(dataGridSearchSource).toContain('class="h-8 w-64"');
 		expect(dataGridSearchSource).not.toContain('shadow-sm');
 		expect(dataGridSearchSource).not.toContain('focus-visible:ring-1');
@@ -3763,7 +3880,9 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Search Ada' }).click();
 
 		await expect.element(page.getByLabelText('active search match')).toHaveTextContent('0:name');
-		await expect.element(page.getByLabelText('search matches by row')).toHaveTextContent('row0-name');
+		await expect
+			.element(page.getByLabelText('search matches by row'))
+			.toHaveTextContent('row0-name');
 	});
 
 	it('should search visible non-navigable columns like the original grid', async () => {
@@ -3772,7 +3891,9 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Search Review' }).click();
 
 		await expect.element(page.getByLabelText('active search match')).toHaveTextContent('0:actions');
-		await expect.element(page.getByLabelText('action search match')).toHaveTextContent('row0-actions');
+		await expect
+			.element(page.getByLabelText('action search match'))
+			.toHaveTextContent('row0-actions');
 	});
 
 	it('should select all column ids and record the original selection range', async () => {
@@ -3781,7 +3902,9 @@ describe('/+page.svelte', () => {
 		await page.getByRole('button', { name: 'Select all from focused cell' }).click();
 
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('2');
-		await expect.element(page.getByLabelText('selection range')).toHaveTextContent('0:name-0:actions');
+		await expect
+			.element(page.getByLabelText('selection range'))
+			.toHaveTextContent('0:name-0:actions');
 	});
 
 	it('should focus direct meta editing starts before navigating on stop', async () => {
@@ -3789,12 +3912,24 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Start second name edit' }).click();
 
-		await expect.element(page.getByLabelText('meta focused cell', { exact: true })).toHaveTextContent('1:name');
-		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('1:name');
-		await expect.element(page.getByLabelText('hook focused cell', { exact: true })).toHaveTextContent('1:name');
-		await expect.element(page.getByLabelText('hook editing cell', { exact: true })).toHaveTextContent('1:name');
-		await expect.element(page.getByLabelText('hook table meta focused cell')).toHaveTextContent('1:name');
-		await expect.element(page.getByLabelText('hook table meta editing cell')).toHaveTextContent('1:name');
+		await expect
+			.element(page.getByLabelText('meta focused cell', { exact: true }))
+			.toHaveTextContent('1:name');
+		await expect
+			.element(page.getByLabelText('meta editing cell', { exact: true }))
+			.toHaveTextContent('1:name');
+		await expect
+			.element(page.getByLabelText('hook focused cell', { exact: true }))
+			.toHaveTextContent('1:name');
+		await expect
+			.element(page.getByLabelText('hook editing cell', { exact: true }))
+			.toHaveTextContent('1:name');
+		await expect
+			.element(page.getByLabelText('hook table meta focused cell'))
+			.toHaveTextContent('1:name');
+		await expect
+			.element(page.getByLabelText('hook table meta editing cell'))
+			.toHaveTextContent('1:name');
 	});
 
 	it('should navigate from the direct meta editing cell on stop', async () => {
@@ -3802,8 +3937,14 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Start second name and stop right' }).click();
 
-		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('none');
-		await waitFor(() => page.getByLabelText('meta focused cell', { exact: true }).element().textContent?.trim() === '1:score');
+		await expect
+			.element(page.getByLabelText('meta editing cell', { exact: true }))
+			.toHaveTextContent('none');
+		await waitFor(
+			() =>
+				page.getByLabelText('meta focused cell', { exact: true }).element().textContent?.trim() ===
+				'1:score'
+		);
 	});
 
 	it('should focus direct meta cell clicks without selecting like the original grid', async () => {
@@ -3811,8 +3952,12 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Click first name once' }).click();
 
-		await expect.element(page.getByLabelText('meta focused cell', { exact: true })).toHaveTextContent('0:name');
-		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('none');
+		await expect
+			.element(page.getByLabelText('meta focused cell', { exact: true }))
+			.toHaveTextContent('0:name');
+		await expect
+			.element(page.getByLabelText('meta editing cell', { exact: true }))
+			.toHaveTextContent('none');
 		await expect.element(page.getByLabelText('selected cells')).toHaveTextContent('0');
 	});
 
@@ -3821,10 +3966,18 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Click first name twice' }).click();
 
-		await expect.element(page.getByLabelText('meta focused cell', { exact: true })).toHaveTextContent('0:name');
-		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('0:name');
-		await expect.element(page.getByLabelText('hook focused cell', { exact: true })).toHaveTextContent('0:name');
-		await expect.element(page.getByLabelText('hook editing cell', { exact: true })).toHaveTextContent('0:name');
+		await expect
+			.element(page.getByLabelText('meta focused cell', { exact: true }))
+			.toHaveTextContent('0:name');
+		await expect
+			.element(page.getByLabelText('meta editing cell', { exact: true }))
+			.toHaveTextContent('0:name');
+		await expect
+			.element(page.getByLabelText('hook focused cell', { exact: true }))
+			.toHaveTextContent('0:name');
+		await expect
+			.element(page.getByLabelText('hook editing cell', { exact: true }))
+			.toHaveTextContent('0:name');
 	});
 
 	it('should preserve direct meta Shift+Click ranges like the original grid', async () => {
@@ -3841,8 +3994,12 @@ describe('/+page.svelte', () => {
 
 		await page.getByRole('button', { name: 'Prevented double click' }).click();
 
-		await expect.element(page.getByLabelText('meta editing cell', { exact: true })).toHaveTextContent('none');
-		await expect.element(page.getByLabelText('hook editing cell', { exact: true })).toHaveTextContent('none');
+		await expect
+			.element(page.getByLabelText('meta editing cell', { exact: true }))
+			.toHaveTextContent('none');
+		await expect
+			.element(page.getByLabelText('hook editing cell', { exact: true }))
+			.toHaveTextContent('none');
 	});
 
 	it('should notify data changes for non-empty missing-row updates like the original grid', async () => {
@@ -3859,7 +4016,9 @@ describe('/+page.svelte', () => {
 
 		window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', ctrlKey: true, bubbles: true }));
 
-		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: 'Keyboard shortcuts' }))
+			.toBeInTheDocument();
 		expect(document.body.textContent).not.toContain('Insert row below');
 		expect(document.body.textContent).not.toContain('Delete selected rows');
 	});
@@ -3869,7 +4028,9 @@ describe('/+page.svelte', () => {
 
 		window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', ctrlKey: true, bubbles: true }));
 
-		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: 'Keyboard shortcuts' }))
+			.toBeInTheDocument();
 		expect(document.body.textContent).toContain('Insert row below');
 		expect(document.body.textContent).toContain('Delete selected rows');
 	});
@@ -3879,7 +4040,9 @@ describe('/+page.svelte', () => {
 
 		window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', ctrlKey: true, bubbles: true }));
 
-		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: 'Keyboard shortcuts' }))
+			.toBeInTheDocument();
 		for (const text of [
 			'Open search',
 			'Paste cells',
@@ -3899,7 +4062,9 @@ describe('/+page.svelte', () => {
 		await render(DataGridKeyboardShortcutsAllFixture);
 
 		window.dispatchEvent(new KeyboardEvent('keydown', { key: '/', ctrlKey: true, bubbles: true }));
-		await expect.element(page.getByRole('heading', { name: 'Keyboard shortcuts' })).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: 'Keyboard shortcuts' }))
+			.toBeInTheDocument();
 
 		const searchInput = page.getByPlaceholder('Search shortcuts...');
 		await searchInput.fill('redo');
@@ -3919,9 +4084,7 @@ describe('/+page.svelte', () => {
 			expect(source).toContain('enableRowsDelete');
 		}
 		const shortcutRows = Array.from(
-			dataGridKeyboardShortcutsSource.matchAll(
-				/keys:\s*\[([^\]]+)\],\s*description:\s*'([^']+)'/g
-			),
+			dataGridKeyboardShortcutsSource.matchAll(/keys:\s*\[([^\]]+)\],\s*description:\s*'([^']+)'/g),
 			([, keys, description]) =>
 				`${keys.replace(/\s+/g, ' ').replaceAll("'", '"').trim()} => ${description}`
 		);
@@ -3981,7 +4144,9 @@ describe('/+page.svelte', () => {
 		expect(dataGridKeyboardShortcutsSource).toContain('No shortcuts found');
 		expect(dataGridKeyboardShortcutsSource).toContain('Try searching for a different term.');
 		expect(dataGridKeyboardShortcutsSource).toContain("const SHORTCUT_KEY = '/'");
-		expect(dataGridKeyboardShortcutsSource).toContain('<svelte:window onkeydown={handleKeyDown} />');
+		expect(dataGridKeyboardShortcutsSource).toContain(
+			'<svelte:window onkeydown={handleKeyDown} />'
+		);
 	});
 
 	it('should wire data grid undo redo cell tracking like the original demo', () => {
@@ -3995,7 +4160,9 @@ describe('/+page.svelte', () => {
 	it('should register undo redo shortcuts on the document like the original grid hook', () => {
 		expect(dataGridUndoRedoHookSource).toContain("return on(document, 'keydown', handleKeyDown)");
 		expect(dataGridUndoRedoHookSource).not.toContain("return on(window, 'keydown', handleKeyDown)");
-		expect(dataGridUndoRedoHookSource).toContain("if ((key === 'z' && event.shiftKey) || key === 'y')");
+		expect(dataGridUndoRedoHookSource).toContain(
+			"if ((key === 'z' && event.shiftKey) || key === 'y')"
+		);
 	});
 
 	it('should undo and redo tracked cell edits like the original grid hook', async () => {
@@ -4009,7 +4176,9 @@ describe('/+page.svelte', () => {
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
 		await expect.element(page.getByLabelText('can undo')).toHaveTextContent('yes');
 
-		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true })
+		);
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
 		await expect.element(page.getByLabelText('can redo')).toHaveTextContent('yes');
 
@@ -4018,10 +4187,14 @@ describe('/+page.svelte', () => {
 		);
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
 
-		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }));
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true })
+		);
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Ada');
 
-		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'y', ctrlKey: true, bubbles: true }));
+		document.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'y', ctrlKey: true, bubbles: true })
+		);
 		await expect.element(page.getByLabelText('first name')).toHaveTextContent('Lin');
 	});
 

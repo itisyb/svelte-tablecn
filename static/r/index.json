@@ -66,6 +66,7 @@
 			"separator",
 			"slider",
 			"skeleton",
+			"sortable",
 			"table"
 		],
 		"meta": {
@@ -107,7 +108,6 @@
 			"@tanstack/table-core",
 			"@internationalized/date",
 			"bits-ui",
-			"svelte-dnd-action",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -119,7 +119,8 @@
 			"input",
 			"popover",
 			"select",
-			"slider"
+			"slider",
+			"sortable"
 		],
 		"meta": {
 			"author": "itisyb",

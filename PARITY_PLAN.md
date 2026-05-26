@@ -38,7 +38,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-grid option documentation is checked against `UseDataGridOptions`, including sorting, filter, and row-selection change callbacks
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
-- The data-grid single-select cell editor keeps a tighter content radius, the original item radius, popper offset, and trigger width model while matching the active cell width
+- The data-grid single-select cell editor keeps the shared select content radius, original item radius, popper offset, and trigger width model while matching the active cell width
 - Short text and URL editors cancel Escape edits back to the original cell value, matching the upstream contenteditable cell behavior
 - The file editor popover only contains Escape key propagation, matching the upstream file-cell popover escape handling while allowing ordinary keys to bubble normally
 - The action bar exposes the upstream cancelable entry-focus event and item-select event ordering, with browser coverage for both paths
@@ -57,7 +57,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Data-table date operators include upstream `isRelativeToToday`, and the in-memory filter reference maps/applies it using the same relative day/week/month windows as the original SQL filter helper
 - `DataTableFilterMenu` forwards popover content classes and props to the command menu surface like the original table
 - Data-table `isBetween` filters preserve partial range values like upstream, and the in-memory row filter reference mirrors upstream one-sided numeric range handling
-- Data-grid single-select editors now use a tighter content radius and the upstream trigger width/offset geometry while keeping the original select item radius
+- Data-grid single-select editors now use the shared select content radius and the upstream trigger width/offset geometry while keeping the original select item radius
 - Registry audit coverage now directly fails on unresolved `registry.json` source paths before import/dependency checks inspect shipped files
 - Data-grid search, row-height, view-menu, skeleton, context-menu, and column-header surfaces were rechecked against upstream; existing Svelte differences are adapter/reactivity differences, and the search structure now has explicit source assertions
 - Data-grid paste dialog and cell-wrapper surfaces were rechecked against upstream; the dialog structure now has explicit source assertions for copy, radio options, callbacks, and popover containment
@@ -66,8 +66,9 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - The package root and UI barrel now expose the faceted primitive value type, keeping the Svelte faceted contract available anywhere the exported primitive is consumed
 - README UI primitive docs now distinguish package-root exports from standalone registry items and include the exported faceted primitive surface
 - README UI primitive docs now list the full exported faceted primitive surface, matching the package root and UI barrel aliases
-- Data-grid single-select editor popovers now use the tighter cell-editor radius while preserving the cell-width and offset alignment.
+- Data-grid single-select editor popovers now use the shared select content radius while preserving the cell-width and offset alignment.
 - Sheet portal and overlay slots now have public `SheetPortal` and `SheetOverlay` aliases in the sheet, UI, and package-root barrels.
+- Data-table filter-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 
 ## Audit Evidence
 
@@ -150,7 +151,7 @@ Why this first:
   - no Vaul drag/snap physics in `drawer`
   - no `react-hook-form` controller adapter in `form`
   - no dnd-kit keyboard sensor/announcement layer in `sortable`
-  These require explicit dependency/product decisions before implementation.
+    These require explicit dependency/product decisions before implementation.
 
 ## Risks
 

@@ -15,7 +15,6 @@
 		JoinOperator
 	} from '$lib/types/data-table.js';
 	import { CalendarDate, parseDate, type DateValue } from '@internationalized/date';
-	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { getDefaultFilterOperator, getFilterOperators } from '$lib/types/data-table.js';
 	import { generateId } from '$lib/id.js';
@@ -53,6 +52,13 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
+	import {
+		Sortable,
+		SortableContent,
+		SortableItem,
+		SortableItemHandle,
+		SortableOverlay
+	} from '$lib/components/ui/sortable/index.js';
 	import { useId } from 'bits-ui';
 
 	import ListFilter from '@lucide/svelte/icons/list-filter';
@@ -106,12 +112,9 @@
 	let addButtonRef = $state<HTMLButtonElement | null>(null);
 	const columnFilters = $derived(table.getState().columnFilters as FilterItem[]);
 	const joinOperator = $derived(table.options.meta?.joinOperator ?? 'and');
-	let isDragging = $state(false);
-	let dragItems = $state<FilterItem[]>([]);
 	let openFieldSelectors = $state<Set<string>>(new Set());
 	let openOperatorSelectors = $state<Set<string>>(new Set());
 	let openValueSelectors = $state<Set<string>>(new Set());
-	const listFilters = $derived(isDragging ? dragItems : columnFilters);
 
 	const columns = $derived.by((): AvailableColumn[] => {
 		return table
@@ -128,6 +131,10 @@
 
 	function getFilterKey(filter: FilterItem, index: number): string {
 		return filter.filterId ?? `${filter.id}-${index}`;
+	}
+
+	function getSortableFilterValue(filter: FilterItem): string {
+		return filter.filterId ?? filter.id;
 	}
 
 	function matchesFilter(filter: FilterItem, filterKey: string, index: number): boolean {
@@ -296,19 +303,6 @@
 		}
 	}
 
-	function handleDndConsider(event: CustomEvent<{ items: FilterItem[] }>) {
-		isDragging = true;
-		dragItems = event.detail.items;
-	}
-
-	function handleDndFinalize(event: CustomEvent<{ items: FilterItem[] }>) {
-		isDragging = false;
-		const cleanItems = event.detail.items.filter(
-			(item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]
-		);
-		setColumnFilters(cleanItems as ColumnFiltersState);
-	}
-
 	function setFieldSelectorOpen(filterKey: string, isOpen: boolean) {
 		const nextOpenSelectors = new Set(openFieldSelectors);
 		if (isOpen) {
@@ -408,345 +402,355 @@
 			</p>
 		</div>
 
-		{#if listFilters.length > 0}
-			<ul
-				role="list"
-				class="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1"
-				use:dragHandleZone={{
-					items: listFilters,
-					flipDurationMs: 150,
-					dropTargetStyle: {},
-					type: 'data-table-filter-items'
-				}}
-				onconsider={handleDndConsider}
-				onfinalize={handleDndFinalize}
-			>
-				{#each listFilters as filter, index (getFilterKey(filter, index))}
-					{@const filterKey = getFilterKey(filter, index)}
-					{@const filterItemId = `${id}-filter-${filterKey}`}
-					{@const joinOperatorListboxId = `${filterItemId}-join-operator-listbox`}
-					{@const fieldListboxId = `${filterItemId}-field-listbox`}
-					{@const operatorListboxId = `${filterItemId}-operator-listbox`}
-					{@const inputId = `${filterItemId}-input`}
-					{@const inputListboxId = `${inputId}-listbox`}
-					{@const variant = getFilterVariant(filter)}
-					{@const operator = getFilterOperator(filter)}
-					{@const filterValues = getFilterValues(filter)}
-					{@const allowsMultiple =
-						variant === 'multiSelect' || operator === 'isAnyOf' || operator === 'isNoneOf'}
-					{@const needsValue = !['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(operator)}
-					{@const selectOptions = getColumnOptions(filter.id)}
-					{@const columnLabel = columns.find((column) => column.id === filter.id)?.label ?? filter.id}
-					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-					<li
-						role="listitem"
-						id={filterItemId}
-						tabindex={-1}
-						class="flex items-center gap-2"
-						onkeydown={(event) => onFilterItemKeyDown(event, filterKey)}
-					>
-						<div class="min-w-[72px] text-center">
-							{#if index === 0}
-								<span class="text-muted-foreground text-sm">Where</span>
-							{:else if index === 1}
-								<Select type="single" value={joinOperator} onValueChange={onJoinOperatorChange}>
-									<SelectTrigger
-										aria-label="Select join operator"
-										aria-controls={joinOperatorListboxId}
-										size="sm"
-										class="rounded lowercase"
-									>
-										<span data-slot="select-value">{joinOperator}</span>
-									</SelectTrigger>
-									<SelectContent
-										id={joinOperatorListboxId}
-										class="min-w-[var(--bits-select-anchor-width)] lowercase"
-									>
-										<SelectItem value="and">and</SelectItem>
-										<SelectItem value="or">or</SelectItem>
-									</SelectContent>
-								</Select>
-							{:else}
-								<span class="text-muted-foreground text-sm">{joinOperator}</span>
-							{/if}
-						</div>
-
-						<Popover
-							open={openFieldSelectors.has(filterKey)}
-							onOpenChange={(isOpen) => setFieldSelectorOpen(filterKey, isOpen)}
+		<Sortable
+			value={columnFilters}
+			getItemValue={getSortableFilterValue}
+			onValueChange={(items) => setColumnFilters(items as ColumnFiltersState)}
+		>
+			{#if columnFilters.length > 0}
+				<SortableContent
+					role="list"
+					class="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1"
+					type="data-table-filter-items"
+				>
+					{#each columnFilters as filter, index (getFilterKey(filter, index))}
+						{@const filterKey = getFilterKey(filter, index)}
+						{@const filterItemId = `${id}-filter-${filterKey}`}
+						{@const joinOperatorListboxId = `${filterItemId}-join-operator-listbox`}
+						{@const fieldListboxId = `${filterItemId}-field-listbox`}
+						{@const operatorListboxId = `${filterItemId}-operator-listbox`}
+						{@const inputId = `${filterItemId}-input`}
+						{@const inputListboxId = `${inputId}-listbox`}
+						{@const variant = getFilterVariant(filter)}
+						{@const operator = getFilterOperator(filter)}
+						{@const filterValues = getFilterValues(filter)}
+						{@const allowsMultiple =
+							variant === 'multiSelect' || operator === 'isAnyOf' || operator === 'isNoneOf'}
+						{@const needsValue = !['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(operator)}
+						{@const selectOptions = getColumnOptions(filter.id)}
+						{@const columnLabel =
+							columns.find((column) => column.id === filter.id)?.label ?? filter.id}
+						<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+						<SortableItem
+							value={filterKey}
+							role="listitem"
+							id={filterItemId}
+							tabindex={-1}
+							class="flex items-center gap-2"
+							onkeydown={(event) => onFilterItemKeyDown(event, filterKey)}
 						>
-							<PopoverTrigger>
-								{#snippet child({ props })}
-									<Button
-										{...props}
-										aria-controls={fieldListboxId}
-										variant="outline"
-										size="sm"
-										class="w-32 justify-between rounded font-normal"
-									>
-										<span class="truncate">{columnLabel}</span>
-										<ChevronsUpDown class="opacity-50" />
-									</Button>
-								{/snippet}
-							</PopoverTrigger>
-							<PopoverContent id={fieldListboxId} align="start" class="w-40 p-0">
-								<Command>
-									<CommandInput placeholder="Search fields..." />
-									<CommandList>
-										<CommandEmpty>No fields found.</CommandEmpty>
-										<CommandGroup>
-											{#each columns as column (column.id)}
-												<CommandItem
-													value={column.id}
-													onSelect={() => {
-														updateFilter(filterKey, {
-															id: castColumnId(column.id),
-															variant: column.variant,
-															operator: getDefaultFilterOperator(column.variant),
-															value: ''
-														});
-														setFieldSelectorOpen(filterKey, false);
-													}}
-												>
-													<span class="truncate">{column.label}</span>
-													<Check
-														class={cn(
-															'ml-auto',
-															column.id === filter.id ? 'opacity-100' : 'opacity-0'
-														)}
-													/>
-												</CommandItem>
-											{/each}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
+							<div class="min-w-[72px] text-center">
+								{#if index === 0}
+									<span class="text-muted-foreground text-sm">Where</span>
+								{:else if index === 1}
+									<Select type="single" value={joinOperator} onValueChange={onJoinOperatorChange}>
+										<SelectTrigger
+											aria-label="Select join operator"
+											aria-controls={joinOperatorListboxId}
+											size="sm"
+											class="rounded lowercase"
+										>
+											<span data-slot="select-value">{joinOperator}</span>
+										</SelectTrigger>
+										<SelectContent
+											id={joinOperatorListboxId}
+											class="min-w-[var(--bits-select-anchor-width)] lowercase"
+										>
+											<SelectItem value="and">and</SelectItem>
+											<SelectItem value="or">or</SelectItem>
+										</SelectContent>
+									</Select>
+								{:else}
+									<span class="text-muted-foreground text-sm">{joinOperator}</span>
+								{/if}
+							</div>
 
-						<Select
-							type="single"
-							open={openOperatorSelectors.has(filterKey)}
-							value={operator}
-							onOpenChange={(isOpen) => setOperatorSelectorOpen(filterKey, isOpen)}
-							onValueChange={(value: string) =>
-								updateFilter(filterKey, {
-									operator: value as FilterOperator,
-									value: ['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(value)
-										? ''
-										: filter.value
-								})}
-						>
-							<SelectTrigger
-								aria-controls={operatorListboxId}
-								size="sm"
-								class="w-32 rounded lowercase"
+							<Popover
+								open={openFieldSelectors.has(filterKey)}
+								onOpenChange={(isOpen) => setFieldSelectorOpen(filterKey, isOpen)}
 							>
-								<span data-slot="select-value" class="truncate"
-									>{getFilterOperators(variant).find((item) => item.value === operator)?.label ??
-										operator}</span
-								>
-							</SelectTrigger>
-							<SelectContent id={operatorListboxId}>
-								{#each getFilterOperators(variant) as item (item.value)}
-									<SelectItem value={item.value} class="lowercase">{item.label}</SelectItem>
-								{/each}
-							</SelectContent>
-						</Select>
+								<PopoverTrigger>
+									{#snippet child({ props })}
+										<Button
+											{...props}
+											aria-controls={fieldListboxId}
+											variant="outline"
+											size="sm"
+											class="w-32 justify-between rounded font-normal"
+										>
+											<span class="truncate">{columnLabel}</span>
+											<ChevronsUpDown class="opacity-50" />
+										</Button>
+									{/snippet}
+								</PopoverTrigger>
+								<PopoverContent id={fieldListboxId} align="start" class="w-40 p-0">
+									<Command>
+										<CommandInput placeholder="Search fields..." />
+										<CommandList>
+											<CommandEmpty>No fields found.</CommandEmpty>
+											<CommandGroup>
+												{#each columns as column (column.id)}
+													<CommandItem
+														value={column.id}
+														onSelect={() => {
+															updateFilter(filterKey, {
+																id: castColumnId(column.id),
+																variant: column.variant,
+																operator: getDefaultFilterOperator(column.variant),
+																value: ''
+															});
+															setFieldSelectorOpen(filterKey, false);
+														}}
+													>
+														<span class="truncate">{column.label}</span>
+														<Check
+															class={cn(
+																'ml-auto',
+																column.id === filter.id ? 'opacity-100' : 'opacity-0'
+															)}
+														/>
+													</CommandItem>
+												{/each}
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
 
-						<div class="min-w-36 max-w-60 flex-1">
-							{#if needsValue}
-								{#if variant === 'range' || (variant === 'number' && operator === 'isBetween')}
-									<DataTableRangeFilter
-										filter={{
-											id: castColumnId(filter.id),
-											value: filterValues.values,
-											variant,
-											operator,
-											filterId: filterKey
-										}}
-										column={table.getColumn(filter.id)!}
-										inputId={filterKey}
-										onFilterUpdate={(nextFilterId, updates) => updateFilter(nextFilterId, updates)}
-									/>
-								{:else if variant === 'number'}
-									<Input
-										id={inputId}
-										type="number"
-										aria-label={`${columnLabel} filter value`}
-										inputmode="numeric"
-										value={filterValues.primary}
-										oninput={(event) =>
-											updateFilter(filterKey, {
-												value: (event.currentTarget as HTMLInputElement).value
-											})}
-										class="h-8 w-full rounded"
-									/>
-								{:else if variant === 'date' || variant === 'dateRange'}
-									<Popover
-										open={openValueSelectors.has(filterKey)}
-										onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
+							<Select
+								type="single"
+								open={openOperatorSelectors.has(filterKey)}
+								value={operator}
+								onOpenChange={(isOpen) => setOperatorSelectorOpen(filterKey, isOpen)}
+								onValueChange={(value: string) =>
+									updateFilter(filterKey, {
+										operator: value as FilterOperator,
+										value: ['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(value)
+											? ''
+											: filter.value
+									})}
+							>
+								<SelectTrigger
+									aria-controls={operatorListboxId}
+									size="sm"
+									class="w-32 rounded lowercase"
+								>
+									<span data-slot="select-value" class="truncate"
+										>{getFilterOperators(variant).find((item) => item.value === operator)?.label ??
+											operator}</span
 									>
-										<PopoverTrigger>
-											{#snippet child({ props })}
-												<Button
-													{...props}
-													id={inputId}
-													aria-controls={inputListboxId}
-													aria-label={`${columnLabel} date filter`}
-													variant="outline"
-													size="sm"
-													class={cn(
-														'w-full justify-start rounded text-left font-normal',
-														filterValues.values.length === 0 && 'text-muted-foreground'
-													)}
-												>
-													<CalendarIcon />
-													<span class="truncate">{getDateDisplayValue(filterValues, operator)}</span>
-												</Button>
-											{/snippet}
-										</PopoverTrigger>
-										<PopoverContent id={inputListboxId} align="start" class="w-auto p-0">
-											{#if variant === 'dateRange' || operator === 'isBetween'}
-												<DataGridRangeCalendar
-													aria-label={`Select ${columnLabel} date range`}
-													value={{
-														start: toCalendarDate(filterValues.primary),
-														end: toCalendarDate(filterValues.secondary)
-													}}
-													onValueChange={(range) =>
-														updateFilter(filterKey, {
-															value: [range.start, range.end]
-																.map((value) =>
-																	value ? calendarDateToString(value) : undefined
-																)
-																.filter((value): value is string => value !== undefined)
-														})}
-													captionLayout="dropdown"
+								</SelectTrigger>
+								<SelectContent id={operatorListboxId}>
+									{#each getFilterOperators(variant) as item (item.value)}
+										<SelectItem value={item.value} class="lowercase">{item.label}</SelectItem>
+									{/each}
+								</SelectContent>
+							</Select>
+
+							<div class="min-w-36 max-w-60 flex-1">
+								{#if needsValue}
+									{#if variant === 'range' || (variant === 'number' && operator === 'isBetween')}
+										<DataTableRangeFilter
+											filter={{
+												id: castColumnId(filter.id),
+												value: filterValues.values,
+												variant,
+												operator,
+												filterId: filterKey
+											}}
+											column={table.getColumn(filter.id)!}
+											inputId={filterKey}
+											onFilterUpdate={(nextFilterId, updates) =>
+												updateFilter(nextFilterId, updates)}
+										/>
+									{:else if variant === 'number'}
+										<Input
+											id={inputId}
+											type="number"
+											aria-label={`${columnLabel} filter value`}
+											inputmode="numeric"
+											value={filterValues.primary}
+											oninput={(event) =>
+												updateFilter(filterKey, {
+													value: (event.currentTarget as HTMLInputElement).value
+												})}
+											class="h-8 w-full rounded"
+										/>
+									{:else if variant === 'date' || variant === 'dateRange'}
+										<Popover
+											open={openValueSelectors.has(filterKey)}
+											onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
+										>
+											<PopoverTrigger>
+												{#snippet child({ props })}
+													<Button
+														{...props}
+														id={inputId}
+														aria-controls={inputListboxId}
+														aria-label={`${columnLabel} date filter`}
+														variant="outline"
+														size="sm"
+														class={cn(
+															'w-full justify-start rounded text-left font-normal',
+															filterValues.values.length === 0 && 'text-muted-foreground'
+														)}
+													>
+														<CalendarIcon />
+														<span class="truncate"
+															>{getDateDisplayValue(filterValues, operator)}</span
+														>
+													</Button>
+												{/snippet}
+											</PopoverTrigger>
+											<PopoverContent id={inputListboxId} align="start" class="w-auto p-0">
+												{#if variant === 'dateRange' || operator === 'isBetween'}
+													<DataGridRangeCalendar
+														aria-label={`Select ${columnLabel} date range`}
+														value={{
+															start: toCalendarDate(filterValues.primary),
+															end: toCalendarDate(filterValues.secondary)
+														}}
+														onValueChange={(range) =>
+															updateFilter(filterKey, {
+																value: [range.start, range.end]
+																	.map((value) => (value ? calendarDateToString(value) : undefined))
+																	.filter((value): value is string => value !== undefined)
+															})}
+														captionLayout="dropdown"
+													/>
+												{:else}
+													<Calendar
+														aria-label={`Select ${columnLabel} date`}
+														type="single"
+														value={toCalendarDate(filterValues.primary)}
+														onValueChange={(value: DateValue | undefined) => {
+															updateFilter(filterKey, {
+																value: value ? calendarDateToString(value) : ''
+															});
+															setValueSelectorOpen(filterKey, false);
+														}}
+														captionLayout="dropdown"
+													/>
+												{/if}
+											</PopoverContent>
+										</Popover>
+									{:else if variant === 'boolean'}
+										<div
+											id={inputId}
+											role="status"
+											aria-label={`${columnLabel} boolean filter`}
+											aria-live="polite"
+											class="h-8 w-full rounded border bg-transparent dark:bg-input/30"
+										></div>
+									{:else if (variant === 'select' || variant === 'multiSelect') && selectOptions.length > 0}
+										<Faceted
+											open={openValueSelectors.has(filterKey)}
+											onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
+											value={allowsMultiple
+												? filterValues.values
+												: filterValues.primary || undefined}
+											onValueChange={(value) =>
+												setFacetedFilterValue(filterKey, value, allowsMultiple)}
+											multiple={allowsMultiple}
+										>
+											<FacetedTrigger>
+												{#snippet child({ props })}
+													<Button
+														{...props}
+														id={inputId}
+														aria-controls={inputListboxId}
+														aria-label={`${columnLabel} filter value${allowsMultiple ? 's' : ''}`}
+														variant="outline"
+														size="sm"
+														class="h-8 w-full justify-start rounded font-normal"
+													>
+														<FacetedBadgeList options={selectOptions} placeholder={columnLabel} />
+													</Button>
+												{/snippet}
+											</FacetedTrigger>
+											<FacetedContent id={inputListboxId} class="w-[200px]">
+												<FacetedInput
+													aria-label={`Search ${columnLabel} options`}
+													placeholder="Search options..."
 												/>
-											{:else}
-												<Calendar
-													aria-label={`Select ${columnLabel} date`}
-													type="single"
-													value={toCalendarDate(filterValues.primary)}
-													onValueChange={(value: DateValue | undefined) => {
-														updateFilter(filterKey, {
-															value: value ? calendarDateToString(value) : ''
-														});
-														setValueSelectorOpen(filterKey, false);
-													}}
-													captionLayout="dropdown"
-												/>
-											{/if}
-										</PopoverContent>
-									</Popover>
-								{:else if variant === 'boolean'}
+												<FacetedList>
+													<FacetedEmpty>No options found.</FacetedEmpty>
+													<FacetedGroup>
+														{#each selectOptions as option (option.value)}
+															<FacetedItem value={option.value}>
+																{#if option.icon}
+																	{@const Icon = option.icon}
+																	<Icon />
+																{/if}
+																<span>{option.label}</span>
+																{#if option.count}
+																	<span class="ml-auto font-mono text-xs">{option.count}</span>
+																{/if}
+															</FacetedItem>
+														{/each}
+													</FacetedGroup>
+												</FacetedList>
+											</FacetedContent>
+										</Faceted>
+									{:else}
+										<Input
+											id={inputId}
+											type="text"
+											aria-label={`${columnLabel} filter value`}
+											bind:value={
+												() => filterValues.primary,
+												(value) => setScalarFilterValue(filterKey, value)
+											}
+											class="h-8 w-full rounded"
+										/>
+									{/if}
+								{:else}
 									<div
 										id={inputId}
 										role="status"
-										aria-label={`${columnLabel} boolean filter`}
+										aria-label={`${columnLabel} filter is ${
+											operator === 'isEmpty' ? 'empty' : 'not empty'
+										}`}
 										aria-live="polite"
 										class="h-8 w-full rounded border bg-transparent dark:bg-input/30"
 									></div>
-								{:else if (variant === 'select' || variant === 'multiSelect') && selectOptions.length > 0}
-									<Faceted
-										open={openValueSelectors.has(filterKey)}
-										onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
-										value={allowsMultiple ? filterValues.values : filterValues.primary || undefined}
-										onValueChange={(value) =>
-											setFacetedFilterValue(filterKey, value, allowsMultiple)}
-										multiple={allowsMultiple}
-									>
-										<FacetedTrigger>
-											{#snippet child({ props })}
-												<Button
-													{...props}
-													id={inputId}
-													aria-controls={inputListboxId}
-													aria-label={`${columnLabel} filter value${allowsMultiple ? 's' : ''}`}
-													variant="outline"
-													size="sm"
-													class="h-8 w-full justify-start rounded font-normal"
-												>
-													<FacetedBadgeList
-														options={selectOptions}
-														placeholder={columnLabel}
-													/>
-												</Button>
-											{/snippet}
-										</FacetedTrigger>
-										<FacetedContent id={inputListboxId} class="w-[200px]">
-											<FacetedInput
-												aria-label={`Search ${columnLabel} options`}
-												placeholder="Search options..."
-											/>
-											<FacetedList>
-												<FacetedEmpty>No options found.</FacetedEmpty>
-												<FacetedGroup>
-													{#each selectOptions as option (option.value)}
-														<FacetedItem value={option.value}>
-															{#if option.icon}
-																{@const Icon = option.icon}
-																<Icon />
-															{/if}
-															<span>{option.label}</span>
-															{#if option.count}
-																<span class="ml-auto font-mono text-xs">{option.count}</span>
-															{/if}
-														</FacetedItem>
-													{/each}
-												</FacetedGroup>
-											</FacetedList>
-										</FacetedContent>
-									</Faceted>
-								{:else}
-									<Input
-										id={inputId}
-										type="text"
-										aria-label={`${columnLabel} filter value`}
-										bind:value={
-											() => filterValues.primary, (value) => setScalarFilterValue(filterKey, value)
-										}
-										class="h-8 w-full rounded"
-									/>
 								{/if}
-							{:else}
-								<div
-									id={inputId}
-									role="status"
-									aria-label={`${columnLabel} filter is ${
-										operator === 'isEmpty' ? 'empty' : 'not empty'
-									}`}
-									aria-live="polite"
-									class="h-8 w-full rounded border bg-transparent dark:bg-input/30"
-								></div>
-							{/if}
-						</div>
+							</div>
 
-						<Button
-							aria-controls={filterItemId}
-							variant="outline"
-							size="icon"
-							class="size-8 rounded"
-							onclick={() => removeFilter(filterKey)}
-						>
-							<Trash2 />
-						</Button>
-						<button
-							type="button"
-							use:dragHandle
-							aria-label="drag handle for filter"
-							class={cn(
-								buttonVariants({ variant: 'outline', size: 'icon' }),
-								'size-8 shrink-0 cursor-grab rounded'
-							)}
-						>
-							<GripVertical class="size-4" />
-						</button>
-					</li>
-				{/each}
-			</ul>
-		{/if}
+							<Button
+								aria-controls={filterItemId}
+								variant="outline"
+								size="icon"
+								class="size-8 rounded"
+								onclick={() => removeFilter(filterKey)}
+							>
+								<Trash2 />
+							</Button>
+							<SortableItemHandle
+								aria-label="drag handle for filter"
+								class={cn(
+									buttonVariants({ variant: 'outline', size: 'icon' }),
+									'size-8 shrink-0 cursor-grab rounded'
+								)}
+							>
+								<GripVertical class="size-4" />
+							</SortableItemHandle>
+						</SortableItem>
+					{/each}
+				</SortableContent>
+			{/if}
+			<SortableOverlay>
+				<div class="flex items-center gap-2">
+					<div class="h-8 min-w-[72px] rounded-sm bg-primary/10"></div>
+					<div class="h-8 w-32 rounded-sm bg-primary/10"></div>
+					<div class="h-8 w-32 rounded-sm bg-primary/10"></div>
+					<div class="h-8 min-w-36 flex-1 rounded-sm bg-primary/10"></div>
+					<div class="size-8 shrink-0 rounded-sm bg-primary/10"></div>
+					<div class="size-8 shrink-0 rounded-sm bg-primary/10"></div>
+				</div>
+			</SortableOverlay>
+		</Sortable>
 
 		<div class="flex w-full items-center gap-2">
 			<Button
@@ -754,8 +758,7 @@
 				size="sm"
 				class="rounded"
 				onclick={addFilter}
-				disabled={columns.length === 0}
-				>Add filter</Button
+				disabled={columns.length === 0}>Add filter</Button
 			>
 			{#if columnFilters.length > 0}
 				<Button variant="outline" size="sm" class="rounded" onclick={resetFilters}
