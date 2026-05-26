@@ -201,7 +201,6 @@
 		"description": "A row height menu component for the data grid.",
 		"dependencies": [
 			"@tanstack/table-core",
-			"bits-ui",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -220,7 +219,6 @@
 		"description": "A view menu component for the data grid.",
 		"dependencies": [
 			"@tanstack/table-core",
-			"bits-ui",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -240,7 +238,6 @@
 		"type": "registry:component",
 		"description": "A keyboard shortcuts dialog component for the data grid.",
 		"dependencies": [
-			"bits-ui",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [

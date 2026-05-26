@@ -715,7 +715,7 @@
 			"type": "registry:component",
 			"title": "Data Grid Row Height Menu",
 			"description": "A row height menu component for the data grid.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"dependencies": ["@tanstack/table-core", "@lucide/svelte"],
 			"registryDependencies": ["select"],
 			"files": [
 				{
@@ -739,7 +739,7 @@
 			"type": "registry:component",
 			"title": "Data Grid View Menu",
 			"description": "A view menu component for the data grid.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"dependencies": ["@tanstack/table-core", "@lucide/svelte"],
 			"registryDependencies": ["button", "command", "popover"],
 			"files": [
 				{
@@ -763,7 +763,7 @@
 			"type": "registry:component",
 			"title": "Data Grid Keyboard Shortcuts",
 			"description": "A keyboard shortcuts dialog component for the data grid.",
-			"dependencies": ["bits-ui", "@lucide/svelte"],
+			"dependencies": ["@lucide/svelte"],
 			"registryDependencies": ["button", "dialog", "input", "kbd", "separator"],
 			"files": [
 				{

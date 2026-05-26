@@ -6,7 +6,6 @@
 	"description": "A row height menu component for the data grid.",
 	"dependencies": [
 		"@tanstack/table-core",
-		"bits-ui",
 		"@lucide/svelte"
 	],
 	"devDependencies": [

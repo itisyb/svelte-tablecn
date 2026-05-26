@@ -778,7 +778,7 @@ describe('data-grid registry item', () => {
 		).toContain('svelte-dnd-action');
 	});
 
-	it('keeps the standalone keyboard shortcuts registry slice scoped to its Svelte imports', () => {
+	it('keeps standalone grid utility registry dependencies scoped to direct imports', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{
 				name: string;
@@ -789,11 +789,19 @@ describe('data-grid registry item', () => {
 		const shortcuts = registry.items.find(
 			(registryItem) => registryItem.name === 'data-grid-keyboard-shortcuts'
 		);
+		const rowHeight = registry.items.find(
+			(registryItem) => registryItem.name === 'data-grid-row-height-menu'
+		);
+		const view = registry.items.find(
+			(registryItem) => registryItem.name === 'data-grid-view-menu'
+		);
 
 		expect(shortcuts?.files?.map((file) => file.target)).toEqual([
 			'data-grid/data-grid-keyboard-shortcuts.svelte'
 		]);
-		expect(shortcuts?.dependencies).toEqual(['bits-ui', '@lucide/svelte']);
+		expect(shortcuts?.dependencies).toEqual(['@lucide/svelte']);
+		expect(rowHeight?.dependencies).toEqual(['@tanstack/table-core', '@lucide/svelte']);
+		expect(view?.dependencies).toEqual(['@tanstack/table-core', '@lucide/svelte']);
 	});
 
 	it('keeps the standalone select-column registry slice scoped to row selection rendering', () => {
