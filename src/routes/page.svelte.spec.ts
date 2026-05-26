@@ -2112,6 +2112,7 @@ describe('/+page.svelte', () => {
 		expect(dataGridHelpersSource).toContain('export function scrollCellIntoView');
 		expect(libIndexSource).toContain('getColumnBorderVisibility');
 		expect(libIndexSource).toContain('getColumnPinningStyle as getDataGridColumnPinningStyle');
+		expect(libIndexSource).toContain('getColumnPinningStyle as getDataTableColumnPinningStyle');
 		expect(libIndexSource).toContain('formatCellValueForCopy');
 		expect(libIndexSource).toContain('getIsInPopover');
 		expect(libIndexSource).toContain('parsePastedCellValue');

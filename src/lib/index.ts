@@ -68,7 +68,10 @@ export {
 	scrollCellIntoView,
 	toPinningStyleString
 } from './data-grid';
-export { getColumnPinningStyle } from './data-table';
+export {
+	getColumnPinningStyle,
+	getColumnPinningStyle as getDataTableColumnPinningStyle
+} from './data-table';
 export { formatDate } from './format';
 export { generateId } from './id';
 export { getAbsoluteUrl } from './utils';
