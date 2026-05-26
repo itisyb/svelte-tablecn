@@ -366,6 +366,7 @@ export type {
 	UpdateCell,
 	NavigationDirection,
 	DataGridProps,
+	DataGridCellProps,
 	CellVariantProps
 } from './types/data-grid';
 

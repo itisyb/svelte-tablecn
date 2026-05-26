@@ -547,6 +547,26 @@ describe('package root form component exports', () => {
 			expect(uiBarrel).toContain(`type ${exportedType}`);
 		}
 	});
+
+	it('exposes the original data-grid cell props type contract from the package root', () => {
+		const packageRoot = readFileSync('src/lib/index.ts', 'utf8');
+		const dataGridTypes = readFileSync('src/lib/types/data-grid.ts', 'utf8');
+
+		expect(packageRoot).toContain('DataGridCellProps');
+		expect(dataGridTypes).toContain('TableMeta');
+		expect(dataGridTypes).toContain('export interface DataGridCellProps');
+
+		for (const field of [
+			'cell: Cell<TData, unknown>',
+			'tableMeta: TableMeta<TData>',
+			'rowHeight: RowHeightValue',
+			'isSearchMatch: boolean',
+			'isActiveSearchMatch: boolean',
+			'readOnly: boolean'
+		]) {
+			expect(dataGridTypes).toContain(field);
+		}
+	});
 });
 
 describe('data-grid registry item', () => {

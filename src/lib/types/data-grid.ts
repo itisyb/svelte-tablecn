@@ -1,6 +1,15 @@
 // Data Grid Types for TableCN-Svelte
 
-import type { ColumnDef, Table, Row, Cell, Column, RowData, Updater } from '@tanstack/table-core';
+import type {
+	ColumnDef,
+	Table,
+	Row,
+	Cell,
+	Column,
+	RowData,
+	TableMeta,
+	Updater
+} from '@tanstack/table-core';
 import type { SvelteSet, SvelteMap } from 'svelte/reactivity';
 import type { Snippet, Component } from 'svelte';
 
@@ -149,6 +158,20 @@ export interface SearchState extends SearchStateData {
 // ============================================
 // Cell Variant Props
 // ============================================
+
+export interface DataGridCellProps<TData extends RowData = RowData> {
+	cell: Cell<TData, unknown>;
+	tableMeta: TableMeta<TData>;
+	rowIndex: number;
+	columnId: string;
+	rowHeight: RowHeightValue;
+	isEditing: boolean;
+	isFocused: boolean;
+	isSelected: boolean;
+	isSearchMatch: boolean;
+	isActiveSearchMatch: boolean;
+	readOnly: boolean;
+}
 
 export interface CellVariantProps<TData> {
 	cell: Cell<TData, unknown>;
