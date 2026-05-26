@@ -146,7 +146,12 @@ import {
 	Faceted as RootFaceted,
 	FacetedBadgeList as RootFacetedBadgeList,
 	FacetedContent as RootFacetedContent,
+	FacetedEmpty as RootFacetedEmpty,
+	FacetedGroup as RootFacetedGroup,
+	FacetedInput as RootFacetedInput,
 	FacetedItem as RootFacetedItem,
+	FacetedList as RootFacetedList,
+	FacetedSeparator as RootFacetedSeparator,
 	FacetedTrigger as RootFacetedTrigger,
 	FileCell as RootFileCell,
 	Form as RootForm,
@@ -1201,7 +1206,12 @@ describe('README UI primitive docs', () => {
 			['FacetedTrigger', RootFacetedTrigger],
 			['FacetedContent', RootFacetedContent],
 			['FacetedBadgeList', RootFacetedBadgeList],
+			['FacetedInput', RootFacetedInput],
+			['FacetedList', RootFacetedList],
+			['FacetedEmpty', RootFacetedEmpty],
+			['FacetedGroup', RootFacetedGroup],
 			['FacetedItem', RootFacetedItem],
+			['FacetedSeparator', RootFacetedSeparator],
 			['Form', RootForm],
 			['FormField', RootFormField],
 			['FormItem', RootFormItem],
@@ -1274,6 +1284,7 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('faceted data-table filter-list option selection structure');
 		expect(parityPlan).toContain('faceted primitive value type');
 		expect(parityPlan).toContain('README UI primitive docs now distinguish package-root exports from standalone registry items');
+		expect(parityPlan).toContain('full exported faceted primitive surface');
 		expect(parityPlan).not.toContain('squares the nested option highlights');
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'

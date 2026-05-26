@@ -487,7 +487,7 @@ The Svelte port also ships upstream-style UI primitives used by the grid and tab
 
 | Primitive  | Public exports                                                                   | Registry availability |
 | ---------- | -------------------------------------------------------------------------------- | --------------------- |
-| `faceted`  | `Faceted`, `FacetedTrigger`, `FacetedContent`, `FacetedBadgeList`, `FacetedItem`, `FacetedValue` | Bundled with table filter registry items |
+| `faceted`  | `Faceted`, `FacetedTrigger`, `FacetedContent`, `FacetedBadgeList`, `FacetedInput`, `FacetedList`, `FacetedEmpty`, `FacetedGroup`, `FacetedItem`, `FacetedSeparator`, `FacetedValue` | Bundled with table filter registry items |
 | `drawer`   | `Drawer`, `DrawerPortal`, `DrawerOverlay`, `DrawerContent`, `DrawerTrigger`, `DrawerClose`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription` | `/r/drawer.json` |
 | `form`     | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, `useFormField`, `getFormFieldState`, `getFormErrorMessage` | `/r/form.json` |
 | `sortable` | `Sortable`, `SortableContent`, `SortableItem`, `SortableItemHandle`, `SortableOverlay` | `/r/sortable.json` |

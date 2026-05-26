@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DataTableFilterMenu` now forwards custom classes to the command popover content like upstream instead of styling the outer filter list.
 - Data grid select editor popovers now preserve the original item radius, content radius, width, and offset.
 - README UI primitive docs now distinguish package-root exports from standalone registry items and document the exported faceted primitive surface.
+- README UI primitive docs now list the complete exported faceted primitive surface.
 - The package root and UI barrel now expose the `FacetedValue` type alongside the faceted primitive exports.
 - Data grid select editor popovers no longer override the shared select offset, matching the original menu placement.
 - Short text and URL cell editors now restore the original value on `Escape`, matching upstream edit cancellation behavior.
