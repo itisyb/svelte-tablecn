@@ -560,6 +560,77 @@ describe('data-grid registry item', () => {
 		expect(actualRegistryItems).toEqual(expectedRegistryItems);
 	});
 
+	it('preserves upstream registry dependencies for common installable items', () => {
+		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
+			items: Array<{
+				name: string;
+				registryDependencies?: string[];
+			}>;
+		};
+		const originalRegistryDependencies = new Map([
+			[
+				'data-table',
+				[
+					'badge',
+					'button',
+					'calendar',
+					'command',
+					'dropdown-menu',
+					'input',
+					'popover',
+					'select',
+					'separator',
+					'slider',
+					'table'
+				]
+			],
+			['data-table-sort-list', ['badge', 'button', 'command', 'popover', 'select']],
+			['data-table-filter-list', ['badge', 'button', 'calendar', 'command', 'input', 'popover', 'select']],
+			['data-table-filter-menu', ['badge', 'button', 'calendar', 'command', 'input', 'popover', 'select']],
+			[
+				'data-grid',
+				[
+					'badge',
+					'button',
+					'calendar',
+					'checkbox',
+					'command',
+					'dialog',
+					'dropdown-menu',
+					'input',
+					'popover',
+					'select',
+					'separator',
+					'skeleton',
+					'textarea',
+					'tooltip'
+				]
+			],
+			['data-grid-select-column', ['checkbox']],
+			['data-grid-sort-menu', ['badge', 'button', 'command', 'popover', 'select']],
+			['data-grid-row-height-menu', ['select']],
+			['data-grid-view-menu', ['button', 'command', 'popover']],
+			['data-grid-keyboard-shortcuts', ['button', 'dialog', 'input', 'kbd', 'separator']],
+			['data-grid-filter-menu', ['badge', 'button', 'calendar', 'command', 'input', 'popover', 'select']],
+			['data-grid-skeleton', ['skeleton']],
+			['use-data-grid-undo-redo', []]
+		] as const);
+		const missing: string[] = [];
+
+		for (const [name, originalDependencies] of originalRegistryDependencies) {
+			const item = registry.items.find((registryItem) => registryItem.name === name);
+			const dependencies = new Set(item?.registryDependencies ?? []);
+
+			for (const dependency of originalDependencies) {
+				if (!dependencies.has(dependency)) {
+					missing.push(`${name}: ${dependency}`);
+				}
+			}
+		}
+
+		expect(missing).toEqual([]);
+	});
+
 	it('ships the exported action bar component and local primitive', () => {
 		const registry = JSON.parse(readFileSync('registry.json', 'utf8')) as {
 			items: Array<{
