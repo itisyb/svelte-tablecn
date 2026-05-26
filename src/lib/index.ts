@@ -168,6 +168,7 @@ export {
 	FormItem,
 	FormLabel,
 	FormMessage,
+	useFormField,
 	getFormErrorMessage,
 	getFormFieldState,
 	type FormControlAttributes,

@@ -85,6 +85,10 @@ export function getFormFieldState(consumerName: string): FormFieldState {
 	};
 }
 
+export function useFormField(): FormFieldState {
+	return getFormFieldState("useFormField");
+}
+
 export function getFormErrorMessage(error: FormFieldError): string {
 	if (!error) return "";
 	return typeof error === "string" ? error : (error.message ?? "");

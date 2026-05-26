@@ -2086,6 +2086,7 @@ describe('/+page.svelte', () => {
 		expect(uiIndexSource).toContain('CalendarNextButton');
 		expect(uiIndexSource).toContain('CommandDialog');
 		expect(uiIndexSource).toContain('DialogContent');
+		expect(uiIndexSource).toContain('useFormField');
 		expect(uiIndexSource).toContain('DropdownMenuContent');
 		expect(uiIndexSource).toContain('DropdownMenuPortal');
 		expect(uiIndexSource).toContain("export { Kbd, KbdGroup } from './kbd';");
@@ -2098,6 +2099,7 @@ describe('/+page.svelte', () => {
 		expect(libIndexSource).toContain('CalendarNextButton');
 		expect(libIndexSource).toContain('CommandDialog');
 		expect(libIndexSource).toContain('DialogContent');
+		expect(libIndexSource).toContain('useFormField');
 		expect(libIndexSource).toContain('DropdownMenuContent');
 		expect(libIndexSource).toContain('DropdownMenuPortal');
 		expect(libIndexSource).toContain("export { Kbd, KbdGroup } from './components/ui/kbd';");

@@ -17,6 +17,7 @@ export {
 };
 
 export {
+	useFormField,
 	getFormFieldState,
 	getFormErrorMessage,
 	type FormControlAttributes,

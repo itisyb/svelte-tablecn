@@ -102,7 +102,8 @@ import {
 	FormLabel as ComponentFormLabel,
 	FormMessage as ComponentFormMessage,
 	getFormErrorMessage as getComponentFormErrorMessage,
-	getFormFieldState as getComponentFormFieldState
+	getFormFieldState as getComponentFormFieldState,
+	useFormField as useComponentFormField
 } from './components/ui/form/index.js';
 import {
 	BOOLEAN_FILTER_OPERATORS as ROOT_BOOLEAN_FILTER_OPERATORS,
@@ -151,6 +152,7 @@ import {
 	FormMessage as RootFormMessage,
 	getFormErrorMessage as getRootFormErrorMessage,
 	getFormFieldState as getRootFormFieldState,
+	useFormField as useRootFormField,
 	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
 	DEFAULT_ROW_HEIGHT as ROOT_DEFAULT_ROW_HEIGHT,
 	HORIZONTAL_PAGE_SIZE as ROOT_HORIZONTAL_PAGE_SIZE,
@@ -580,6 +582,7 @@ describe('package root form component exports', () => {
 	});
 
 	it('exposes the shipped form helpers from the package root', () => {
+		expect(useRootFormField).toBe(useComponentFormField);
 		expect(getRootFormFieldState).toBe(getComponentFormFieldState);
 		expect(getRootFormErrorMessage).toBe(getComponentFormErrorMessage);
 	});
