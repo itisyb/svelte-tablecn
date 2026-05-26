@@ -90,6 +90,7 @@ import {
 	MIN_COLUMN_SIZE,
 	OVERSCAN,
 	SCROLL_SYNC_RETRY_COUNT,
+	SEARCH_SHORTCUT_KEY,
 	VIEWPORT_OFFSET
 } from '$lib/config/data-grid.js';
 
@@ -1623,7 +1624,12 @@ export function useDataGrid<TData extends RowData>(
 
 	function handleKeyDown(event: KeyboardEvent) {
 		// Search shortcut
-		if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key === 'f' && enableSearch) {
+		if (
+			(event.ctrlKey || event.metaKey) &&
+			!event.shiftKey &&
+			event.key === SEARCH_SHORTCUT_KEY &&
+			enableSearch
+		) {
 			event.preventDefault();
 			event.stopPropagation();
 			handleSearchOpenChange(true);
@@ -2834,7 +2840,7 @@ export function useDataGrid<TData extends RowData>(
 			const isInSearchInput = target.closest('[role="search"]') !== null;
 
 			// Handle Cmd+F / Ctrl+F for search
-			if (enableSearch && isCtrlPressed && !shiftKey && key === 'f') {
+			if (enableSearch && isCtrlPressed && !shiftKey && key === SEARCH_SHORTCUT_KEY) {
 				const isInInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
 
 				if (isInDataGrid || isInSearchInput || !isInInput) {

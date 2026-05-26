@@ -151,9 +151,11 @@ import {
 	getFormFieldState as getRootFormFieldState,
 	NUMBER_FILTER_OPERATORS as ROOT_NUMBER_FILTER_OPERATORS,
 	DEFAULT_ROW_HEIGHT as ROOT_DEFAULT_ROW_HEIGHT,
+	HORIZONTAL_PAGE_SIZE as ROOT_HORIZONTAL_PAGE_SIZE,
 	OVERSCAN as ROOT_OVERSCAN,
 	RowSelectCell as RootRowSelectCell,
 	RowSelectHeader as RootRowSelectHeader,
+	SEARCH_SHORTCUT_KEY as ROOT_SEARCH_SHORTCUT_KEY,
 	SELECT_FILTER_OPERATORS as ROOT_SELECT_FILTER_OPERATORS,
 	Sortable as RootSortable,
 	SortableContent as RootSortableContent,
@@ -177,7 +179,12 @@ import {
 	useDataTable as useRootDataTable,
 	useDataGridUndoRedo as useRootDataGridUndoRedo
 } from './index.js';
-import { DEFAULT_ROW_HEIGHT, OVERSCAN } from './config/data-grid.js';
+import {
+	DEFAULT_ROW_HEIGHT,
+	HORIZONTAL_PAGE_SIZE,
+	OVERSCAN,
+	SEARCH_SHORTCUT_KEY
+} from './config/data-grid.js';
 
 describe('shared upstream utilities', () => {
 	it('formats dates with the original en-US long date defaults', () => {
@@ -330,10 +337,18 @@ describe('data-grid formatting helpers', () => {
 
 describe('data-grid config', () => {
 	it('keeps the virtual row overscan default aligned with upstream', () => {
+		const useDataGridHook = readFileSync('src/lib/hooks/use-data-grid.svelte.ts', 'utf8');
+
 		expect(DEFAULT_ROW_HEIGHT).toBe('short');
 		expect(ROOT_DEFAULT_ROW_HEIGHT).toBe(DEFAULT_ROW_HEIGHT);
 		expect(OVERSCAN).toBe(6);
 		expect(ROOT_OVERSCAN).toBe(OVERSCAN);
+		expect(HORIZONTAL_PAGE_SIZE).toBe(5);
+		expect(ROOT_HORIZONTAL_PAGE_SIZE).toBe(HORIZONTAL_PAGE_SIZE);
+		expect(SEARCH_SHORTCUT_KEY).toBe('f');
+		expect(ROOT_SEARCH_SHORTCUT_KEY).toBe(SEARCH_SHORTCUT_KEY);
+		expect(useDataGridHook).toContain('SEARCH_SHORTCUT_KEY');
+		expect(useDataGridHook).not.toContain("key === 'f'");
 	});
 });
 
