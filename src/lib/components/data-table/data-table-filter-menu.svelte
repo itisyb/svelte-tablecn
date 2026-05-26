@@ -35,6 +35,7 @@
 	import { formatDate } from '$lib/format.js';
 
 	import BadgeCheck from '@lucide/svelte/icons/badge-check';
+	import CalendarIcon from '@lucide/svelte/icons/calendar';
 	import Check from '@lucide/svelte/icons/check';
 	import FilterIcon from '@lucide/svelte/icons/list-filter';
 	import Text from '@lucide/svelte/icons/text';
@@ -84,6 +85,8 @@
 	let triggerRef = $state<HTMLButtonElement | null>(null);
 	let draftInputRef = $state<HTMLInputElement | null>(null);
 	let openFieldSelectors = $state<Set<string>>(new Set());
+	let openOperatorSelectors = $state<Set<string>>(new Set());
+	let openValueSelectors = $state<Set<string>>(new Set());
 
 	const filters = $derived(table.getState().columnFilters as FilterItem[]);
 	const columns = $derived.by((): AvailableColumn[] => {
@@ -373,6 +376,61 @@
 
 		return typeof filter.value === 'string' ? filter.value : '';
 	}
+
+	function getDateDisplayValue(
+		filterValues: ReturnType<typeof getFilterValues>,
+		operator: FilterOperator
+	): string {
+		const dateValues = filterValues.values.filter(Boolean);
+		const startDate = dateValues[0];
+		const endDate = dateValues[1];
+		const isSameDate = startDate && endDate && startDate === endDate;
+
+		if (operator === 'isBetween' && startDate && endDate && !isSameDate) {
+			return `${formatDate(startDate, { month: 'short', day: 'numeric' })} - ${formatDate(endDate, { month: 'short', day: 'numeric' })}`;
+		}
+
+		return startDate ? formatDate(startDate, { month: 'short', day: 'numeric' }) : 'Pick date...';
+	}
+
+	function setOperatorSelectorOpen(filterKey: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openOperatorSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterKey);
+		} else {
+			nextOpenSelectors.delete(filterKey);
+		}
+		openOperatorSelectors = nextOpenSelectors;
+	}
+
+	function setValueSelectorOpen(filterKey: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openValueSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterKey);
+		} else {
+			nextOpenSelectors.delete(filterKey);
+		}
+		openValueSelectors = nextOpenSelectors;
+	}
+
+	function onFilterItemKeyDown(event: KeyboardEvent, filterKey: string) {
+		if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+			return;
+		}
+
+		if (
+			openFieldSelectors.has(filterKey) ||
+			openOperatorSelectors.has(filterKey) ||
+			openValueSelectors.has(filterKey)
+		) {
+			return;
+		}
+
+		if (REMOVE_FILTER_SHORTCUTS.includes(event.key.toLowerCase())) {
+			event.preventDefault();
+			removeFilter(filterKey);
+		}
+	}
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />
@@ -396,10 +454,12 @@
 			filterValues.values.includes(option.value)
 		)}
 
+		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<div
 			role="listitem"
 			id={filterItemId}
 			class="flex h-8 items-center rounded-md bg-background"
+			onkeydown={(event) => onFilterItemKeyDown(event, filterKey)}
 		>
 			<Popover
 				open={openFieldSelectors.has(filterKey)}
@@ -458,7 +518,9 @@
 
 			<Select
 				type="single"
+				open={openOperatorSelectors.has(filterKey)}
 				value={operator}
+				onOpenChange={(isOpen) => setOperatorSelectorOpen(filterKey, isOpen)}
 				onValueChange={(value: string) =>
 					updateFilter(filterKey, {
 						operator: value as FilterOperator,
@@ -512,7 +574,9 @@
 				{:else if variant === 'boolean'}
 					<Select
 						type="single"
+						open={openValueSelectors.has(filterKey)}
 						value={filterValues.primary || 'true'}
+						onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
 						onValueChange={(value: string) => updateFilter(filterKey, { value })}
 					>
 						<SelectTrigger
@@ -530,7 +594,10 @@
 						</SelectContent>
 					</Select>
 				{:else if variant === 'select' || variant === 'multiSelect'}
-					<Popover>
+					<Popover
+						open={openValueSelectors.has(filterKey)}
+						onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
+					>
 						<PopoverTrigger>
 							{#snippet child({ props })}
 								<Button
@@ -597,34 +664,63 @@
 						</PopoverContent>
 					</Popover>
 				{:else if variant === 'date' || variant === 'dateRange'}
-					<div
-						class={cn(
-							'grid gap-2 border-l-0',
-							(variant === 'dateRange' || operator === 'isBetween') && 'sm:grid-cols-2'
-						)}
+					<Popover
+						open={openValueSelectors.has(filterKey)}
+						onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}
 					>
-						<Input
-							id={inputId}
-							type="date"
-							bind:value={
-								() => filterValues.primary,
-								(value) => setDateFilterValue(filterKey, filterValues, variant, operator, value)
-							}
-							class="h-full rounded-none px-1.5"
-						/>
-						{#if variant === 'dateRange' || operator === 'isBetween'}
-							<Input
-								id={`${inputId}-end`}
-								type="date"
-								bind:value={
-									() => filterValues.secondary,
-									(value) =>
-										setDateFilterValue(filterKey, filterValues, variant, operator, value, true)
-								}
-								class="h-full rounded-none px-1.5"
-							/>
-						{/if}
-					</div>
+						<PopoverTrigger>
+							{#snippet child({ props })}
+								<Button
+									{...props}
+									id={inputId}
+									aria-controls={inputListboxId}
+									aria-label={`Change ${filterColumn?.label ?? filter.id} date`}
+									variant="ghost"
+									size="sm"
+									class={cn(
+										'h-full rounded-none border px-1.5 font-normal dark:bg-input/30',
+										filterValues.values.length === 0 && 'text-muted-foreground'
+									)}
+								>
+									<CalendarIcon class="size-3.5" />
+									<span class="truncate">{getDateDisplayValue(filterValues, operator)}</span>
+								</Button>
+							{/snippet}
+						</PopoverTrigger>
+						<PopoverContent id={inputListboxId} align="start" class="w-auto p-0">
+							{#if variant === 'dateRange' || operator === 'isBetween'}
+								<DataGridRangeCalendar
+									aria-label={`Select ${filterColumn?.label ?? filter.id} date range`}
+									value={{
+										start: toCalendarDate(filterValues.primary),
+										end: toCalendarDate(filterValues.secondary)
+									}}
+									onValueChange={(range) =>
+										updateFilter(filterKey, {
+											value: [range.start, range.end]
+												.map((value) => (value ? calendarDateToString(value) : undefined))
+												.filter((value): value is string => value !== undefined)
+										})}
+									captionLayout="dropdown"
+								/>
+							{:else}
+								<CalendarPicker
+									aria-label={`Select ${filterColumn?.label ?? filter.id} date`}
+									type="single"
+									value={toCalendarDate(filterValues.primary)}
+									onValueChange={(value: DateValue | undefined) =>
+										setDateFilterValue(
+											filterKey,
+											filterValues,
+											variant,
+											operator,
+											value ? calendarDateToString(value) : ''
+										)}
+									captionLayout="dropdown"
+								/>
+							{/if}
+						</PopoverContent>
+					</Popover>
 				{:else}
 					<Input
 						id={inputId}

@@ -2942,6 +2942,35 @@ describe('/+page.svelte', () => {
 		);
 	});
 
+	it('should remove data table filter menu rows only when child selectors are closed like the original table', () => {
+		expect(dataTableFilterMenuSource).toContain('openFieldSelectors.has(filterKey)');
+		expect(dataTableFilterMenuSource).toContain('openOperatorSelectors.has(filterKey)');
+		expect(dataTableFilterMenuSource).toContain('openValueSelectors.has(filterKey)');
+		expect(dataTableFilterMenuSource).toContain('onFilterItemKeyDown(event, filterKey)');
+		expect(dataTableFilterMenuSource).toContain('removeFilter(filterKey)');
+		expect(dataTableFilterMenuSource).toContain(
+			'onOpenChange={(isOpen) => setOperatorSelectorOpen(filterKey, isOpen)}'
+		);
+		expect(dataTableFilterMenuSource).toContain(
+			'onOpenChange={(isOpen) => setValueSelectorOpen(filterKey, isOpen)}'
+		);
+	});
+
+	it('should use calendar popovers for data table filter menu dates like the original table', () => {
+		expect(dataTableFilterMenuSource).toContain(
+			"import { Calendar as CalendarPicker } from '$lib/components/ui/calendar/index.js'"
+		);
+		expect(dataTableFilterMenuSource).toContain(
+			"import DataGridRangeCalendar from '$lib/components/data-grid/data-grid-range-calendar.svelte'"
+		);
+		expect(dataTableFilterMenuSource).toContain('<CalendarIcon class="size-3.5" />');
+		expect(dataTableFilterMenuSource).toContain('<DataGridRangeCalendar');
+		expect(dataTableFilterMenuSource).toContain('<CalendarPicker');
+		expect(dataTableFilterMenuSource).toContain('getDateDisplayValue(filterValues, operator)');
+		expect(dataTableFilterMenuSource).not.toContain('type="date"');
+		expect(dataTableFilterMenuSource).not.toContain('id={`${inputId}-end`}');
+	});
+
 	it('should forward data table filter menu popover content props like the original table', () => {
 		expect(dataTableFilterMenuSource).toContain(
 			'interface Props extends ComponentProps<typeof PopoverContent>'

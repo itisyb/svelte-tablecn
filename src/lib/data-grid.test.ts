@@ -1304,7 +1304,8 @@ describe('non-README parity docs', () => {
 			'Short text and URL cell editors now restore the original value on `Escape`',
 			'File editor popovers now only stop `Escape` key propagation',
 			'Data-table sort/filter keyboard shortcuts now remain wired like upstream',
-			'Data-table slider filters now keep user-selected default-range values active'
+			'Data-table slider filters now keep user-selected default-range values active',
+			'Data-table filter-menu chips now use calendar popovers for date values'
 		]) {
 			expect(changelog).toContain(phrase);
 		}
@@ -1314,6 +1315,7 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('compact cell-editor content radius');
 		expect(parityPlan).toContain('item radius, popper offset');
 		expect(parityPlan).toContain('upstream trigger width/offset geometry');
+		expect(parityPlan).toContain('Data-table filter-menu chips use the original calendar popovers');
 		expect(parityPlan).toContain('Latest upstream reference checked');
 		expect(parityPlan).toContain('374e6aec098890a28a2cf36880be22c884b642dd');
 		expect(parityPlan).toContain(
