@@ -19,6 +19,7 @@ import {
 	parseCellKey as parseDataGridCellKey,
 	parseLocalDate,
 	parsePastedCellValue,
+	scrollCellIntoView,
 	parseTsv,
 	serializeCellsToTsv
 } from './data-grid.js';
@@ -1749,6 +1750,42 @@ describe('getColumnPinningStyle', () => {
 			position: 'sticky',
 			zIndex: 1
 		});
+	});
+
+	it('treats negative scrollLeft as RTL like the original scroll helper', () => {
+		function makeElement(rect: { left: number; right: number }, scrollLeft = 0) {
+			return {
+				scrollLeft,
+				getBoundingClientRect: () => ({
+					...rect,
+					top: 0,
+					bottom: 0,
+					width: rect.right - rect.left,
+					height: 0,
+					x: rect.left,
+					y: 0,
+					toJSON: () => ({})
+				})
+			} as unknown as HTMLDivElement;
+		}
+
+		const container = makeElement({ left: 0, right: 100 }, -20);
+		const targetCell = makeElement({ left: 90, right: 130 });
+		const table = {
+			getLeftVisibleLeafColumns: () => [{ getSize: () => 10 }],
+			getRightVisibleLeafColumns: () => [{ getSize: () => 30 }]
+		} as never;
+
+		scrollCellIntoView({
+			container,
+			targetCell,
+			table,
+			viewportOffset: 1,
+			direction: 'right',
+			isRtl: false
+		});
+
+		expect(container.scrollLeft).toBe(21);
 	});
 
 	it('exposes data-table filter helpers from the data-table module like upstream', () => {
