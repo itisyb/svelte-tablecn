@@ -112,7 +112,8 @@ export {
 	FacetedItem,
 	FacetedList,
 	FacetedSeparator,
-	FacetedTrigger
+	FacetedTrigger,
+	type FacetedValue
 } from './faceted';
 export {
 	Form,

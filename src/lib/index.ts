@@ -158,7 +158,8 @@ export {
 	FacetedItem,
 	FacetedList,
 	FacetedSeparator,
-	FacetedTrigger
+	FacetedTrigger,
+	type FacetedValue
 } from './components/ui/faceted';
 export {
 	Form,

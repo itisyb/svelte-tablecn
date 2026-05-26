@@ -602,6 +602,7 @@ describe('package root form component exports', () => {
 			'DrawerContentProps',
 			'DrawerDirection',
 			'DrawerProps',
+			'FacetedValue',
 			'SortableItemData',
 			'SortableOrientation',
 			'SortableValue'
@@ -1250,6 +1251,7 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('table shell, table toolbars, table filters, table menus, pagination, and table skeletons');
 		expect(parityPlan).toContain('Data-table filter-list select and multi-select value editors now use the shared faceted primitive like upstream');
 		expect(parityPlan).toContain('faceted data-table filter-list option selection structure');
+		expect(parityPlan).toContain('faceted primitive value type');
 		expect(parityPlan).not.toContain('squares the nested option highlights');
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'
