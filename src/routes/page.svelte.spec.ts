@@ -491,6 +491,26 @@ describe('/+page.svelte', () => {
 		expect(selectedCell).toBeTruthy();
 	});
 
+	it('should render row-select hitboxes inside the original cell padding wrapper', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		const firstRow = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const checkbox = await waitFor(() =>
+			firstRow.querySelector<HTMLElement>('[aria-label^="Select row"]')
+		);
+		const hitbox = checkbox.parentElement as HTMLElement | null;
+		const cellPaddingWrapper = hitbox?.parentElement as HTMLElement | null;
+
+		expect(hitbox?.className).toContain('group relative -my-1.5');
+		expect(hitbox?.className).not.toContain('size-full');
+		expect(hitbox?.className).not.toContain('px-3 py-1.5');
+		expect(cellPaddingWrapper?.className).toContain('size-full px-3 py-1.5');
+		expect(cellPaddingWrapper?.className).not.toContain('flex size-full items-center justify-center');
+	});
+
 	it('should pad read-only row markers like the original grid', async () => {
 		await render(DataGridReadonlyRowSelectFixture);
 
@@ -503,6 +523,7 @@ describe('/+page.svelte', () => {
 
 		expect(wrapper?.className).toContain('size-full px-3 py-1.5');
 		expect(wrapper?.className).toContain('bg-primary/10');
+		expect(marker?.parentElement).toBe(wrapper);
 		expect(marker?.className).toContain('ps-1');
 		expect(marker?.textContent?.trim()).toBe('1');
 	});
@@ -1893,6 +1914,10 @@ describe('/+page.svelte', () => {
 	});
 
 	it('should style row select debug hitboxes like the original grid', () => {
+		expect(dataGridRowSelectCellSource).not.toContain('size-full px-3 py-1.5');
+		expect(dataGridRowSelectCellSource).not.toContain(
+			'flex size-full items-center justify-center px-3 py-1.5'
+		);
 		expect(dataGridRowSelectCellSource).toContain(
 			"debug && 'border border-red-500 border-dashed bg-red-500/20'"
 		);

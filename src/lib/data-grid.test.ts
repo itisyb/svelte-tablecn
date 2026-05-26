@@ -1301,6 +1301,7 @@ describe('non-README parity docs', () => {
 			'Standalone `drawer`, `form`, and `sortable` registry slices',
 			'primitive type contracts',
 			'shared select content radius',
+			'row-select cells now avoid an extra inner padding wrapper',
 			'Short text and URL cell editors now restore the original value on `Escape`',
 			'File editor popovers now only stop `Escape` key propagation',
 			'Data-table sort/filter keyboard shortcuts now remain wired like upstream',
@@ -1314,6 +1315,7 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
 		expect(parityPlan).toContain('shared select content radius');
 		expect(parityPlan).toContain('item radius, popper offset');
+		expect(parityPlan).toContain('row-select hitboxes and read-only markers');
 		expect(parityPlan).toContain('upstream trigger width/offset geometry');
 		expect(parityPlan).toContain('Data-table filter-menu chips use the original calendar popovers');
 		expect(parityPlan).toContain('Latest upstream reference checked');

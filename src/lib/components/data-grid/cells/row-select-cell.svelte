@@ -74,59 +74,50 @@
 </script>
 
 {#if readOnly}
-	<div class={cn('size-full px-3 py-1.5', isSelected && 'bg-primary/10')}>
-		<div
-			data-slot="row-select-readonly"
-			class="flex items-center ps-1 text-muted-foreground text-xs tabular-nums"
-		>
-			{rowNumber ?? rowIndex + 1}
-		</div>
+	<div
+		data-slot="row-select-readonly"
+		class="flex items-center ps-1 text-muted-foreground text-xs tabular-nums"
+	>
+		{rowNumber ?? rowIndex + 1}
 	</div>
 {:else}
 	<div
 		class={cn(
-			'flex size-full items-center justify-center px-3 py-1.5',
-			isSelected && 'bg-primary/10'
+			'group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5',
+			hitboxClass
 		)}
 	>
-		<div
-			class={cn(
-				'group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5',
-				hitboxClass
-			)}
-		>
-			{#if rowNumber !== undefined}
-				<div
-					aria-hidden="true"
-					class={cn(
-						'pointer-events-none absolute start-3 top-1.5 flex size-4 items-center justify-center text-muted-foreground text-xs tabular-nums transition-opacity group-hover:opacity-0',
-						isSelected && 'opacity-0'
-					)}
-				>
-					{rowNumber}
-				</div>
-			{/if}
+		{#if rowNumber !== undefined}
+			<div
+				aria-hidden="true"
+				class={cn(
+					'pointer-events-none absolute start-3 top-1.5 flex size-4 items-center justify-center text-muted-foreground text-xs tabular-nums transition-opacity group-hover:opacity-0',
+					isSelected && 'opacity-0'
+				)}
+			>
+				{rowNumber}
+			</div>
+		{/if}
 
-			<Checkbox
-				id={checkboxId}
-				aria-label={rowNumber ? `Select row ${rowNumber}` : 'Select row'}
-				class={cn(
-					'relative transition-[shadow,border,opacity] hover:border-primary/40',
-					rowNumber !== undefined &&
-						'opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100'
-				)}
-				checked={isSelected}
-				onCheckedChange={handleCheckedChange}
-				onclick={handleClick}
-				onmousedown={handleMouseDown}
-			/>
-			<label
-				for={checkboxId}
-				class={cn(
-					'absolute inset-0 cursor-pointer',
-					debug && 'border border-red-500 border-dashed bg-red-500/20'
-				)}
-			></label>
-		</div>
+		<Checkbox
+			id={checkboxId}
+			aria-label={rowNumber ? `Select row ${rowNumber}` : 'Select row'}
+			class={cn(
+				'relative transition-[shadow,border,opacity] hover:border-primary/40',
+				rowNumber !== undefined &&
+					'opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100'
+			)}
+			checked={isSelected}
+			onCheckedChange={handleCheckedChange}
+			onclick={handleClick}
+			onmousedown={handleMouseDown}
+		/>
+		<label
+			for={checkboxId}
+			class={cn(
+				'absolute inset-0 cursor-pointer',
+				debug && 'border border-red-500 border-dashed bg-red-500/20'
+			)}
+		></label>
 	</div>
 {/if}

@@ -39,6 +39,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
 - The data-grid single-select cell editor keeps the shared select content radius, original item radius, popper offset, and trigger width model while matching the active cell width
+- Data-grid row-select cells render the original hitbox and read-only marker directly inside the row's standard cell padding wrapper
 - Short text and URL editors cancel Escape edits back to the original cell value, matching the upstream contenteditable cell behavior
 - The file editor popover only contains Escape key propagation, matching the upstream file-cell popover escape handling while allowing ordinary keys to bubble normally
 - The action bar exposes the upstream cancelable entry-focus event and item-select event ordering, with browser coverage for both paths
@@ -61,6 +62,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Registry audit coverage now directly fails on unresolved `registry.json` source paths before import/dependency checks inspect shipped files
 - Data-grid search, row-height, view-menu, skeleton, context-menu, and column-header surfaces were rechecked against upstream; existing Svelte differences are adapter/reactivity differences, and the search structure now has explicit source assertions
 - Data-grid paste dialog and cell-wrapper surfaces were rechecked against upstream; the dialog structure now has explicit source assertions for copy, radio options, callbacks, and popover containment
+- Data-grid row-select hitboxes and read-only markers were rechecked against upstream; browser coverage now guards against an extra inner padding wrapper around those controls
 - Data-table shell, pagination, toolbar, advanced-toolbar, view-options, filter-list, and skeleton surfaces were rechecked against upstream; the table shell and skeleton now have explicit source assertions for layout, pinning, empty state, pagination/action-bar placement, and loading placeholders
 - Data-table filter-list select and multi-select value editors now use the shared faceted primitive like upstream, preserving the original badge-list trigger, option search, check item, count, and icon structure
 - Data-table filter-menu chips use the original calendar popovers for date values and only handle row-removal shortcuts when child selectors are closed
@@ -81,7 +83,7 @@ Latest upstream reference checked: `374e6aec098890a28a2cf36880be22c884b642dd`.
 - Registry item names: local includes every upstream installable item; the only local-only registry items are the intentional Svelte primitive additions `drawer`, `form`, and `sortable`.
 - Registry source paths: every `registry.json` file path resolves to an existing local source file.
 - Package root exports: the root entrypoint exposes the shipped grid/table surfaces used by the README and upstream demos, including grid menus, skeletons, `getDataGridSelectColumn`, `useDataGrid`, `useDataGridUndoRedo`, table shell, table toolbars, table filters, table menus, pagination, and table skeletons.
-- Runtime editor behavior: focused browser coverage now checks select editor geometry and shared radius, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, grid search open/reset/result behavior, and faceted data-table filter-list option selection structure.
+- Runtime editor behavior: focused browser coverage now checks select editor geometry and shared radius, row-select hitbox placement, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, grid search open/reset/result behavior, and faceted data-table filter-list option selection structure.
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 
