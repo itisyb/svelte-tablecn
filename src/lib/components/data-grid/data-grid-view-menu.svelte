@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData">
-	import type { Table } from '@tanstack/table-core';
+	import type { Column, Table } from '@tanstack/table-core';
 	import type { Direction } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -46,10 +46,10 @@
 	// Get visibility state reactively
 	const columnVisibility = $derived(table.getState().columnVisibility);
 
-	// Helper to check if column is visible - reads from reactive state
-	function isColumnVisible(columnId: string): boolean {
-		// If not in visibility state, default to visible (true)
-		return columnVisibility[columnId] !== false;
+	// Reads columnVisibility for Svelte reactivity, then delegates to TanStack like the original.
+	function isColumnVisible(column: Column<TData, unknown>): boolean {
+		void columnVisibility;
+		return column.getIsVisible();
 	}
 </script>
 
@@ -78,7 +78,7 @@
 				<CommandEmpty>No columns found.</CommandEmpty>
 				<CommandGroup>
 					{#each columns as column (column.id)}
-						{@const isVisible = isColumnVisible(column.id)}
+						{@const isVisible = isColumnVisible(column)}
 						{@const label = column.columnDef.meta?.label ?? column.id}
 						<CommandItem
 							value={label}

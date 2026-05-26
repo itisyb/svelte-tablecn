@@ -9,6 +9,7 @@
 			id: 'user_name',
 			accessorFn: () => undefined,
 			getCanHide: () => true,
+			getIsVisible: () => columnVisibility.user_name !== false,
 			columnDef: { meta: { label: 'Full Name' } },
 			toggleVisibility: (value: boolean) => {
 				columnVisibility = { ...columnVisibility, user_name: value };
@@ -18,6 +19,7 @@
 			id: 'team',
 			accessorFn: () => undefined,
 			getCanHide: () => true,
+			getIsVisible: () => columnVisibility.team !== false,
 			columnDef: { meta: { label: 'Team' } },
 			toggleVisibility: (value: boolean) => {
 				columnVisibility = { ...columnVisibility, team: value };

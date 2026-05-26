@@ -1858,7 +1858,11 @@ describe('/+page.svelte', () => {
 		expect(dataGridViewMenuSource).toContain(
 			"<PopoverContent {dir} class={cn('w-44 p-0', className)} {...contentProps}>"
 		);
+		expect(dataGridViewMenuSource).toContain('void columnVisibility;');
+		expect(dataGridViewMenuSource).toContain('return column.getIsVisible();');
+		expect(dataGridViewMenuSource).toContain('onSelect={() => column.toggleVisibility(!isVisible)}');
 		expect(dataGridViewMenuSource).not.toContain("align = 'start'");
+		expect(dataGridViewMenuSource).not.toContain("columnVisibility[columnId] !== false");
 	});
 
 	it('should forward data grid skeleton root props like the original grid', () => {
