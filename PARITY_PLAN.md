@@ -39,6 +39,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
 - The data-grid single-select cell editor uses square cell-scoped content and cancels select side translation, leaving the shared select primitive default shape intact
+- The data-grid single-select cell editor also squares the nested option highlights so the open editor does not reintroduce rounded inner rows
 - README registry documentation is checked against `registry.json` so every installable `/r/*.json` slice is listed
 - Registry item names are checked against the original installable set, with `drawer`, `form`, and `sortable` recorded as intentional Svelte-only primitive additions
 - Common registry items are checked to preserve upstream UI registry dependencies while allowing Svelte-specific additions
@@ -49,6 +50,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Standalone data-grid select-column registry coverage checks the slice stays scoped to row-selection rendering helpers instead of over-shipping the full table barrel
 - The full data-grid registry bundle excludes the demo-only `use-window-size.svelte.ts` hook, matching the original installable registry scope
 - Standalone row-height, view, and keyboard-shortcut registry slices declare only packages directly imported by those Svelte files; UI primitive packages stay behind `registryDependencies`
+- The `data-grid.ts` module exports upstream cell-key and row-height helpers directly, even though their implementations live in Svelte type utilities
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

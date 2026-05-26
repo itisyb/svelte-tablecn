@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-table README option documentation now includes required `data` and `columns` options and is checked against `UseDataTableOptions`.
 - Generated registry artifact coverage now verifies item metadata and file `type`/`target` entries against `registry.json`.
 - Data grid select editor popovers now use square, cell-aligned content and cancel the shared select side translation while keeping shared selects unchanged.
+- Data grid select editor options now keep square highlights inside the square cell editor surface.
 - README registry documentation now lists every installable `/r/*.json` item and is checked against `registry.json`.
 - Registry parity coverage now asserts every original installable item remains present, with only `drawer`, `form`, and `sortable` as intentional Svelte additions.
 - Registry parity coverage now asserts common installable items preserve upstream UI registry dependencies while allowing Svelte-specific additions.
@@ -31,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standalone data-grid select-column registry coverage now checks the slice stays scoped to row-selection rendering helpers.
 - Data-grid registry coverage now guards against bundling the demo-only window size hook.
 - Standalone grid menu/dialog registry dependency coverage now checks direct package imports rather than primitive implementation packages.
+- Data-grid module coverage now checks upstream cell-key and row-height helpers are exported from `data-grid.ts`.
 
 ### Fixed
 
@@ -40,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-grid components import Svelte table render helpers directly, so the data-grid and select-column registry slices no longer ship the full `$lib/table` barrel or table creation files.
 - The full data-grid registry bundle no longer ships `use-window-size.svelte.ts`, matching the original registry where window sizing is demo-only.
 - Standalone row-height, view, and keyboard-shortcut registry slices no longer declare `bits-ui` directly when it is only provided through UI primitive registry dependencies.
+- `data-grid.ts` now re-exports cell-key and row-height helpers so module-level utility imports match the original API.
+- Data grid select editor option highlights no longer keep the shared select item radius inside the square cell editor surface.
 - Cell and row selection after filtering: use row-model position (not core `row.index`) so shift-select and counts only include visible rows ([#20](https://github.com/itisyb/svelte-tablecn/issues/20))
 - Click outside the grid clears cell focus (tablecn behavior); no longer re-focuses the cell on `focusout`
 

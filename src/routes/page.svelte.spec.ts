@@ -403,8 +403,9 @@ describe('/+page.svelte', () => {
 		const firstItem = await waitFor(() =>
 			content.querySelector<HTMLElement>('[data-slot="select-item"]')
 		);
-		expect(firstItem.className).toContain('rounded-sm');
-		expect(firstItem.className).not.toContain('rounded-[2px]');
+		expect(getComputedStyle(firstItem).borderRadius).toBe('0px');
+		expect(firstItem.className).toContain('rounded-none');
+		expect(firstItem.className).not.toContain('rounded-sm');
 
 		let bubbledToGrid = false;
 		const onGridKeyDown = () => {
@@ -1710,6 +1711,9 @@ describe('/+page.svelte', () => {
 		expect(dataGridSelectCellSource).toContain('width: calc(100% - 16px)');
 		expect(dataGridSelectCellSource).toContain('rounded-none');
 		expect(dataGridSelectCellSource).toContain('data-[side=bottom]:translate-y-0');
+		expect(dataGridSelectCellSource).toContain(
+			'<SelectItem value={option.value} label={option.label} class="rounded-none">'
+		);
 		expect(dataGridSelectCellSource).not.toContain('rounded-md');
 		expect(dataGridSelectCellSource).not.toContain('rounded-lg');
 	});

@@ -18,7 +18,12 @@ import Presentation from '@lucide/svelte/icons/presentation';
 import TextInitialIcon from '@lucide/svelte/icons/text';
 import {
 	getCellKey,
+	getCellValueKey,
+	getLineCount,
+	getRowHeightValue,
 	parseCellKey,
+	ROW_HEIGHT_VALUES,
+	ROW_LINE_COUNTS,
 	type CellOpts,
 	type CellPosition,
 	type CellSelectOption,
@@ -26,6 +31,16 @@ import {
 	type FileCellData
 } from '$lib/types/data-grid.js';
 import { VIEWPORT_OFFSET } from '$lib/config/data-grid.js';
+
+export {
+	getCellKey,
+	getCellValueKey,
+	getLineCount,
+	getRowHeightValue,
+	parseCellKey,
+	ROW_HEIGHT_VALUES,
+	ROW_LINE_COUNTS
+};
 
 const DOMAIN_REGEX = /^[\w.-]+\.[a-z]{2,}(\/\S*)?$/i;
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}.*)?$/;

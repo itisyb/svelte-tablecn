@@ -136,7 +136,7 @@
 				style="min-width: calc(var(--bits-select-anchor-width) + 16px);"
 			>
 				{#each options as option (option.value)}
-					<SelectItem value={option.value} label={option.label}>
+					<SelectItem value={option.value} label={option.label} class="rounded-none">
 						{option.label}
 					</SelectItem>
 				{/each}

@@ -6,12 +6,16 @@ import {
 	formatDateForDisplay,
 	formatDateToString,
 	formatFileSize,
+	getCellKey as getDataGridCellKey,
 	getColumnVariant,
 	getColumnPinningStyle,
 	getFileIcon,
+	getLineCount as getDataGridLineCount,
 	getIsInPopover,
 	getRowIndicesForDeletion,
+	getRowHeightValue as getDataGridRowHeightValue,
 	getUrlHref,
+	parseCellKey as parseDataGridCellKey,
 	parseLocalDate,
 	parsePastedCellValue,
 	parseTsv,
@@ -300,6 +304,14 @@ describe('data-grid formatting helpers', () => {
 		expect(getFileIcon('image/png')).toBeTypeOf('function');
 		expect(getColumnVariant('multi-select')).toMatchObject({ label: 'Multi-select' });
 		expect(getColumnVariant(undefined)).toBeNull();
+	});
+
+	it('exposes upstream cell key and row height helpers from the data-grid module', () => {
+		expect(getDataGridCellKey(2, 'status')).toBe('2:status');
+		expect(parseDataGridCellKey('2:status')).toEqual({ rowIndex: 2, columnId: 'status' });
+		expect(parseDataGridCellKey('bad')).toEqual({ rowIndex: 0, columnId: '' });
+		expect(getDataGridRowHeightValue('medium')).toBe(56);
+		expect(getDataGridLineCount('extra-tall')).toBe(4);
 	});
 });
 
