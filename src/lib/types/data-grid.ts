@@ -69,6 +69,8 @@ export interface UpdateCell {
 	value: unknown;
 }
 
+export type CellUpdate = UpdateCell;
+
 // ============================================
 // Position & Selection Types
 // ============================================
@@ -293,7 +295,7 @@ declare module '@tanstack/table-core' {
 		onRowHeightChange?: (updater: Updater<RowHeightValue>) => void;
 		getVisualRowIndex?: (rowId: string) => number | undefined;
 		onRowSelect?: (rowId: string, checked: boolean, shiftKey: boolean) => void;
-		onDataUpdate?: (params: UpdateCell | UpdateCell[]) => void;
+		onDataUpdate?: (params: CellUpdate | CellUpdate[]) => void;
 		onRowsDelete?: (rowIndices: number[]) => void | Promise<void>;
 		onColumnClick?: (columnId: string) => void;
 		onCellClick?: (rowIndex: number, columnId: string, event?: MouseEvent) => void;

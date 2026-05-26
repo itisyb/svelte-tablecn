@@ -364,6 +364,7 @@ export type {
 	SearchStateData,
 	SearchState,
 	FilterValue,
+	CellUpdate,
 	UpdateCell,
 	NavigationDirection,
 	DataGridProps,

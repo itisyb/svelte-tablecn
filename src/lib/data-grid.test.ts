@@ -579,8 +579,11 @@ describe('package root form component exports', () => {
 		const dataGridTypes = readFileSync('src/lib/types/data-grid.ts', 'utf8');
 
 		expect(packageRoot).toContain('DataGridCellProps');
+		expect(packageRoot).toContain('CellUpdate');
 		expect(dataGridTypes).toContain('TableMeta');
 		expect(dataGridTypes).toContain('export interface DataGridCellProps');
+		expect(dataGridTypes).toContain('export type CellUpdate = UpdateCell');
+		expect(dataGridTypes).toContain('onDataUpdate?: (params: CellUpdate | CellUpdate[]) => void');
 
 		for (const field of [
 			'cell: Cell<TData, unknown>',
