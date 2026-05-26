@@ -38,7 +38,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-grid option documentation is checked against `UseDataGridOptions`, including sorting, filter, and row-selection change callbacks
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
-- The data-grid single-select cell editor keeps the original select content radius, item radius, and popper offset while matching the active cell width
+- The data-grid single-select cell editor keeps the original select item radius and popper offset while using a softer editor surface radius that matches the active cell width
 - Short text and URL editors cancel Escape edits back to the original cell value, matching the upstream contenteditable cell behavior
 - The file editor popover only contains Escape key propagation, matching the upstream file-cell popover escape handling while allowing ordinary keys to bubble normally
 - The action bar exposes the upstream cancelable entry-focus event and item-select event ordering, with browser coverage for both paths

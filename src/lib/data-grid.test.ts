@@ -1231,7 +1231,8 @@ describe('non-README parity docs', () => {
 
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
-		expect(parityPlan).toContain('original select content radius, item radius, and popper offset');
+		expect(parityPlan).toContain('original select item radius and popper offset');
+		expect(parityPlan).toContain('softer editor surface radius');
 		expect(parityPlan).toContain('Latest upstream reference checked');
 		expect(parityPlan).toContain('374e6aec098890a28a2cf36880be22c884b642dd');
 		expect(parityPlan).toContain(

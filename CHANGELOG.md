@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Data grid select editor popovers now use a softer cell-editor radius while preserving the original item radius, width, and offset.
 - Data grid select editor popovers no longer override the shared select offset, matching the original menu placement.
 - Short text and URL cell editors now restore the original value on `Escape`, matching upstream edit cancellation behavior.
 - File editor popovers now only stop `Escape` key propagation, allowing ordinary keys to bubble like the upstream file editor.
