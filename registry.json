@@ -311,7 +311,6 @@
 				"bits-ui",
 				"clsx",
 				"tailwind-merge",
-				"svelte-dnd-action",
 				"@lucide/svelte"
 			],
 			"registryDependencies": [
@@ -488,8 +487,8 @@
 			"type": "registry:component",
 			"title": "Data Table Sort List",
 			"description": "A sort list component for the data table.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "popover", "select"],
+			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"registryDependencies": ["badge", "button", "command", "popover", "select", "sortable"],
 			"files": [
 				{
 					"path": "src/lib/components/data-table/data-table-sort-list.svelte",

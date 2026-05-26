@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Data-table sort-list row reordering now composes the shared sortable primitive like the original table.
 - Data-table filter-list row reordering now composes the shared sortable primitive like the original table.
 - Sheet portal and overlay slots are now exposed through the sheet, UI, and package-root barrels.
 - Data grid select editor popovers now use the shared select surface radius while preserving the width and offset alignment.

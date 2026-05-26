@@ -918,6 +918,14 @@ describe('data-grid registry item', () => {
 			registry.items.find((registryItem) => registryItem.name === 'data-table-filter-list')
 				?.registryDependencies
 		).toContain('sortable');
+		expect(
+			registry.items.find((registryItem) => registryItem.name === 'data-table-sort-list')
+				?.dependencies
+		).not.toContain('svelte-dnd-action');
+		expect(
+			registry.items.find((registryItem) => registryItem.name === 'data-table-sort-list')
+				?.registryDependencies
+		).toContain('sortable');
 	});
 
 	it('keeps standalone grid utility registry dependencies scoped to direct imports', () => {

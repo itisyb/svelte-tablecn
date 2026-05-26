@@ -3105,11 +3105,32 @@ describe('/+page.svelte', () => {
 	it('should keep data table sort drag handle focus styling aligned with outline buttons', () => {
 		expect(dataTableSortListSource).toContain('Button, buttonVariants');
 		expect(dataTableSortListSource).toContain('aria-label="drag handle for sort"');
+		expect(dataTableSortListSource).toContain('SortableItemHandle');
 		expect(dataTableSortListSource).toContain(
 			"buttonVariants({ variant: 'outline', size: 'icon' })"
 		);
 		expect(dataTableSortListSource).toContain("'size-8 shrink-0 cursor-grab rounded'");
 		expect(dataTableSortListSource).not.toContain('focus-visible:ring-1 focus-visible:ring-ring');
+	});
+
+	it('should use the shared sortable primitive for data table sort list reordering like the original table', () => {
+		for (const name of [
+			'Sortable',
+			'SortableContent',
+			'SortableItem',
+			'SortableItemHandle',
+			'SortableOverlay'
+		]) {
+			expect(dataTableSortListSource).toContain(name);
+		}
+
+		expect(dataTableSortListSource).toContain("from '$lib/components/ui/sortable/index.js'");
+		expect(dataTableSortListSource).toContain('value={sorting}');
+		expect(dataTableSortListSource).toContain('getItemValue={getSortableSortValue}');
+		expect(dataTableSortListSource).toContain('type="data-table-sort-items"');
+		expect(dataTableSortListSource).toContain('h-8 w-[180px] rounded-sm bg-primary/10');
+		expect(dataTableSortListSource).not.toContain('use:dragHandleZone');
+		expect(dataTableSortListSource).not.toContain("from 'svelte-dnd-action'");
 	});
 
 	it('should remove data table sort rows only when child selectors are closed like the original table', () => {
