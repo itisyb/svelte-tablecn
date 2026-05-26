@@ -1241,6 +1241,8 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('every `registry.json` file path resolves');
 		expect(parityPlan).toContain('Escape cancel for short text and URL cells');
 		expect(parityPlan).toContain('Escape-only key containment in the file editor popover');
+		expect(parityPlan).toContain('Data-grid search, row-height, view-menu, skeleton, context-menu, and column-header surfaces were rechecked against upstream');
+		expect(parityPlan).toContain('grid search open/reset/result behavior');
 		expect(parityPlan).not.toContain('squares the nested option highlights');
 		expect(parityPlan).not.toContain(
 			'a final documentation audit against any newly completed parity surfaces outside the README examples'

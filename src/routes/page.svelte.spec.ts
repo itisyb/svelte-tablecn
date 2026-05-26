@@ -3637,6 +3637,21 @@ describe('/+page.svelte', () => {
 		expect(dataGridSearchSource).not.toContain('focus-visible:ring-1');
 	});
 
+	it('should keep data grid search structure aligned with the original component', () => {
+		expect(dataGridSearchSource).toContain('role="search"');
+		expect(dataGridSearchSource).toContain('data-slot="grid-search"');
+		expect(dataGridSearchSource).toContain('placeholder="Find in table..."');
+		expect(dataGridSearchSource).toContain('<svelte:window onkeydown={handleWindowKeydown} />');
+		expect(dataGridSearchSource).toContain("if (event.key === 'Escape')");
+		expect(dataGridSearchSource).toContain('target.releasePointerCapture(event.pointerId)');
+		for (const label of ['Previous match', 'Next match', 'Close search']) {
+			expect(dataGridSearchSource).toContain(`aria-label="${label}"`);
+		}
+		for (const text of ['No results', 'Type to search']) {
+			expect(dataGridSearchSource).toContain(text);
+		}
+	});
+
 	it('should expose the original initial search match index', async () => {
 		await render(DataGridSearchStateFixture);
 
