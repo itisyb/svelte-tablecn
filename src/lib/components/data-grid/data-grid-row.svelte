@@ -144,8 +144,7 @@
 		{@const pinningStyle = toPinningStyleString(
 			getColumnPinningStyle({ column: cell.column, dir })
 		)}
-		{@const customCell = cell.column.columnDef.cell}
-		{@const hasGridCellVariant = cell.column.columnDef.meta?.cell != null}
+		{@const isCustomRenderCell = typeof cell.column.columnDef.header === 'function'}
 
 		<div
 			role="gridcell"
@@ -161,9 +160,9 @@
 			})}
 			style="{pinningStyle}; width: calc(var(--col-{cell.column.id}-size) * 1px);"
 		>
-			{#if customCell && !hasGridCellVariant}
+			{#if isCustomRenderCell}
 				<div class={cn('size-full px-3 py-1.5', isRowSelected && 'bg-primary/10')}>
-					<FlexRender content={customCell} context={cell.getContext()} />
+					<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
 				</div>
 			{:else}
 				<DataGridCell {cell} {table} {selectedCellsSet} {selectionVersion} />

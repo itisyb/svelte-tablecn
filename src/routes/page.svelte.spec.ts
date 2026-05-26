@@ -1589,13 +1589,18 @@ describe('/+page.svelte', () => {
 		expect(firstCell.hasAttribute('data-focused')).toBe(true);
 	});
 
-	it('should render custom data grid cell renderers directly', async () => {
+	it('should render custom data grid cell renderers only for function headers like upstream', async () => {
 		await render(DataGridCustomCellFixture);
 
-		const cell = await waitFor(() => document.querySelector<HTMLElement>('[data-slot="grid-cell"]'));
+		const cells = await waitFor(() => {
+			const currentCells = Array.from(document.querySelectorAll<HTMLElement>('[data-slot="grid-cell"]'));
+			return currentCells.length >= 2 ? currentCells : null;
+		});
 
-		expect(cell.textContent?.trim()).toBe('Custom Ada');
-		expect(cell.querySelector('[data-slot="grid-cell-wrapper"]')).toBeNull();
+		expect(cells[0]?.textContent?.trim()).toBe('Ada');
+		expect(cells[0]?.querySelector('[data-slot="grid-cell-wrapper"]')).toBeTruthy();
+		expect(cells[1]?.textContent?.trim()).toBe('Custom Ada');
+		expect(cells[1]?.querySelector('[data-slot="grid-cell-wrapper"]')).toBeNull();
 	});
 
 	it('should disable the data grid row height menu', async () => {
@@ -1754,6 +1759,10 @@ describe('/+page.svelte', () => {
 			"'absolute flex w-full border-b [content-visibility:auto]'"
 		);
 		expect(dataGridRowSource).toContain('content-visibility: auto;');
+		expect(dataGridRowSource).toContain(
+			"typeof cell.column.columnDef.header === 'function'"
+		);
+		expect(dataGridRowSource).not.toContain('hasGridCellVariant');
 	});
 
 	it('should forward data grid cell wrapper props like the original grid wrapper', () => {

@@ -11,9 +11,16 @@
 
 	const columns: ColumnDef<Person, unknown>[] = [
 		{
-			id: 'custom',
+			id: 'string-custom',
 			accessorKey: 'name',
-			header: 'Custom',
+			header: 'String custom',
+			cell: ({ row }) => `String custom ${row.original.name}`,
+			size: 180
+		},
+		{
+			id: 'function-custom',
+			accessorKey: 'name',
+			header: () => 'Function custom',
 			cell: ({ row }) => `Custom ${row.original.name}`,
 			size: 180
 		}
