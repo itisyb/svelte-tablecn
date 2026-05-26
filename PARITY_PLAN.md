@@ -67,6 +67,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README UI primitive docs now distinguish package-root exports from standalone registry items and include the exported faceted primitive surface
 - README UI primitive docs now list the full exported faceted primitive surface, matching the package root and UI barrel aliases
 - Data-grid single-select editor popovers now use the tighter cell-editor radius while preserving the cell-width and offset alignment.
+- Sheet portal and overlay slots now have public `SheetPortal` and `SheetOverlay` aliases in the sheet, UI, and package-root barrels.
 
 ## Audit Evidence
 

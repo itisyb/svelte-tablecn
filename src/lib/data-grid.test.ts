@@ -107,6 +107,10 @@ import {
 	useFormField as useComponentFormField
 } from './components/ui/form/index.js';
 import {
+	SheetOverlay as ComponentSheetOverlay,
+	SheetPortal as ComponentSheetPortal
+} from './components/ui/sheet/index.js';
+import {
 	BOOLEAN_FILTER_OPERATORS as ROOT_BOOLEAN_FILTER_OPERATORS,
 	DataGrid as RootDataGrid,
 	DataGridActionBar as RootDataGridActionBar,
@@ -172,6 +176,8 @@ import {
 	RowSelectHeader as RootRowSelectHeader,
 	SEARCH_SHORTCUT_KEY as ROOT_SEARCH_SHORTCUT_KEY,
 	SELECT_FILTER_OPERATORS as ROOT_SELECT_FILTER_OPERATORS,
+	SheetOverlay as RootSheetOverlay,
+	SheetPortal as RootSheetPortal,
 	Sortable as RootSortable,
 	SortableContent as RootSortableContent,
 	SortableItem as RootSortableItem,
@@ -643,6 +649,13 @@ describe('package root form component exports', () => {
 		]) {
 			expect(dataGridTypes).toContain(field);
 		}
+	});
+});
+
+describe('package root sheet component exports', () => {
+	it('exposes the shipped sheet portal and overlay slots from the package root', () => {
+		expect(RootSheetPortal).toBe(ComponentSheetPortal);
+		expect(RootSheetOverlay).toBe(ComponentSheetOverlay);
 	});
 });
 

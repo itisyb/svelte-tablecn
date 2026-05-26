@@ -2118,7 +2118,13 @@ describe('/+page.svelte', () => {
 		expect(libIndexSource).toContain("} from './components/ui/sheet';");
 		expect(sheetIndexSource).toContain('Root as Sheet');
 		expect(sheetIndexSource).toContain('Content as SheetContent');
+		expect(sheetIndexSource).toContain('Overlay as SheetOverlay');
+		expect(sheetIndexSource).toContain('Portal as SheetPortal');
 		expect(sheetIndexSource).toContain('Trigger as SheetTrigger');
+		expect(uiIndexSource).toContain('SheetOverlay');
+		expect(uiIndexSource).toContain('SheetPortal');
+		expect(libIndexSource).toContain('SheetOverlay');
+		expect(libIndexSource).toContain('SheetPortal');
 		expect(sheetRootSource).toContain('"data-slot": "sheet"');
 		expect(sheetRootSource).toContain('<DialogPrimitive.Root bind:open {...rootProps}>');
 		expect(sheetPortalSource).toContain('"data-slot": "sheet-portal"');

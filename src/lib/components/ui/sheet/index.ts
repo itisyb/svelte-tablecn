@@ -27,6 +27,8 @@ export {
 	Description as SheetDescription,
 	Footer as SheetFooter,
 	Header as SheetHeader,
+	Overlay as SheetOverlay,
+	Portal as SheetPortal,
 	Title as SheetTitle,
 	Trigger as SheetTrigger,
 };

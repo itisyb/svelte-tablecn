@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Sheet portal and overlay slots are now exposed through the sheet, UI, and package-root barrels.
 - Data grid select editor popovers now use the tighter cell-editor radius while preserving the width and offset alignment.
 - Data-table range filters now preserve incomplete `isBetween` values like upstream and apply the same one-sided numeric behavior in the in-memory row filter reference.
 - Data grid select editor popovers now use a tighter content radius with the upstream trigger width/offset geometry.

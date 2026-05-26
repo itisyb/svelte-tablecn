@@ -271,6 +271,8 @@ export {
 	SheetDescription,
 	SheetFooter,
 	SheetHeader,
+	SheetOverlay,
+	SheetPortal,
 	SheetTitle,
 	SheetTrigger
 } from './components/ui/sheet';
