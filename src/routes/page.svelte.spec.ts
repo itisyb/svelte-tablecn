@@ -1568,6 +1568,18 @@ describe('/+page.svelte', () => {
 		expect(content.className).toContain('row-height-content-fixture');
 	});
 
+	it('should keep row height menu fallback display aligned with the original grid', () => {
+		expect(dataGridRowHeightMenuSource).toContain(
+			'const rowHeight = $derived(table.options.meta?.rowHeight);'
+		);
+		expect(dataGridRowHeightMenuSource).toContain(
+			'rowHeights.find((opt) => opt.value === (rowHeight ?? defaultRowHeight))'
+		);
+		expect(dataGridRowHeightMenuSource).toContain('value={rowHeight}');
+		expect(dataGridRowHeightMenuSource).not.toContain("rowHeight ?? 'short'");
+		expect(dataGridRowHeightMenuSource).not.toContain("meta?.rowHeight ?? 'short'");
+	});
+
 	it('should render hide column as a plain menu item', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();

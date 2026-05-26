@@ -36,11 +36,11 @@
 	let { table, disabled = false, class: className, ...contentProps }: Props = $props();
 
 	const defaultRowHeight = rowHeights[0]?.value ?? 'short';
-	const rowHeight = $derived(table.options.meta?.rowHeight ?? defaultRowHeight);
+	const rowHeight = $derived(table.options.meta?.rowHeight);
 	const onRowHeightChange = $derived(table.options.meta?.onRowHeightChange);
 
 	const selectedRowHeight = $derived(
-		rowHeights.find((opt) => opt.value === rowHeight) ?? rowHeights[0]
+		rowHeights.find((opt) => opt.value === (rowHeight ?? defaultRowHeight)) ?? rowHeights[0]
 	);
 
 	function handleValueChange(value: string) {
