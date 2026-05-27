@@ -25,6 +25,7 @@
 		SortableItemHandle,
 		SortableOverlay
 	} from '$lib/components/ui/sortable/index.js';
+	import { dataTableConfig } from '$lib/config/data-table.js';
 	import { useId } from 'bits-ui';
 	import type { ComponentProps } from 'svelte';
 
@@ -35,11 +36,6 @@
 
 	const SORT_SHORTCUT_KEY = 's';
 	const REMOVE_SORT_SHORTCUTS = ['backspace', 'delete'];
-	const SORT_ORDERS = [
-		{ label: 'Asc', value: 'asc' },
-		{ label: 'Desc', value: 'desc' }
-	] as const;
-
 	interface Props extends ComponentProps<typeof PopoverContent> {
 		table: Table<TData>;
 		disabled?: boolean;
@@ -295,7 +291,7 @@
 									id={directionListboxId}
 									class="min-w-[var(--bits-select-anchor-width)]"
 								>
-									{#each SORT_ORDERS as order (order.value)}
+									{#each dataTableConfig.sortOrders as order (order.value)}
 										<SelectItem value={order.value}>{order.label}</SelectItem>
 									{/each}
 								</SelectContent>

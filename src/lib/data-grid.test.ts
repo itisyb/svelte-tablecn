@@ -870,7 +870,7 @@ describe('data-grid registry item', () => {
 			}>;
 		};
 		const expectedTargets = new Map([
-			['data-table-sort-list', ['data-table/data-table-sort-list.svelte']],
+			['data-table-sort-list', ['data-table/data-table-sort-list.svelte', 'config/data-table.ts']],
 			[
 				'data-table-filter-list',
 				[
@@ -1304,6 +1304,7 @@ describe('non-README parity docs', () => {
 			'2px cell-editor radius',
 			'row-select cells now avoid an extra inner padding wrapper',
 			'`FacetedItem` now forwards the selected item value',
+			'Data-table sort-list direction options now read from the shared data-table config',
 			'Short text and URL cell editors now restore the original value on `Escape`',
 			'File editor popovers now only stop `Escape` key propagation',
 			'Data-table sort/filter keyboard shortcuts now remain wired like upstream',
@@ -1322,6 +1323,7 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('row-select hitboxes and read-only markers');
 		expect(parityPlan).toContain('upstream trigger width/offset geometry');
 		expect(parityPlan).toContain('Data-table filter-menu chips use the original calendar popovers');
+		expect(parityPlan).toContain('dataTableConfig.sortOrders');
 		expect(parityPlan).toContain('Latest upstream reference checked');
 		expect(parityPlan).toContain('374e6aec098890a28a2cf36880be22c884b642dd');
 		expect(parityPlan).toContain(

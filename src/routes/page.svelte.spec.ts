@@ -3263,6 +3263,16 @@ describe('/+page.svelte', () => {
 		expect(dataTableSortListSource).not.toContain("from 'svelte-dnd-action'");
 	});
 
+	it('should use shared data table sort order config like the original table', () => {
+		expect(dataTableSortListSource).toContain(
+			"import { dataTableConfig } from '$lib/config/data-table.js'"
+		);
+		expect(dataTableSortListSource).toContain(
+			'{#each dataTableConfig.sortOrders as order (order.value)}'
+		);
+		expect(dataTableSortListSource).not.toContain('const SORT_ORDERS =');
+	});
+
 	it('should remove data table sort rows only when child selectors are closed like the original table', () => {
 		expect(dataTableSortListSource).toContain('openFieldSelectors.has(sort.id)');
 		expect(dataTableSortListSource).toContain('openDirectionSelectors.has(sort.id)');

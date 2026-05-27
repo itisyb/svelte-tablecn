@@ -494,6 +494,11 @@
 					"path": "src/lib/components/data-table/data-table-sort-list.svelte",
 					"type": "registry:component",
 					"target": "data-table/data-table-sort-list.svelte"
+				},
+				{
+					"path": "src/lib/config/data-table.ts",
+					"type": "registry:lib",
+					"target": "config/data-table.ts"
 				}
 			],
 			"meta": {
