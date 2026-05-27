@@ -1304,8 +1304,7 @@ describe('non-README parity docs', () => {
 			'Standalone `drawer`, `form`, and `sortable` registry slices',
 			'primitive type contracts',
 			'Date filter calendar popovers now autofocus the opened calendar like upstream',
-			'square cell-editor surface instead of the shared select content radius',
-			'square cell-editor surface while keeping the upstream width and offset alignment',
+			'shared select content radius while keeping the upstream width and offset alignment',
 			'row-select cells now avoid an extra inner padding wrapper',
 			'`FacetedItem` now forwards the selected item value',
 			'Data-table sort-list direction options now read from the shared data-table config',
@@ -1323,8 +1322,7 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
 		expect(parityPlan).toContain('calendar popovers now use the Bits `initialFocus` prop');
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
-		expect(parityPlan).toContain('square cell-editor content surface');
-		expect(parityPlan).toContain('square cell-editor surface');
+		expect(parityPlan).toContain('shared select content radius');
 		expect(parityPlan).toContain('item radius, popper offset');
 		expect(parityPlan).toContain('row-select hitboxes and read-only markers');
 		expect(parityPlan).toContain('upstream trigger width/offset geometry');
