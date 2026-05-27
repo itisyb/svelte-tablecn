@@ -2142,6 +2142,14 @@ describe('/+page.svelte', () => {
 		expect(dataGridRangeCalendarSource).toContain('group/calendar w-fit p-3');
 	});
 
+	it('should expose initial focus behavior for range calendar popovers like upstream autoFocus', () => {
+		expect(dataGridRangeCalendarSource).toContain('initialFocus?: boolean');
+		expect(dataGridRangeCalendarSource).toContain('let didInitialFocus = $state(false)');
+		expect(dataGridRangeCalendarSource).toContain('[data-bits-day][data-selected]');
+		expect(dataGridRangeCalendarSource).toContain('[data-bits-day][data-today]');
+		expect(dataGridRangeCalendarSource).toContain('[data-bits-day]:not([data-disabled])');
+	});
+
 	it('should keep calendar navigation disabled styling aligned with original and Bits state', () => {
 		expect(calendarPrevButtonSource).toContain('aria-disabled:opacity-50');
 		expect(calendarPrevButtonSource).toContain('disabled:opacity-50');
@@ -2869,6 +2877,7 @@ describe('/+page.svelte', () => {
 		expect(dataTableDateFilterSource).toContain('DataGridRangeCalendar');
 		expect(dataTableDateFilterSource).toContain('onValueChange={onRangeCalendarChange}');
 		expect(dataTableDateFilterSource).toContain('captionLayout="dropdown"');
+		expect(dataTableDateFilterSource).toContain('initialFocus');
 		expect(dataTableDateFilterSource).toContain(
 			'<CalendarPicker\n\t\t\t\ttype="single"\n\t\t\t\tcaptionLayout="dropdown"'
 		);
@@ -2931,10 +2940,10 @@ describe('/+page.svelte', () => {
 			/\{:else if selectedColumn\.variant === 'text' \|\| selectedColumn\.variant === 'number'\}[\s\S]*<BadgeCheck \/>[\s\S]*Filter by "\{draftValue\}"[\s\S]*\{:else\}/
 		);
 		expect(dataTableFilterMenuSource).toMatch(
-			/\{:else if selectedColumn\.variant === 'date'\}[\s\S]*<CalendarPicker[\s\S]*type="single"[\s\S]*captionLayout="dropdown"[\s\S]*\{:else if selectedColumn\.variant === 'dateRange'\}/
+			/\{:else if selectedColumn\.variant === 'date'\}[\s\S]*<CalendarPicker[\s\S]*type="single"[\s\S]*initialFocus[\s\S]*captionLayout="dropdown"[\s\S]*\{:else if selectedColumn\.variant === 'dateRange'\}/
 		);
 		expect(dataTableFilterMenuSource).toMatch(
-			/\{:else if selectedColumn\.variant === 'dateRange'\}[\s\S]*<DataGridRangeCalendar[\s\S]*captionLayout="dropdown"[\s\S]*\{:else\}/
+			/\{:else if selectedColumn\.variant === 'dateRange'\}[\s\S]*<DataGridRangeCalendar[\s\S]*captionLayout="dropdown"[\s\S]*initialFocus[\s\S]*\{:else\}/
 		);
 		expect(dataTableFilterMenuSource).not.toContain(
 			"type={selectedColumn.variant === 'range' ? 'number' : 'date'}"
@@ -3093,6 +3102,7 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).toContain('<CalendarIcon />');
 		expect(dataTableFilterListSource).toContain('<DataGridRangeCalendar');
 		expect(dataTableFilterListSource).toContain('<Calendar');
+		expect(dataTableFilterListSource).toContain('initialFocus');
 		expect(dataTableFilterListSource).toContain('getDateDisplayValue(filterValues, operator)');
 		expect(dataTableFilterListSource).not.toContain('type="date"');
 		expect(dataTableFilterListSource).not.toContain('id={`${inputId}-end`}');
@@ -3838,6 +3848,7 @@ describe('/+page.svelte', () => {
 		expect(dataGridFilterMenuSource).toContain('DataGridRangeCalendar');
 		expect(dataGridFilterMenuSource).toContain('Pick a range');
 		expect(dataGridFilterMenuSource).toContain('captionLayout="dropdown"');
+		expect(dataGridFilterMenuSource).toContain('initialFocus');
 		expect(dataGridFilterMenuSource).toContain('class="w-[200px] p-0"');
 		expect(dataGridFilterMenuSource).toMatch(
 			/\{#if operator === 'isAnyOf' \|\| operator === 'isNoneOf'\}[\s\S]*class="w-48 p-0"[\s\S]*\{@const selectedOption = selectOptions\.find[\s\S]*class="w-\[200px\] p-0"/

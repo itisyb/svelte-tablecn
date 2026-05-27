@@ -141,6 +141,7 @@
 				value={{ start: toCalendarDate(values[0]), end: toCalendarDate(values[1]) }}
 				onValueChange={onRangeCalendarChange}
 				captionLayout="dropdown"
+				initialFocus
 			/>
 		{:else}
 			<CalendarPicker

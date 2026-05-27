@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-table README option documentation now includes required `data` and `columns` options and is checked against `UseDataTableOptions`.
 - Generated registry artifact coverage now verifies item metadata and file `type`/`target` entries against `registry.json`.
 - Data grid select editor popovers now keep a square cell-editor surface and offset while matching the cell width.
+- Date filter calendar popovers now autofocus the opened calendar like upstream.
 - Data grid select editor options now keep the original select item radius inside the cell-width editor surface.
 - Action bar browser coverage now verifies upstream entry-focus cancellation and item-select event ordering.
 - Data-grid row coverage now checks the upstream custom-cell renderer switch: function headers render custom cells directly, while string headers use the grid cell path.
@@ -42,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data grid select editor popovers now use a square cell-editor surface while keeping the upstream width and offset alignment.
 - Checkbox indeterminate indicators now reuse the original checkbox check icon and checked-only state styling.
 - Dropdown checkbox indeterminate indicators now reuse the original menu check icon.
+- Date filter calendar popovers now map upstream `autoFocus` to the Bits `initialFocus` prop.
 - Data-table view options now delegate column visibility checks to TanStack like the original table.
 - Data-table slider filter unit adornments now use the original numeric input positioning classes.
 - `FacetedItem` now forwards the selected item value to custom `onSelect` handlers like the original faceted primitive.

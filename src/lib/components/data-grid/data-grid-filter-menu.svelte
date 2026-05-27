@@ -589,6 +589,7 @@
 															});
 														}}
 														captionLayout="dropdown"
+														initialFocus
 													/>
 												</PopoverContent>
 											</Popover>
@@ -629,6 +630,7 @@
 														type="single"
 														captionLayout="dropdown"
 														value={calendarValue}
+														initialFocus
 														onValueChange={(date: DateValue | undefined) => {
 															const newValue = calendarDateToISO(date);
 															onFilterUpdate(filter.id, {

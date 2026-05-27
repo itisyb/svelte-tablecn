@@ -38,6 +38,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README data-grid option documentation is checked against `UseDataGridOptions`, including sorting, filter, and row-selection change callbacks
 - README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
 - Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
+- Date filter calendar popovers now use the Bits `initialFocus` prop where upstream calendars use `autoFocus`
 - The data-grid single-select cell editor keeps a square cell-editor content surface, original item radius, popper offset, and trigger width model while matching the active cell width
 - Data-grid row-select cells render the original hitbox and read-only marker directly inside the row's standard cell padding wrapper
 - Short text and URL editors cancel Escape edits back to the original cell value, matching the upstream contenteditable cell behavior
@@ -91,7 +92,7 @@ Latest upstream reference checked: `374e6aec098890a28a2cf36880be22c884b642dd`.
 - Registry item names: local includes every upstream installable item; the only local-only registry items are the intentional Svelte primitive additions `drawer`, `form`, and `sortable`.
 - Registry source paths: every `registry.json` file path resolves to an existing local source file.
 - Package root exports: the root entrypoint exposes the shipped grid/table surfaces used by the README and upstream demos, including grid menus, skeletons, `getDataGridSelectColumn`, `useDataGrid`, `useDataGridUndoRedo`, table shell, table toolbars, table filters, table menus, pagination, and table skeletons.
-- Runtime editor behavior: focused browser coverage now checks select editor geometry and square cell-editor surface, row-select hitbox placement, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, grid search open/reset/result behavior, faceted data-table filter-list option selection structure, faceted item custom `onSelect` value forwarding, data-table sort-list shared sort-order config usage, data-table filter-list shared join-operator config usage, and data-table partial range input display.
+- Runtime editor behavior: focused browser coverage now checks select editor geometry and square cell-editor surface, row-select hitbox placement, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, grid search open/reset/result behavior, calendar popover initial focus, faceted data-table filter-list option selection structure, faceted item custom `onSelect` value forwarding, data-table sort-list shared sort-order config usage, data-table filter-list shared join-operator config usage, and data-table partial range input display.
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

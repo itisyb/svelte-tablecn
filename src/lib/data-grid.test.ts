@@ -1300,6 +1300,7 @@ describe('non-README parity docs', () => {
 			'DataGridKeyboardShortcuts',
 			'Standalone `drawer`, `form`, and `sortable` registry slices',
 			'primitive type contracts',
+			'Date filter calendar popovers now autofocus the opened calendar like upstream',
 			'square cell-editor surface instead of the shared select content radius',
 			'square cell-editor surface while keeping the upstream width and offset alignment',
 			'row-select cells now avoid an extra inner padding wrapper',
@@ -1317,6 +1318,7 @@ describe('non-README parity docs', () => {
 		}
 
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
+		expect(parityPlan).toContain('calendar popovers now use the Bits `initialFocus` prop');
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
 		expect(parityPlan).toContain('square cell-editor content surface');
 		expect(parityPlan).toContain('square cell-editor surface');

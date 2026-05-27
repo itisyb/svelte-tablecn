@@ -620,12 +620,14 @@
 																	.filter((value): value is string => value !== undefined)
 															})}
 														captionLayout="dropdown"
+														initialFocus
 													/>
 												{:else}
 													<Calendar
 														aria-label={`Select ${columnLabel} date`}
 														type="single"
 														value={toCalendarDate(filterValues.primary)}
+														initialFocus
 														onValueChange={(value: DateValue | undefined) => {
 															updateFilter(filterKey, {
 																value: value ? calendarDateToString(value) : ''

@@ -702,12 +702,14 @@
 												.filter((value): value is string => value !== undefined)
 										})}
 									captionLayout="dropdown"
+									initialFocus
 								/>
 							{:else}
 								<CalendarPicker
 									aria-label={`Select ${filterColumn?.label ?? filter.id} date`}
 									type="single"
 									value={toCalendarDate(filterValues.primary)}
+									initialFocus
 									onValueChange={(value: DateValue | undefined) =>
 										setDateFilterValue(
 											filterKey,
@@ -907,6 +909,7 @@
 							aria-label={`Select ${selectedColumn.label} date`}
 							type="single"
 							value={toCalendarDate(draftValue)}
+							initialFocus
 							onValueChange={(value: DateValue | undefined) => {
 								if (!value) return;
 								addFilterForColumn(selectedColumn, calendarDateToString(value));
@@ -942,6 +945,7 @@
 								}
 							}}
 							captionLayout="dropdown"
+							initialFocus
 						/>
 					</CommandList>
 				</Command>

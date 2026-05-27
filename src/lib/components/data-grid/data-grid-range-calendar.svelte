@@ -2,6 +2,7 @@
 	import type { DateRange } from 'bits-ui';
 	import { RangeCalendar as RangeCalendarPrimitive } from 'bits-ui';
 	import { isEqualMonth, type DateValue } from '@internationalized/date';
+	import { tick } from 'svelte';
 	import { cn, type WithoutChildrenOrChild } from '$lib/utils.js';
 	import { buttonVariants, type ButtonVariant } from '$lib/components/ui/button/index.js';
 	import * as Calendar from '$lib/components/ui/calendar/index.js';
@@ -20,6 +21,7 @@
 		monthFormat: monthFormatProp,
 		yearFormat = 'numeric',
 		disableDaysOutsideMonth = false,
+		initialFocus = false,
 		...restProps
 	}: WithoutChildrenOrChild<RangeCalendarPrimitive.RootProps> & {
 		buttonVariant?: ButtonVariant;
@@ -28,12 +30,29 @@
 		years?: RangeCalendarPrimitive.YearSelectProps['years'];
 		monthFormat?: RangeCalendarPrimitive.MonthSelectProps['monthFormat'];
 		yearFormat?: RangeCalendarPrimitive.YearSelectProps['yearFormat'];
+		initialFocus?: boolean;
 	} = $props();
+
+	let didInitialFocus = $state(false);
 
 	const monthFormat = $derived.by(() => {
 		if (monthFormatProp) return monthFormatProp;
 		if (captionLayout.startsWith('dropdown')) return 'short';
 		return 'long';
+	});
+
+	$effect(() => {
+		if (!initialFocus || !ref || didInitialFocus) return;
+
+		didInitialFocus = true;
+		tick().then(() => {
+			const root = ref as HTMLElement | null;
+			const target =
+				root?.querySelector<HTMLElement>('[data-bits-day][data-selected]') ??
+				root?.querySelector<HTMLElement>('[data-bits-day][data-today]') ??
+				root?.querySelector<HTMLElement>('[data-bits-day]:not([data-disabled])');
+			target?.focus();
+		});
 	});
 </script>
 
