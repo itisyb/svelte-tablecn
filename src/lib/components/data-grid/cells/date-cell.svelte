@@ -91,12 +91,12 @@
 
 	function handleOpenAutoFocus(e: Event) {
 		e.preventDefault();
-		// Focus the selected day, or today, or first day of month
-		// Use setTimeout to ensure calendar is fully rendered
 		setTimeout(() => {
 			if (!popoverRef) return;
-			// Target the Calendar.Day element with data-calendar-day attribute
 			const target =
+				popoverRef.querySelector<HTMLElement>('[data-bits-day][data-selected]') ??
+				popoverRef.querySelector<HTMLElement>('[data-bits-day][data-today]') ??
+				popoverRef.querySelector<HTMLElement>('[data-bits-day]:not([data-disabled])') ??
 				popoverRef.querySelector<HTMLElement>('[data-calendar-day][data-selected]') ??
 				popoverRef.querySelector<HTMLElement>('[data-calendar-day][data-today]') ??
 				popoverRef.querySelector<HTMLElement>('[data-calendar-day]');

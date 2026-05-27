@@ -88,6 +88,7 @@ import dataGridActionBarSource from '$lib/components/data-grid/data-grid-action-
 import dataGridHelpersSource from '$lib/data-grid.ts?raw';
 import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-wrapper.svelte?raw';
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
+import dataGridDateCellSource from '$lib/components/data-grid/cells/date-cell.svelte?raw';
 import dataGridFileCellSource from '$lib/components/data-grid/cells/file-cell.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridKeyboardShortcutsSource from '$lib/components/data-grid/data-grid-keyboard-shortcuts.svelte?raw';
@@ -895,6 +896,15 @@ describe('/+page.svelte', () => {
 		await waitFor(() => cellContent.textContent?.includes('1/3/2024'));
 
 		expect(cellContent.textContent).toContain('1/3/2024');
+	});
+
+	it('should focus data grid date editor days through Bits calendar markers', () => {
+		expect(dataGridDateCellSource).toContain('[data-bits-day][data-selected]');
+		expect(dataGridDateCellSource).toContain('[data-bits-day][data-today]');
+		expect(dataGridDateCellSource).toContain('[data-bits-day]:not([data-disabled])');
+		expect(dataGridDateCellSource).not.toContain(
+			"popoverRef.querySelector<HTMLElement>('[data-calendar-day]') ??"
+		);
 	});
 
 	it('should keep the first typed character when opening long text editor', async () => {
