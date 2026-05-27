@@ -1,5 +1,5 @@
 <script lang="ts" generics="TData">
-	import type { Table } from '@tanstack/table-core';
+	import type { Column, Table } from '@tanstack/table-core';
 	import { cn } from '$lib/utils.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import {
@@ -30,8 +30,9 @@
 	);
 	const columnVisibility = $derived(table.getState().columnVisibility);
 
-	function isColumnVisible(columnId: string): boolean {
-		return columnVisibility[columnId] !== false;
+	function isColumnVisible(column: Column<TData, unknown>): boolean {
+		void columnVisibility;
+		return column.getIsVisible();
 	}
 </script>
 
@@ -59,7 +60,7 @@
 				<CommandEmpty>No columns found.</CommandEmpty>
 				<CommandGroup>
 					{#each columns as column (column.id)}
-						{@const isVisible = isColumnVisible(column.id)}
+						{@const isVisible = isColumnVisible(column)}
 						{@const label = column.columnDef.meta?.label ?? column.id}
 						<CommandItem value={label} onSelect={() => column.toggleVisibility(!isVisible)}>
 							<span class="truncate">{label}</span>

@@ -74,6 +74,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - Data-table range filters now preserve blank partial bounds in the visible inputs like the original two-input range filter while still committing completed bounds.
 - Data-table sort-list direction options now read from shared `dataTableConfig.sortOrders` like upstream, and the standalone registry slice ships `config/data-table.ts`.
 - Data-table filter-list join operator options now read from shared `dataTableConfig.joinOperators` like upstream.
+- Data-table view options now read Svelte visibility state for reactivity while delegating the visible check to `column.getIsVisible()` like upstream.
 - Sheet portal and overlay slots now have public `SheetPortal` and `SheetOverlay` aliases in the sheet, UI, and package-root barrels.
 - Data-table filter-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 - Data-table sort-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.

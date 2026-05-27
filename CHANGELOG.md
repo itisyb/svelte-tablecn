@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Data grid select editor popovers now use a square cell-editor surface while keeping the upstream width and offset alignment.
+- Data-table view options now delegate column visibility checks to TanStack like the original table.
 - `FacetedItem` now forwards the selected item value to custom `onSelect` handlers like the original faceted primitive.
 - Data-table range filters now keep blank partial range bounds visibly blank like the original two-input filter.
 - Data-table sort-list direction options now read from the shared data-table config like the original component, and the standalone registry slice ships that config file.

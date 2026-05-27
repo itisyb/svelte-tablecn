@@ -2804,10 +2804,14 @@ describe('/+page.svelte', () => {
 		expect(dataTableViewOptionsSource).toContain(
 			"<PopoverContent class={cn('w-44 p-0', className)} {...contentProps}>"
 		);
+		expect(dataTableViewOptionsSource).toContain('void columnVisibility;');
+		expect(dataTableViewOptionsSource).toContain('return column.getIsVisible();');
+		expect(dataTableViewOptionsSource).toContain('{@const isVisible = isColumnVisible(column)}');
 		expect(dataTableViewOptionsSource).not.toContain(
 			"class={cn('ml-auto hidden h-8 font-normal lg:flex', className)}"
 		);
 		expect(dataTableViewOptionsSource).not.toContain("align = 'start'");
+		expect(dataTableViewOptionsSource).not.toContain('columnVisibility[columnId] !== false');
 	});
 
 	it('should keep data table faceted clear control aligned with the original table', () => {
