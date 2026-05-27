@@ -2416,6 +2416,8 @@ describe('/+page.svelte', () => {
 		expect(dropdownMenuCheckboxItemSource).toContain('data-highlighted:bg-accent');
 		expect(dropdownMenuCheckboxItemSource).toContain('data-highlighted:text-accent-foreground');
 		expect(dropdownMenuCheckboxItemSource).toContain('focus:bg-accent');
+		expect(dropdownMenuCheckboxItemSource).toContain('{#if isChecked || isIndeterminate}');
+		expect(dropdownMenuCheckboxItemSource).not.toContain('MinusIcon');
 		expect(dropdownMenuRadioItemSource).toContain('data-highlighted:bg-accent');
 		expect(dropdownMenuRadioItemSource).toContain('data-highlighted:text-accent-foreground');
 		expect(dropdownMenuRadioItemSource).toContain('focus:bg-accent');

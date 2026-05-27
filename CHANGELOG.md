@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Data grid select editor popovers now use a 2px cell-editor radius while keeping the upstream width and offset alignment.
 - Checkbox indeterminate indicators now reuse the original checkbox check icon and checked-only state styling.
+- Dropdown checkbox indeterminate indicators now reuse the original menu check icon.
 - Data-table view options now delegate column visibility checks to TanStack like the original table.
 - Data-table slider filter unit adornments now use the original numeric input positioning classes.
 - `FacetedItem` now forwards the selected item value to custom `onSelect` handlers like the original faceted primitive.

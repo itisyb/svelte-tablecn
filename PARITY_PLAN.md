@@ -71,6 +71,7 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - README UI primitive docs now list the full exported faceted primitive surface, matching the package root and UI barrel aliases
 - Data-grid single-select editor popovers now use a 2px-radius cell-editor surface while keeping the cell-width and offset alignment.
 - Checkbox indeterminate indicators now preserve Bits' separate indeterminate behavior while matching the original check-icon visual and checked-only state styling.
+- Dropdown checkbox indeterminate indicators now preserve Bits' separate indeterminate behavior while matching the original menu check-icon visual.
 - Faceted item custom `onSelect` handlers now receive the selected item value like the original primitive, while default items still update the faceted value through context.
 - Data-table range filters now preserve blank partial bounds in the visible inputs like the original two-input range filter while still committing completed bounds.
 - Data-table sort-list direction options now read from shared `dataTableConfig.sortOrders` like upstream, and the standalone registry slice ships `config/data-table.ts`.
