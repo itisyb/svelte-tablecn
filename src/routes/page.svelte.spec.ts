@@ -57,6 +57,7 @@ import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import DrawerFixture from './drawer-fixture.svelte';
 import FpsDocumentFragmentFixture from './fps-document-fragment-fixture.svelte';
+import FacetedItemFixture from './faceted-item-fixture.svelte';
 import FormFixture from './form-fixture.svelte';
 import HooksFixture from './hooks-fixture.svelte';
 import PopoverAnchorFixture from './popover-anchor-fixture.svelte';
@@ -2689,6 +2690,21 @@ describe('/+page.svelte', () => {
 		expect(facetedTriggerSource).toContain('child?: Snippet');
 		expect(facetedTriggerSource).toContain('child: childSnippet');
 		expect(facetedTriggerSource).toContain('@render childSnippet({ props })');
+	});
+
+	it('should pass faceted item values to custom onSelect like the original component', async () => {
+		await render(FacetedItemFixture);
+
+		await page.getByText('Engineering').click();
+
+		await expect.element(page.getByLabelText('custom faceted value')).toHaveTextContent('engineering');
+		await expect.element(page.getByLabelText('faceted value', { exact: true })).toHaveTextContent('none');
+
+		await page.getByText('Marketing').click();
+
+		await expect
+			.element(page.getByLabelText('faceted value', { exact: true }))
+			.toHaveTextContent('marketing');
 	});
 
 	it('should expose the original ui fps primitive styling', () => {

@@ -6,8 +6,11 @@
 	import { getFacetedContext } from "./faceted-context.js";
 	import Check from "@lucide/svelte/icons/check";
 
-	type Props = WithoutChildrenOrChild<ComponentProps<typeof CommandItem>> & {
+	type CommandItemProps = WithoutChildrenOrChild<ComponentProps<typeof CommandItem>>;
+
+	type Props = Omit<CommandItemProps, "onSelect"> & {
 		value: string;
+		onSelect?: (value: string) => void;
 		children?: Snippet;
 	};
 
@@ -28,7 +31,7 @@
 
 	function onItemSelect() {
 		if (onSelect) {
-			onSelect();
+			onSelect(value);
 			return;
 		}
 
