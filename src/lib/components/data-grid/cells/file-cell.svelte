@@ -133,7 +133,7 @@
 		if (maxFiles && files.length + newFiles.length > maxFiles) {
 			const errorMessage = `Maximum ${maxFiles} files allowed`;
 			setError(errorMessage);
-			toast.error(errorMessage);
+			toast(errorMessage);
 			setTimeout(() => {
 				setError(null);
 			}, 2000);
@@ -161,11 +161,11 @@
 					firstError.name.length > 20 ? `${firstError.name.slice(0, 20)}...` : firstError.name;
 
 				if (rejectedFiles.length === 1) {
-					toast.error(firstError.reason, {
+					toast(firstError.reason, {
 						description: `"${truncatedName}" has been rejected`
 					});
 				} else {
-					toast.error(firstError.reason, {
+					toast(firstError.reason, {
 						description: `"${truncatedName}" and ${rejectedFiles.length - 1} more rejected`
 					});
 				}

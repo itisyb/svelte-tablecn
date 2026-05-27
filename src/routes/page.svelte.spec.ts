@@ -848,6 +848,14 @@ describe('/+page.svelte', () => {
 		);
 	});
 
+	it('should keep file validation toasts neutral like the original grid', () => {
+		expect(dataGridFileCellSource).toContain('toast(errorMessage)');
+		expect(dataGridFileCellSource).toContain('toast(firstError.reason, {');
+		expect(dataGridFileCellSource).toContain('toast.error(');
+		expect(dataGridFileCellSource).not.toContain('toast.error(errorMessage)');
+		expect(dataGridFileCellSource).not.toContain('toast.error(firstError.reason');
+	});
+
 	it('should revoke local file URLs when the file cell unmounts like the original grid', async () => {
 		const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:local-preview');
 		const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
