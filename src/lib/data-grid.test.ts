@@ -640,6 +640,9 @@ describe('package root form component exports', () => {
 		expect(dataGridTypes).toContain('export interface DataGridCellProps');
 		expect(dataGridTypes).toContain('export type CellUpdate = UpdateCell');
 		expect(dataGridTypes).toContain('onDataUpdate?: (params: CellUpdate | CellUpdate[]) => void');
+		expect(dataGridTypes).toContain('files: File[];\n\t\t\trowIndex: number;\n\t\t\tcolumnId: string;');
+		expect(dataGridTypes).toContain('fileIds: string[];\n\t\t\trowIndex: number;\n\t\t\tcolumnId: string;');
+		expect(dataGridTypes).not.toContain('row: TData;');
 
 		for (const field of [
 			'cell: Cell<TData, unknown>',

@@ -153,13 +153,11 @@ export interface UseDataGridOptions<TData extends RowData>
 		files: File[];
 		rowIndex: number;
 		columnId: string;
-		row: TData;
 	}) => Promise<FileCellData[]>;
 	onFilesDelete?: (params: {
 		fileIds: string[];
 		rowIndex: number;
 		columnId: string;
-		row: TData;
 	}) => void | Promise<void>;
 }
 

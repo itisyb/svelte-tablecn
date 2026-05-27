@@ -192,15 +192,12 @@
 				uploadingFiles = uploadingIds;
 
 				let uploadedFiles: FileCellData[] = [];
-				const rowData = table.options.data[rowIndex];
-
-				if (table.options.meta?.onFilesUpload && rowData) {
+				if (table.options.meta?.onFilesUpload) {
 					try {
 						uploadedFiles = await table.options.meta.onFilesUpload({
 							files: filesToValidate,
 							rowIndex,
-							columnId,
-							row: rowData
+							columnId
 						});
 					} catch (err) {
 						toast.error(
@@ -258,14 +255,12 @@
 
 		deletingFiles = new Set(deletingFiles).add(fileId);
 
-		const rowData = table.options.data[rowIndex];
-		if (table.options.meta?.onFilesDelete && rowData) {
+		if (table.options.meta?.onFilesDelete) {
 			try {
 				await table.options.meta.onFilesDelete({
 					fileIds: [fileId],
 					rowIndex,
-					columnId,
-					row: rowData
+					columnId
 				});
 			} catch (err) {
 				toast.error(err instanceof Error ? err.message : `Failed to delete ${fileToRemove.name}`);
@@ -295,14 +290,12 @@
 		const fileIds = files.map((f) => f.id);
 		deletingFiles = new Set(fileIds);
 
-		const rowData = table.options.data[rowIndex];
-		if (table.options.meta?.onFilesDelete && rowData && files.length > 0) {
+		if (table.options.meta?.onFilesDelete && files.length > 0) {
 			try {
 				await table.options.meta.onFilesDelete({
 					fileIds,
 					rowIndex,
-					columnId,
-					row: rowData
+					columnId
 				});
 			} catch (err) {
 				toast.error(err instanceof Error ? err.message : 'Failed to delete files');

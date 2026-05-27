@@ -856,6 +856,14 @@ describe('/+page.svelte', () => {
 		expect(dataGridFileCellSource).not.toContain('toast.error(firstError.reason');
 	});
 
+	it('should keep file upload callbacks aligned with the original grid contract', () => {
+		expect(dataGridFileCellSource).toContain('table.options.meta?.onFilesUpload');
+		expect(dataGridFileCellSource).toContain('table.options.meta?.onFilesDelete');
+		expect(dataGridFileCellSource).not.toContain('row: rowData');
+		expect(dataGridFileCellSource).not.toContain('&& rowData');
+		expect(dataGridFileCellSource).not.toContain('const rowData = table.options.data[rowIndex]');
+	});
+
 	it('should revoke local file URLs when the file cell unmounts like the original grid', async () => {
 		const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:local-preview');
 		const revokeObjectURL = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});

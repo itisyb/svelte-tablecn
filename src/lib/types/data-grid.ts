@@ -316,13 +316,11 @@ declare module '@tanstack/table-core' {
 			files: File[];
 			rowIndex: number;
 			columnId: string;
-			row: TData;
 		}) => Promise<FileCellData[]>;
 		onFilesDelete?: (params: {
 			fileIds: string[];
 			rowIndex: number;
 			columnId: string;
-			row: TData;
 		}) => void | Promise<void>;
 		contextMenu?: ContextMenuState;
 		onContextMenuOpenChange?: (open: boolean) => void;
@@ -384,13 +382,11 @@ export interface DataGridProps<TData> {
 		files: File[];
 		rowIndex: number;
 		columnId: string;
-		row: TData;
 	}) => Promise<FileCellData[]>;
 	onFilesDelete?: (params: {
 		fileIds: string[];
 		rowIndex: number;
 		columnId: string;
-		row: TData;
 	}) => void | Promise<void>;
 
 	// Snippets for customization
