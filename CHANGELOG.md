@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Data grid select editor popovers now use a tighter cell-editor radius while keeping the upstream width and offset alignment.
+- `FacetedItem` now forwards the selected item value to custom `onSelect` handlers like the original faceted primitive.
 - Data grid select editor popovers now preserve the shared select content radius instead of overriding it in the cell editor.
 - Data-grid row-select cells now avoid an extra inner padding wrapper, matching the original checkbox hitbox and read-only marker placement.
 - Data-table filter-menu chips now use calendar popovers for date values and only remove rows with Delete/Backspace when child selectors are closed.

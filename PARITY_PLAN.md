@@ -69,7 +69,8 @@ The local repo now covers the main editable `data-grid` and `data-table` surface
 - The package root and UI barrel now expose the faceted primitive value type, keeping the Svelte faceted contract available anywhere the exported primitive is consumed
 - README UI primitive docs now distinguish package-root exports from standalone registry items and include the exported faceted primitive surface
 - README UI primitive docs now list the full exported faceted primitive surface, matching the package root and UI barrel aliases
-- Data-grid single-select editor popovers now preserve the shared select content radius while keeping the cell-width and offset alignment.
+- Data-grid single-select editor popovers now use the tighter cell-editor radius while keeping the cell-width and offset alignment.
+- Faceted item custom `onSelect` handlers now receive the selected item value like the original primitive, while default items still update the faceted value through context.
 - Sheet portal and overlay slots now have public `SheetPortal` and `SheetOverlay` aliases in the sheet, UI, and package-root barrels.
 - Data-table filter-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 - Data-table sort-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
@@ -83,7 +84,7 @@ Latest upstream reference checked: `374e6aec098890a28a2cf36880be22c884b642dd`.
 - Registry item names: local includes every upstream installable item; the only local-only registry items are the intentional Svelte primitive additions `drawer`, `form`, and `sortable`.
 - Registry source paths: every `registry.json` file path resolves to an existing local source file.
 - Package root exports: the root entrypoint exposes the shipped grid/table surfaces used by the README and upstream demos, including grid menus, skeletons, `getDataGridSelectColumn`, `useDataGrid`, `useDataGridUndoRedo`, table shell, table toolbars, table filters, table menus, pagination, and table skeletons.
-- Runtime editor behavior: focused browser coverage now checks select editor geometry and shared radius, row-select hitbox placement, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, grid search open/reset/result behavior, and faceted data-table filter-list option selection structure.
+- Runtime editor behavior: focused browser coverage now checks select editor geometry and tighter cell-editor radius, row-select hitbox placement, Escape cancel for short text and URL cells, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, grid search open/reset/result behavior, faceted data-table filter-list option selection structure, and faceted item custom `onSelect` value forwarding.
 
 The biggest remaining gaps versus upstream React `tablecn` are:
 

@@ -1301,7 +1301,9 @@ describe('non-README parity docs', () => {
 			'Standalone `drawer`, `form`, and `sortable` registry slices',
 			'primitive type contracts',
 			'shared select content radius',
+			'tighter cell-editor radius',
 			'row-select cells now avoid an extra inner padding wrapper',
+			'`FacetedItem` now forwards the selected item value',
 			'Short text and URL cell editors now restore the original value on `Escape`',
 			'File editor popovers now only stop `Escape` key propagation',
 			'Data-table sort/filter keyboard shortcuts now remain wired like upstream',
@@ -1314,6 +1316,7 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
 		expect(parityPlan).toContain('shared select content radius');
+		expect(parityPlan).toContain('tighter cell-editor radius');
 		expect(parityPlan).toContain('item radius, popper offset');
 		expect(parityPlan).toContain('row-select hitboxes and read-only markers');
 		expect(parityPlan).toContain('upstream trigger width/offset geometry');
@@ -1345,6 +1348,7 @@ describe('non-README parity docs', () => {
 		);
 		expect(parityPlan).toContain('faceted data-table filter-list option selection structure');
 		expect(parityPlan).toContain('faceted primitive value type');
+		expect(parityPlan).toContain('faceted item custom `onSelect` value forwarding');
 		expect(parityPlan).toContain(
 			'README UI primitive docs now distinguish package-root exports from standalone registry items'
 		);
