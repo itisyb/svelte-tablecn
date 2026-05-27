@@ -2760,6 +2760,10 @@ describe('/+page.svelte', () => {
 	it('should keep data table slider filter inputs compact like the original table', () => {
 		expect(dataTableSliderFilterSource).not.toContain('text-muted-foreground text-sm">to</span>');
 		expect(dataTableSliderFilterSource).toContain("class={cn('h-8 w-24', unit && 'pr-8')}");
+		expect(dataTableSliderFilterSource).toContain(
+			'class="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm"'
+		);
+		expect(dataTableSliderFilterSource).not.toContain('pointer-events-none absolute inset-y-0');
 	});
 
 	it('should keep data table slider filter labels aligned with the original table', () => {
