@@ -504,6 +504,9 @@ describe('/+page.svelte', () => {
 			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
 		);
 		const selectCell = firstRow.querySelectorAll<HTMLElement>('[data-slot="grid-cell"]').item(0);
+		const selectCheckbox = await waitFor(() =>
+			firstRow.querySelector<HTMLElement>('[aria-label^="Select row"]')
+		);
 		const label = await waitFor(() =>
 			document.querySelector<HTMLLabelElement>('[aria-label="Select all"] + label')
 		);
@@ -512,6 +515,7 @@ describe('/+page.svelte', () => {
 
 		await waitFor(() => firstRow.getAttribute('aria-selected') === 'true');
 		expect(firstRow.getAttribute('aria-selected')).toBe('true');
+		expect(selectCheckbox.getAttribute('aria-checked')).toBe('true');
 		expect(selectCell.firstElementChild?.className).toContain('bg-primary/10');
 	});
 

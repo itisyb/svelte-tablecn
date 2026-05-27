@@ -162,7 +162,10 @@
 		>
 			{#if isCustomRenderCell}
 				<div class={cn('size-full px-3 py-1.5', isRowSelected && 'bg-primary/10')}>
-					<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
+					<FlexRender
+						content={cell.column.columnDef.cell}
+						context={{ ...cell.getContext(), table }}
+					/>
 				</div>
 			{:else}
 				<DataGridCell {cell} {table} {selectedCellsSet} {selectionVersion} />
