@@ -113,15 +113,9 @@
 			const textarea = textareaRef;
 			if (!textarea || document.activeElement !== textarea) return;
 
-			const start = textarea.selectionStart ?? textarea.value.length;
-			const end = textarea.selectionEnd ?? start;
-			const nextValue = textarea.value.slice(0, start) + char + textarea.value.slice(end);
-			const nextCaret = start + char.length;
-
-			textarea.value = nextValue;
-			textarea.setSelectionRange(nextCaret, nextCaret);
+			document.execCommand('insertText', false, char);
 			textarea.scrollTop = textarea.scrollHeight;
-			setTextareaValue(nextValue);
+			setTextareaValue(textarea.value);
 		});
 	}
 

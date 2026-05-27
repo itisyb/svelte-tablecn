@@ -73,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The package root and UI barrel now expose the `FacetedValue` type alongside the faceted primitive exports.
 - Data grid select editor popovers no longer override the shared select offset, matching the original menu placement.
 - Short text and URL cell editors now restore the original value on `Escape`, matching upstream edit cancellation behavior.
+- Long text editors now insert the first typed character through the textarea edit stack like upstream.
 - File editor popovers now only stop `Escape` key propagation, allowing ordinary keys to bubble like the upstream file editor.
 - Data-table sort/filter keyboard shortcuts now remain wired like upstream even when the trigger button is disabled.
 - Data-table slider filters now keep user-selected default-range values active until the explicit clear action, matching upstream behavior.

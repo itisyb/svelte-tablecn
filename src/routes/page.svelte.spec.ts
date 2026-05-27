@@ -90,6 +90,7 @@ import dataGridCellWrapperSource from '$lib/components/data-grid/data-grid-cell-
 import dataGridColumnHeaderSource from '$lib/components/data-grid/data-grid-column-header.svelte?raw';
 import dataGridDateCellSource from '$lib/components/data-grid/cells/date-cell.svelte?raw';
 import dataGridFileCellSource from '$lib/components/data-grid/cells/file-cell.svelte?raw';
+import dataGridLongTextCellSource from '$lib/components/data-grid/cells/long-text-cell.svelte?raw';
 import dataGridFilterMenuSource from '$lib/components/data-grid/data-grid-filter-menu.svelte?raw';
 import dataGridKeyboardShortcutsSource from '$lib/components/data-grid/data-grid-keyboard-shortcuts.svelte?raw';
 import gridDemoSource from './grid-demo.svelte?raw';
@@ -950,6 +951,13 @@ describe('/+page.svelte', () => {
 		await waitFor(() => textarea.value === `${initialText}z`);
 
 		expect(textarea.value).toBe(`${initialText}z`);
+	});
+
+	it('should insert the pending long text character through the textarea edit stack', () => {
+		expect(dataGridLongTextCellSource).toContain("document.execCommand('insertText', false, char)");
+		expect(dataGridLongTextCellSource).not.toContain(
+			'textarea.value.slice(0, start) + char + textarea.value.slice(end)'
+		);
 	});
 
 	it('should select the pasted range after clipboard paste', async () => {
