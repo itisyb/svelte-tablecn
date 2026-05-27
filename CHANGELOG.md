@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FacetedItem` now forwards the selected item value to custom `onSelect` handlers like the original faceted primitive.
 - Data-table range filters now keep blank partial range bounds visibly blank like the original two-input filter.
 - Data-table sort-list direction options now read from the shared data-table config like the original component, and the standalone registry slice ships that config file.
+- Data-table filter-list join operator options now read from shared data-table config like the original component.
 - Data grid select editor popovers now use a cell-editor-specific 2px radius instead of the shared select content radius.
 - Data-grid row-select cells now avoid an extra inner padding wrapper, matching the original checkbox hitbox and read-only marker placement.
 - Data-table filter-menu chips now use calendar popovers for date values and only remove rows with Delete/Backspace when child selectors are closed.

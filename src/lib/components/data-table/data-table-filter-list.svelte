@@ -59,6 +59,7 @@
 		SortableItemHandle,
 		SortableOverlay
 	} from '$lib/components/ui/sortable/index.js';
+	import { dataTableConfig } from '$lib/config/data-table.js';
 	import { useId } from 'bits-ui';
 
 	import ListFilter from '@lucide/svelte/icons/list-filter';
@@ -457,8 +458,9 @@
 											id={joinOperatorListboxId}
 											class="min-w-[var(--bits-select-anchor-width)] lowercase"
 										>
-											<SelectItem value="and">and</SelectItem>
-											<SelectItem value="or">or</SelectItem>
+											{#each dataTableConfig.joinOperators as joinOperator (joinOperator)}
+												<SelectItem value={joinOperator}>{joinOperator}</SelectItem>
+											{/each}
 										</SelectContent>
 									</Select>
 								{:else}

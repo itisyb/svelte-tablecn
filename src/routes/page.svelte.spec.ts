@@ -3169,6 +3169,17 @@ describe('/+page.svelte', () => {
 		expect(dataTableFilterListSource).not.toContain("from 'svelte-dnd-action'");
 	});
 
+	it('should use shared data table join operator config like the original table', () => {
+		expect(dataTableFilterListSource).toContain(
+			"import { dataTableConfig } from '$lib/config/data-table.js'"
+		);
+		expect(dataTableFilterListSource).toContain(
+			'{#each dataTableConfig.joinOperators as joinOperator (joinOperator)}'
+		);
+		expect(dataTableFilterListSource).not.toContain('<SelectItem value="and">and</SelectItem>');
+		expect(dataTableFilterListSource).not.toContain('<SelectItem value="or">or</SelectItem>');
+	});
+
 	it('should keep data table slider filter popover sizing aligned with the original table', () => {
 		expect(dataTableSliderFilterSource).toContain('flex w-auto flex-col gap-4');
 		expect(dataTableSliderFilterSource).toContain('flex items-center gap-4');
