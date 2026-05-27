@@ -396,14 +396,14 @@ describe('/+page.svelte', () => {
 		expect(Math.round(Number.parseFloat(contentStyle.width))).toBe(Math.round(wrapperRect.width));
 
 		expect(content.className).toContain('min-w-[calc(var(--bits-select-anchor-width)_+_16px)]');
-		expect(content.getAttribute('style') ?? '').toContain('border-radius: 2px');
+		expect(content.getAttribute('style') ?? '').not.toContain('border-radius');
 		expect(content.className).toContain('data-[side=bottom]:translate-y-1');
 		expect(content.className).toContain('rounded-none');
 		expect(content.className).not.toContain('rounded-xs');
 		expect(content.className).not.toContain('rounded-sm');
 		expect(content.className).not.toContain('rounded-md');
 		expect(content.className).not.toContain('rounded-lg');
-		expect(Math.round(Number.parseFloat(contentStyle.borderRadius))).toBe(2);
+		expect(Math.round(Number.parseFloat(contentStyle.borderRadius))).toBe(0);
 		expect(trigger.className).not.toContain('data-[size=sm]:h-full');
 		expect(trigger.className).toContain(
 			'size-full !w-full items-start border-none p-0 shadow-none focus-visible:ring-0 dark:bg-transparent'
@@ -1865,8 +1865,9 @@ describe('/+page.svelte', () => {
 			'class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-none"'
 		);
 		expect(dataGridSelectCellSource).toContain(
-			'style="min-width: calc(var(--bits-select-anchor-width) + 16px); border-radius: 2px;"'
+			'style="min-width: calc(var(--bits-select-anchor-width) + 16px);"'
 		);
+		expect(dataGridSelectCellSource).not.toContain('border-radius: 2px');
 		expect(dataGridSelectCellSource).toContain(
 			'class="size-full !w-full items-start border-none p-0'
 		);
