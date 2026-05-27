@@ -496,6 +496,25 @@ describe('/+page.svelte', () => {
 		expect(selectedCell).toBeTruthy();
 	});
 
+	it('should update visible row selected state immediately after select-all', async () => {
+		await render(Page);
+		await page.getByRole('button', { name: 'Data Grid Demo' }).click();
+
+		const firstRow = await waitFor(() =>
+			document.querySelector<HTMLElement>('[data-slot="grid-row"][data-index="0"]')
+		);
+		const selectCell = firstRow.querySelectorAll<HTMLElement>('[data-slot="grid-cell"]').item(0);
+		const label = await waitFor(() =>
+			document.querySelector<HTMLLabelElement>('[aria-label="Select all"] + label')
+		);
+
+		label.click();
+
+		await waitFor(() => firstRow.getAttribute('aria-selected') === 'true');
+		expect(firstRow.getAttribute('aria-selected')).toBe('true');
+		expect(selectCell.firstElementChild?.className).toContain('bg-primary/10');
+	});
+
 	it('should render row-select hitboxes inside the original cell padding wrapper', async () => {
 		await render(Page);
 		await page.getByRole('button', { name: 'Data Grid Demo' }).click();

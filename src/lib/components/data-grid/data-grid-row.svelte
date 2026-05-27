@@ -90,8 +90,8 @@
 		};
 	});
 
-	// Row selection is reactive via table state
-	const isRowSelected = $derived(row.getIsSelected());
+	const rowSelection = $derived(table.getState().rowSelection);
+	const isRowSelected = $derived(rowSelection[row.id] ?? false);
 	const rowStyle = $derived.by(() => {
 		const internalStyle = adjustLayout
 			? `top: ${virtualStart}px; height: ${getRowHeightValue(rowHeight)}px; content-visibility: auto;`

@@ -51,7 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-table sort-list direction options now read from the shared data-table config like the original component, and the standalone registry slice ships that config file.
 - Data-table filter-list join operator options now read from shared data-table config like the original component.
 - Data grid select editor popovers now preserve the shared select content radius instead of forcing a square cell-editor surface.
-- Data-grid row-select cells now avoid an extra inner padding wrapper, matching the original checkbox hitbox and read-only marker placement.
+- Data-grid select-all now updates visible row selection state immediately, without waiting for virtualization to remount rows on scroll.
+- Data-grid row-select cells keep the standard cell padding wrapper so selected rows fill the select column like the original grid.
 - Data-table filter-menu chips now use calendar popovers for date values and only remove rows with Delete/Backspace when child selectors are closed.
 - Data-grid filter-menu row reordering now composes the shared sortable primitive like the original grid.
 - Data-grid sort-menu row reordering now composes the shared sortable primitive like the original grid.
