@@ -2123,6 +2123,10 @@ describe('/+page.svelte', () => {
 		expect(checkboxSource).toContain('aria-invalid:border-destructive');
 		expect(checkboxSource).toContain('dark:bg-input/30');
 		expect(checkboxSource).toContain('dark:data-[state=checked]:bg-primary');
+		expect(checkboxSource).toContain('{#if isChecked || isIndeterminate}');
+		expect(checkboxSource).not.toContain("import Minus");
+		expect(checkboxSource).not.toContain('data-[state=indeterminate]:border-primary');
+		expect(checkboxSource).not.toContain('data-[state=indeterminate]:text-primary');
 	});
 
 	it('should keep calendar month spacing aligned with the original ui calendar', () => {
