@@ -45,6 +45,16 @@
 			[bounds.min, bounds.max]
 		)
 	);
+	const inputValues = $derived.by((): [string, string] => {
+		const currentValues = Array.isArray(filter.value) ? filter.value : [filter.value, ''];
+		return [formatInputValue(currentValues[0]), formatInputValue(currentValues[1])];
+	});
+
+	function formatInputValue(value: unknown): string {
+		if (value === undefined || value === null || value === '') return '';
+		const numericValue = Number(value);
+		return Number.isNaN(numericValue) ? '' : String(numericValue);
+	}
 
 	function updateRange(next: RangeValue) {
 		onFilterUpdate(filter.filterId, {
@@ -102,7 +112,7 @@
 				min={bounds.min}
 				max={bounds.max}
 				class={cn('h-8 w-full rounded', unit && 'pr-8')}
-				value={String(range[0])}
+				value={inputValues[0]}
 				oninput={(event) => onRangeInputChange(event, true)}
 			/>
 			{#if unit}
@@ -127,7 +137,7 @@
 				min={bounds.min}
 				max={bounds.max}
 				class={cn('h-8 w-full rounded', unit && 'pr-8')}
-				value={String(range[1])}
+				value={inputValues[1]}
 				oninput={(event) => onRangeInputChange(event)}
 			/>
 			{#if unit}

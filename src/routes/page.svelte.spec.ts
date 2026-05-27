@@ -55,6 +55,7 @@ import DataGridUrlCellSyncFixture from './data-grid-url-cell-sync-fixture.svelte
 import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
+import DataTableRangeFilterFixture from './data-table-range-filter-fixture.svelte';
 import DrawerFixture from './drawer-fixture.svelte';
 import FpsDocumentFragmentFixture from './fps-document-fragment-fixture.svelte';
 import FacetedItemFixture from './faceted-item-fixture.svelte';
@@ -3207,6 +3208,18 @@ describe('/+page.svelte', () => {
 		);
 		expect(dataTableRangeFilterSource).not.toContain("unit && 'pr-7'");
 		expect(dataTableRangeFilterSource).not.toContain('px-1.5 text-muted-foreground text-xs');
+	});
+
+	it('should preserve blank partial range bounds like the original range filter', async () => {
+		await render(DataTableRangeFilterFixture);
+
+		await expect.element(page.getByLabelText('Salary minimum value')).toHaveValue(50000);
+		await expect.element(page.getByLabelText('Salary maximum value')).toHaveValue(null);
+
+		await page.getByLabelText('Salary maximum value').fill('75000');
+
+		await expect.element(page.getByLabelText('Salary maximum value')).toHaveValue(75000);
+		await expect.element(page.getByLabelText('range filter value')).toHaveTextContent('50000|75000');
 	});
 
 	it('should keep data table sort field options plain like the original table', () => {

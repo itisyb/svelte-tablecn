@@ -1308,6 +1308,7 @@ describe('non-README parity docs', () => {
 			'File editor popovers now only stop `Escape` key propagation',
 			'Data-table sort/filter keyboard shortcuts now remain wired like upstream',
 			'Data-table slider filters now keep user-selected default-range values active',
+			'Data-table range filters now keep blank partial range bounds visibly blank',
 			'Data-table filter-menu chips now use calendar popovers for date values'
 		]) {
 			expect(changelog).toContain(phrase);
@@ -1349,6 +1350,7 @@ describe('non-README parity docs', () => {
 		expect(parityPlan).toContain('faceted data-table filter-list option selection structure');
 		expect(parityPlan).toContain('faceted primitive value type');
 		expect(parityPlan).toContain('faceted item custom `onSelect` value forwarding');
+		expect(parityPlan).toContain('data-table partial range input display');
 		expect(parityPlan).toContain(
 			'README UI primitive docs now distinguish package-root exports from standalone registry items'
 		);
