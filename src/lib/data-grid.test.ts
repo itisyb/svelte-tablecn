@@ -1300,8 +1300,8 @@ describe('non-README parity docs', () => {
 			'DataGridKeyboardShortcuts',
 			'Standalone `drawer`, `form`, and `sortable` registry slices',
 			'primitive type contracts',
-			'shared select content radius',
-			'tighter cell-editor radius',
+			'cell-editor-specific 2px radius',
+			'2px cell-editor radius',
 			'row-select cells now avoid an extra inner padding wrapper',
 			'`FacetedItem` now forwards the selected item value',
 			'Short text and URL cell editors now restore the original value on `Escape`',
@@ -1316,8 +1316,8 @@ describe('non-README parity docs', () => {
 
 		expect(parityPlan).toContain('package-root/UI-barrel primitive helper/type exports');
 		expect(parityPlan).toContain('select editor radius/offset parity fix');
-		expect(parityPlan).toContain('shared select content radius');
-		expect(parityPlan).toContain('tighter cell-editor radius');
+		expect(parityPlan).toContain('2px cell-editor content radius');
+		expect(parityPlan).toContain('2px cell-editor radius');
 		expect(parityPlan).toContain('item radius, popper offset');
 		expect(parityPlan).toContain('row-select hitboxes and read-only markers');
 		expect(parityPlan).toContain('upstream trigger width/offset geometry');

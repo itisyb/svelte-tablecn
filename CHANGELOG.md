@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-grid README option documentation now includes sorting, filter, and row-selection change callbacks and is checked against `UseDataGridOptions`.
 - Data-table README option documentation now includes required `data` and `columns` options and is checked against `UseDataTableOptions`.
 - Generated registry artifact coverage now verifies item metadata and file `type`/`target` entries against `registry.json`.
-- Data grid select editor popovers now keep the shared select surface radius and offset while matching the cell width.
+- Data grid select editor popovers now keep a 2px cell-editor radius and offset while matching the cell width.
 - Data grid select editor options now keep the original select item radius inside the cell-width editor surface.
 - Action bar browser coverage now verifies upstream entry-focus cancellation and item-select event ordering.
 - Data-grid row coverage now checks the upstream custom-cell renderer switch: function headers render custom cells directly, while string headers use the grid cell path.
@@ -39,10 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Data grid select editor popovers now use a tighter cell-editor radius while keeping the upstream width and offset alignment.
+- Data grid select editor popovers now use a 2px cell-editor radius while keeping the upstream width and offset alignment.
 - `FacetedItem` now forwards the selected item value to custom `onSelect` handlers like the original faceted primitive.
 - Data-table range filters now keep blank partial range bounds visibly blank like the original two-input filter.
-- Data grid select editor popovers now preserve the shared select content radius instead of overriding it in the cell editor.
+- Data grid select editor popovers now use a cell-editor-specific 2px radius instead of the shared select content radius.
 - Data-grid row-select cells now avoid an extra inner padding wrapper, matching the original checkbox hitbox and read-only marker placement.
 - Data-table filter-menu chips now use calendar popovers for date values and only remove rows with Delete/Backspace when child selectors are closed.
 - Data-grid filter-menu row reordering now composes the shared sortable primitive like the original grid.
@@ -50,9 +50,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data-table sort-list row reordering now composes the shared sortable primitive like the original table.
 - Data-table filter-list row reordering now composes the shared sortable primitive like the original table.
 - Sheet portal and overlay slots are now exposed through the sheet, UI, and package-root barrels.
-- Data grid select editor popovers now use the shared select surface radius while preserving the width and offset alignment.
+- Data grid select editor popovers now use a 2px cell-editor surface radius while preserving the width and offset alignment.
 - Data-table range filters now preserve incomplete `isBetween` values like upstream and apply the same one-sided numeric behavior in the in-memory row filter reference.
-- Data grid select editor popovers now use the shared select content radius with the upstream trigger width/offset geometry.
+- Data grid select editor popovers now use a 2px cell-editor radius with the upstream trigger width/offset geometry.
 - Parity audit tests now fail directly when a `registry.json` source path stops resolving.
 - Data grid search parity now has explicit source assertions for the original search role, slot, controls, pointer handling, and status text.
 - Data grid paste dialog parity now has explicit source assertions for the original copy, radio options, callbacks, and popover containment.

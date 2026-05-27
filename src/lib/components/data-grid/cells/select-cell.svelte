@@ -132,8 +132,8 @@
 				align="start"
 				alignOffset={-8}
 				sideOffset={-8}
-				class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-sm"
-				style="min-width: calc(var(--bits-select-anchor-width) + 16px);"
+				class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)] rounded-none"
+				style="min-width: calc(var(--bits-select-anchor-width) + 16px); border-radius: 2px;"
 			>
 				{#each options as option (option.value)}
 					<SelectItem value={option.value} label={option.label}>
