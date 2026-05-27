@@ -30,9 +30,9 @@
 		);
 	}
 
-	function getColumnStringFilterValue(column: Column<TData>): string {
+	function getColumnInputFilterValue(column: Column<TData>): string {
 		const value = getColumnFilterValue(column);
-		return typeof value === 'string' ? value : '';
+		return value == null ? '' : String(value);
 	}
 
 	function setColumnStringFilterValue(column: Column<TData>, value: string) {
@@ -62,7 +62,7 @@
 				<Input
 					placeholder={meta?.placeholder ?? label}
 					bind:value={
-						() => getColumnStringFilterValue(column),
+						() => getColumnInputFilterValue(column),
 						(value) => setColumnStringFilterValue(column, value)
 					}
 					class="h-8 w-40 lg:w-56"
@@ -73,9 +73,7 @@
 						type="number"
 						inputmode="numeric"
 						placeholder={meta?.placeholder ?? label}
-						value={typeof getColumnFilterValue(column) === 'string'
-							? (getColumnFilterValue(column) as string)
-							: ''}
+						value={getColumnInputFilterValue(column)}
 						oninput={(event) =>
 							column.setFilterValue((event.currentTarget as HTMLInputElement).value)}
 						class={cn('h-8 w-[120px]', meta?.unit && 'pr-8')}

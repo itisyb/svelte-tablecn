@@ -56,6 +56,7 @@ import DataGridViewMenuFixture from './data-grid-view-menu-fixture.svelte';
 import DataGridViewMenuSearchFixture from './data-grid-view-menu-search-fixture.svelte';
 import DebouncedCallbackFixture from './debounced-callback-fixture.svelte';
 import DataTableRangeFilterFixture from './data-table-range-filter-fixture.svelte';
+import DataTableToolbarNumberFilterFixture from './data-table-toolbar-number-filter-fixture.svelte';
 import DrawerFixture from './drawer-fixture.svelte';
 import FpsDocumentFragmentFixture from './fps-document-fragment-fixture.svelte';
 import FacetedItemFixture from './faceted-item-fixture.svelte';
@@ -2837,7 +2838,8 @@ describe('/+page.svelte', () => {
 
 	it('should keep data table toolbar filter variants aligned with the original table', () => {
 		expect(dataTableToolbarSource).toContain('column.getFilterValue()');
-		expect(dataTableToolbarSource).toContain('getColumnStringFilterValue(column)');
+		expect(dataTableToolbarSource).toContain('getColumnInputFilterValue(column)');
+		expect(dataTableToolbarSource).toContain("value == null ? '' : String(value)");
 		expect(dataTableToolbarSource).not.toContain('getBooleanOptions');
 		expect(dataTableToolbarSource).not.toContain("variant === 'boolean'");
 		expect(dataTableToolbarSource).not.toContain("label: 'True'");
@@ -3336,6 +3338,16 @@ describe('/+page.svelte', () => {
 		expect(dataTableSortListSource).toContain('...contentProps');
 		expect(dataTableSortListSource).toContain('{...contentProps}');
 		expect(dataTableSortListSource).not.toContain("align = 'start'");
+	});
+
+	it('should keep numeric toolbar filter values visible like the original table', async () => {
+		await render(DataTableToolbarNumberFilterFixture);
+
+		const input = page.getByPlaceholder('Score');
+		await expect.element(input).toHaveValue(42);
+
+		await input.fill('57');
+		await expect.element(page.getByLabelText('number filter value')).toHaveTextContent('57');
 	});
 
 	it('should keep data table pagination page size width aligned with the original table', () => {
