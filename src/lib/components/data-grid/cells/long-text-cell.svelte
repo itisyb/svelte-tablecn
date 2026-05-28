@@ -28,6 +28,15 @@
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
+	let previousInitialValue = $state<string | null>(null);
+	let pendingChar = $state<string | null>(null);
+
+	$effect(() => {
+		if (initialValue === previousInitialValue) return;
+
+		previousInitialValue = initialValue;
+		localEditValue = null;
+	});
 
 	// Value for display and tracking - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? initialValue ?? '');
@@ -91,7 +100,23 @@
 			textareaRef.focus();
 			const length = textareaRef.value.length;
 			textareaRef.setSelectionRange(length, length);
+			insertPendingChar();
 		}
+	}
+
+	function insertPendingChar() {
+		const char = pendingChar;
+		pendingChar = null;
+		if (!char) return;
+
+		requestAnimationFrame(() => {
+			const textarea = textareaRef;
+			if (!textarea || document.activeElement !== textarea) return;
+
+			document.execCommand('insertText', false, char);
+			textarea.scrollTop = textarea.scrollHeight;
+			setTextareaValue(textarea.value);
+		});
 	}
 
 	function handleBlur() {
@@ -112,12 +137,15 @@
 	function handleKeyDown(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
 			event.preventDefault();
+			event.stopPropagation();
 			handleCancel();
 		} else if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
 			event.preventDefault();
+			event.stopPropagation();
 			handleSave();
 		} else if (event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			const nextValue = value;
 			const meta = table.options.meta;
 			if (nextValue !== initialValue) {
@@ -131,6 +159,19 @@
 		}
 		event.stopPropagation();
 	}
+
+	function handleWrapperKeyDown(event: KeyboardEvent) {
+		if (
+			isFocused &&
+			!isEditing &&
+			!readOnly &&
+			event.key.length === 1 &&
+			!event.ctrlKey &&
+			!event.metaKey
+		) {
+			pendingChar = event.key;
+		}
+	}
 </script>
 
 <DataGridCellWrapper
@@ -142,6 +183,7 @@
 	{isEditing}
 	{isFocused}
 	{isSelected}
+	onkeydown={handleWrapperKeyDown}
 >
 	<span data-slot="grid-cell-content">{value}</span>
 </DataGridCellWrapper>
@@ -160,7 +202,7 @@
 			<Textarea
 				bind:ref={textareaRef}
 				placeholder="Enter text..."
-				class="min-h-[150px] resize-none rounded-none border-0 shadow-none focus-visible:ring-0"
+				class="max-h-[300px] min-h-[150px] resize-none overflow-y-auto rounded-none border-0 shadow-none focus-visible:ring-1 focus-visible:ring-ring"
 				bind:value={() => value, setTextareaValue}
 				onblur={handleBlur}
 				onkeydown={handleKeyDown}

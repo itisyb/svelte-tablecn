@@ -15,6 +15,7 @@
 		CommandSeparator
 	} from '$lib/components/ui/command/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
+	import { DEFAULT_ROW_HEIGHT } from '$lib/config/data-grid.js';
 	import { cn } from '$lib/utils.js';
 	import Check from '@lucide/svelte/icons/check';
 	import X from '@lucide/svelte/icons/x';
@@ -37,6 +38,14 @@
 
 	// Track local edits separately
 	let localEditValues = $state<string[] | null>(null);
+	let previousInitialCellValue = $state<string[] | null>(null);
+
+	$effect(() => {
+		if (initialCellValue === previousInitialCellValue) return;
+
+		previousInitialCellValue = initialCellValue;
+		localEditValues = null;
+	});
 
 	// Selected values - use localEditValues if set, otherwise initialCellValue
 	const selectedValues = $derived(localEditValues ?? initialCellValue);
@@ -74,7 +83,7 @@
 		const newValues = currentValues.filter((v) => v !== valueToRemove);
 		localEditValues = newValues;
 		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValues });
-		setTimeout(() => inputRef?.focus(), 0);
+		queueMicrotask(() => inputRef?.focus());
 	}
 
 	function clearAll() {
@@ -104,11 +113,13 @@
 		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
+			event.stopPropagation();
 			localEditValues = null;
 			setSearchValue('');
 			meta?.onCellEditingStop?.();
-		} else if (!isEditing && isFocused && event.key === 'Tab') {
+		} else if ((isFocused || isEditing) && event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			setSearchValue('');
 			meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
@@ -120,6 +131,7 @@
 		// Handle backspace when input is empty - remove last selected item
 		if (event.key === 'Backspace' && searchValue === '' && selectedValues.length > 0) {
 			event.preventDefault();
+			event.stopPropagation();
 			const lastValue = selectedValues[selectedValues.length - 1];
 			if (lastValue) {
 				removeValue(lastValue);
@@ -141,7 +153,7 @@
 			.filter((item) => item.label)
 	);
 
-	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
+	const rowHeight = $derived(table.options.meta?.rowHeight ?? DEFAULT_ROW_HEIGHT);
 	const lineCount = $derived(getLineCount(rowHeight));
 
 	// Use the badge overflow hook for accurate measurement
@@ -185,7 +197,7 @@
 						{#each selectedValues as val (val)}
 							{@const option = options.find((opt) => opt.value === val)}
 							{@const label = option?.label ?? val}
-							<Badge variant="secondary" class="h-5 gap-1 px-1.5 text-xs">
+							<Badge variant="secondary" class="gap-1 px-1.5 py-px">
 								{label}
 								<button
 									type="button"
@@ -243,12 +255,12 @@
 	{#if displayItems.length > 0}
 		<div class="flex flex-wrap items-center gap-1 overflow-hidden">
 			{#each visibleItems as item (item.value)}
-				<Badge variant="secondary" class="h-5 shrink-0 px-1.5 text-xs">
+				<Badge variant="secondary" class="shrink-0 px-1.5 py-px">
 					{item.label}
 				</Badge>
 			{/each}
 			{#if hiddenBadgeCount > 0}
-				<Badge variant="outline" class="h-5 shrink-0 px-1.5 text-muted-foreground text-xs">
+				<Badge variant="outline" class="shrink-0 px-1.5 py-px text-muted-foreground">
 					+{hiddenBadgeCount}
 				</Badge>
 			{/if}

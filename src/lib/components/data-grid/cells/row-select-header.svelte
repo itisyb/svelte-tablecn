@@ -1,10 +1,11 @@
 <script lang="ts">
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	import type { Table, RowSelectionState } from '@tanstack/table-core';
+	import { getContext } from 'svelte';
+	import { useId } from 'bits-ui';
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import type { DataGridSelectHitboxSize } from '$lib/types/data-grid.js';
 	import { cn } from '$lib/utils.js';
-	import { getContext } from 'svelte';
 
 	interface Props {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,6 +32,7 @@
 
 	// Track rowSelection so header state updates when selection changes.
 	const rowSelection = $derived(getRowSelection?.() ?? {});
+	const checkboxId = useId();
 
 	const isAllSelected = $derived.by(() => {
 		void rowSelection;
@@ -58,21 +60,26 @@
 {#if readOnly}
 	<div class="mt-1 flex items-center ps-1 text-muted-foreground text-sm">#</div>
 {:else}
-	<div class={cn('flex size-full items-center justify-center px-3 py-1.5')}>
-		<div
+	<div
+		class={cn(
+			'group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5',
+			hitboxClass
+		)}
+	>
+		<Checkbox
+			id={checkboxId}
+			aria-label="Select all"
+			class="relative transition-[shadow,border] hover:border-primary/40"
+			checked={isAllSelected}
+			indeterminate={isSomeSelected}
+			onCheckedChange={handleSelectAllChange}
+		/>
+		<label
+			for={checkboxId}
 			class={cn(
-				'group relative -my-1.5 flex h-[calc(100%+0.75rem)] items-center py-1.5',
-				hitboxClass,
-				debug && 'outline outline-dashed outline-red-500/50'
+				'absolute inset-0 cursor-pointer',
+				debug && 'border border-red-500 border-dashed bg-red-500/20'
 			)}
-		>
-			<Checkbox
-				aria-label={isAllSelected ? 'Deselect all rows' : 'Select all rows'}
-				class="relative transition-[shadow,border] hover:border-primary/40"
-				checked={isAllSelected}
-				indeterminate={isSomeSelected}
-				onCheckedChange={handleSelectAllChange}
-			/>
-		</div>
+		></label>
 	</div>
 {/if}

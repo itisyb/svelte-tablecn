@@ -7,11 +7,11 @@
 		FilterValue,
 		CellSelectOption
 	} from '$lib/types/data-grid.js';
-	import { dragHandleZone, dragHandle, SHADOW_ITEM_MARKER_PROPERTY_NAME } from 'svelte-dnd-action';
 	import { cn } from '$lib/utils.js';
 	import { getDefaultOperator, getOperatorsForVariant } from '$lib/data-grid-filters.js';
 	import { useDebouncedCallback } from '$lib/hooks/use-debounced-callback.js';
-	import { Button } from '$lib/components/ui/button/index.js';
+	import { formatDate } from '$lib/format.js';
+	import { Button, buttonVariants } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
@@ -29,8 +29,18 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
+	import {
+		Sortable,
+		SortableContent,
+		SortableItem,
+		SortableItemHandle,
+		SortableOverlay
+	} from '$lib/components/ui/sortable/index.js';
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
+	import DataGridRangeCalendar from './data-grid-range-calendar.svelte';
+	import { useId } from 'bits-ui';
 	import { CalendarDate, type DateValue, parseDate } from '@internationalized/date';
+	import type { ComponentProps } from 'svelte';
 
 	// Icons
 	import ListFilter from '@lucide/svelte/icons/list-filter';
@@ -42,23 +52,26 @@
 
 	const FILTER_SHORTCUT_KEY = 'f';
 	const REMOVE_FILTER_SHORTCUTS = ['backspace', 'delete'];
+	const FILTER_DEBOUNCE_MS = 300;
 
-	interface Props {
+	interface Props extends ComponentProps<typeof PopoverContent> {
 		table: Table<TData>;
+		disabled?: boolean;
 		dir?: Direction;
-		align?: 'start' | 'center' | 'end';
-		class?: string;
 	}
 
-	let { table, dir = 'ltr', align = 'start', class: className }: Props = $props();
+	let { table, disabled = false, dir = 'ltr', class: className, ...contentProps }: Props = $props();
 
+	const id = useId();
+	const labelId = `${id}-label`;
+	const descriptionId = `${id}-description`;
 	let open = $state(false);
 
 	const columnFilters = $derived(table.getState().columnFilters);
 
-	let isDragging = $state(false);
-	let dragItems = $state<ColumnFilter[]>([]);
-	const filterItems = $derived(isDragging ? dragItems : columnFilters);
+	let openFieldSelectors = $state<Set<string>>(new Set());
+	let openOperatorSelectors = $state<Set<string>>(new Set());
+	let openValueSelectors = $state<Set<string>>(new Set());
 
 	const { columnLabels, columns, columnVariants } = $derived.by(() => {
 		const labels = new Map<string, string>();
@@ -116,7 +129,7 @@
 
 	const debouncedFilterUpdate = useDebouncedCallback(
 		(filterId: string, updates: Partial<ColumnFilter>) => onFilterUpdate(filterId, updates),
-		250
+		FILTER_DEBOUNCE_MS
 	);
 
 	function getTextFilterValue(filterValue: FilterValue | undefined) {
@@ -133,7 +146,7 @@
 			value: {
 				operator,
 				value: value === '' ? undefined : value,
-				value2: filterValue?.value2
+				endValue: filterValue?.endValue
 			}
 		});
 	}
@@ -144,6 +157,10 @@
 
 	function onFiltersReset() {
 		table.setColumnFilters(table.initialState.columnFilters ?? []);
+	}
+
+	function getSortableFilterValue(filter: ColumnFilter): string {
+		return filter.id;
 	}
 
 	function handleKeyDown(event: KeyboardEvent) {
@@ -172,17 +189,49 @@
 		}
 	}
 
-	function handleDndConsider(e: CustomEvent<{ items: ColumnFilter[] }>) {
-		isDragging = true;
-		dragItems = e.detail.items;
+	function setFieldSelectorOpen(filterId: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openFieldSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterId);
+		} else {
+			nextOpenSelectors.delete(filterId);
+		}
+		openFieldSelectors = nextOpenSelectors;
 	}
 
-	function handleDndFinalize(e: CustomEvent<{ items: ColumnFilter[] }>) {
-		isDragging = false;
-		const cleanItems = e.detail.items.filter(
-			(item) => !(item as unknown as Record<string, unknown>)[SHADOW_ITEM_MARKER_PROPERTY_NAME]
-		);
-		table.setColumnFilters(cleanItems);
+	function setOperatorSelectorOpen(filterId: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openOperatorSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterId);
+		} else {
+			nextOpenSelectors.delete(filterId);
+		}
+		openOperatorSelectors = nextOpenSelectors;
+	}
+
+	function setValueSelectorOpen(filterId: string, isOpen: boolean) {
+		const nextOpenSelectors = new Set(openValueSelectors);
+		if (isOpen) {
+			nextOpenSelectors.add(filterId);
+		} else {
+			nextOpenSelectors.delete(filterId);
+		}
+		openValueSelectors = nextOpenSelectors;
+	}
+
+	function onFilterItemKeyDown(event: KeyboardEvent, filterId: string) {
+		if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+			return;
+		}
+
+		if (openFieldSelectors.has(filterId) || openOperatorSelectors.has(filterId)) {
+			return;
+		}
+
+		if (REMOVE_FILTER_SHORTCUTS.includes(event.key.toLowerCase())) {
+			event.preventDefault();
+			onFilterRemove(filterId);
+		}
 	}
 
 	function getColumnOptions(columnId: string): CellSelectOption[] {
@@ -212,400 +261,633 @@
 		if (!date) return undefined;
 		return `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}T00:00:00.000Z`;
 	}
+
+	function formatCalendarDate(date: DateValue | undefined): string {
+		if (!date) return '';
+		return formatDate(calendarDateToISO(date), {
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric'
+		});
+	}
+
+	function getDateRangeDisplayValue(
+		startDate: DateValue | undefined,
+		endDate: DateValue | undefined
+	) {
+		if (startDate && endDate && startDate.compare(endDate) !== 0) {
+			return `${formatCalendarDate(startDate)} - ${formatCalendarDate(endDate)}`;
+		}
+		if (startDate) return formatCalendarDate(startDate);
+		return 'Pick a range';
+	}
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />
 
-<Popover bind:open>
-	<PopoverTrigger>
-		{#snippet child({ props })}
-			<Button
-				{...props}
-				{dir}
-				variant="outline"
-				size="sm"
-				class={cn('font-normal', className)}
-				onkeydown={onTriggerKeyDown}
-			>
-				<ListFilter class="text-muted-foreground" />
-				Filter
-				{#if columnFilters.length > 0}
-					<Badge
-						variant="secondary"
-						class="h-[18.24px] rounded-[3.2px] px-[5.12px] font-mono font-normal text-[10.4px]"
-					>
-						{columnFilters.length}
-					</Badge>
-				{/if}
-			</Button>
-		{/snippet}
-	</PopoverTrigger>
-	<PopoverContent
-		{dir}
-		{align}
-		class="flex w-full max-w-[var(--radix-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]"
-	>
-		<div class="flex flex-col gap-1">
-			<h4 class="font-medium leading-none">
-				{columnFilters.length > 0 ? 'Filter by' : 'No filters applied'}
-			</h4>
-			<p class={cn('text-muted-foreground text-sm', columnFilters.length > 0 && 'sr-only')}>
-				{columnFilters.length > 0
-					? 'Modify filters to narrow down your data.'
-					: 'Add filters to narrow down your data.'}
-			</p>
-		</div>
-		{#if filterItems.length > 0}
-			<ul
-				class="flex max-h-[400px] flex-col gap-2 overflow-y-auto p-1"
-				use:dragHandleZone={{
-					items: filterItems,
-					flipDurationMs: 150,
-					dropTargetStyle: {},
-					type: 'filter-items'
-				}}
-				onconsider={handleDndConsider}
-				onfinalize={handleDndFinalize}
-			>
-				{#each filterItems as filter, index (filter.id)}
-					{@const variant = columnVariants.get(filter.id) ?? 'short-text'}
-					{@const filterValue = filter.value as FilterValue | undefined}
-					{@const operator = filterValue?.operator ?? getDefaultOperator(variant)}
-					{@const operators = getOperatorsForVariant(variant)}
-					{@const needsValue = !['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(operator)}
-					{@const selectOptions = getColumnOptions(filter.id)}
-					<li class="flex items-center gap-2">
-						<div class="min-w-[72px] text-center">
-							{#if index === 0}
-								<span class="text-muted-foreground text-sm">Where</span>
-							{:else}
-								<span class="text-muted-foreground text-sm">And</span>
-							{/if}
-						</div>
-						<!-- Column selector -->
-						<Popover>
-							<PopoverTrigger>
-								{#snippet child({ props })}
-									<Button
-										{...props}
-										variant="outline"
-										size="sm"
-										class="w-32 justify-between rounded font-normal"
-									>
-										<span class="truncate">{columnLabels.get(filter.id)}</span>
-										<ChevronsUpDown class="opacity-50" />
-									</Button>
-								{/snippet}
-							</PopoverTrigger>
-							<PopoverContent align="start" class="w-40 p-0">
-								<Command>
-									<CommandInput placeholder="Search fields..." />
-									<CommandList>
-										<CommandEmpty>No fields found.</CommandEmpty>
-										<CommandGroup>
-											{#each columns as col (col.value)}
-												<CommandItem
-													value={col.value}
-													onSelect={() => {
-														const newVariant = columnVariants.get(col.value) ?? 'short-text';
-														const newOperator = getDefaultOperator(newVariant);
-
-														table.setColumnFilters((prevFilters) =>
-															prevFilters.map((f) =>
-																f.id === filter.id
-																	? {
-																			id: col.value,
-																			value: {
-																				operator: newOperator,
-																				value: ''
-																			}
-																		}
-																	: f
-															)
-														);
-													}}
-												>
-													<span class="truncate">{col.label}</span>
-													<Check
-														class={cn(
-															'ml-auto',
-															col.value === filter.id ? 'opacity-100' : 'opacity-0'
-														)}
-													/>
-												</CommandItem>
-											{/each}
-										</CommandGroup>
-									</CommandList>
-								</Command>
-							</PopoverContent>
-						</Popover>
-						<!-- Operator selector -->
-						<Select
-							type="single"
-							value={operator}
-							onValueChange={(newOperator: string) => {
-								const currentValue = filterValue?.value;
-								const currentValue2 = filterValue?.value2;
-
-								onFilterUpdate(filter.id, {
-									value: {
-										operator: newOperator as FilterOperator,
-										value: currentValue,
-										value2: currentValue2
-									}
-								});
-							}}
+<Sortable
+	value={columnFilters}
+	getItemValue={getSortableFilterValue}
+	onValueChange={(items) => table.setColumnFilters(items)}
+>
+	<Popover bind:open>
+		<PopoverTrigger>
+			{#snippet child({ props })}
+				<Button
+					{...props}
+					{dir}
+					variant="outline"
+					size="sm"
+					class="font-normal"
+					onkeydown={onTriggerKeyDown}
+					{disabled}
+				>
+					<ListFilter class="text-muted-foreground" />
+					Filter
+					{#if columnFilters.length > 0}
+						<Badge
+							variant="secondary"
+							class="h-[18.24px] rounded-[3.2px] px-[5.12px] font-mono font-normal text-[10.4px]"
 						>
-							<SelectTrigger size="sm" class="w-32 rounded lowercase">
-								<span data-slot="select-value" class="truncate">
-									{operators.find((op) => op.value === operator)?.label ?? operator}
-								</span>
-							</SelectTrigger>
-							<SelectContent>
-								{#each operators as op (op.value)}
-									<SelectItem value={op.value} class="lowercase">
-										{op.label}
-									</SelectItem>
-								{/each}
-							</SelectContent>
-						</Select>
-						<!-- Value input -->
-						<div class="min-w-36 flex-1">
-							{#if needsValue}
-								{#if variant === 'number'}
-									<Input
-										type="number"
-										inputmode="numeric"
-										placeholder="Value"
-										value={String(filterValue?.value ?? '')}
-										oninput={(event) => {
-											const val = (event.target as HTMLInputElement).value;
-											const newValue = val === '' ? undefined : Number(val);
-											debouncedFilterUpdate(filter.id, {
-												value: {
-													operator,
-													value: newValue,
-													value2: filterValue?.value2
-												}
-											});
-										}}
-										class="h-8 w-full rounded"
-									/>
-								{:else if variant === 'date'}
-									{@const calendarValue = parseISOToCalendarDate(
-										filterValue?.value as string | undefined
-									)}
-									<Popover>
-										<PopoverTrigger>
-											{#snippet child({ props })}
-												<Button
-													{...props}
-													variant="outline"
-													size="sm"
-													class={cn(
-														'h-8 w-full justify-start rounded font-normal',
-														!calendarValue && 'text-muted-foreground'
-													)}
-												>
-													<CalendarIcon />
-													<span class="truncate">
-														{calendarValue
-															? `${calendarValue.month}/${calendarValue.day}/${calendarValue.year}`
-															: 'Select date'}
-													</span>
-												</Button>
-											{/snippet}
-										</PopoverTrigger>
-										<PopoverContent align="start" class="w-auto p-0">
-											<Calendar
-												type="single"
-												value={calendarValue}
-												onValueChange={(date: DateValue | undefined) => {
-													const newValue = calendarDateToISO(date);
-													onFilterUpdate(filter.id, {
+							{columnFilters.length}
+						</Badge>
+					{/if}
+				</Button>
+			{/snippet}
+		</PopoverTrigger>
+		<PopoverContent
+			aria-labelledby={labelId}
+			aria-describedby={descriptionId}
+			{dir}
+			class={cn(
+				'flex w-full max-w-[var(--bits-popover-content-available-width)] flex-col gap-3.5 p-4 sm:min-w-[480px]',
+				className
+			)}
+			{...contentProps}
+		>
+			<div class="flex flex-col gap-1">
+				<h4 id={labelId} class="font-medium leading-none">
+					{columnFilters.length > 0 ? 'Filter by' : 'No filters applied'}
+				</h4>
+				<p
+					id={descriptionId}
+					class={cn('text-muted-foreground text-sm', columnFilters.length > 0 && 'sr-only')}
+				>
+					{columnFilters.length > 0
+						? 'Modify filters to narrow down your data.'
+						: 'Add filters to narrow down your data.'}
+				</p>
+			</div>
+			{#if columnFilters.length > 0}
+				<SortableContent
+					role="list"
+					class="flex max-h-[400px] flex-col gap-2 overflow-y-auto p-1"
+					type="data-grid-filter-items"
+				>
+					{#each columnFilters as filter, index (filter.id)}
+						{@const filterItemId = `${id}-filter-${filter.id}`}
+						{@const fieldListboxId = `${filterItemId}-field-listbox`}
+						{@const fieldTriggerId = `${filterItemId}-field-trigger`}
+						{@const operatorListboxId = `${filterItemId}-operator-listbox`}
+						{@const valueInputId = `${filterItemId}-input`}
+						{@const valueListboxId = `${valueInputId}-listbox`}
+						{@const variant = columnVariants.get(filter.id) ?? 'short-text'}
+						{@const filterValue = filter.value as FilterValue | undefined}
+						{@const operator = filterValue?.operator ?? getDefaultOperator(variant)}
+						{@const operators = getOperatorsForVariant(variant)}
+						{@const needsValue = !['isEmpty', 'isNotEmpty', 'isTrue', 'isFalse'].includes(operator)}
+						{@const selectOptions = getColumnOptions(filter.id)}
+						<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+						<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+						<SortableItem
+							value={filter.id}
+							role="listitem"
+							id={filterItemId}
+							tabindex={-1}
+							class="flex items-center gap-2"
+							onkeydown={(event) => onFilterItemKeyDown(event, filter.id)}
+						>
+							<div class="min-w-[72px] text-center">
+								{#if index === 0}
+									<span class="text-muted-foreground text-sm">Where</span>
+								{:else}
+									<span class="text-muted-foreground text-sm">And</span>
+								{/if}
+							</div>
+							<!-- Column selector -->
+							<Popover
+								open={openFieldSelectors.has(filter.id)}
+								onOpenChange={(isOpen) => setFieldSelectorOpen(filter.id, isOpen)}
+							>
+								<PopoverTrigger>
+									{#snippet child({ props })}
+										<Button
+											{...props}
+											id={fieldTriggerId}
+											aria-controls={fieldListboxId}
+											{dir}
+											variant="outline"
+											size="sm"
+											class="w-32 justify-between rounded font-normal"
+										>
+											<span class="truncate">{columnLabels.get(filter.id)}</span>
+											<ChevronsUpDown class="opacity-50" />
+										</Button>
+									{/snippet}
+								</PopoverTrigger>
+								<PopoverContent id={fieldListboxId} {dir} align="start" class="w-40 p-0">
+									<Command>
+										<CommandInput placeholder="Search fields..." />
+										<CommandList>
+											<CommandEmpty>No fields found.</CommandEmpty>
+											<CommandGroup>
+												{#each columns as col (col.value)}
+													<CommandItem
+														value={col.value}
+														onSelect={() => {
+															const newVariant = columnVariants.get(col.value) ?? 'short-text';
+															const newOperator = getDefaultOperator(newVariant);
+
+															table.setColumnFilters((prevFilters) =>
+																prevFilters.map((f) =>
+																	f.id === filter.id
+																		? {
+																				id: col.value,
+																				value: {
+																					operator: newOperator,
+																					value: ''
+																				}
+																			}
+																		: f
+																)
+															);
+															setFieldSelectorOpen(filter.id, false);
+														}}
+													>
+														<span class="truncate">{col.label}</span>
+														<Check
+															class={cn(
+																'ms-auto',
+																col.value === filter.id ? 'opacity-100' : 'opacity-0'
+															)}
+														/>
+													</CommandItem>
+												{/each}
+											</CommandGroup>
+										</CommandList>
+									</Command>
+								</PopoverContent>
+							</Popover>
+							<!-- Operator selector -->
+							<Select
+								type="single"
+								open={openOperatorSelectors.has(filter.id)}
+								value={operator}
+								onOpenChange={(isOpen) => setOperatorSelectorOpen(filter.id, isOpen)}
+								onValueChange={(newOperator: string) => {
+									const currentValue = filterValue?.value;
+									const currentEndValue = filterValue?.endValue;
+
+									onFilterUpdate(filter.id, {
+										value: {
+											operator: newOperator as FilterOperator,
+											value: currentValue,
+											endValue: currentEndValue
+										}
+									});
+								}}
+							>
+								<SelectTrigger
+									aria-controls={operatorListboxId}
+									size="sm"
+									class="w-32 rounded lowercase"
+								>
+									<span data-slot="select-value" class="truncate">
+										{operators.find((op) => op.value === operator)?.label ?? operator}
+									</span>
+								</SelectTrigger>
+								<SelectContent id={operatorListboxId}>
+									{#each operators as op (op.value)}
+										<SelectItem value={op.value} class="lowercase">
+											{op.label}
+										</SelectItem>
+									{/each}
+								</SelectContent>
+							</Select>
+							<!-- Value input -->
+							<div class="min-w-36 max-w-60 flex-1">
+								{#if needsValue}
+									{#if variant === 'number'}
+										{#if operator === 'isBetween'}
+											<div class="flex gap-2">
+												<Input
+													id={valueInputId}
+													type="number"
+													inputmode="numeric"
+													placeholder="Start"
+													value={String(filterValue?.value ?? '')}
+													oninput={(event) => {
+														const val = (event.target as HTMLInputElement).value;
+														const newValue = val === '' ? undefined : Number(val);
+														debouncedFilterUpdate(filter.id, {
+															value: {
+																operator,
+																value: newValue,
+																endValue: filterValue?.endValue
+															}
+														});
+													}}
+													class="h-8 w-full flex-1 rounded"
+												/>
+												<Input
+													id={`${valueInputId}-end`}
+													type="number"
+													inputmode="numeric"
+													placeholder="End"
+													value={String(filterValue?.endValue ?? '')}
+													oninput={(event) => {
+														const val = (event.target as HTMLInputElement).value;
+														const newValue = val === '' ? undefined : Number(val);
+														debouncedFilterUpdate(filter.id, {
+															value: {
+																operator,
+																value: filterValue?.value,
+																endValue: newValue
+															}
+														});
+													}}
+													class="h-8 w-full flex-1 rounded"
+												/>
+											</div>
+										{:else}
+											<Input
+												id={valueInputId}
+												type="number"
+												inputmode="numeric"
+												placeholder="Value"
+												value={String(filterValue?.value ?? '')}
+												oninput={(event) => {
+													const val = (event.target as HTMLInputElement).value;
+													const newValue = val === '' ? undefined : Number(val);
+													debouncedFilterUpdate(filter.id, {
 														value: {
 															operator,
 															value: newValue,
-															value2: filterValue?.value2
+															endValue: filterValue?.endValue
 														}
 													});
 												}}
+												class="h-8 w-full rounded"
 											/>
-										</PopoverContent>
-									</Popover>
-								{:else if (variant === 'select' || variant === 'multi-select') && selectOptions.length > 0}
-									{#if operator === 'isAnyOf' || operator === 'isNoneOf'}
-										{@const selectedValues = Array.isArray(filterValue?.value)
-											? filterValue.value
-											: []}
-										{@const selectedOptions = selectOptions.filter((option) =>
-											selectedValues.includes(option.value)
+										{/if}
+									{:else if variant === 'date'}
+										{@const calendarValue = parseISOToCalendarDate(
+											filterValue?.value as string | undefined
 										)}
-										<Popover>
-											<PopoverTrigger>
-												{#snippet child({ props })}
-													<Button
-														{...props}
-														variant="outline"
-														size="sm"
-														class="h-8 w-full justify-start rounded font-normal"
-													>
-														{#if selectedOptions.length === 0}
-															<span class="text-muted-foreground">Select values</span>
-														{:else}
+										{@const endCalendarValue = parseISOToCalendarDate(
+											filterValue?.endValue as string | undefined
+										)}
+										{#if operator === 'isBetween'}
+											<Popover
+												open={openValueSelectors.has(filter.id)}
+												onOpenChange={(isOpen) => setValueSelectorOpen(filter.id, isOpen)}
+											>
+												<PopoverTrigger>
+													{#snippet child({ props })}
+														<Button
+															{...props}
+															id={valueInputId}
+															aria-controls={valueListboxId}
+															{dir}
+															variant="outline"
+															size="sm"
+															class={cn(
+																'h-8 w-full justify-start rounded font-normal',
+																!calendarValue && 'text-muted-foreground'
+															)}
+														>
+															<CalendarIcon />
 															<span class="truncate">
-																{selectedOptions.length > 1
-																	? `${selectedOptions.length} selected`
-																	: selectedOptions[0]?.label}
+																{getDateRangeDisplayValue(calendarValue, endCalendarValue)}
 															</span>
-														{/if}
-													</Button>
-												{/snippet}
-											</PopoverTrigger>
-											<PopoverContent align="start" class="w-48 p-0">
-												<Command>
-													<CommandInput placeholder="Search options..." />
-													<CommandList>
-														<CommandEmpty>No options found.</CommandEmpty>
-														<CommandGroup>
-															{#each selectOptions as option (option.value)}
-																{@const isSelected = selectedValues.includes(option.value)}
-																<CommandItem
-																	value={option.value}
-																	onSelect={() => {
-																		const newValues = isSelected
-																			? selectedValues.filter((v) => v !== option.value)
-																			: [...selectedValues, option.value];
-																		onFilterUpdate(filter.id, {
-																			value: {
-																				operator,
-																				value: newValues.length > 0 ? newValues : undefined,
-																				value2: filterValue?.value2
-																			}
-																		});
-																	}}
-																>
-																	<span class="truncate">{option.label}</span>
-																	{#if option.count !== undefined}
-																		<span class="ml-auto font-mono text-xs">
-																			{option.count}
-																		</span>
-																	{/if}
-																	<Check
-																		class={cn('ml-auto', isSelected ? 'opacity-100' : 'opacity-0')}
-																	/>
-																</CommandItem>
-															{/each}
-														</CommandGroup>
-													</CommandList>
-												</Command>
-											</PopoverContent>
-										</Popover>
+														</Button>
+													{/snippet}
+												</PopoverTrigger>
+												<PopoverContent id={valueListboxId} {dir} align="start" class="w-auto p-0">
+													<DataGridRangeCalendar
+														value={{
+															start: calendarValue,
+															end: endCalendarValue
+														}}
+														onValueChange={(range) => {
+															onFilterUpdate(filter.id, {
+																value: {
+																	operator,
+																	value: calendarDateToISO(range.start),
+																	endValue: calendarDateToISO(range.end)
+																}
+															});
+														}}
+														captionLayout="dropdown"
+														initialFocus
+													/>
+												</PopoverContent>
+											</Popover>
+										{:else}
+											<Popover
+												open={openValueSelectors.has(filter.id)}
+												onOpenChange={(isOpen) => setValueSelectorOpen(filter.id, isOpen)}
+											>
+												<PopoverTrigger>
+													{#snippet child({ props })}
+														<Button
+															{...props}
+															id={valueInputId}
+															aria-controls={valueListboxId}
+															{dir}
+															variant="outline"
+															size="sm"
+															class={cn(
+																'h-8 w-full justify-start rounded font-normal',
+																!calendarValue && 'text-muted-foreground'
+															)}
+														>
+															<CalendarIcon />
+															<span class="truncate">
+																{calendarValue
+																	? formatDate(calendarDateToISO(calendarValue), {
+																			month: 'short',
+																			day: 'numeric',
+																			year: 'numeric'
+																		})
+																	: 'Pick a date'}
+															</span>
+														</Button>
+													{/snippet}
+												</PopoverTrigger>
+												<PopoverContent id={valueListboxId} {dir} align="start" class="w-auto p-0">
+													<Calendar
+														type="single"
+														captionLayout="dropdown"
+														value={calendarValue}
+														initialFocus
+														onValueChange={(date: DateValue | undefined) => {
+															const newValue = calendarDateToISO(date);
+															onFilterUpdate(filter.id, {
+																value: {
+																	operator,
+																	value: newValue,
+																	endValue: filterValue?.endValue
+																}
+															});
+															setValueSelectorOpen(filter.id, false);
+														}}
+													/>
+												</PopoverContent>
+											</Popover>
+										{/if}
+									{:else if (variant === 'select' || variant === 'multi-select') && selectOptions.length > 0}
+										{#if operator === 'isAnyOf' || operator === 'isNoneOf'}
+											{@const selectedValues = Array.isArray(filterValue?.value)
+												? filterValue.value
+												: []}
+											{@const selectedOptions = selectOptions.filter((option) =>
+												selectedValues.includes(option.value)
+											)}
+											{@const selectedOptionsWithIcons = selectedOptions.filter(
+												(option) => option.icon
+											)}
+											<Popover
+												open={openValueSelectors.has(filter.id)}
+												onOpenChange={(isOpen) => setValueSelectorOpen(filter.id, isOpen)}
+											>
+												<PopoverTrigger>
+													{#snippet child({ props })}
+														<Button
+															{...props}
+															id={valueInputId}
+															aria-controls={valueListboxId}
+															{dir}
+															variant="outline"
+															size="sm"
+															class="h-8 w-full justify-start rounded font-normal"
+														>
+															{#if selectedOptions.length === 0}
+																<span class="text-muted-foreground">Value</span>
+															{:else}
+																{#if selectedOptionsWithIcons.length > 0}
+																	<div class="flex items-center -space-x-2 rtl:space-x-reverse">
+																		{#each selectedOptionsWithIcons as selectedOption (selectedOption.value)}
+																			{#if selectedOption.icon}
+																				{@const Icon = selectedOption.icon}
+																				<div class="rounded-full border bg-background p-0.5">
+																					<Icon class="size-3.5" />
+																				</div>
+																			{/if}
+																		{/each}
+																	</div>
+																{/if}
+																<span class="truncate">
+																	{selectedOptions.length > 1
+																		? `${selectedOptions.length} selected`
+																		: selectedOptions[0]?.label}
+																</span>
+															{/if}
+														</Button>
+													{/snippet}
+												</PopoverTrigger>
+												<PopoverContent id={valueListboxId} {dir} align="start" class="w-48 p-0">
+													<Command>
+														<CommandInput placeholder="Search options..." />
+														<CommandList>
+															<CommandEmpty>No options found.</CommandEmpty>
+															<CommandGroup>
+																{#each selectOptions as option (option.value)}
+																	{@const isSelected = selectedValues.includes(option.value)}
+																	<CommandItem
+																		value={option.value}
+																		onSelect={() => {
+																			const newValues = isSelected
+																				? selectedValues.filter((v) => v !== option.value)
+																				: [...selectedValues, option.value];
+																			onFilterUpdate(filter.id, {
+																				value: {
+																					operator,
+																					value: newValues.length > 0 ? newValues : undefined,
+																					endValue: filterValue?.endValue
+																				}
+																			});
+																		}}
+																	>
+																		{#if option.icon}
+																			{@const Icon = option.icon}
+																			<Icon />
+																		{/if}
+																		<span class="truncate">{option.label}</span>
+																		{#if option.count}
+																			<span class="ms-auto font-mono text-xs">
+																				{option.count}
+																			</span>
+																		{/if}
+																		<Check
+																			class={cn(
+																				'ms-auto',
+																				isSelected ? 'opacity-100' : 'opacity-0'
+																			)}
+																		/>
+																	</CommandItem>
+																{/each}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
+										{:else}
+											{@const selectedOption = selectOptions.find(
+												(opt) => opt.value === (filterValue?.value as string)
+											)}
+											<Popover
+												open={openValueSelectors.has(filter.id)}
+												onOpenChange={(isOpen) => setValueSelectorOpen(filter.id, isOpen)}
+											>
+												<PopoverTrigger>
+													{#snippet child({ props })}
+														<Button
+															{...props}
+															id={valueInputId}
+															aria-controls={valueListboxId}
+															{dir}
+															variant="outline"
+															size="sm"
+															class="h-8 w-full justify-start rounded font-normal"
+														>
+															{#if selectedOption}
+																{#if selectedOption.icon}
+																	{@const Icon = selectedOption.icon}
+																	<Icon />
+																{/if}
+																<span class="truncate">{selectedOption.label}</span>
+															{:else}
+																<span class="text-muted-foreground">Value</span>
+															{/if}
+														</Button>
+													{/snippet}
+												</PopoverTrigger>
+												<PopoverContent
+													id={valueListboxId}
+													{dir}
+													align="start"
+													class="w-[200px] p-0"
+												>
+													<Command>
+														<CommandInput placeholder="Search options..." />
+														<CommandList>
+															<CommandEmpty>No options found.</CommandEmpty>
+															<CommandGroup>
+																{#each selectOptions as option (option.value)}
+																	<CommandItem
+																		value={option.value}
+																		onSelect={() => {
+																			onFilterUpdate(filter.id, {
+																				value: {
+																					operator,
+																					value: option.value,
+																					endValue: filterValue?.endValue
+																				}
+																			});
+																			setValueSelectorOpen(filter.id, false);
+																		}}
+																	>
+																		{#if option.icon}
+																			{@const Icon = option.icon}
+																			<Icon />
+																		{/if}
+																		<span class="truncate">{option.label}</span>
+																		{#if option.count}
+																			<span class="ms-auto font-mono text-xs">
+																				{option.count}
+																			</span>
+																		{/if}
+																		<Check
+																			class={cn(
+																				'ms-auto',
+																				filterValue?.value === option.value
+																					? 'opacity-100'
+																					: 'opacity-0'
+																			)}
+																		/>
+																	</CommandItem>
+																{/each}
+															</CommandGroup>
+														</CommandList>
+													</Command>
+												</PopoverContent>
+											</Popover>
+										{/if}
 									{:else}
-										{@const selectedOption = selectOptions.find(
-											(opt) => opt.value === (filterValue?.value as string)
-										)}
-										<Popover>
-											<PopoverTrigger>
-												{#snippet child({ props })}
-													<Button
-														{...props}
-														variant="outline"
-														size="sm"
-														class="h-8 w-full justify-start rounded font-normal"
-													>
-														{#if selectedOption}
-															<span class="truncate">{selectedOption.label}</span>
-														{:else}
-															<span class="text-muted-foreground">Select value</span>
-														{/if}
-													</Button>
-												{/snippet}
-											</PopoverTrigger>
-											<PopoverContent align="start" class="w-[200px] p-0">
-												<Command>
-													<CommandInput placeholder="Search options..." />
-													<CommandList>
-														<CommandEmpty>No options found.</CommandEmpty>
-														<CommandGroup>
-															{#each selectOptions as option (option.value)}
-																<CommandItem
-																	value={option.value}
-																	onSelect={() => {
-																		onFilterUpdate(filter.id, {
-																			value: {
-																				operator,
-																				value: option.value,
-																				value2: filterValue?.value2
-																			}
-																		});
-																	}}
-																>
-																	<span class="truncate">{option.label}</span>
-																	{#if option.count !== undefined}
-																		<span class="ml-auto font-mono text-xs">
-																			{option.count}
-																		</span>
-																	{/if}
-																	<Check
-																		class={cn(
-																			'ml-auto',
-																			filterValue?.value === option.value
-																				? 'opacity-100'
-																				: 'opacity-0'
-																		)}
-																	/>
-																</CommandItem>
-															{/each}
-														</CommandGroup>
-													</CommandList>
-												</Command>
-											</PopoverContent>
-										</Popover>
+										<Input
+											id={valueInputId}
+											type="text"
+											placeholder="Value"
+											class="h-8 w-full rounded"
+											bind:value={
+												() => getTextFilterValue(filterValue),
+												(value) => setTextFilterValue(filter.id, operator, filterValue, value)
+											}
+										/>
 									{/if}
 								{:else}
-									<Input
-										type="text"
-										placeholder="Value"
-										class="h-8 w-full rounded"
-										bind:value={
-											() => getTextFilterValue(filterValue),
-											(value) => setTextFilterValue(filter.id, operator, filterValue, value)
-										}
-									/>
+									<div
+										id={valueInputId}
+										role="status"
+										aria-label={`${columnLabels.get(filter.id)} filter is empty`}
+										aria-live="polite"
+										class="h-8 w-full rounded border bg-transparent dark:bg-input/30"
+									></div>
 								{/if}
-							{:else}
-								<div class="h-8 w-full rounded border bg-transparent dark:bg-input/30"></div>
-							{/if}
-						</div>
-						<Button
-							variant="outline"
-							size="icon"
-							class="size-8 rounded"
-							onclick={() => onFilterRemove(filter.id)}
-						>
-							<Trash2 />
-						</Button>
-						<button
-							use:dragHandle
-							aria-label="drag handle for filter"
-							class="border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex size-8 shrink-0 cursor-grab items-center justify-center rounded border text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-						>
-							<GripVertical class="size-4" />
-						</button>
-					</li>
-				{/each}
-			</ul>
-		{/if}
-		<div class="flex w-full items-center gap-2">
-			<Button size="sm" class="rounded" onclick={onFilterAdd} disabled={columns.length === 0}>
-				Add filter
-			</Button>
-			{#if columnFilters.length > 0}
-				<Button variant="outline" size="sm" class="rounded" onclick={onFiltersReset}>
-					Reset filters
-				</Button>
+							</div>
+							<Button
+								aria-controls={filterItemId}
+								variant="outline"
+								size="icon"
+								class="size-8 rounded"
+								onclick={() => onFilterRemove(filter.id)}
+							>
+								<Trash2 />
+							</Button>
+							<SortableItemHandle
+								aria-label="drag handle for filter"
+								class={cn(
+									buttonVariants({ variant: 'outline', size: 'icon' }),
+									'size-8 shrink-0 cursor-grab rounded'
+								)}
+							>
+								<GripVertical class="size-4" />
+							</SortableItemHandle>
+						</SortableItem>
+					{/each}
+				</SortableContent>
 			{/if}
+			<div class="flex w-full items-center gap-2">
+				<Button size="sm" class="rounded" onclick={onFilterAdd} disabled={columns.length === 0}>
+					Add filter
+				</Button>
+				{#if columnFilters.length > 0}
+					<Button variant="outline" size="sm" class="rounded" onclick={onFiltersReset}>
+						Reset filters
+					</Button>
+				{/if}
+			</div>
+		</PopoverContent>
+	</Popover>
+	<SortableOverlay>
+		<div {dir} class="flex items-center gap-2">
+			<div class="h-8 min-w-[72px] rounded-sm bg-primary/10"></div>
+			<div class="h-8 w-32 rounded-sm bg-primary/10"></div>
+			<div class="h-8 w-32 rounded-sm bg-primary/10"></div>
+			<div class="h-8 w-36 rounded-sm bg-primary/10"></div>
+			<div class="size-8 shrink-0 rounded-sm bg-primary/10"></div>
+			<div class="size-8 shrink-0 rounded-sm bg-primary/10"></div>
 		</div>
-	</PopoverContent>
-</Popover>
+	</SortableOverlay>
+</Sortable>

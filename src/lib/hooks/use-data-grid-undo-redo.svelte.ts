@@ -368,7 +368,7 @@ export function useDataGridUndoRedo<TData>(
 			}
 		}
 
-		return on(window, 'keydown', handleKeyDown);
+		return on(document, 'keydown', handleKeyDown);
 	});
 
 	return {

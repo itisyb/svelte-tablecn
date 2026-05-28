@@ -1,4 +1,3 @@
-import { DropdownMenu as DropdownMenuPrimitive } from "bits-ui";
 import CheckboxGroup from "./dropdown-menu-checkbox-group.svelte";
 import CheckboxItem from "./dropdown-menu-checkbox-item.svelte";
 import Content from "./dropdown-menu-content.svelte";
@@ -13,8 +12,9 @@ import Trigger from "./dropdown-menu-trigger.svelte";
 import SubContent from "./dropdown-menu-sub-content.svelte";
 import SubTrigger from "./dropdown-menu-sub-trigger.svelte";
 import GroupHeading from "./dropdown-menu-group-heading.svelte";
-const Sub = DropdownMenuPrimitive.Sub;
-const Root = DropdownMenuPrimitive.Root;
+import Root from "./dropdown-menu.svelte";
+import Portal from "./dropdown-menu-portal.svelte";
+import Sub from "./dropdown-menu-sub.svelte";
 
 export {
 	CheckboxGroup,
@@ -34,12 +34,14 @@ export {
 	Sub as DropdownMenuSub,
 	SubContent as DropdownMenuSubContent,
 	SubTrigger as DropdownMenuSubTrigger,
+	Portal as DropdownMenuPortal,
 	Trigger as DropdownMenuTrigger,
 	GroupHeading as DropdownMenuGroupHeading,
 	Group,
 	GroupHeading,
 	Item,
 	Label,
+	Portal,
 	RadioGroup,
 	RadioItem,
 	Root,

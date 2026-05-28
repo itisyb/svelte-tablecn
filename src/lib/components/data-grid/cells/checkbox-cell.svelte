@@ -17,17 +17,23 @@
 
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialValue = $derived(cellValue as boolean);
-	
+
 	// Track local edits separately
 	let localEditValue = $state<boolean | null>(null);
-	
+
 	// Value for display - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? Boolean(initialValue));
 
-	function handleCheckedChange(newValue: boolean) {
+	$effect(() => {
+		const _ = initialValue;
+		localEditValue = null;
+	});
+
+	function handleCheckedChange(newValue: boolean | 'indeterminate') {
 		if (readOnly) return;
-		localEditValue = newValue;
-		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: newValue });
+		const checked = newValue === true;
+		localEditValue = checked;
+		table.options.meta?.onDataUpdate?.({ rowIndex, columnId, value: checked });
 	}
 
 	function handleWrapperKeyDown(event: KeyboardEvent) {
@@ -37,26 +43,23 @@
 			handleCheckedChange(!value);
 		} else if (isFocused && event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			table.options.meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});
 		}
 	}
 
-	// Handle wrapper click - focus cell and toggle checkbox
 	function handleWrapperClick(event: MouseEvent) {
-		event.preventDefault();
-		event.stopPropagation();
-		
-		// Focus the cell if not already focused
-		if (!isFocused) {
-			table.options.meta?.onCellClick?.(rowIndex, columnId, event);
-		}
-		
-		// Toggle checkbox on single click
-		if (!readOnly) {
+		if (isFocused && !readOnly) {
+			event.preventDefault();
+			event.stopPropagation();
 			handleCheckedChange(!value);
 		}
+	}
+
+	function stopCheckboxPropagation(event: MouseEvent) {
+		event.stopPropagation();
 	}
 </script>
 
@@ -74,7 +77,11 @@
 >
 	<Checkbox
 		checked={value}
+		onCheckedChange={handleCheckedChange}
 		disabled={readOnly}
-		class="border-primary pointer-events-none"
+		class="border-primary"
+		onclick={stopCheckboxPropagation}
+		onmousedown={stopCheckboxPropagation}
+		ondblclick={stopCheckboxPropagation}
 	/>
 </DataGridCellWrapper>

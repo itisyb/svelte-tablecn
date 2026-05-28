@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
 	import type { CellPosition } from '$lib/types/data-grid.js';
+	import { useDebouncedCallback } from '$lib/hooks/use-debounced-callback.js';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import X from '@lucide/svelte/icons/x';
+
+	const SEARCH_DEBOUNCE_MS = 150;
 
 	interface Props {
 		searchOpen: boolean;
@@ -31,15 +34,9 @@
 	}: Props = $props();
 
 	let inputRef = $state<HTMLInputElement | null>(null);
-
-	// Debounce timer
-	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-	onDestroy(() => {
-		if (debounceTimer) {
-			clearTimeout(debounceTimer);
-		}
-	});
+	const debouncedSearch = useDebouncedCallback((query: string) => {
+		onSearch(query);
+	}, SEARCH_DEBOUNCE_MS);
 
 	// Focus input when opening
 	$effect(() => {
@@ -61,15 +58,7 @@
 
 	function handleSearchInput(value: string) {
 		onSearchQueryChange(value);
-
-		if (debounceTimer) {
-			clearTimeout(debounceTimer);
-		}
-
-		// Debounce the table scan while keeping the input responsive.
-		debounceTimer = setTimeout(() => {
-			onSearch(value);
-		}, 150);
+		debouncedSearch(value);
 	}
 
 	function onKeyDown(event: KeyboardEvent) {
@@ -85,6 +74,23 @@
 		}
 	}
 
+	function onTriggerPointerDown(event: PointerEvent) {
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) return;
+		if (target.hasPointerCapture(event.pointerId)) {
+			target.releasePointerCapture(event.pointerId);
+		}
+
+		if (
+			event.button === 0 &&
+			event.ctrlKey === false &&
+			event.pointerType === 'mouse' &&
+			!(event.target instanceof HTMLInputElement)
+		) {
+			event.preventDefault();
+		}
+	}
+
 	function onClose() {
 		onSearchOpenChange(false);
 	}
@@ -96,18 +102,18 @@
 	<div
 		role="search"
 		data-slot="grid-search"
-		class="fade-in-0 slide-in-from-top-2 absolute top-4 right-4 z-50 flex animate-in flex-col gap-2 rounded-lg border bg-background p-2 shadow-lg"
+		class="fade-in-0 slide-in-from-top-2 absolute top-4 end-4 z-50 flex animate-in flex-col gap-2 rounded-lg border bg-background p-2 shadow-lg"
 	>
 		<div class="flex items-center gap-2">
-			<input
-				bind:this={inputRef}
+			<Input
+				bind:ref={inputRef}
 				type="text"
 				autocomplete="off"
 				autocorrect="off"
 				autocapitalize="off"
 				spellcheck="false"
 				placeholder="Find in table..."
-				class="flex h-8 w-64 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring md:text-sm"
+				class="h-8 w-64"
 				bind:value={() => searchQuery, handleSearchInput}
 				onkeydown={onKeyDown}
 			/>
@@ -118,6 +124,7 @@
 					size="icon"
 					class="size-7"
 					onclick={onNavigateToPrevMatch}
+					onpointerdown={onTriggerPointerDown}
 					disabled={searchMatches.length === 0}
 				>
 					<ChevronUp />
@@ -128,6 +135,7 @@
 					size="icon"
 					class="size-7"
 					onclick={onNavigateToNextMatch}
+					onpointerdown={onTriggerPointerDown}
 					disabled={searchMatches.length === 0}
 				>
 					<ChevronDown />

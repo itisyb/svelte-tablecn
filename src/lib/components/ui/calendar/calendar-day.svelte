@@ -14,7 +14,7 @@
 	bind:ref
 	class={cn(
 		buttonVariants({ variant: "ghost" }),
-		"size-(--cell-size) flex select-none flex-col items-center justify-center gap-1 whitespace-nowrap p-0 font-normal leading-none",
+		"flex aspect-square size-auto w-full min-w-(--cell-size) select-none flex-col items-center justify-center gap-1 whitespace-nowrap p-0 font-normal leading-none",
 		"[&[data-today]:not([data-selected])]:bg-accent [&[data-today]:not([data-selected])]:text-accent-foreground [&[data-today][data-disabled]]:text-muted-foreground",
 		"data-[selected]:bg-primary dark:data-[selected]:hover:bg-accent/50 data-[selected]:text-primary-foreground",
 		// Outside months
@@ -26,7 +26,7 @@
 		// hover
 		"dark:hover:text-accent-foreground",
 		// focus
-		"focus:border-ring focus:ring-ring/50 focus:relative",
+		"focus:relative focus:z-10 focus:border-ring focus:ring-[3px] focus:ring-ring/50",
 		// inner spans
 		"[&>span]:text-xs [&>span]:opacity-70",
 		className

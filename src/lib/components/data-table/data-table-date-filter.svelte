@@ -1,14 +1,16 @@
 <script lang="ts" generics="TData, TValue">
 	import type { Column, Table } from '@tanstack/table-core';
 	import type { DateValue } from '@internationalized/date';
-	import { parseDate } from '@internationalized/date';
+	import { CalendarDate, parseDate } from '@internationalized/date';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Calendar as CalendarPicker } from '$lib/components/ui/calendar/index.js';
 	import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover/index.js';
+	import { Separator } from '$lib/components/ui/separator/index.js';
 	import { formatDate } from '$lib/format.js';
+	import DataGridRangeCalendar from '$lib/components/data-grid/data-grid-range-calendar.svelte';
 
 	import Calendar from '@lucide/svelte/icons/calendar';
-	import X from '@lucide/svelte/icons/x';
+	import XCircle from '@lucide/svelte/icons/x-circle';
 
 	interface Props {
 		table?: Table<TData>;
@@ -27,52 +29,75 @@
 	);
 	const filterValue = $derived.by(() => {
 		const id = resolvedColumnId;
-		if (!id) return undefined;
+		if (!id) return resolvedColumn?.getFilterValue();
 
-		return table?.getState().columnFilters.find((filter) => filter.id === id)?.value;
+		return table?.getState().columnFilters.find((filter) => filter.id === id)?.value ?? resolvedColumn?.getFilterValue();
 	});
-	const values = $derived(Array.isArray(filterValue) ? filterValue : [filterValue].filter(Boolean));
+	const values = $derived(parseColumnFilterValue(filterValue));
 	const displayValue = $derived(
 		values
-			.map((value) =>
-				typeof value === 'string' ? formatDate(value, { month: 'short', day: 'numeric' }) : ''
-			)
+			.map((value) => formatDate(value))
 			.filter(Boolean)
-			.join(' to ')
+			.join(' - ')
 	);
+	const hasValue = $derived(values.length > 0 && displayValue.length > 0);
 
-	function toCalendarDate(value: string | undefined): DateValue | undefined {
-		if (!value) return undefined;
+	function parseColumnFilterValue(value: unknown) {
+		if (value === null || value === undefined) {
+			return [];
+		}
+
+		if (Array.isArray(value)) {
+			return value.map((item) => (typeof item === 'number' || typeof item === 'string' ? item : undefined));
+		}
+
+		if (typeof value === 'string' || typeof value === 'number') {
+			return [value];
+		}
+
+		return [];
+	}
+
+	function calendarDateToTimestamp(value: DateValue) {
+		return new Date(value.year, value.month - 1, value.day).getTime();
+	}
+
+	function toCalendarDate(value: string | number | undefined): DateValue | undefined {
+		if (value === undefined || value === '') return undefined;
 
 		try {
-			return parseDate(value);
+			if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+				return parseDate(value.split('T')[0]);
+			}
+
+			const timestamp = typeof value === 'string' ? Number(value) : value;
+			const date = new Date(Number.isNaN(timestamp) ? value : timestamp);
+			if (Number.isNaN(date.getTime())) return undefined;
+
+			return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
 		} catch {
 			return undefined;
 		}
 	}
 
 	function onSingleDateChange(value: DateValue | undefined) {
-		updateSingle(value ? value.toString() : '');
+		updateSingle(value ? calendarDateToTimestamp(value) : undefined);
 	}
 
-	function onRangeDateChange(index: number, value: DateValue | undefined) {
-		updateRange(index, value ? value.toString() : '');
+	function onRangeCalendarChange(range: { start?: DateValue; end?: DateValue }) {
+		const nextValue = [range.start, range.end].map((value) =>
+			value ? calendarDateToTimestamp(value) : undefined
+		);
+		resolvedColumn?.setFilterValue(nextValue.some((item) => item !== undefined) ? nextValue : undefined);
 	}
 
-	function updateSingle(value: string) {
-		resolvedColumn?.setFilterValue(value || undefined);
+	function updateSingle(value: number | undefined) {
+		resolvedColumn?.setFilterValue(value);
 	}
 
-	function updateRange(index: number, value: string) {
-		const nextValue = [...values];
-		nextValue[index] = value;
-		const cleaned = nextValue.filter((item) => typeof item === 'string' && item.trim().length > 0);
-		resolvedColumn?.setFilterValue(cleaned.length > 0 ? cleaned : undefined);
-	}
-
-	function clearFilter() {
+	function onReset(event: MouseEvent) {
+		event.stopPropagation();
 		resolvedColumn?.setFilterValue(undefined);
-		open = false;
 	}
 </script>
 
@@ -86,51 +111,45 @@
 				size="sm"
 				class="border-dashed font-normal"
 			>
-				<Calendar />
+				{#if hasValue}
+					<!-- svelte-ignore a11y_click_events_have_key_events - mirrors upstream clear affordance inside the trigger button. -->
+					<div
+						role="button"
+						aria-label={`Clear ${title ?? 'column'} filter`}
+						tabindex={0}
+						class="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+						onclick={onReset}
+					>
+						<XCircle />
+					</div>
+				{:else}
+					<Calendar />
+				{/if}
 				{title}
-				{#if values.length > 0}
-					<span class="max-w-40 truncate text-muted-foreground text-xs">
+				{#if hasValue}
+					<Separator orientation="vertical" class="mx-0.5 data-[orientation=vertical]:h-4" />
+					<span class="max-w-40 truncate">
 						{displayValue}
 					</span>
 				{/if}
 			</Button>
 		{/snippet}
 	</PopoverTrigger>
-	<PopoverContent align="start" class="w-72 space-y-3">
+	<PopoverContent align="start" class="w-auto p-0">
 		{#if multiple}
-			<div class="grid gap-2 sm:grid-cols-2">
-				<div class="space-y-1">
-					<span class="text-xs text-muted-foreground">From</span>
-					<CalendarPicker
-						type="single"
-						value={toCalendarDate(typeof values[0] === 'string' ? values[0] : undefined)}
-						onValueChange={(value: DateValue | undefined) => onRangeDateChange(0, value)}
-					/>
-				</div>
-				<div class="space-y-1">
-					<span class="text-xs text-muted-foreground">To</span>
-					<CalendarPicker
-						type="single"
-						value={toCalendarDate(typeof values[1] === 'string' ? values[1] : undefined)}
-						onValueChange={(value: DateValue | undefined) => onRangeDateChange(1, value)}
-					/>
-				</div>
-			</div>
+			<DataGridRangeCalendar
+				value={{ start: toCalendarDate(values[0]), end: toCalendarDate(values[1]) }}
+				onValueChange={onRangeCalendarChange}
+				captionLayout="dropdown"
+				initialFocus
+			/>
 		{:else}
-			<div class="space-y-1">
-				<span class="text-xs text-muted-foreground">Date</span>
-				<CalendarPicker
-					type="single"
-					value={toCalendarDate(typeof values[0] === 'string' ? values[0] : undefined)}
-					onValueChange={(value: DateValue | undefined) => onSingleDateChange(value)}
-				/>
-			</div>
+			<CalendarPicker
+				type="single"
+				captionLayout="dropdown"
+				value={toCalendarDate(values[0])}
+				onValueChange={(value: DateValue | undefined) => onSingleDateChange(value)}
+			/>
 		{/if}
-		<div class="flex justify-end">
-			<Button variant="ghost" size="sm" class="h-8" onclick={clearFilter}>
-				<X />
-				Clear
-			</Button>
-		</div>
 	</PopoverContent>
 </Popover>

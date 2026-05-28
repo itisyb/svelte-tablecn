@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Column } from '@tanstack/table-core';
-	import { cn } from '$lib/utils.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Slider } from '$lib/components/ui/slider/index.js';
 	import {
@@ -11,8 +11,9 @@
 		type RangeValue
 	} from '$lib/data-table-range-utils.js';
 	import type { ExtendedColumnFilter } from '$lib/types/data-table.js';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	interface Props {
+	interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
 		filter: ExtendedColumnFilter<TData>;
 		column: Column<TData, unknown>;
 		inputId: string;
@@ -21,7 +22,6 @@
 			updates: Partial<Omit<ExtendedColumnFilter<TData>, 'filterId'>>
 		) => void;
 		showSlider?: boolean;
-		class?: string;
 	}
 
 	let {
@@ -29,8 +29,10 @@
 		column,
 		inputId,
 		onFilterUpdate,
-		showSlider = true,
-		class: className
+		showSlider = false,
+		class: className,
+		ref = $bindable(null),
+		...restProps
 	}: Props = $props();
 
 	const meta = $derived(column.columnDef.meta);
@@ -43,6 +45,16 @@
 			[bounds.min, bounds.max]
 		)
 	);
+	const inputValues = $derived.by((): [string, string] => {
+		const currentValues = Array.isArray(filter.value) ? filter.value : [filter.value, ''];
+		return [formatInputValue(currentValues[0]), formatInputValue(currentValues[1])];
+	});
+
+	function formatInputValue(value: unknown): string {
+		if (value === undefined || value === null || value === '') return '';
+		const numericValue = Number(value);
+		return Number.isNaN(numericValue) ? '' : String(numericValue);
+	}
 
 	function updateRange(next: RangeValue) {
 		onFilterUpdate(filter.filterId, {
@@ -81,8 +93,10 @@
 </script>
 
 <div
+	bind:this={ref}
 	data-slot="range"
-	class={cn('flex w-full flex-col gap-2', !showSlider && 'flex-row items-center gap-2', className)}
+	class={cn(showSlider ? 'flex w-full flex-col gap-2' : 'flex w-full items-center gap-2', className)}
+	{...restProps}
 >
 	<div class={cn('flex w-full items-center gap-2', showSlider && 'gap-2')}>
 		<div class="relative min-w-0 flex-1">
@@ -97,19 +111,19 @@
 				placeholder={formatRangeValue(bounds.min)}
 				min={bounds.min}
 				max={bounds.max}
-				class={cn('h-8 w-full rounded', unit && 'pr-7')}
-				value={String(range[0])}
+				class={cn('h-8 w-full rounded', unit && 'pr-8')}
+				value={inputValues[0]}
 				oninput={(event) => onRangeInputChange(event, true)}
 			/>
 			{#if unit}
 				<span
-					class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-1.5 text-muted-foreground text-xs"
+					class="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm"
 				>
 					{unit}
 				</span>
 			{/if}
 		</div>
-		<span class="shrink-0 text-muted-foreground text-xs">to</span>
+		<span class="sr-only shrink-0 text-muted-foreground">to</span>
 		<div class="relative min-w-0 flex-1">
 			<Input
 				id={`${inputId}-max`}
@@ -122,13 +136,13 @@
 				placeholder={formatRangeValue(bounds.max)}
 				min={bounds.min}
 				max={bounds.max}
-				class={cn('h-8 w-full rounded', unit && 'pr-7')}
-				value={String(range[1])}
+				class={cn('h-8 w-full rounded', unit && 'pr-8')}
+				value={inputValues[1]}
 				oninput={(event) => onRangeInputChange(event)}
 			/>
 			{#if unit}
 				<span
-					class="pointer-events-none absolute inset-y-0 right-0 flex items-center rounded-r-md bg-accent px-1.5 text-muted-foreground text-xs"
+					class="absolute top-0 right-0 bottom-0 flex items-center rounded-r-md bg-accent px-2 text-muted-foreground text-sm"
 				>
 					{unit}
 				</span>

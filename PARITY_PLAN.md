@@ -6,7 +6,7 @@ Bring `svelte-tablecn` to feature parity with the original React `tablecn` in a 
 
 ## Current Status
 
-The local repo already covers most of the editable `data-grid` surface:
+The local repo now covers the main editable `data-grid` and `data-table` surfaces:
 
 - editable cells
 - keyboard navigation
@@ -18,75 +18,135 @@ The local repo already covers most of the editable `data-grid` surface:
 - virtualization
 - context menu
 - paste dialog
+- data grid skeletons
+- standalone data-grid select-column helpers
+- README grid usage, paste flag, and undo/redo wiring examples are now checked against the shipped public API
+- README data-table usage and option examples are now checked against the shipped public API
+- `data-table`, pagination, toolbar, advanced toolbar, view options, skeletons, and filter/sort menus
+- date, range, slider, faceted, and list-style data-table filters
+- core UI primitive styling and slot markers for the shipped Svelte primitives
+- `sortable` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests
+- `drawer` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using the existing Bits Dialog foundation
+- `form` UI primitive is shipped, exported, registry-backed, and covered by source/browser tests using a Svelte-native error/context contract
+- README now documents the shortcut dialog and standalone `drawer`, `form`, and `sortable` registry slices against the shipped public API
+- The non-README docs now record the shipped shortcut dialog, standalone primitive registry slices, package-root/UI-barrel primitive helper/type exports, and select editor radius/offset parity fix
+- The adapter decision for the current parity target is explicit: `drawer`, `form`, and `sortable` preserve the installable slots, styling, exported names, IDs, and ARIA contracts without pulling in React-only runtime dependencies
+- Generated `static/r` registry artifacts are checked against `registry.json` so installable slices cannot silently miss or drift from their declared file targets
+- The keyboard shortcuts dialog is source-checked against the original 50-row shortcut map, and browser coverage exercises gated row mutation shortcuts, optional shortcuts, filtering, and the upstream empty state
+- README data-table component documentation is now checked against the package-root export surface, including `DataTableDateFilter` and `DataTableSliderFilter`
+- README primitive export documentation is checked against the package-root export surface, including `DrawerPortal`, `DrawerOverlay`, `getFormFieldState`, and `getFormErrorMessage`
+- README data-grid option documentation is checked against `UseDataGridOptions`, including sorting, filter, and row-selection change callbacks
+- README data-table option documentation is checked against `UseDataTableOptions`, including required `data` and `columns` options
+- Generated registry artifacts are checked against `registry.json` for item metadata and file `type`/`target` entries, not only artifact presence
+- Date filter calendar popovers now use the Bits `initialFocus` prop where upstream calendars use `autoFocus`
+- The data-grid single-select cell editor keeps the shared select content radius, original item radius, popper offset, and trigger width model while matching the active cell width
+- Data-grid row-select cells render the original hitbox and read-only marker directly inside the row's standard cell padding wrapper
+- Short text and URL editors cancel Escape edits back to the original cell value, matching the upstream contenteditable cell behavior
+- Long text editors insert the first typed character through the textarea edit stack like upstream, preserving the native undo path for that opening character
+- The file editor popover only contains Escape key propagation, matching the upstream file-cell popover escape handling while allowing ordinary keys to bubble normally
+- The action bar exposes the upstream cancelable entry-focus event and item-select event ordering, with browser coverage for both paths
+- Data-grid rows use the upstream custom-cell renderer switch based on function headers, with browser coverage for function-header and string-header cell renderers
+- README registry documentation is checked against `registry.json` so every installable `/r/*.json` slice is listed
+- Registry item names are checked against the original installable set, with `drawer`, `form`, and `sortable` recorded as intentional Svelte-only primitive additions
+- Common registry items are checked to preserve upstream UI registry dependencies while allowing Svelte-specific additions
+- The full `data-grid` registry bundle is checked for Svelte equivalents to the original core grid components, hook, helper, and type files
+- The full `data-table` registry bundle is checked for Svelte equivalents to the original table components, hook, helper, parser, config, and type files
+- Standalone data-table sort/filter menu registry slices are checked against the files their Svelte implementations actually import, avoiding unrelated advanced-toolbar/view-options/parser/config payload drift
+- Standalone data-grid keyboard shortcuts registry coverage checks the slice stays scoped to the component instead of over-shipping data-grid types or table-core
+- Standalone data-grid select-column registry coverage checks the slice stays scoped to row-selection rendering helpers instead of over-shipping the full table barrel
+- The full data-grid registry bundle excludes the demo-only `use-window-size.svelte.ts` hook, matching the original installable registry scope
+- Standalone row-height, view, and keyboard-shortcut registry slices declare only packages directly imported by those Svelte files; UI primitive packages stay behind `registryDependencies`
+- The `data-grid.ts` module exports upstream cell-key and row-height helpers directly, even though their implementations live in Svelte type utilities
+- Data-table date operators include upstream `isRelativeToToday`, and the in-memory filter reference maps/applies it using the same relative day/week/month windows as the original SQL filter helper
+- `DataTableFilterMenu` forwards popover content classes and props to the command menu surface like the original table
+- Data-table `isBetween` filters preserve partial range values like upstream, and the in-memory row filter reference mirrors upstream one-sided numeric range handling
+- Data-grid single-select editors now preserve the shared select content radius and the upstream trigger width/offset geometry while keeping the original select item radius
+- Registry audit coverage now directly fails on unresolved `registry.json` source paths before import/dependency checks inspect shipped files
+- Data-grid search, row-height, view-menu, skeleton, context-menu, and column-header surfaces were rechecked against upstream; existing Svelte differences are adapter/reactivity differences, and the search structure now has explicit source assertions
+- Data-grid paste dialog and cell-wrapper surfaces were rechecked against upstream; the dialog structure now has explicit source assertions for copy, radio options, callbacks, and popover containment
+- Data-grid row-select hitboxes and read-only markers were rechecked against upstream; browser coverage now guards the standard cell padding wrapper and immediate select-all row state updates
+- Data-table shell, pagination, toolbar, advanced-toolbar, view-options, filter-list, and skeleton surfaces were rechecked against upstream; the table shell and skeleton now have explicit source assertions for layout, pinning, empty state, pagination/action-bar placement, and loading placeholders
+- Data-table filter-list select and multi-select value editors now use the shared faceted primitive like upstream, preserving the original badge-list trigger, option search, check item, count, and icon structure
+- Data-table filter-menu chips use the original calendar popovers for date values and only handle row-removal shortcuts when child selectors are closed
+- The package root and UI barrel now expose the faceted primitive value type, keeping the Svelte faceted contract available anywhere the exported primitive is consumed
+- README UI primitive docs now distinguish package-root exports from standalone registry items and include the exported faceted primitive surface
+- README UI primitive docs now list the full exported faceted primitive surface, matching the package root and UI barrel aliases
+- Data-grid single-select editor popovers now use the shared select content radius while keeping the cell-width and offset alignment.
+- Checkbox indeterminate indicators now preserve Bits' separate indeterminate behavior while matching the original check-icon visual and checked-only state styling.
+- Dropdown checkbox indeterminate indicators now preserve Bits' separate indeterminate behavior while matching the original menu check-icon visual.
+- Faceted item custom `onSelect` handlers now receive the selected item value like the original primitive, while default items still update the faceted value through context.
+- Data-table range filters now preserve blank partial bounds in the visible inputs like the original two-input range filter while still committing completed bounds.
+- Data-table sort-list direction options now read from shared `dataTableConfig.sortOrders` like upstream, and the standalone registry slice ships `config/data-table.ts`.
+- Data-table filter-list join operator options now read from shared `dataTableConfig.joinOperators` like upstream.
+- Data-table view options now read Svelte visibility state for reactivity while delegating the visible check to `column.getIsVisible()` like upstream.
+- Data-table slider filter unit adornments now use the same absolute positioning classes as the original numeric filter inputs.
+- Sheet portal and overlay slots now have public `SheetPortal` and `SheetOverlay` aliases in the sheet, UI, and package-root barrels.
+- Data-table filter-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
+- Data-table sort-list row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
+- Data-grid sort-menu row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
+- Data-grid filter-menu row reordering now uses the shared sortable primitive instead of bespoke drag-zone wiring.
 
-The biggest gaps versus upstream React `tablecn` are:
+## Audit Evidence
 
-1. `use-data-grid-undo-redo`
-2. `data-grid-skeleton`
-3. standalone `data-grid-select-column` helper/export
-4. the full `data-table` family:
-   - `data-table`
-   - `data-table-sort-list`
-   - `data-table-filter-list`
-   - `data-table-filter-menu`
-   - pagination, toolbar, advanced toolbar, faceted filters, date/range/slider filters, skeleton
+Latest upstream reference checked: `374e6aec098890a28a2cf36880be22c884b642dd`.
+
+- Registry item names: local includes every upstream installable item; the only local-only registry items are the intentional Svelte primitive additions `drawer`, `form`, and `sortable`.
+- Registry source paths: every `registry.json` file path resolves to an existing local source file.
+- Package root exports: the root entrypoint exposes the shipped grid/table surfaces used by the README and upstream demos, including grid menus, skeletons, `getDataGridSelectColumn`, `useDataGrid`, `useDataGridUndoRedo`, table shell, table toolbars, table filters, table menus, pagination, and table skeletons.
+- Runtime editor behavior: focused browser coverage now checks select editor geometry and shared select content radius, row-select hitbox placement, immediate select-all row state updates, Escape cancel for short text and URL cells, long-text first-character insertion through the textarea edit stack, Escape-only key containment in the file editor popover, paste dialog expansion/fit-existing flows, grid search open/reset/result behavior, calendar popover initial focus, faceted data-table filter-list option selection structure, faceted item custom `onSelect` value forwarding, data-table sort-list shared sort-order config usage, data-table filter-list shared join-operator config usage, and data-table partial range input display.
+
+The biggest remaining gaps versus upstream React `tablecn` are:
+
+1. a completion audit across exports, registry items, docs, and runtime behavior
+2. optional follow-up issues for deeper `drawer` drag/snap behavior, richer `form` controller integration, and sortable keyboard/announcement parity if the project decides to go beyond the current installable primitive contract
 
 ## Recommended Starting Point
 
-Start with `use-data-grid-undo-redo`.
+Start with the remaining shortcut and documentation audits, then evaluate the missing primitive ports one at a time.
 
 Why this first:
 
-- it is missing from the shipped source but already claimed in `README.md`
+- the undo/redo hook is shipped and the demo wiring tracks cells and rows, with focused edit, paste-batch, paste-expansion, selected-cell clear, document-level redo shortcut, global Escape selection-clear, and Ctrl/Cmd+Shift+F filter/search shortcut conflict coverage now in place
 - it improves the existing `data-grid` directly
 - it is much smaller than the `data-table` surface
 - it reduces the biggest credibility gap before expanding scope
+- it does not require adding React-only dependencies like `react-hook-form`
 
 ## Execution Order
 
 ### Phase 1: Finish Data Grid Parity
 
-1. Implement `use-data-grid-undo-redo`
-2. Wire undo and redo keyboard shortcuts into the grid
-3. Expose undo and redo in the public API
-4. Update keyboard shortcuts UI to match behavior
-5. Add `data-grid-skeleton`
-6. Add a standalone `data-grid-select-column` export built from the current row-select pieces
-7. Align docs and registry with the actual shipped grid surface
+1. Verify keyboard shortcuts against the shipped hook behavior
+2. Update keyboard shortcuts UI if behavior changes
+3. Align docs with the actual shipped grid surface
 
 ### Phase 2: Validate and Tighten Grid API
 
 1. Verify exported components match the upstream React package where practical
 2. Remove or correct unsupported README claims
 3. Add focused tests for:
-   - undo and redo behavior
    - selection plus edit history interactions
-   - paste plus undo interactions
    - public select-column helper behavior
+   - public package exports and registry entries (covered for data-grid)
 
-### Phase 3: Build Data Table Core
+### Phase 3: Close Missing UI Primitive Gaps
 
-1. Add `useDataTable` hook
-2. Add core `DataTable` component
-3. Add pagination
-4. Add toolbar and view options
-5. Add faceted filter support
-6. Add table skeleton
+1. Keep `form` covered against the Svelte-native error/context contract while evaluating whether a richer form-state adapter is needed
+2. Keep `drawer` covered against the existing Bits Dialog implementation while deciding whether Vaul-style drag/snap behavior needs a Svelte dependency
+3. Keep `sortable` covered against the existing `svelte-dnd-action` implementation while closing the remaining primitive gaps
+4. Add source and browser tests for any future primitive adapters' slot markers, classes, and core interaction behavior
 
-### Phase 4: Build Advanced Data Table Features
+### Phase 4: Final Data Table API Audit
 
-1. Add sort list
-2. Add filter list
-3. Add filter menu
-4. Add advanced toolbar
-5. Add date, range, and slider filters
-6. Align types, config, and exports with upstream React behavior
+1. Verify `DataTable` examples against upstream table flows
+2. Recheck filter, sort, pagination, and toolbar public APIs
+3. Align types, config, docs, and exports with upstream behavior where practical
 
 ## Acceptance Criteria
 
 ### Grid Parity
 
-- undo and redo work for cell edits and paste operations
+- undo and redo work for cell edits, paste operations, and selected-cell clears
 - keyboard shortcuts match shipped behavior
 - `data-grid-skeleton` is available and exported
 - `data-grid-select-column` is reusable and documented
@@ -95,18 +155,32 @@ Why this first:
 
 - a consumer can build the same server-side `data-table` flows as the React package
 - filtering, sorting, pagination, and toolbar flows are available through public exports
+- documented examples compile against the public package entrypoint
+
+### UI Primitive Parity
+
+- shipped primitives expose the same `data-slot` contract as upstream where the Svelte implementation has an equivalent component
+- `sortable` is ported with the existing Svelte drag dependency
+- `drawer` is ported with the existing Bits Dialog dependency and upstream slot/direction styling contract
+- `form` is ported with a Svelte-native error/context contract that preserves upstream IDs, slots, and ARIA wiring
+- current primitive parity intentionally excludes React-only runtime integrations:
+  - no Vaul drag/snap physics in `drawer`
+  - no `react-hook-form` controller adapter in `form`
+  - no dnd-kit keyboard sensor/announcement layer in `sortable`
+    These require explicit dependency/product decisions before implementation.
 
 ## Risks
 
-- the local repo currently has `data-table` types but no shipped `data-table` implementation, so naming can drift if we do not anchor to upstream API first
-- dependency installation is currently blocked locally because `node_modules` is not present, so full verification will require installing dependencies before checks/tests
+- `drawer` depends on Vaul in upstream React; the current Svelte port covers the modal drawer contract with Bits Dialog. Drag/snap physics should be a separate follow-up only if a Svelte drawer dependency is accepted.
+- `form` depends on `react-hook-form` upstream; the current Svelte port covers the primitive contract. Controller-level integration should be a separate follow-up only after choosing a Svelte form-state adapter.
+- `sortable` uses `svelte-dnd-action`, so dnd-kit-style keyboard sensors or screen-reader announcements should be a separate follow-up only if that accessibility scope is required for the Svelte dependency model.
+- naming can still drift if exports and registry entries are not checked after each parity slice
 
-## First Milestone
+## Next Milestone
 
-Ship this small, clean milestone first:
+Ship this small, clean milestone next:
 
-1. `use-data-grid-undo-redo`
-2. shortcut integration
-3. README correction or confirmation
+1. complete a requirement-by-requirement parity audit across exports, registry items, docs, and runtime behavior
+2. if the audit accepts the current installable primitive scope, track deeper adapter behavior separately instead of treating it as required for this parity PR
 
-That gives the fastest path to a real parity improvement without opening the much larger `data-table` scope immediately.
+That gives the fastest path to a real parity improvement before opening richer adapter decisions for `drawer` drag/snap behavior or `form` controller-level integration.

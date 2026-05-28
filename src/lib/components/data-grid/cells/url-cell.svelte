@@ -3,6 +3,7 @@
 	import type { CellVariantProps } from '$lib/types/data-grid.js';
 	import DataGridCellWrapper from '../data-grid-cell-wrapper.svelte';
 	import { cn } from '$lib/utils.js';
+	import { getUrlHref } from '$lib/data-grid.js';
 	import { toast } from 'svelte-sonner';
 
 	let {
@@ -23,6 +24,14 @@
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
+	let previousInitialValue = $state<string | null>(null);
+
+	$effect(() => {
+		if (initialValue === previousInitialValue) return;
+
+		previousInitialValue = initialValue;
+		localEditValue = null;
+	});
 
 	// The display value directly from initialValue (no effect delay)
 	const displayValue = $derived(!isEditing ? (initialValue ?? '') : '');
@@ -41,7 +50,7 @@
 	}
 
 	function getSaveValue() {
-		return value.trim();
+		return (cellRef?.textContent ?? value).trim();
 	}
 
 	function moveCaretToEnd() {
@@ -63,25 +72,6 @@
 		}
 	});
 
-	function getUrlHref(urlString: string): string {
-		if (!urlString || urlString.trim() === '') return '';
-
-		const trimmed = urlString.trim();
-
-		// Reject dangerous protocols
-		if (/^(javascript|data|vbscript|file):/i.test(trimmed)) {
-			return '';
-		}
-
-		// Check if it already has a protocol
-		if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-			return trimmed;
-		}
-
-		// Add http:// prefix for links without protocol
-		return `http://${trimmed}`;
-	}
-
 	function handleBlur() {
 		const currentValue = getSaveValue();
 		const meta = table.options.meta;
@@ -102,6 +92,7 @@
 		if (isEditing) {
 			if (event.key === 'Enter') {
 				event.preventDefault();
+				event.stopPropagation();
 				const currentValue = getSaveValue();
 				if (!readOnly && currentValue !== initialValue) {
 					meta?.onDataUpdate?.({
@@ -114,6 +105,7 @@
 				meta?.onCellEditingStop?.({ moveToNextRow: true });
 			} else if (event.key === 'Tab') {
 				event.preventDefault();
+				event.stopPropagation();
 				const currentValue = getSaveValue();
 				if (!readOnly && currentValue !== initialValue) {
 					meta?.onDataUpdate?.({
@@ -128,7 +120,11 @@
 				});
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
-				localEditValue = null;
+				event.stopPropagation();
+				localEditValue = initialValue;
+				if (cellRef) {
+					cellRef.textContent = initialValue;
+				}
 				cellRef?.blur();
 			}
 		} else if (

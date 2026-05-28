@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Table } from '@tanstack/table-core';
-	import { cn } from '$lib/utils.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import {
 		Select,
@@ -9,19 +9,25 @@
 		SelectTrigger,
 		SelectValue
 	} from '$lib/components/ui/select/index.js';
+	import type { HTMLAttributes } from 'svelte/elements';
 
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ChevronsLeft from '@lucide/svelte/icons/chevrons-left';
 	import ChevronsRight from '@lucide/svelte/icons/chevrons-right';
 
-	interface Props {
+	interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
 		table: Table<TData>;
 		pageSizeOptions?: number[];
-		class?: string;
 	}
 
-	let { table, pageSizeOptions = [10, 20, 30, 40, 50], class: className }: Props = $props();
+	let {
+		table,
+		pageSizeOptions = [10, 20, 30, 40, 50],
+		class: className,
+		ref = $bindable(null),
+		...restProps
+	}: Props = $props();
 
 	const pageSize = $derived(`${table.getState().pagination.pageSize}`);
 	const pageSizeItems = $derived(
@@ -34,10 +40,12 @@
 </script>
 
 <div
+	bind:this={ref}
 	class={cn(
 		'flex w-full flex-col-reverse items-center justify-between gap-4 overflow-auto p-1 sm:flex-row sm:gap-8',
 		className
 	)}
+	{...restProps}
 >
 	<div class="flex-1 whitespace-nowrap text-muted-foreground text-sm">
 		{selectedCount} of {filteredCount} row(s) selected.
@@ -53,7 +61,7 @@
 					if (value) table.setPageSize(Number(value));
 				}}
 			>
-				<SelectTrigger class="h-8 w-[4.5rem] data-size:h-8">
+				<SelectTrigger class="h-8 w-18 data-size:h-8">
 					<SelectValue placeholder={pageSize} />
 				</SelectTrigger>
 				<SelectContent side="top">
@@ -102,7 +110,7 @@
 				variant="outline"
 				size="icon"
 				class="hidden size-8 lg:flex"
-				onclick={() => table.setPageIndex(Math.max(table.getPageCount() - 1, 0))}
+				onclick={() => table.setPageIndex(table.getPageCount() - 1)}
 				disabled={!table.getCanNextPage()}
 			>
 				<ChevronsRight />

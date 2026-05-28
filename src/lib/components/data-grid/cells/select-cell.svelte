@@ -1,6 +1,7 @@
 <script lang="ts" generics="TData">
 	import type { CellVariantProps } from '$lib/types/data-grid.js';
 	import DataGridCellWrapper from '../data-grid-cell-wrapper.svelte';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 	import {
 		Select,
 		SelectContent,
@@ -8,7 +9,6 @@
 		SelectTrigger,
 		SelectValue
 	} from '$lib/components/ui/select/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
 	import { tick } from 'svelte';
 
 	let {
@@ -30,12 +30,21 @@
 
 	// Track local edits separately
 	let localEditValue = $state<string | null>(null);
+	let previousInitialValue = $state<string | null>(null);
+
+	$effect(() => {
+		if (initialValue === previousInitialValue) return;
+
+		previousInitialValue = initialValue;
+		localEditValue = null;
+	});
 
 	// Value for display - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? initialValue ?? '');
 
 	// Reference to the SelectTrigger for focus management
 	let triggerRef = $state<HTMLButtonElement | null>(null);
+	let wrapperRef = $state<HTMLDivElement | null>(null);
 
 	// Focus the trigger when editing starts so typeahead works
 	$effect(() => {
@@ -47,7 +56,7 @@
 	});
 
 	function handleValueChange(newValue: string | undefined) {
-		if (readOnly || !newValue) return;
+		if (readOnly || newValue === undefined) return;
 		localEditValue = newValue;
 		const meta = table.options.meta;
 		meta?.onDataUpdate?.({ rowIndex, columnId, value: newValue });
@@ -68,10 +77,12 @@
 		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
+			event.stopPropagation();
 			localEditValue = null;
 			meta?.onCellEditingStop?.();
-		} else if (!isEditing && isFocused && event.key === 'Tab') {
+		} else if ((isFocused || isEditing) && event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});
@@ -82,6 +93,7 @@
 </script>
 
 <DataGridCellWrapper
+	bind:wrapperRef
 	{cell}
 	{table}
 	{rowIndex}
@@ -103,7 +115,9 @@
 			<SelectTrigger
 				size="sm"
 				bind:ref={triggerRef}
-				class="size-full items-start border-none p-0 shadow-none data-[size=sm]:h-full focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
+				onkeydowncapture={handleWrapperKeyDown}
+				class="size-full !w-full items-start border-none p-0 shadow-none focus-visible:ring-0 dark:bg-transparent [&_svg]:hidden"
+				style="width: calc(100% - 1rem);"
 			>
 				{#if displayLabel}
 					<Badge variant="secondary" class="whitespace-pre-wrap px-1.5 py-px">
@@ -118,7 +132,8 @@
 				align="start"
 				alignOffset={-8}
 				sideOffset={-8}
-				class="min-w-[calc(var(--bits-select-anchor-width)+16px)]"
+				class="min-w-[calc(var(--bits-select-anchor-width)_+_16px)]"
+				style="min-width: calc(var(--bits-select-anchor-width) + 16px);"
 			>
 				{#each options as option (option.value)}
 					<SelectItem value={option.value} label={option.label}>

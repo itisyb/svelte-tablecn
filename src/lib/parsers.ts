@@ -24,6 +24,49 @@ function getValidKeys(columnIds?: string[] | Set<string>): Set<string> | null {
 	return columnIds instanceof Set ? columnIds : new Set(columnIds);
 }
 
+function isSortingItem<TData>(
+	item: unknown,
+	validKeys: Set<string> | null
+): item is ExtendedColumnSort<TData> {
+	if (typeof item !== 'object' || item === null) return false;
+
+	const candidate = item as { id?: unknown; desc?: unknown };
+	return (
+		typeof candidate.id === 'string' &&
+		typeof candidate.desc === 'boolean' &&
+		(!validKeys || validKeys.has(candidate.id))
+	);
+}
+
+function isFilterItem<TData>(
+	item: unknown,
+	validKeys: Set<string> | null,
+	validVariants: Set<string>,
+	validOperators: Set<string>
+): item is ExtendedColumnFilter<TData> {
+	if (typeof item !== 'object' || item === null) return false;
+
+	const candidate = item as {
+		id?: unknown;
+		value?: unknown;
+		filterId?: unknown;
+		variant?: unknown;
+		operator?: unknown;
+	};
+	return (
+		typeof candidate.id === 'string' &&
+		(!validKeys || validKeys.has(candidate.id)) &&
+		(typeof candidate.value === 'string' ||
+			(Array.isArray(candidate.value) &&
+				candidate.value.every((entry: unknown) => typeof entry === 'string'))) &&
+		typeof candidate.filterId === 'string' &&
+		typeof candidate.variant === 'string' &&
+		validVariants.has(candidate.variant) &&
+		typeof candidate.operator === 'string' &&
+		validOperators.has(candidate.operator)
+	);
+}
+
 export function getSortingStateParser<TData>(
 	columnIds?: string[] | Set<string>
 ): StateParser<ExtendedColumnSort<TData>[]> {
@@ -35,14 +78,8 @@ export function getSortingStateParser<TData>(
 				const parsed = JSON.parse(value);
 				if (!Array.isArray(parsed)) return null;
 
-				const sorting = parsed.filter(
-					(item): item is ExtendedColumnSort<TData> =>
-						typeof item === 'object' &&
-						item !== null &&
-						typeof item.id === 'string' &&
-						typeof item.desc === 'boolean' &&
-						(!validKeys || validKeys.has(item.id))
-				);
+				const sorting = parsed as unknown[];
+				if (!sorting.every((item) => isSortingItem<TData>(item, validKeys))) return null;
 
 				return sorting;
 			} catch {
@@ -69,22 +106,14 @@ export function getFiltersStateParser<TData>(
 				const parsed = JSON.parse(value);
 				if (!Array.isArray(parsed)) return null;
 
-				const filters = parsed.filter(
-					(item): item is ExtendedColumnFilter<TData> =>
-						typeof item === 'object' &&
-						item !== null &&
-						typeof item.id === 'string' &&
-						(!validKeys || validKeys.has(item.id)) &&
-						(item.value === undefined ||
-							typeof item.value === 'string' ||
-							(Array.isArray(item.value) &&
-								item.value.every((entry: unknown) => typeof entry === 'string'))) &&
-						typeof item.filterId === 'string' &&
-						typeof item.variant === 'string' &&
-						validVariants.has(item.variant) &&
-						typeof item.operator === 'string' &&
-						validOperators.has(item.operator)
-				);
+				const filters = parsed as unknown[];
+				if (
+					!filters.every((item) =>
+						isFilterItem<TData>(item, validKeys, validVariants, validOperators)
+					)
+				) {
+					return null;
+				}
 
 				return filters;
 			} catch {
@@ -107,8 +136,7 @@ export function getFiltersStateParser<TData>(
 					filter.id === rightFilter.id &&
 					leftValue === rightValue &&
 					filter.variant === rightFilter.variant &&
-					filter.operator === rightFilter.operator &&
-					filter.filterId === rightFilter.filterId
+					filter.operator === rightFilter.operator
 				);
 			})
 	};

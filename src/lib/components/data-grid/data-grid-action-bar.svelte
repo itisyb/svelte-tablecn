@@ -25,8 +25,10 @@
 		tableMeta: TableMeta<TData>;
 		selectedCellCount: number;
 		statusOptions?: CellSelectOption[];
+		styleOptions?: CellSelectOption[];
 		departmentOptions?: CellSelectOption[];
 		onStatusUpdate?: (value: string) => void;
+		onStyleUpdate?: (value: string) => void;
 		onDepartmentUpdate?: (value: string) => void;
 		onDelete?: () => void;
 	}
@@ -36,11 +38,17 @@
 		tableMeta,
 		selectedCellCount,
 		statusOptions,
+		styleOptions,
 		departmentOptions,
 		onStatusUpdate,
+		onStyleUpdate,
 		onDepartmentUpdate,
 		onDelete
 	}: Props = $props();
+
+	const secondaryOptions = $derived(styleOptions ?? departmentOptions);
+	const onSecondaryUpdate = $derived(onStyleUpdate ?? onDepartmentUpdate);
+	const secondaryLabel = $derived(styleOptions ? 'Style' : 'Department');
 
 	function onOpenChange(open: boolean) {
 		if (!open) {
@@ -80,19 +88,19 @@
 				</DropdownMenuContent>
 			</DropdownMenu>
 		{/if}
-		{#if departmentOptions && departmentOptions.length > 0 && onDepartmentUpdate}
+		{#if secondaryOptions && secondaryOptions.length > 0 && onSecondaryUpdate}
 			<DropdownMenu>
 				<DropdownMenuTrigger>
 					{#snippet child({ props })}
 						<ActionBarItem variant="secondary" size="sm" {...props}>
 							<Palette />
-							Department
+							{secondaryLabel}
 						</ActionBarItem>
 					{/snippet}
 				</DropdownMenuTrigger>
 				<DropdownMenuContent data-grid-popover>
-					{#each departmentOptions as option (option.value)}
-						<DropdownMenuItem onclick={() => onDepartmentUpdate(option.value)}>
+					{#each secondaryOptions as option (option.value)}
+						<DropdownMenuItem onclick={() => onSecondaryUpdate(option.value)}>
 							{option.label}
 						</DropdownMenuItem>
 					{/each}

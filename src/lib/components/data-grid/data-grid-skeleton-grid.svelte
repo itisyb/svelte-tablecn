@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { Skeleton } from '$lib/components/ui/skeleton/index.js';
-	import { cn } from '$lib/utils.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	interface Props {
-		class?: string;
-	}
+	interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {}
 
-	let { class: className }: Props = $props();
+	let { class: className, ref = $bindable(null), ...restProps }: Props = $props();
 </script>
 
-<Skeleton data-slot="grid-skeleton-grid" class={cn('flex-1', className)} />
+<Skeleton
+	bind:ref
+	data-slot="grid-skeleton-grid"
+	class={cn('flex-1', className)}
+	{...restProps}
+/>

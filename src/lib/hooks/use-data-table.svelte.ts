@@ -173,9 +173,10 @@ export function useDataTable<TData>(
 		initialState,
 		enableRowSelection = true,
 		enableMultiSort = true,
-		manualPagination = false,
-		manualSorting = false,
-		manualFiltering = false
+		manualPagination = true,
+		manualSorting = true,
+		manualFiltering = true,
+		...tableOptions
 	} = options;
 
 	const getData = typeof dataProp === 'function' ? dataProp : () => dataProp;
@@ -457,6 +458,11 @@ export function useDataTable<TData>(
 		prevPaginationSnapshot = paginationSnapshot;
 		prevJoinOperator = joinOperator;
 
+		if (filtersChanged && pagination.pageIndex !== 0) {
+			pagination = { ...pagination, pageIndex: 0 };
+			prevPaginationSnapshot = JSON.stringify(pagination);
+		}
+
 		const delay = filtersChanged && !sortingChanged && !paginationChanged ? debounceMs : throttleMs;
 		void syncQueryState(delay);
 	});
@@ -483,6 +489,7 @@ export function useDataTable<TData>(
 	});
 
 	const table = createSvelteTable<TData>({
+		...tableOptions,
 		get data() {
 			return tableData;
 		},
@@ -501,6 +508,7 @@ export function useDataTable<TData>(
 			};
 		},
 		defaultColumn: {
+			...tableOptions.defaultColumn,
 			enableColumnFilter: false
 		},
 		enableRowSelection,
@@ -536,6 +544,7 @@ export function useDataTable<TData>(
 			return useClientAdvancedFiltering ? true : manualFiltering;
 		},
 		meta: {
+			...tableOptions.meta,
 			queryKeys: resolvedQueryKeys,
 			get joinOperator() {
 				return joinOperator;
@@ -548,6 +557,9 @@ export function useDataTable<TData>(
 
 	return {
 		table,
+		shallow,
+		debounceMs,
+		throttleMs,
 		get sorting() {
 			return sorting;
 		},

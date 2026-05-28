@@ -7,6 +7,7 @@ export interface ActionBarContextValue {
 	onOpenChange?: (open: boolean) => void;
 	dir: ActionBarDirection;
 	orientation: ActionBarOrientation;
+	loop: boolean;
 }
 
 const ACTION_BAR_CONTEXT_KEY = Symbol('action-bar');

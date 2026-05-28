@@ -37,6 +37,29 @@ pnpm dlx shadcn-svelte@latest add https://svelte-tablecn.vercel.app/r/data-grid.
 npx shadcn-svelte@latest add https://svelte-tablecn.vercel.app/r/data-grid.json
 ```
 
+### Installable Registry Items
+
+Install the full grid/table blocks or add smaller slices as needed:
+
+| Item | Registry URL |
+| --- | --- |
+| `data-grid` | `/r/data-grid.json` |
+| `data-table` | `/r/data-table.json` |
+| `data-table-sort-list` | `/r/data-table-sort-list.json` |
+| `data-table-filter-list` | `/r/data-table-filter-list.json` |
+| `data-table-filter-menu` | `/r/data-table-filter-menu.json` |
+| `data-grid-select-column` | `/r/data-grid-select-column.json` |
+| `data-grid-sort-menu` | `/r/data-grid-sort-menu.json` |
+| `data-grid-row-height-menu` | `/r/data-grid-row-height-menu.json` |
+| `data-grid-view-menu` | `/r/data-grid-view-menu.json` |
+| `data-grid-keyboard-shortcuts` | `/r/data-grid-keyboard-shortcuts.json` |
+| `data-grid-filter-menu` | `/r/data-grid-filter-menu.json` |
+| `data-grid-skeleton` | `/r/data-grid-skeleton.json` |
+| `sortable` | `/r/sortable.json` |
+| `drawer` | `/r/drawer.json` |
+| `form` | `/r/form.json` |
+| `use-data-grid-undo-redo` | `/r/use-data-grid-undo-redo.json` |
+
 ### Prerequisites
 
 Make sure you have [shadcn-svelte](https://www.shadcn-svelte.com/) configured in your project with Tailwind CSS v4:
@@ -203,7 +226,8 @@ bunx shadcn-svelte@latest init
 			data = newData;
 		},
 		getRowId: (row) => row.id,
-		enableSearch: true
+		enableSearch: true,
+		enablePaste: true
 	});
 </script>
 
@@ -227,7 +251,27 @@ Use `useDataGridUndoRedo` to track cell edits, row adds, and row deletes:
 
 ```svelte
 <script lang="ts">
-	import { useDataGridUndoRedo, type UndoRedoCellUpdate } from '$lib';
+	import { DataGrid, useDataGrid, useDataGridUndoRedo, type UndoRedoCellUpdate } from '$lib';
+	import type { ColumnDef } from '@tanstack/table-core';
+
+	type Employee = {
+		id: string;
+		name: string;
+	};
+
+	let data = $state<Employee[]>([]);
+
+	const columns: ColumnDef<Employee, unknown>[] = [
+		{
+			accessorKey: 'name',
+			header: 'Name',
+			meta: { cell: { variant: 'short-text' } }
+		}
+	];
+
+	function createBlankEmployee(): Employee {
+		return { id: crypto.randomUUID(), name: '' };
+	}
 
 	const { trackCellsUpdate, trackRowsAdd, trackRowsDelete } = useDataGridUndoRedo({
 		data: () => data,
@@ -237,12 +281,61 @@ Use `useDataGridUndoRedo` to track cell edits, row adds, and row deletes:
 		getRowId: (row) => row.id
 	});
 
-	function onDataChange(newData) {
+	function onDataChange(newData: Employee[]) {
 		const cellUpdates: UndoRedoCellUpdate[] = [];
-		// Diff changed rows here, then call trackCellsUpdate(cellUpdates)
+		const maxLength = Math.max(data.length, newData.length);
+
+		for (let rowIndex = 0; rowIndex < maxLength; rowIndex++) {
+			const previousRow = data[rowIndex];
+			const nextRow = newData[rowIndex];
+
+			if (!previousRow || !nextRow) continue;
+
+			const keys = new Set<keyof Employee>([
+				...(Object.keys(previousRow) as Array<keyof Employee>),
+				...(Object.keys(nextRow) as Array<keyof Employee>)
+			]);
+
+			for (const key of keys) {
+				const previousValue = previousRow[key];
+				const newValue = nextRow[key];
+
+				if (!Object.is(previousValue, newValue)) {
+					cellUpdates.push({
+						rowId: previousRow.id,
+						columnId: String(key),
+						previousValue,
+						newValue
+					});
+				}
+			}
+		}
+
+		if (cellUpdates.length > 0) {
+			trackCellsUpdate(cellUpdates);
+		}
+
 		data = newData;
 	}
+
+	const dataGrid = useDataGrid({
+		data: () => data,
+		columns,
+		onDataChange,
+		onRowAdd: () => {
+			const row = createBlankEmployee();
+			data = [...data, row];
+			trackRowsAdd([row]);
+		},
+		onRowsDelete: (rows: Employee[]) => {
+			trackRowsDelete(rows);
+			data = data.filter((row) => !rows.includes(row));
+		},
+		getRowId: (row) => row.id
+	});
 </script>
+
+<DataGrid {...dataGrid} height={600} />
 ```
 
 ## Skeleton
@@ -260,17 +353,38 @@ Use `useDataGridUndoRedo` to track cell edits, row adds, and row deletes:
 </DataGridSkeleton>
 ```
 
+## Keyboard Shortcuts Dialog
+
+Use `DataGridKeyboardShortcuts` to expose the same searchable shortcut dialog as the original grid. It opens with `Ctrl/Cmd + /`.
+
+```svelte
+<script lang="ts">
+	import { DataGridKeyboardShortcuts } from '$lib';
+</script>
+
+<DataGridKeyboardShortcuts
+	enableSearch
+	enableUndoRedo
+	enablePaste
+	enableRowAdd
+	enableRowsDelete
+/>
+```
+
 ## Data Table
 
 The package also includes the core non-editable `data-table` surface:
 
 - `useDataTable`
 - `DataTable`
+- `DataTableColumnHeader`
 - `DataTableToolbar`
 - `DataTableAdvancedToolbar`
 - `DataTablePagination`
 - `DataTableViewOptions`
 - `DataTableFacetedFilter`
+- `DataTableDateFilter`
+- `DataTableSliderFilter`
 - `DataTableRangeFilter`
 - `DataTableSortList`
 - `DataTableFilterList`
@@ -282,12 +396,40 @@ The package also includes the core non-editable `data-table` surface:
 	import { DataTable, DataTableToolbar, useDataTable } from '$lib';
 	import type { ColumnDef } from '@tanstack/table-core';
 
+	type Employee = {
+		id: string;
+		name: string;
+		department: string;
+	};
+
+	let data = $state<Employee[]>([
+		{ id: '1', name: 'Ada Lovelace', department: 'Engineering' },
+		{ id: '2', name: 'Grace Hopper', department: 'Research' }
+	]);
+
 	const columns: ColumnDef<Employee, unknown>[] = [
 		{
+			id: 'name',
 			accessorKey: 'name',
 			header: 'Name',
-			meta: { label: 'Name', variant: 'text' },
-			enableColumnFilter: true
+			enableColumnFilter: true,
+			filterFn: 'includesString',
+			meta: { label: 'Name', variant: 'text' }
+		},
+		{
+			id: 'department',
+			accessorKey: 'department',
+			header: 'Department',
+			enableColumnFilter: true,
+			filterFn: 'equalsString',
+			meta: {
+				label: 'Department',
+				variant: 'select',
+				options: [
+					{ label: 'Engineering', value: 'Engineering' },
+					{ label: 'Research', value: 'Research' }
+				]
+			}
 		}
 	];
 
@@ -314,6 +456,8 @@ The package also includes the core non-editable `data-table` surface:
 
 Relevant options:
 
+- `data`
+- `columns`
 - `queryKeys`
 - `history`
 - `debounceMs`
@@ -322,10 +466,37 @@ Relevant options:
 - `enableAdvancedFilter`
 - `scroll`
 - `shallow`
+- `pageCount`
+- `getRowId`
+- `initialState`
+- `enableRowSelection`
+- `enableMultiSort`
+- `manualPagination`
+- `manualSorting`
+- `manualFiltering`
+
+The hook also forwards additional TanStack Table options such as `defaultColumn`, `meta`, `filterFns`, and `getSubRows` when they are not controlled by the Svelte URL/state adapter.
 
 For advanced filters (multi-rule, AND/OR, operators), see [docs/ADVANCED_FILTERS.md](./docs/ADVANCED_FILTERS.md). The demo toggles **Filter list** vs **Filter menu** like tablecn’s `filterFlag`.
 
 For how Svelte 5 and TanStack Table interact (and why filters used to loop), see [docs/REACTIVITY.md](./docs/REACTIVITY.md).
+
+## UI Primitives
+
+The Svelte port also ships upstream-style UI primitives used by the grid and table. These are exported from `$lib`; `drawer`, `form`, and `sortable` are also available as standalone registry items.
+
+| Primitive  | Public exports                                                                   | Registry availability |
+| ---------- | -------------------------------------------------------------------------------- | --------------------- |
+| `faceted`  | `Faceted`, `FacetedTrigger`, `FacetedContent`, `FacetedBadgeList`, `FacetedInput`, `FacetedList`, `FacetedEmpty`, `FacetedGroup`, `FacetedItem`, `FacetedSeparator`, `FacetedValue` | Bundled with table filter registry items |
+| `drawer`   | `Drawer`, `DrawerPortal`, `DrawerOverlay`, `DrawerContent`, `DrawerTrigger`, `DrawerClose`, `DrawerHeader`, `DrawerFooter`, `DrawerTitle`, `DrawerDescription` | `/r/drawer.json` |
+| `form`     | `Form`, `FormField`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`, `useFormField`, `getFormFieldState`, `getFormErrorMessage` | `/r/form.json` |
+| `sortable` | `Sortable`, `SortableContent`, `SortableItem`, `SortableItemHandle`, `SortableOverlay` | `/r/sortable.json` |
+
+Install a primitive directly with the shadcn-svelte CLI:
+
+```bash
+npx shadcn-svelte@latest add https://svelte-tablecn.vercel.app/r/sortable.json
+```
 
 ## Cell Variants
 
@@ -353,11 +524,14 @@ The data grid supports multiple cell types:
 | Enter                | Start editing / Move down        |
 | Escape               | Cancel editing / Clear selection |
 | Ctrl/Cmd + C         | Copy selected cells              |
-| Ctrl/Cmd + V         | Paste                            |
+| Ctrl/Cmd + V         | Paste when `enablePaste` is true |
 | Ctrl/Cmd + X         | Cut                              |
-| Ctrl/Cmd + Z         | Undo                             |
-| Ctrl/Cmd + Shift + Z | Redo                             |
-| Ctrl/Cmd + F         | Open search                      |
+| Ctrl/Cmd + Z         | Undo when undo/redo is wired     |
+| Ctrl/Cmd + Shift + Z | Redo when undo/redo is wired     |
+| Ctrl/Cmd + F         | Open search when enabled         |
+| Ctrl/Cmd + Shift + F | Toggle the filter menu           |
+| Ctrl/Cmd + Shift + S | Toggle the sort menu             |
+| Ctrl/Cmd + /         | Show keyboard shortcuts          |
 | Delete/Backspace     | Clear cell content               |
 
 ## API Reference
@@ -367,25 +541,38 @@ The data grid supports multiple cell types:
 | Option          | Type                                            | Description                                  |
 | --------------- | ----------------------------------------------- | -------------------------------------------- |
 | `data`          | `TData[] \| (() => TData[])`                    | Data array or getter function for reactivity |
-| `columns`       | `ColumnDef<TData>[]`                            | Column definitions                           |
+| `columns`       | `ColumnDef<TData, unknown>[]`                   | Column definitions                           |
 | `getRowId`      | `(row) => string`                               | Function to get unique row ID                |
+| `autoFocus`     | `boolean \| { rowIndex?, columnId? }`           | Focus the grid or a specific cell on mount   |
+| `dir`           | `'ltr' \| 'rtl' \| (() => 'ltr' \| 'rtl')`      | Text direction                               |
+| `enableColumnSelection` | `boolean`                                | Enable header-driven column selection        |
+| `enableSingleCellSelection` | `boolean`                            | Select the focused cell on click             |
 | `enableSearch`  | `boolean`                                       | Enable search functionality                  |
 | `enablePaste`   | `boolean`                                       | Enable paste functionality                   |
 | `readOnly`      | `boolean`                                       | Make grid read-only                          |
+| `overscan`      | `number`                                        | Virtual row overscan count                   |
 | `rowHeight`     | `'short' \| 'medium' \| 'tall' \| 'extra-tall'` | Row height preset                            |
+| `state`         | `Partial<TableState>`                           | Additional TanStack table state merged under grid-owned state |
 | `initialState`  | `object`                                        | Initial table state (sorting, filters, etc.) |
 | `onDataChange`  | `(data: TData[]) => void`                       | Called when data changes                     |
-| `onRowAdd`      | `() => void`                                    | Called when a new row is added               |
+| `onSortingChange` | `(sorting) => void`                           | Called when sorting changes                  |
+| `onColumnFiltersChange` | `(filters) => void`                    | Called when column filters change            |
+| `onRowSelectionChange` | `(rowSelection) => void`               | Called when row selection changes            |
+| `onRowAdd`      | `(event?) => Partial<CellPosition> \| null \| void \| Promise<...>` | Called when a new row is added |
 | `onRowsAdd`     | `(count: number) => void`                       | Called when multiple rows are added          |
 | `onRowsDelete`  | `(rows, indices) => void`                       | Called when rows are deleted                 |
+| `onRowHeightChange` | `(value) => void`                           | Called when row height changes               |
+| `onPaste`       | `(updates) => void \| Promise<void>`            | Called before pasted updates are applied     |
 | `onFilesUpload` | `(params) => Promise<FileCellData[]>`           | Handle file uploads                          |
 | `onFilesDelete` | `(params) => void`                              | Handle file deletions                        |
+
+The hook also forwards additional TanStack Table options such as `defaultColumn`, `meta`, `filterFns`, and `getSubRows` when they are not controlled by the grid state adapter.
 
 ### Column Meta Options
 
 ```typescript
 meta: {
-  label: string;           // Column label
+  label?: string;          // Column label
   cell: {
     variant: CellVariant;  // Cell type
     // Variant-specific options:

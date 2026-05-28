@@ -1,19 +1,17 @@
 export function formatDate(
-	value: Date | string | number | undefined,
-	options: Intl.DateTimeFormatOptions = {
-		month: 'short',
-		day: 'numeric',
-		year: 'numeric'
-	}
+	date: Date | string | number | undefined,
+	opts: Intl.DateTimeFormatOptions = {}
 ): string {
-	if (value === undefined || value === null || value === '') {
+	if (!date) return '';
+
+	try {
+		return new Intl.DateTimeFormat('en-US', {
+			month: opts.month ?? 'long',
+			day: opts.day ?? 'numeric',
+			year: opts.year ?? 'numeric',
+			...opts
+		}).format(new Date(date));
+	} catch {
 		return '';
 	}
-
-	const date = value instanceof Date ? value : new Date(value);
-	if (Number.isNaN(date.getTime())) {
-		return '';
-	}
-
-	return new Intl.DateTimeFormat(undefined, options).format(date);
 }

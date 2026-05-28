@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Portal } from 'bits-ui';
 	import type { Snippet } from 'svelte';
 	import { on } from 'svelte/events';
 	import { cn, type WithElementRef } from '$lib/utils.js';
@@ -17,8 +18,10 @@
 		alignOffset?: number;
 		side?: 'top' | 'bottom';
 		sideOffset?: number;
+		portalContainer?: Element | DocumentFragment | null;
 		dir?: ActionBarDirection;
 		orientation?: ActionBarOrientation;
+		loop?: boolean;
 		children?: Snippet;
 	}
 
@@ -30,14 +33,26 @@
 		alignOffset = 0,
 		align = 'center',
 		sideOffset = 16,
+		portalContainer,
 		dir = 'ltr',
 		orientation = 'horizontal',
+		loop = true,
 		class: className,
 		style,
 		children,
 		ref = $bindable(null),
 		...restProps
 	}: Props = $props();
+
+	let fragmentPortalHost: HTMLDivElement | null = $state(null);
+	const isFragmentPortal = $derived(isDocumentFragment(portalContainer));
+	const portalTarget = $derived.by(() =>
+		isDocumentFragment(portalContainer) ? 'body' : (portalContainer ?? 'body')
+	);
+
+	function isDocumentFragment(value: unknown): value is DocumentFragment {
+		return typeof DocumentFragment !== 'undefined' && value instanceof DocumentFragment;
+	}
 
 	$effect(() => {
 		if (!open) return;
@@ -52,6 +67,18 @@
 		}
 
 		return on(document, 'keydown', onKeyDown);
+	});
+
+	$effect(() => {
+		if (!open || !isFragmentPortal || !fragmentPortalHost || !isDocumentFragment(portalContainer)) {
+			return;
+		}
+
+		portalContainer.appendChild(fragmentPortalHost);
+
+		return () => {
+			fragmentPortalHost?.remove();
+		};
 	});
 
 	const positionStyle = $derived.by(() => {
@@ -73,11 +100,14 @@
 		},
 		get orientation() {
 			return orientation;
+		},
+		get loop() {
+			return loop;
 		}
 	});
 </script>
 
-{#if open}
+{#snippet actionBarContent()}
 	<div
 		bind:this={ref}
 		role="toolbar"
@@ -102,4 +132,16 @@
 	>
 		{@render children?.()}
 	</div>
+{/snippet}
+
+{#if open}
+	{#if isFragmentPortal}
+		<div bind:this={fragmentPortalHost} style="display: contents;">
+			{@render actionBarContent()}
+		</div>
+	{:else}
+		<Portal to={portalTarget}>
+			{@render actionBarContent()}
+		</Portal>
+	{/if}
 {/if}

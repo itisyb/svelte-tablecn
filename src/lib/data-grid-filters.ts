@@ -36,7 +36,7 @@ export const NUMBER_FILTER_OPERATORS: ReadonlyArray<{
 	{ label: 'Is less than or equal to', value: 'lessThanOrEqual' },
 	{ label: 'Is greater than', value: 'greaterThan' },
 	{ label: 'Is greater than or equal to', value: 'greaterThanOrEqual' },
-	{ label: 'Is between', value: 'between' },
+	{ label: 'Is between', value: 'isBetween' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
 ];
@@ -51,7 +51,7 @@ export const DATE_FILTER_OPERATORS: ReadonlyArray<{
 	{ label: 'Is after', value: 'after' },
 	{ label: 'Is on or before', value: 'onOrBefore' },
 	{ label: 'Is on or after', value: 'onOrAfter' },
-	{ label: 'Is between', value: 'between' },
+	{ label: 'Is between', value: 'isBetween' },
 	{ label: 'Is empty', value: 'isEmpty' },
 	{ label: 'Is not empty', value: 'isNotEmpty' }
 ];
@@ -111,6 +111,38 @@ export function getOperatorsForVariant(variant: string): ReadonlyArray<{
 	}
 }
 
+function getRelativeDateRange(value: string): { startDate: Date; endDate: Date } | null {
+	const [amount, unit] = value.split(' ');
+	if (!amount || !unit) return null;
+
+	const amountValue = Number.parseInt(amount, 10);
+	if (Number.isNaN(amountValue)) return null;
+
+	const today = new Date();
+	const startDate = new Date(today);
+	startDate.setHours(0, 0, 0, 0);
+
+	switch (unit) {
+		case 'days':
+			startDate.setDate(startDate.getDate() + amountValue);
+			break;
+		case 'weeks':
+			startDate.setDate(startDate.getDate() + amountValue * 7);
+			break;
+		case 'months':
+			startDate.setDate(startDate.getDate() + amountValue * 30);
+			break;
+		default:
+			return null;
+	}
+
+	const endDate = new Date(startDate);
+	endDate.setDate(endDate.getDate() + (unit === 'days' ? 0 : unit === 'weeks' ? 6 : 29));
+	endDate.setHours(23, 59, 59, 999);
+
+	return { startDate, endDate };
+}
+
 export function getFilterFn<TData>(): FilterFn<TData> {
 	return (row: Row<TData>, columnId: string, filterValue: unknown): boolean => {
 		if (!filterValue || typeof filterValue !== 'object') {
@@ -118,7 +150,7 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 		}
 
 		const filter = filterValue as FilterValue;
-		const { operator, value, value2 } = filter;
+		const { operator, value, endValue } = filter;
 
 		const cellValue = row.getValue(columnId);
 
@@ -153,8 +185,7 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 		}
 
 		const cellValueStr = String(cellValue ?? '').toLowerCase();
-		const filterValueStr =
-			typeof value === 'string' ? value.toLowerCase() : String(value);
+		const filterValueStr = typeof value === 'string' ? value.toLowerCase() : String(value);
 
 		if (operator === 'contains') {
 			return cellValueStr.includes(filterValueStr);
@@ -165,11 +196,8 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 		}
 
 		if (operator === 'equals') {
-			if (typeof cellValue === 'number') {
-				const numValue = typeof value === 'number' ? value : Number(value);
-				if (!Number.isNaN(numValue)) {
-					return cellValue === numValue;
-				}
+			if (typeof cellValue === 'number' && typeof value === 'number') {
+				return cellValue === value;
 			}
 			if (cellValue instanceof Date && typeof value === 'string') {
 				const cellDate = new Date(cellValue);
@@ -180,11 +208,8 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 		}
 
 		if (operator === 'notEquals') {
-			if (typeof cellValue === 'number') {
-				const numValue = typeof value === 'number' ? value : Number(value);
-				if (!Number.isNaN(numValue)) {
-					return cellValue !== numValue;
-				}
+			if (typeof cellValue === 'number' && typeof value === 'number') {
+				return cellValue !== value;
 			}
 			if (cellValue instanceof Date && typeof value === 'string') {
 				const cellDate = new Date(cellValue);
@@ -202,40 +227,36 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 			return cellValueStr.endsWith(filterValueStr);
 		}
 
-		if (typeof cellValue === 'number') {
-			const numValue =
-				typeof value === 'number' ? value : value === undefined ? Number.NaN : Number(value);
-			const numValue2 =
-				typeof value2 === 'number'
-					? value2
-					: value2 === undefined
-						? Number.NaN
-						: Number(value2);
-
-			if (operator === 'greaterThan' && !Number.isNaN(numValue)) {
-				return cellValue > numValue;
+		if (typeof cellValue === 'number' && typeof value === 'number') {
+			if (operator === 'greaterThan') {
+				return cellValue > value;
 			}
 
-			if (operator === 'greaterThanOrEqual' && !Number.isNaN(numValue)) {
-				return cellValue >= numValue;
+			if (operator === 'greaterThanOrEqual') {
+				return cellValue >= value;
 			}
 
-			if (operator === 'lessThan' && !Number.isNaN(numValue)) {
-				return cellValue < numValue;
+			if (operator === 'lessThan') {
+				return cellValue < value;
 			}
 
-			if (operator === 'lessThanOrEqual' && !Number.isNaN(numValue)) {
-				return cellValue <= numValue;
+			if (operator === 'lessThanOrEqual') {
+				return cellValue <= value;
 			}
 
-			if (operator === 'between' && !Number.isNaN(numValue) && !Number.isNaN(numValue2)) {
-				return cellValue >= numValue && cellValue <= numValue2;
+			if (operator === 'isBetween' && typeof endValue === 'number') {
+				return cellValue >= value && cellValue <= endValue;
 			}
 		}
 
 		if (cellValue instanceof Date || typeof cellValue === 'string') {
 			const cellDate = new Date(cellValue);
 			if (!Number.isNaN(cellDate.getTime()) && typeof value === 'string') {
+				if (operator === 'isRelativeToToday') {
+					const range = getRelativeDateRange(value);
+					return range ? cellDate >= range.startDate && cellDate <= range.endDate : true;
+				}
+
 				const filterDate = new Date(value);
 
 				if (operator === 'before') {
@@ -254,8 +275,8 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 					return cellDate >= filterDate;
 				}
 
-				if (operator === 'between' && typeof value2 === 'string') {
-					const filterDate2 = new Date(value2);
+				if (operator === 'isBetween' && typeof endValue === 'string') {
+					const filterDate2 = new Date(endValue);
 					return cellDate >= filterDate && cellDate <= filterDate2;
 				}
 			}
@@ -277,24 +298,16 @@ export function getFilterFn<TData>(): FilterFn<TData> {
 
 		if (operator === 'isAnyOf' && Array.isArray(value)) {
 			if (Array.isArray(cellValue)) {
-				return cellValue.some((v) =>
-					value.some((fv) => String(v) === String(fv))
-				);
+				return cellValue.some((v) => value.some((fv) => String(v) === String(fv)));
 			}
 			return value.some((fv) => String(cellValue) === String(fv));
 		}
 
 		if (operator === 'isNoneOf' && Array.isArray(value)) {
 			if (Array.isArray(cellValue)) {
-				return !cellValue.some((v) =>
-					value.some((fv) => String(v) === String(fv))
-				);
+				return !cellValue.some((v) => value.some((fv) => String(v) === String(fv)));
 			}
 			return !value.some((fv) => String(cellValue) === String(fv));
-		}
-
-		if (operator === 'between') {
-			return false;
 		}
 
 		return true;

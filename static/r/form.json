@@ -1,0 +1,68 @@
+{
+	"$schema": "https://shadcn-svelte.com/schema/registry-item.json",
+	"name": "form",
+	"title": "Form",
+	"type": "registry:ui",
+	"description": "A Svelte form primitive that preserves the upstream tablecn slot and aria contract.",
+	"dependencies": [
+		"bits-ui"
+	],
+	"devDependencies": [
+		"bits-ui@^2.11.0",
+		"@internationalized/date@^3.8.1"
+	],
+	"registryDependencies": [
+		"label"
+	],
+	"meta": {
+		"author": "itisyb",
+		"originalAuthor": "tablecn.com"
+	},
+	"files": [
+		{
+			"content": "<script lang=\"ts\" module>\n\timport type { Snippet } from \"svelte\";\n\timport type { FormFieldError } from \"./form-context.js\";\n\n\texport type FormProps = {\n\t\tchildren?: Snippet;\n\t\terrors?: Record<string, FormFieldError>;\n\t};\n</script>\n\n<script lang=\"ts\">\n\timport { setFormContext } from \"./form-context.js\";\n\n\tlet { children, errors = {} }: FormProps = $props();\n\n\tsetFormContext({\n\t\tget errors() {\n\t\t\treturn errors;\n\t\t}\n\t});\n</script>\n\n{@render children?.()}\n",
+			"type": "registry:ui",
+			"target": "form/form.svelte"
+		},
+		{
+			"content": "import { getContext, setContext } from \"svelte\";\n\nexport type FormFieldError = string | { message?: string } | null | undefined;\n\nexport interface FormContextValue {\n\tget errors(): Record<string, FormFieldError>;\n}\n\nexport interface FormFieldContextValue {\n\tget name(): string;\n\tget error(): FormFieldError;\n}\n\nexport interface FormItemContextValue {\n\tget id(): string;\n}\n\nexport interface FormFieldState {\n\tid: string;\n\tname: string;\n\tformItemId: string;\n\tformDescriptionId: string;\n\tformMessageId: string;\n\terror: FormFieldError;\n\tinvalid: boolean;\n}\n\nexport type FormControlAttributes = {\n\t\"data-slot\": \"form-control\";\n\tid: string;\n\t\"aria-describedby\": string;\n\t\"aria-invalid\": boolean;\n};\n\nconst FORM_CONTEXT_KEY = Symbol(\"form-context\");\nconst FORM_FIELD_CONTEXT_KEY = Symbol(\"form-field-context\");\nconst FORM_ITEM_CONTEXT_KEY = Symbol(\"form-item-context\");\n\nexport function setFormContext(context: FormContextValue) {\n\tsetContext(FORM_CONTEXT_KEY, context);\n}\n\nexport function getFormContext(): FormContextValue | undefined {\n\treturn getContext<FormContextValue | undefined>(FORM_CONTEXT_KEY);\n}\n\nexport function setFormFieldContext(context: FormFieldContextValue) {\n\tsetContext(FORM_FIELD_CONTEXT_KEY, context);\n}\n\nexport function getFormFieldContext(consumerName: string): FormFieldContextValue {\n\tconst context = getContext<FormFieldContextValue | undefined>(FORM_FIELD_CONTEXT_KEY);\n\tif (!context) {\n\t\tthrow new Error(`\\`${consumerName}\\` must be used within \\`FormField\\``);\n\t}\n\treturn context;\n}\n\nexport function setFormItemContext(context: FormItemContextValue) {\n\tsetContext(FORM_ITEM_CONTEXT_KEY, context);\n}\n\nexport function getFormItemContext(consumerName: string): FormItemContextValue {\n\tconst context = getContext<FormItemContextValue | undefined>(FORM_ITEM_CONTEXT_KEY);\n\tif (!context) {\n\t\tthrow new Error(`\\`${consumerName}\\` must be used within \\`FormItem\\``);\n\t}\n\treturn context;\n}\n\nexport function getFormFieldState(consumerName: string): FormFieldState {\n\tconst fieldContext = getFormFieldContext(consumerName);\n\tconst itemContext = getFormItemContext(consumerName);\n\tconst error = fieldContext.error;\n\tconst id = itemContext.id;\n\n\treturn {\n\t\tid,\n\t\tname: fieldContext.name,\n\t\tformItemId: `${id}-form-item`,\n\t\tformDescriptionId: `${id}-form-item-description`,\n\t\tformMessageId: `${id}-form-item-message`,\n\t\terror,\n\t\tinvalid: Boolean(error)\n\t};\n}\n\nexport function useFormField(): FormFieldState {\n\treturn getFormFieldState(\"useFormField\");\n}\n\nexport function getFormErrorMessage(error: FormFieldError): string {\n\tif (!error) return \"\";\n\treturn typeof error === \"string\" ? error : (error.message ?? \"\");\n}\n",
+			"type": "registry:ui",
+			"target": "form/form-context.ts"
+		},
+		{
+			"content": "<script lang=\"ts\" module>\n\timport type { Snippet } from \"svelte\";\n\timport type { FormFieldError, FormFieldState } from \"./form-context.js\";\n\n\texport type FormFieldProps = {\n\t\tname: string;\n\t\terror?: FormFieldError;\n\t\tchildren?: Snippet<[FormFieldState]>;\n\t};\n</script>\n\n<script lang=\"ts\">\n\timport { getFormContext, getFormFieldState, setFormFieldContext } from \"./form-context.js\";\n\n\tlet { name, error, children }: FormFieldProps = $props();\n\n\tconst form = getFormContext();\n\tconst fieldError = $derived(error ?? form?.errors[name]);\n\n\tsetFormFieldContext({\n\t\tget name() {\n\t\t\treturn name;\n\t\t},\n\t\tget error() {\n\t\t\treturn fieldError;\n\t\t}\n\t});\n\n\tconst fieldState = $derived(getFormFieldState(\"FormField\"));\n</script>\n\n{@render children?.(fieldState)}\n",
+			"type": "registry:ui",
+			"target": "form/form-field.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport { useId } from \"bits-ui\";\n\timport type { HTMLAttributes } from \"svelte/elements\";\n\timport { cn, type WithElementRef } from \"$UTILS$.js\";\n\timport { setFormItemContext } from \"./form-context.js\";\n\n\tconst generatedId = useId();\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tid: idProp = generatedId,\n\t\tclass: className,\n\t\tchildren,\n\t\t...restProps\n\t}: WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> = $props();\n\n\tconst itemId = $derived(idProp ?? generatedId);\n\n\tsetFormItemContext({\n\t\tget id() {\n\t\t\treturn itemId;\n\t\t}\n\t});\n</script>\n\n<div\n\tbind:this={ref}\n\tdata-slot=\"form-item\"\n\tclass={cn(\"grid gap-2\", className)}\n\t{...restProps}\n>\n\t{@render children?.()}\n</div>\n",
+			"type": "registry:ui",
+			"target": "form/form-item.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport type { ComponentProps } from \"svelte\";\n\timport { Label } from \"$lib/components/ui/label/index.js\";\n\timport { cn } from \"$UTILS$.js\";\n\timport { getFormFieldState } from \"./form-context.js\";\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tclass: className,\n\t\t...restProps\n\t}: ComponentProps<typeof Label> = $props();\n\n\tconst field = $derived(getFormFieldState(\"FormLabel\"));\n</script>\n\n<Label\n\tbind:ref\n\tdata-slot=\"form-label\"\n\tdata-error={field.invalid ? \"true\" : \"false\"}\n\tclass={cn(\"data-[error=true]:text-destructive\", className)}\n\tfor={field.formItemId}\n\t{...restProps}\n/>\n",
+			"type": "registry:ui",
+			"target": "form/form-label.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\" module>\n\timport type { Snippet } from \"svelte\";\n\timport type { FormControlAttributes } from \"./form-context.js\";\n\n\texport type FormControlProps = {\n\t\tchildren?: Snippet<[FormControlAttributes]>;\n\t};\n</script>\n\n<script lang=\"ts\">\n\timport { getFormFieldState } from \"./form-context.js\";\n\n\tlet { children }: FormControlProps = $props();\n\n\tconst field = $derived(getFormFieldState(\"FormControl\"));\n\tconst describedBy = $derived(\n\t\tfield.invalid\n\t\t\t? `${field.formDescriptionId} ${field.formMessageId}`\n\t\t\t: field.formDescriptionId\n\t);\n\tconst controlProps = $derived<FormControlAttributes>({\n\t\t\"data-slot\": \"form-control\",\n\t\tid: field.formItemId,\n\t\t\"aria-describedby\": describedBy,\n\t\t\"aria-invalid\": field.invalid\n\t});\n</script>\n\n{@render children?.(controlProps)}\n",
+			"type": "registry:ui",
+			"target": "form/form-control.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport type { HTMLAttributes } from \"svelte/elements\";\n\timport { cn, type WithElementRef } from \"$UTILS$.js\";\n\timport { getFormFieldState } from \"./form-context.js\";\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tclass: className,\n\t\tchildren,\n\t\t...restProps\n\t}: WithElementRef<HTMLAttributes<HTMLParagraphElement>, HTMLParagraphElement> = $props();\n\n\tconst field = $derived(getFormFieldState(\"FormDescription\"));\n</script>\n\n<p\n\tbind:this={ref}\n\tdata-slot=\"form-description\"\n\tid={field.formDescriptionId}\n\tclass={cn(\"text-muted-foreground text-sm\", className)}\n\t{...restProps}\n>\n\t{@render children?.()}\n</p>\n",
+			"type": "registry:ui",
+			"target": "form/form-description.svelte"
+		},
+		{
+			"content": "<script lang=\"ts\">\n\timport type { HTMLAttributes } from \"svelte/elements\";\n\timport { cn, type WithElementRef } from \"$UTILS$.js\";\n\timport { getFormErrorMessage, getFormFieldState } from \"./form-context.js\";\n\n\tlet {\n\t\tref = $bindable(null),\n\t\tclass: className,\n\t\tchildren,\n\t\t...restProps\n\t}: WithElementRef<HTMLAttributes<HTMLParagraphElement>, HTMLParagraphElement> = $props();\n\n\tconst field = $derived(getFormFieldState(\"FormMessage\"));\n\tconst errorMessage = $derived(getFormErrorMessage(field.error));\n\tconst hasChildren = $derived(Boolean(children));\n</script>\n\n{#if errorMessage || hasChildren}\n\t<p\n\t\tbind:this={ref}\n\t\tdata-slot=\"form-message\"\n\t\tid={field.formMessageId}\n\t\tclass={cn(\"text-destructive text-sm\", className)}\n\t\t{...restProps}\n\t>\n\t\t{#if errorMessage}\n\t\t\t{errorMessage}\n\t\t{:else}\n\t\t\t{@render children?.()}\n\t\t{/if}\n\t</p>\n{/if}\n",
+			"type": "registry:ui",
+			"target": "form/form-message.svelte"
+		},
+		{
+			"content": "import Form from \"./form.svelte\";\nimport FormControl from \"./form-control.svelte\";\nimport FormDescription from \"./form-description.svelte\";\nimport FormField from \"./form-field.svelte\";\nimport FormItem from \"./form-item.svelte\";\nimport FormLabel from \"./form-label.svelte\";\nimport FormMessage from \"./form-message.svelte\";\n\nexport {\n\tForm,\n\tFormControl,\n\tFormDescription,\n\tFormField,\n\tFormItem,\n\tFormLabel,\n\tFormMessage\n};\n\nexport {\n\tuseFormField,\n\tgetFormFieldState,\n\tgetFormErrorMessage,\n\ttype FormControlAttributes,\n\ttype FormContextValue,\n\ttype FormFieldContextValue,\n\ttype FormFieldError,\n\ttype FormFieldState,\n\ttype FormItemContextValue\n} from \"./form-context.js\";\n",
+			"type": "registry:ui",
+			"target": "form/index.ts"
+		}
+	]
+}

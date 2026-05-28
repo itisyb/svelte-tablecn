@@ -12,7 +12,6 @@
 			"clsx",
 			"tailwind-merge",
 			"svelte-sonner",
-			"svelte-dnd-action",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -29,6 +28,7 @@
 			"select",
 			"separator",
 			"skeleton",
+			"sortable",
 			"table",
 			"textarea",
 			"tooltip"
@@ -46,6 +46,7 @@
 		"description": "A reusable data table component with sorting, filtering, pagination, view options, and skeleton states for Svelte 5.",
 		"dependencies": [
 			"@tanstack/table-core",
+			"@internationalized/date",
 			"bits-ui",
 			"clsx",
 			"tailwind-merge",
@@ -54,14 +55,17 @@
 		"registryDependencies": [
 			"badge",
 			"button",
+			"calendar",
 			"command",
 			"dropdown-menu",
+			"faceted",
 			"input",
 			"popover",
 			"select",
 			"separator",
 			"slider",
 			"skeleton",
+			"sortable",
 			"table"
 		],
 		"meta": {
@@ -78,7 +82,6 @@
 		"dependencies": [
 			"@tanstack/table-core",
 			"bits-ui",
-			"svelte-dnd-action",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -86,7 +89,8 @@
 			"button",
 			"command",
 			"popover",
-			"select"
+			"select",
+			"sortable"
 		],
 		"meta": {
 			"author": "itisyb",
@@ -101,17 +105,21 @@
 		"description": "A filter list component for the data table.",
 		"dependencies": [
 			"@tanstack/table-core",
+			"@internationalized/date",
 			"bits-ui",
-			"svelte-dnd-action",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
 			"badge",
 			"button",
+			"calendar",
 			"command",
+			"faceted",
 			"input",
 			"popover",
-			"select"
+			"select",
+			"slider",
+			"sortable"
 		],
 		"meta": {
 			"author": "itisyb",
@@ -126,17 +134,19 @@
 		"description": "A filter menu component for the data table.",
 		"dependencies": [
 			"@tanstack/table-core",
+			"@internationalized/date",
 			"bits-ui",
-			"svelte-dnd-action",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
 			"badge",
 			"button",
+			"calendar",
 			"command",
 			"input",
 			"popover",
-			"select"
+			"select",
+			"slider"
 		],
 		"meta": {
 			"author": "itisyb",
@@ -170,7 +180,6 @@
 		"dependencies": [
 			"@tanstack/table-core",
 			"bits-ui",
-			"svelte-dnd-action",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -178,7 +187,8 @@
 			"button",
 			"command",
 			"popover",
-			"select"
+			"select",
+			"sortable"
 		],
 		"meta": {
 			"author": "itisyb",
@@ -193,7 +203,6 @@
 		"description": "A row height menu component for the data grid.",
 		"dependencies": [
 			"@tanstack/table-core",
-			"bits-ui",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -212,7 +221,6 @@
 		"description": "A view menu component for the data grid.",
 		"dependencies": [
 			"@tanstack/table-core",
-			"bits-ui",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -232,7 +240,6 @@
 		"type": "registry:component",
 		"description": "A keyboard shortcuts dialog component for the data grid.",
 		"dependencies": [
-			"bits-ui",
 			"@lucide/svelte"
 		],
 		"registryDependencies": [
@@ -256,7 +263,6 @@
 		"dependencies": [
 			"@tanstack/table-core",
 			"bits-ui",
-			"svelte-dnd-action",
 			"@internationalized/date",
 			"@lucide/svelte"
 		],
@@ -267,7 +273,8 @@
 			"command",
 			"input",
 			"popover",
-			"select"
+			"select",
+			"sortable"
 		],
 		"meta": {
 			"author": "itisyb",
@@ -280,7 +287,6 @@
 		"title": "Data Grid Skeleton",
 		"type": "registry:component",
 		"description": "A composable skeleton component for the data grid.",
-		"dependencies": [],
 		"registryDependencies": [
 			"skeleton"
 		],
@@ -289,6 +295,53 @@
 			"originalAuthor": "tablecn.com"
 		},
 		"relativeUrl": "data-grid-skeleton.json"
+	},
+	{
+		"name": "sortable",
+		"title": "Sortable",
+		"type": "registry:ui",
+		"description": "A composable sortable primitive for drag-reordering lists.",
+		"dependencies": [
+			"svelte-dnd-action"
+		],
+		"registryDependencies": [],
+		"meta": {
+			"author": "itisyb",
+			"originalAuthor": "tablecn.com"
+		},
+		"relativeUrl": "sortable.json"
+	},
+	{
+		"name": "drawer",
+		"title": "Drawer",
+		"type": "registry:ui",
+		"description": "A drawer primitive with the upstream tablecn slot and direction contract.",
+		"dependencies": [
+			"bits-ui"
+		],
+		"registryDependencies": [],
+		"meta": {
+			"author": "itisyb",
+			"originalAuthor": "tablecn.com"
+		},
+		"relativeUrl": "drawer.json"
+	},
+	{
+		"name": "form",
+		"title": "Form",
+		"type": "registry:ui",
+		"description": "A Svelte form primitive that preserves the upstream tablecn slot and aria contract.",
+		"dependencies": [
+			"bits-ui"
+		],
+		"registryDependencies": [
+			"label"
+		],
+		"meta": {
+			"author": "itisyb",
+			"originalAuthor": "tablecn.com"
+		},
+		"relativeUrl": "form.json"
 	},
 	{
 		"name": "use-data-grid-undo-redo",

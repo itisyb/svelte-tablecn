@@ -11,6 +11,18 @@ import DataTableShowcase from './data-table-showcase.svelte';
 
 const tableRows = generateDemoPeople(200, { lite: true });
 
+async function waitFor<T>(callback: () => T | undefined | null | false, timeout = 5_000): Promise<T> {
+	const startedAt = Date.now();
+
+	while (Date.now() - startedAt < timeout) {
+		const result = callback();
+		if (result) return result;
+		await new Promise((resolve) => setTimeout(resolve, 50));
+	}
+
+	throw new Error('Timed out waiting for condition');
+}
+
 async function renderShowcase(
 	mode: 'basic' | 'advanced' = 'basic',
 	advancedFilterUi: 'advancedFilters' | 'commandFilters' = 'commandFilters'
@@ -28,7 +40,7 @@ async function renderShowcase(
 describe('data-table-showcase.svelte', () => {
 	it('should show selected advanced filter values', async () => {
 		await renderShowcase('advanced');
-		await page.getByRole('button', { name: 'Open filter menu' }).click();
+		await page.getByRole('button', { name: 'Open filter command menu' }).click();
 		await page.getByRole('option', { name: 'Department' }).click();
 		await page.getByRole('option', { name: 'Engineering' }).click();
 
@@ -64,9 +76,26 @@ describe('data-table-showcase.svelte', () => {
 		window.history.replaceState({}, '', '/');
 	});
 
+	it('should reset pagination to the first page when filters change like upstream', async () => {
+		window.history.replaceState({}, '', '/?page=3');
+		await renderShowcase('basic');
+
+		await page.getByLabelText('Filter Department').click();
+		await page.getByRole('option', { name: 'Marketing' }).click();
+
+		const queryReset = await waitFor(() => {
+			const params = new URLSearchParams(window.location.search);
+			return params.get('department') === 'Marketing' && params.get('page') === null;
+		});
+
+		expect(queryReset).toBe(true);
+
+		window.history.replaceState({}, '', '/');
+	});
+
 	it('should update single select filter state when changing options', async () => {
 		await renderShowcase('advanced');
-		await page.getByRole('button', { name: 'Open filter menu' }).click();
+		await page.getByRole('button', { name: 'Open filter command menu' }).click();
 		await page.getByRole('option', { name: 'Department' }).click();
 		await page.getByRole('option', { name: 'Engineering' }).click();
 

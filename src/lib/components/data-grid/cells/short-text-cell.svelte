@@ -19,9 +19,18 @@
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
 	const initialValue = $derived((cellValue as string) ?? '');
 	let cellRef = $state<HTMLDivElement | null>(null);
+	let wrapperRef = $state<HTMLDivElement | null>(null);
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
+	let previousInitialValue = $state<string | null>(null);
+
+	$effect(() => {
+		if (initialValue === previousInitialValue) return;
+
+		previousInitialValue = initialValue;
+		localEditValue = null;
+	});
 
 	// The display value is either the local edit (during editing) or the initial value
 	const displayValue = $derived(!isEditing ? (initialValue ?? '') : '');
@@ -37,6 +46,10 @@
 		if (isEditing) {
 			localEditValue = nextValue ?? '';
 		}
+	}
+
+	function getCurrentTextValue() {
+		return cellRef?.textContent ?? value;
 	}
 
 	function moveCaretToEnd() {
@@ -58,8 +71,14 @@
 		}
 	});
 
-	function handleBlur() {
-		const currentValue = value;
+	function handleBlur(event: FocusEvent) {
+		const relatedTarget = event.relatedTarget;
+		if (relatedTarget instanceof Node && wrapperRef?.contains(relatedTarget)) {
+			requestAnimationFrame(() => cellRef?.focus());
+			return;
+		}
+
+		const currentValue = getCurrentTextValue();
 		const meta = table.options.meta;
 		if (!readOnly && currentValue !== initialValue) {
 			meta?.onDataUpdate?.({ rowIndex, columnId, value: currentValue });
@@ -73,7 +92,8 @@
 		if (isEditing) {
 			if (event.key === 'Enter') {
 				event.preventDefault();
-				const currentValue = value;
+				event.stopPropagation();
+				const currentValue = getCurrentTextValue();
 				if (currentValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: currentValue });
 				}
@@ -81,7 +101,8 @@
 				meta?.onCellEditingStop?.({ moveToNextRow: true });
 			} else if (event.key === 'Tab') {
 				event.preventDefault();
-				const currentValue = value;
+				event.stopPropagation();
+				const currentValue = getCurrentTextValue();
 				if (currentValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: currentValue });
 				}
@@ -91,7 +112,11 @@
 				});
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
-				localEditValue = null;
+				event.stopPropagation();
+				localEditValue = initialValue;
+				if (cellRef) {
+					cellRef.textContent = initialValue;
+				}
 				cellRef?.blur();
 			}
 		} else if (isFocused && event.key.length === 1 && !event.ctrlKey && !event.metaKey) {
@@ -108,6 +133,7 @@
 </script>
 
 <DataGridCellWrapper
+	bind:wrapperRef
 	{cell}
 	{table}
 	{rowIndex}

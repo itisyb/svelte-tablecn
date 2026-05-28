@@ -7,29 +7,32 @@
 	import DataTableFacetedFilter from './data-table-faceted-filter.svelte';
 	import DataTableSliderFilter from './data-table-slider-filter.svelte';
 	import DataTableViewOptions from './data-table-view-options.svelte';
-	import type { DataTableOption } from '$lib/types/data-table.js';
 	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import type { WithElementRef } from '$lib/utils.js';
 
 	import X from '@lucide/svelte/icons/x';
 
-	interface Props {
+	interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
 		table: Table<TData>;
 		children?: Snippet;
-		class?: string;
 	}
 
-	let { table, children, class: className }: Props = $props();
+	let { table, children, class: className, ref = $bindable(null), ...restProps }: Props = $props();
 
 	const isFiltered = $derived(table.getState().columnFilters.length > 0);
 	const columns = $derived(table.getAllColumns().filter((column) => column.getCanFilter()));
 
-	function getColumnFilterValue(columnId: string): unknown {
-		return table.getState().columnFilters.find((filter) => filter.id === columnId)?.value;
+	function getColumnFilterValue(column: Column<TData>): unknown {
+		return (
+			table.getState().columnFilters.find((filter) => filter.id === column.id)?.value ??
+			column.getFilterValue()
+		);
 	}
 
-	function getColumnStringFilterValue(columnId: string): string {
-		const value = getColumnFilterValue(columnId);
-		return typeof value === 'string' ? value : '';
+	function getColumnInputFilterValue(column: Column<TData>): string {
+		const value = getColumnFilterValue(column);
+		return value == null ? '' : String(value);
 	}
 
 	function setColumnStringFilterValue(column: Column<TData>, value: string) {
@@ -40,18 +43,14 @@
 		table.resetColumnFilters();
 	}
 
-	function getBooleanOptions(): DataTableOption[] {
-		return [
-			{ label: 'True', value: 'true' },
-			{ label: 'False', value: 'false' }
-		];
-	}
 </script>
 
 <div
+	bind:this={ref}
 	role="toolbar"
 	aria-orientation="horizontal"
 	class={cn('flex w-full items-start justify-between gap-2 p-1', className)}
+	{...restProps}
 >
 	<div class="flex flex-1 flex-wrap items-center gap-2">
 		{#each columns as column (column.id)}
@@ -63,7 +62,7 @@
 				<Input
 					placeholder={meta?.placeholder ?? label}
 					bind:value={
-						() => getColumnStringFilterValue(column.id),
+						() => getColumnInputFilterValue(column),
 						(value) => setColumnStringFilterValue(column, value)
 					}
 					class="h-8 w-40 lg:w-56"
@@ -74,9 +73,7 @@
 						type="number"
 						inputmode="numeric"
 						placeholder={meta?.placeholder ?? label}
-						value={typeof getColumnFilterValue(column.id) === 'string'
-							? (getColumnFilterValue(column.id) as string)
-							: ''}
+						value={getColumnInputFilterValue(column)}
 						oninput={(event) =>
 							column.setFilterValue((event.currentTarget as HTMLInputElement).value)}
 						class={cn('h-8 w-[120px]', meta?.unit && 'pr-8')}
@@ -107,14 +104,6 @@
 					title={label}
 					options={meta?.options ?? []}
 					multiple={variant === 'multiSelect'}
-				/>
-			{:else if variant === 'boolean'}
-				<DataTableFacetedFilter
-					{table}
-					columnId={column.id}
-					{column}
-					title={label}
-					options={getBooleanOptions()}
 				/>
 			{/if}
 		{/each}

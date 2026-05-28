@@ -5,6 +5,7 @@
 	import { PopoverContent } from '$lib/components/ui/popover/index.js';
 	import { Calendar } from '$lib/components/ui/calendar/index.js';
 	import { type DateValue, parseDate, today, getLocalTimeZone } from '@internationalized/date';
+	import { formatDateForDisplay, formatDateToString, parseLocalDate } from '$lib/data-grid.js';
 
 	let {
 		cell,
@@ -19,21 +20,31 @@
 	}: CellVariantProps<TData> = $props();
 
 	// Use centralized cellValue prop - fine-grained reactivity is handled by DataGridCell
-	const initialValue = $derived((cellValue as string) ?? '');
+	const initialValue = $derived(cellValue ?? '');
 	let containerRef = $state<HTMLDivElement | null>(null);
 	let popoverRef = $state<HTMLDivElement | null>(null);
 
 	// Track local edits separately
 	let localEditValue = $state<string | null>(null);
+	let previousInitialValue = $state<unknown>(undefined);
+
+	$effect(() => {
+		if (Object.is(initialValue, previousInitialValue)) return;
+
+		previousInitialValue = initialValue;
+		localEditValue = null;
+	});
 
 	// Value for display - use localEditValue if set, otherwise initialValue
 	const value = $derived(localEditValue ?? initialValue ?? '');
 
 	// Parse value to DateValue for calendar
 	const selectedDate = $derived.by((): DateValue | undefined => {
-		if (!value) return undefined;
+		const date = parseLocalDate(value);
+		if (!date) return undefined;
+
 		try {
-			return parseDate(value);
+			return parseDate(formatDateToString(date));
 		} catch {
 			return undefined;
 		}
@@ -41,16 +52,6 @@
 
 	// Default month for calendar (selected date or today)
 	const defaultMonth = $derived(selectedDate ?? today(getLocalTimeZone()));
-
-	function formatDateForDisplay(dateStr: string): string {
-		if (!dateStr) return '';
-		try {
-			const date = new Date(dateStr);
-			return date.toLocaleDateString();
-		} catch {
-			return dateStr;
-		}
-	}
 
 	function handleDateSelect(date: DateValue | undefined) {
 		if (!date || readOnly) return;
@@ -76,10 +77,12 @@
 		const meta = table.options.meta;
 		if (isEditing && event.key === 'Escape') {
 			event.preventDefault();
+			event.stopPropagation();
 			localEditValue = null;
 			meta?.onCellEditingStop?.();
-		} else if (!isEditing && isFocused && event.key === 'Tab') {
+		} else if ((isFocused || isEditing) && event.key === 'Tab') {
 			event.preventDefault();
+			event.stopPropagation();
 			meta?.onCellEditingStop?.({
 				direction: event.shiftKey ? 'left' : 'right'
 			});
@@ -88,12 +91,12 @@
 
 	function handleOpenAutoFocus(e: Event) {
 		e.preventDefault();
-		// Focus the selected day, or today, or first day of month
-		// Use setTimeout to ensure calendar is fully rendered
 		setTimeout(() => {
 			if (!popoverRef) return;
-			// Target the Calendar.Day element with data-calendar-day attribute
 			const target =
+				popoverRef.querySelector<HTMLElement>('[data-bits-day][data-selected]') ??
+				popoverRef.querySelector<HTMLElement>('[data-bits-day][data-today]') ??
+				popoverRef.querySelector<HTMLElement>('[data-bits-day]:not([data-disabled])') ??
 				popoverRef.querySelector<HTMLElement>('[data-calendar-day][data-selected]') ??
 				popoverRef.querySelector<HTMLElement>('[data-calendar-day][data-today]') ??
 				popoverRef.querySelector<HTMLElement>('[data-calendar-day]');

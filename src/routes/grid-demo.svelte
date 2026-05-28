@@ -15,6 +15,7 @@
 		getDataGridSelectColumn,
 		useDataGrid,
 		useDataGridUndoRedo,
+		type UndoRedoCellUpdate,
 		getFilterFn,
 		exportTableToCSV,
 		parseCellKey
@@ -55,7 +56,7 @@
 		});
 	});
 
-	const { trackRowsAdd, trackRowsDelete } = useDataGridUndoRedo({
+	const { trackCellsUpdate, trackRowsAdd, trackRowsDelete } = useDataGridUndoRedo({
 		data: () => data,
 		onDataChange: (newData) => {
 			data = newData;
@@ -202,7 +203,6 @@
 		const newRow = createBlankRow();
 		const nextData = [...data, newRow];
 		data = nextData;
-		onDataChange(nextData);
 		trackRowsAdd([newRow]);
 		return { rowIndex: newRowIndex, rowId: newRow.id, columnId: 'name' };
 	}
@@ -211,7 +211,6 @@
 		const newRows = Array.from({ length: count }, () => createBlankRow());
 		const nextData = [...data, ...newRows];
 		data = nextData;
-		onDataChange(nextData);
 		trackRowsAdd(newRows);
 	}
 
@@ -221,6 +220,35 @@
 	}
 
 	function onDataChange(newData: DemoPerson[]) {
+		const cellUpdates: UndoRedoCellUpdate[] = [];
+		const maxLength = Math.max(data.length, newData.length);
+
+		for (let rowIndex = 0; rowIndex < maxLength; rowIndex++) {
+			const oldRow = data[rowIndex];
+			const newRow = newData[rowIndex];
+
+			if (!oldRow || !newRow) continue;
+
+			const keys = new Set([...Object.keys(oldRow), ...Object.keys(newRow)]);
+			for (const key of keys) {
+				const previousValue = oldRow[key as keyof DemoPerson];
+				const newValue = newRow[key as keyof DemoPerson];
+
+				if (!Object.is(previousValue, newValue)) {
+					cellUpdates.push({
+						rowId: oldRow.id,
+						columnId: key,
+						previousValue,
+						newValue
+					});
+				}
+			}
+		}
+
+		if (cellUpdates.length > 0) {
+			trackCellsUpdate(cellUpdates);
+		}
+
 		data = newData;
 	}
 
@@ -366,6 +394,8 @@
 				enableSearch={!!dataGridProps.searchState}
 				enableUndoRedo
 				enablePaste
+				enableRowAdd
+				enableRowsDelete
 			/>
 			<Badge variant="secondary" class="font-mono tabular-nums">{rowCountLabel}</Badge>
 		</div>

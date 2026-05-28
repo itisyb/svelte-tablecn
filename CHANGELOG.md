@@ -7,8 +7,87 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `DataGridKeyboardShortcuts` is documented with the shipped option surface and `Ctrl/Cmd + /` trigger.
+- Standalone `drawer`, `form`, and `sortable` registry slices are documented and exported from the package root.
+- Package root and UI barrel now forward the Svelte-native form helper functions and the public `drawer`, `form`, and `sortable` primitive type contracts.
+- Adapter scope is documented for `drawer`, `form`, and `sortable`: current parity covers installable slots/styling/ARIA contracts without adding React-only runtime dependencies.
+- Registry audit coverage now verifies every installable registry item is emitted in `static/r` with the expected file targets.
+- Keyboard shortcut dialog coverage now checks the full original 50-row shortcut map.
+- Data-table README component documentation now includes the exported date and slider filter components and is checked against package-root exports.
+- UI primitive README export documentation now includes drawer portal/overlay and form helper exports.
+- Data-grid README option documentation now includes sorting, filter, and row-selection change callbacks and is checked against `UseDataGridOptions`.
+- Data-table README option documentation now includes required `data` and `columns` options and is checked against `UseDataTableOptions`.
+- Generated registry artifact coverage now verifies item metadata and file `type`/`target` entries against `registry.json`.
+- Data grid select editor popovers now keep the shared select content radius and offset while matching the cell width.
+- Date filter calendar popovers now autofocus the opened calendar like upstream.
+- Data grid select editor options now keep the original select item radius inside the cell-width editor surface.
+- Action bar browser coverage now verifies upstream entry-focus cancellation and item-select event ordering.
+- Data-grid row coverage now checks the upstream custom-cell renderer switch: function headers render custom cells directly, while string headers use the grid cell path.
+- README registry documentation now lists every installable `/r/*.json` item and is checked against `registry.json`.
+- Registry parity coverage now asserts every original installable item remains present, with only `drawer`, `form`, and `sortable` as intentional Svelte additions.
+- Registry parity coverage now asserts common installable items preserve upstream UI registry dependencies while allowing Svelte-specific additions.
+- Data-grid registry coverage now asserts the full bundle ships Svelte equivalents for the original grid components, hook, helper, and type files.
+- Data-table registry coverage now asserts the full bundle ships Svelte equivalents for the original table components, hook, helper, parser, config, and type files.
+- Standalone data-table sort/filter menu registry slices are now checked and scoped to the files their Svelte implementations actually import.
+- Standalone data-grid keyboard shortcuts registry coverage now checks the slice stays scoped to its Svelte implementation.
+- Standalone data-grid select-column registry coverage now checks the slice stays scoped to row-selection rendering helpers.
+- Data-grid registry coverage now guards against bundling the demo-only window size hook.
+- Standalone grid menu/dialog registry dependency coverage now checks direct package imports rather than primitive implementation packages.
+- Data-grid module coverage now checks upstream cell-key and row-height helpers are exported from `data-grid.ts`.
+- Data-table filter coverage now checks the upstream `isRelativeToToday` date operator is accepted, mapped, and applied by the in-memory filter reference.
+
 ### Fixed
 
+- Data grid select editor popovers now use the shared select content radius while keeping the upstream width and offset alignment.
+- Checkbox indeterminate indicators now reuse the original checkbox check icon and checked-only state styling.
+- Dropdown checkbox indeterminate indicators now reuse the original menu check icon.
+- Date filter calendar popovers now map upstream `autoFocus` to the Bits `initialFocus` prop.
+- Data-table view options now delegate column visibility checks to TanStack like the original table.
+- Data-table slider filter unit adornments now use the original numeric input positioning classes.
+- `FacetedItem` now forwards the selected item value to custom `onSelect` handlers like the original faceted primitive.
+- Data-table range filters now keep blank partial range bounds visibly blank like the original two-input filter.
+- Data-table sort-list direction options now read from the shared data-table config like the original component, and the standalone registry slice ships that config file.
+- Data-table filter-list join operator options now read from shared data-table config like the original component.
+- Data grid select editor popovers now preserve the shared select content radius instead of forcing a square cell-editor surface.
+- Data-grid select-all now updates visible row selection state immediately, without waiting for virtualization to remount rows on scroll.
+- Data-grid row-select cells keep the standard cell padding wrapper so selected rows fill the select column like the original grid.
+- Data-table filter-menu chips now use calendar popovers for date values and only remove rows with Delete/Backspace when child selectors are closed.
+- Data-grid filter-menu row reordering now composes the shared sortable primitive like the original grid.
+- Data-grid sort-menu row reordering now composes the shared sortable primitive like the original grid.
+- Data-table sort-list row reordering now composes the shared sortable primitive like the original table.
+- Data-table filter-list row reordering now composes the shared sortable primitive like the original table.
+- Sheet portal and overlay slots are now exposed through the sheet, UI, and package-root barrels.
+- Data grid select editor popovers now preserve the shared select content radius while keeping the width and offset alignment.
+- Data-table range filters now preserve incomplete `isBetween` values like upstream and apply the same one-sided numeric behavior in the in-memory row filter reference.
+- Data grid select editor popovers now preserve the shared select content radius with the upstream trigger width/offset geometry.
+- Parity audit tests now fail directly when a `registry.json` source path stops resolving.
+- Data grid search parity now has explicit source assertions for the original search role, slot, controls, pointer handling, and status text.
+- Data grid paste dialog parity now has explicit source assertions for the original copy, radio options, callbacks, and popover containment.
+- Data table shell and skeleton parity now have explicit source assertions for the original layout, pinning, empty state, pagination/action-bar placement, and loading placeholders.
+- Data table filter-list option values now use the shared faceted primitive like the original table instead of a custom command popover.
+- `DataTableFilterMenu` now forwards custom classes to the command popover content like upstream instead of styling the outer filter list.
+- Data grid select editor popovers now preserve the shared content radius, item radius, width, and offset.
+- README UI primitive docs now distinguish package-root exports from standalone registry items and document the exported faceted primitive surface.
+- README UI primitive docs now list the complete exported faceted primitive surface.
+- The package root and UI barrel now expose the `FacetedValue` type alongside the faceted primitive exports.
+- Data grid select editor popovers no longer override the shared select offset, matching the original menu placement.
+- Short text and URL cell editors now restore the original value on `Escape`, matching upstream edit cancellation behavior.
+- Long text editors now insert the first typed character through the textarea edit stack like upstream.
+- File editor popovers now only stop `Escape` key propagation, allowing ordinary keys to bubble like the upstream file editor.
+- Data-table sort/filter keyboard shortcuts now remain wired like upstream even when the trigger button is disabled.
+- Data-table slider filters now keep user-selected default-range values active until the explicit clear action, matching upstream behavior.
+- Action bar groups now dispatch the cancelable upstream entry-focus event before moving focus into items, and action bar item `onselect` handlers now run during `actionbar.itemSelect` dispatch before the event bubbles.
+- Data-grid rows now choose direct custom-cell rendering from function headers like upstream, instead of switching on the presence of a custom `cell` renderer alone.
+- Standalone data-table sort/filter menu registry slices no longer over-ship unrelated advanced toolbar, view options, parser, config, or drag dependencies.
+- Standalone data-grid keyboard shortcuts no longer ships the full data-grid type module or declares `@tanstack/table-core`.
+- Data-grid components import Svelte table render helpers directly, so the data-grid and select-column registry slices no longer ship the full `$lib/table` barrel or table creation files.
+- The full data-grid registry bundle no longer ships `use-window-size.svelte.ts`, matching the original registry where window sizing is demo-only.
+- Standalone row-height, view, and keyboard-shortcut registry slices no longer declare `bits-ui` directly when it is only provided through UI primitive registry dependencies.
+- `data-grid.ts` now re-exports cell-key and row-height helpers so module-level utility imports match the original API.
+- Data grid select editor option highlights no longer override the shared select item radius.
+- Data-table date filter operators now include the upstream `isRelativeToToday` option, with UI-to-SQL mapping and client-side row filtering support.
 - Cell and row selection after filtering: use row-model position (not core `row.index`) so shift-select and counts only include visible rows ([#20](https://github.com/itisyb/svelte-tablecn/issues/20))
 - Click outside the grid clears cell focus (tablecn behavior); no longer re-focuses the cell on `focusout`
 

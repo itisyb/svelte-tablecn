@@ -3,6 +3,7 @@
 
 import type {
 	ColumnDef,
+	Row,
 	Table,
 	SortingState,
 	ColumnFiltersState,
@@ -10,10 +11,19 @@ import type {
 	PaginationState,
 	RowSelectionState,
 	RowData,
+	TableOptions,
 	Updater
 } from '@tanstack/table-core';
 import type { Component } from 'svelte';
-import { isCompleteRangeFilterValue } from '$lib/data-table-range-utils.js';
+import {
+	dataTableConfig,
+	DATA_TABLE_BOOLEAN_OPERATORS,
+	DATA_TABLE_DATE_OPERATORS,
+	DATA_TABLE_MULTI_SELECT_OPERATORS,
+	DATA_TABLE_NUMERIC_OPERATORS,
+	DATA_TABLE_SELECT_OPERATORS,
+	DATA_TABLE_TEXT_OPERATORS
+} from '$lib/config/data-table.js';
 
 // Re-export filter operator types from data-grid to avoid duplication
 import type { FilterOperator as FilterOperatorType } from './data-grid.js';
@@ -29,17 +39,9 @@ export type {
 // Local type alias for use in this file
 type FilterOperator = FilterOperatorType;
 
-export type FilterVariant =
-	| 'text'
-	| 'number'
-	| 'range'
-	| 'date'
-	| 'dateRange'
-	| 'boolean'
-	| 'select'
-	| 'multiSelect';
+export type FilterVariant = (typeof dataTableConfig)['filterVariants'][number];
 
-export type JoinOperator = 'and' | 'or';
+export type JoinOperator = (typeof dataTableConfig)['joinOperators'][number];
 
 export interface DataTableOption {
 	label: string;
@@ -47,6 +49,8 @@ export interface DataTableOption {
 	icon?: Component<{ class?: string }>;
 	count?: number;
 }
+
+export type Option = DataTableOption;
 
 export interface QueryKeys {
 	page: string;
@@ -65,52 +69,12 @@ export interface FilterOperatorDef {
 	value: FilterOperator;
 }
 
-export const TEXT_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Contains', value: 'contains' },
-	{ label: 'Does not contain', value: 'notContains' },
-	{ label: 'Equals', value: 'equals' },
-	{ label: 'Does not equal', value: 'notEquals' },
-	{ label: 'Starts with', value: 'startsWith' },
-	{ label: 'Ends with', value: 'endsWith' },
-	{ label: 'Is empty', value: 'isEmpty' },
-	{ label: 'Is not empty', value: 'isNotEmpty' }
-];
-
-export const NUMBER_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Equals', value: 'equals' },
-	{ label: 'Does not equal', value: 'notEquals' },
-	{ label: 'Less than', value: 'lessThan' },
-	{ label: 'Less than or equal', value: 'lessThanOrEqual' },
-	{ label: 'Greater than', value: 'greaterThan' },
-	{ label: 'Greater than or equal', value: 'greaterThanOrEqual' },
-	{ label: 'Between', value: 'between' },
-	{ label: 'Is empty', value: 'isEmpty' },
-	{ label: 'Is not empty', value: 'isNotEmpty' }
-];
-
-export const DATE_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Equals', value: 'equals' },
-	{ label: 'Does not equal', value: 'notEquals' },
-	{ label: 'Before', value: 'before' },
-	{ label: 'After', value: 'after' },
-	{ label: 'Between', value: 'between' },
-	{ label: 'Is empty', value: 'isEmpty' },
-	{ label: 'Is not empty', value: 'isNotEmpty' }
-];
-
-export const SELECT_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Is', value: 'is' },
-	{ label: 'Is not', value: 'isNot' },
-	{ label: 'Is any of', value: 'isAnyOf' },
-	{ label: 'Is none of', value: 'isNoneOf' },
-	{ label: 'Is empty', value: 'isEmpty' },
-	{ label: 'Is not empty', value: 'isNotEmpty' }
-];
-
-export const BOOLEAN_OPERATORS: FilterOperatorDef[] = [
-	{ label: 'Is true', value: 'isTrue' },
-	{ label: 'Is false', value: 'isFalse' }
-];
+export const TEXT_OPERATORS = DATA_TABLE_TEXT_OPERATORS;
+export const NUMBER_OPERATORS = DATA_TABLE_NUMERIC_OPERATORS;
+export const DATE_OPERATORS = DATA_TABLE_DATE_OPERATORS;
+export const SELECT_OPERATORS = DATA_TABLE_SELECT_OPERATORS;
+export const MULTI_SELECT_OPERATORS = DATA_TABLE_MULTI_SELECT_OPERATORS;
+export const BOOLEAN_OPERATORS = DATA_TABLE_BOOLEAN_OPERATORS;
 
 // ============================================
 // Extended Column Types
@@ -127,6 +91,11 @@ export interface ExtendedColumnFilter<TData> {
 export interface ExtendedColumnSort<TData> {
 	id: keyof TData & string;
 	desc: boolean;
+}
+
+export interface DataTableRowAction<TData> {
+	row: Row<TData>;
+	variant: 'update' | 'delete';
 }
 
 // ============================================
@@ -147,7 +116,7 @@ declare module '@tanstack/table-core' {
 		icon?: Component<{ class?: string }>;
 		placeholder?: string;
 		variant?: FilterVariant;
-		options?: DataTableOption[];
+		options?: Option[];
 		range?: [number, number];
 		unit?: string;
 	}
@@ -157,7 +126,24 @@ declare module '@tanstack/table-core' {
 // Data Table Props
 // ============================================
 
-export interface UseDataTableOptions<TData> {
+export interface UseDataTableOptions<TData>
+	extends Omit<
+		Partial<TableOptions<TData>>,
+		| 'data'
+		| 'columns'
+		| 'state'
+		| 'pageCount'
+		| 'getCoreRowModel'
+		| 'getFilteredRowModel'
+		| 'getPaginationRowModel'
+		| 'getSortedRowModel'
+		| 'getFacetedRowModel'
+		| 'getFacetedUniqueValues'
+		| 'getFacetedMinMaxValues'
+		| 'manualPagination'
+		| 'manualSorting'
+		| 'manualFiltering'
+	> {
 	data: TData[] | (() => TData[]);
 	columns: ColumnDef<TData, unknown>[] | (() => ColumnDef<TData, unknown>[]);
 	pageCount?: number;
@@ -186,6 +172,9 @@ export interface UseDataTableOptions<TData> {
 
 export interface UseDataTableReturn<TData> {
 	table: Table<TData>;
+	shallow: boolean;
+	debounceMs: number;
+	throttleMs: number;
 	// State
 	sorting: SortingState;
 	columnFilters: ColumnFiltersState;
@@ -209,48 +198,26 @@ export interface UseDataTableReturn<TData> {
 /**
  * Gets the filter operators for a given filter variant
  */
-export function getFilterOperators(variant: FilterVariant): FilterOperatorDef[] {
-	switch (variant) {
-		case 'text':
-			return TEXT_OPERATORS;
-		case 'number':
-		case 'range':
-			return NUMBER_OPERATORS;
-		case 'date':
-		case 'dateRange':
-			return DATE_OPERATORS;
-		case 'select':
-		case 'multiSelect':
-			return SELECT_OPERATORS;
-		case 'boolean':
-			return BOOLEAN_OPERATORS;
-		default:
-			return TEXT_OPERATORS;
-	}
+export function getFilterOperators(variant: FilterVariant): ReadonlyArray<FilterOperatorDef> {
+	const operatorMap = {
+		text: dataTableConfig.textOperators,
+		number: dataTableConfig.numericOperators,
+		range: dataTableConfig.numericOperators,
+		date: dataTableConfig.dateOperators,
+		dateRange: dataTableConfig.dateOperators,
+		boolean: dataTableConfig.booleanOperators,
+		select: dataTableConfig.selectOperators,
+		multiSelect: dataTableConfig.multiSelectOperators
+	} satisfies Record<FilterVariant, ReadonlyArray<FilterOperatorDef>>;
+
+	return operatorMap[variant] ?? dataTableConfig.textOperators;
 }
 
 /**
  * Gets the default filter operator for a given filter variant
  */
 export function getDefaultFilterOperator(variant: FilterVariant): FilterOperator {
-	switch (variant) {
-		case 'text':
-			return 'contains';
-		case 'number':
-			return 'equals';
-		case 'range':
-			return 'between';
-		case 'date':
-		case 'dateRange':
-			return 'equals';
-		case 'select':
-		case 'multiSelect':
-			return 'is';
-		case 'boolean':
-			return 'isTrue';
-		default:
-			return 'contains';
-	}
+	return getFilterOperators(variant)[0]?.value ?? (variant === 'text' ? 'contains' : 'equals');
 }
 
 /**
@@ -281,10 +248,6 @@ export function getValidFilters<TData>(
 
 		if (Array.isArray(filter.value) && filter.value.length === 0) {
 			return false;
-		}
-
-		if (filter.operator === 'between') {
-			return isCompleteRangeFilterValue(filter.value);
 		}
 
 		return true;

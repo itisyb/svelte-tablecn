@@ -1,6 +1,7 @@
 <script lang="ts" generics="TData, TValue">
 	import type { Column } from '@tanstack/table-core';
 	import { cn } from '$lib/utils.js';
+	import type { ComponentProps } from 'svelte';
 	import {
 		DropdownMenu,
 		DropdownMenuCheckboxItem,
@@ -15,13 +16,12 @@
 	import EyeOff from '@lucide/svelte/icons/eye-off';
 	import X from '@lucide/svelte/icons/x';
 
-	interface Props {
+	interface Props extends ComponentProps<typeof DropdownMenuTrigger> {
 		column: Column<TData, TValue>;
 		label: string;
-		class?: string;
 	}
 
-	let { column, label, class: className }: Props = $props();
+	let { column, label, class: className, ...triggerProps }: Props = $props();
 </script>
 
 {#if !column.getCanSort() && !column.getCanHide()}
@@ -33,6 +33,7 @@
 				'-ml-1.5 flex h-8 items-center gap-1.5 rounded-md px-2 py-1.5 hover:bg-accent focus:outline-none focus:ring-1 focus:ring-ring data-[state=open]:bg-accent [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground',
 				className
 			)}
+			{...triggerProps}
 		>
 			{label}
 			{#if column.getCanSort()}

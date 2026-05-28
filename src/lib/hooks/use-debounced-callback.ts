@@ -1,3 +1,5 @@
+import { onDestroy } from 'svelte';
+
 export interface DebouncedCallback<TArgs extends unknown[]> {
 	(...args: TArgs): void;
 	cancel: () => void;
@@ -46,6 +48,8 @@ export function useDebouncedCallback<TArgs extends unknown[]>(
 		callback(...lastArgs);
 		lastArgs = null;
 	};
+
+	onDestroy(debounced.cancel);
 
 	return debounced;
 }

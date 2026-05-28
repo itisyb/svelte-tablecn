@@ -8,9 +8,10 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table/index.js';
-	import { cn } from '$lib/utils.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	interface Props {
+	interface Props extends WithElementRef<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
 		columnCount: number;
 		rowCount?: number;
 		filterCount?: number;
@@ -18,7 +19,6 @@
 		withViewOptions?: boolean;
 		withPagination?: boolean;
 		shrinkZero?: boolean;
-		class?: string;
 	}
 
 	let {
@@ -29,7 +29,9 @@
 		withViewOptions = true,
 		withPagination = true,
 		shrinkZero = false,
-		class: className
+		class: className,
+		ref = $bindable(null),
+		...restProps
 	}: Props = $props();
 
 	const cozyCellWidths = $derived(
@@ -43,7 +45,11 @@
 	const filterItems = $derived(Array.from({ length: filterCount }, (_, index) => index));
 </script>
 
-<div class={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}>
+<div
+	bind:this={ref}
+	class={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}
+	{...restProps}
+>
 	<div class="flex w-full items-center justify-between gap-2 overflow-auto p-1">
 		<div class="flex flex-1 items-center gap-2">
 			{#each filterItems as item (item)}

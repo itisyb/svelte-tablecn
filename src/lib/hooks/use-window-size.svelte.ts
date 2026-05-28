@@ -18,8 +18,8 @@ interface UseWindowSizeOptions {
 export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
 	const { defaultWidth = 0, defaultHeight = 0 } = options;
 
-	let width = $state(browser ? window.innerWidth : defaultWidth);
-	let height = $state(browser ? window.innerHeight : defaultHeight);
+	let width = $state(defaultWidth);
+	let height = $state(defaultHeight);
 
 	$effect(() => {
 		if (!browser) return;

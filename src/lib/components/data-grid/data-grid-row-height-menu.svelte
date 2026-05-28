@@ -7,7 +7,7 @@
 		SelectItem,
 		SelectTrigger
 	} from '$lib/components/ui/select/index.js';
-	import type { Component } from 'svelte';
+	import type { Component, ComponentProps } from 'svelte';
 
 	// Icons
 	import Minus from '@lucide/svelte/icons/minus';
@@ -28,28 +28,29 @@
 		{ label: 'Extra Tall', value: 'extra-tall', icon: ChevronsDownUp }
 	];
 
-	interface Props {
+	interface Props extends ComponentProps<typeof SelectContent> {
 		table: Table<TData>;
-		align?: 'start' | 'center' | 'end';
-		class?: string;
+		disabled?: boolean;
 	}
 
-	let { table, align = 'start', class: className }: Props = $props();
+	let { table, disabled = false, class: className, ...contentProps }: Props = $props();
 
-	const rowHeight = $derived(table.options.meta?.rowHeight ?? 'short');
+	const defaultRowHeight = rowHeights[0]?.value ?? 'short';
+	const rowHeight = $derived(table.options.meta?.rowHeight);
 	const onRowHeightChange = $derived(table.options.meta?.onRowHeightChange);
 
 	const selectedRowHeight = $derived(
-		rowHeights.find((opt) => opt.value === rowHeight) ?? rowHeights[0]
+		rowHeights.find((opt) => opt.value === (rowHeight ?? defaultRowHeight)) ?? rowHeights[0]
 	);
 
 	function handleValueChange(value: string) {
+		if (disabled) return;
 		onRowHeightChange?.(value as RowHeightValue);
 	}
 </script>
 
-<Select type="single" value={rowHeight} onValueChange={handleValueChange}>
-	<SelectTrigger size="sm" class="[&_svg:nth-child(2)]:hidden {className}">
+<Select type="single" value={rowHeight} onValueChange={handleValueChange} {disabled}>
+	<SelectTrigger size="sm" {disabled} class="[&_svg:nth-child(2)]:hidden">
 		<span data-slot="select-value" class="flex items-center gap-2">
 			{#if selectedRowHeight}
 				{@const Icon = selectedRowHeight.icon}
@@ -60,7 +61,7 @@
 			{/if}
 		</span>
 	</SelectTrigger>
-	<SelectContent {align}>
+	<SelectContent class={className} {...contentProps}>
 		{#each rowHeights as option (option.value)}
 			{@const OptionIcon = option.icon}
 			<SelectItem value={option.value}>

@@ -16,7 +16,6 @@
 				"clsx",
 				"tailwind-merge",
 				"svelte-sonner",
-				"svelte-dnd-action",
 				"@lucide/svelte"
 			],
 			"registryDependencies": [
@@ -33,6 +32,7 @@
 				"select",
 				"separator",
 				"skeleton",
+				"sortable",
 				"table",
 				"textarea",
 				"tooltip"
@@ -74,9 +74,19 @@
 					"target": "data-grid/data-grid-filter-menu.svelte"
 				},
 				{
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-range-calendar.svelte"
+				},
+				{
 					"path": "src/lib/components/data-grid/data-grid-keyboard-shortcuts.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-keyboard-shortcuts.svelte"
+				},
+				{
+					"path": "src/lib/components/data-grid/data-grid-action-bar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-action-bar.svelte"
 				},
 				{
 					"path": "src/lib/components/data-grid/data-grid-paste-dialog.svelte",
@@ -199,14 +209,14 @@
 					"target": "use-badge-overflow.svelte.ts"
 				},
 				{
-					"path": "src/lib/hooks/use-window-size.svelte.ts",
-					"type": "registry:hook",
-					"target": "use-window-size.svelte.ts"
-				},
-				{
 					"path": "src/lib/hooks/use-data-grid-undo-redo.svelte.ts",
 					"type": "registry:hook",
 					"target": "use-data-grid-undo-redo.svelte.ts"
+				},
+				{
+					"path": "src/lib/hooks/use-debounced-callback.ts",
+					"type": "registry:hook",
+					"target": "use-debounced-callback.ts"
 				},
 				{
 					"path": "src/lib/types/data-grid.ts",
@@ -219,14 +229,19 @@
 					"target": "config/data-grid.ts"
 				},
 				{
+					"path": "src/lib/data-grid.ts",
+					"type": "registry:lib",
+					"target": "data-grid.ts"
+				},
+				{
 					"path": "src/lib/data-grid-filters.ts",
 					"type": "registry:lib",
 					"target": "data-grid-filters.ts"
 				},
 				{
-					"path": "src/lib/components/ui/data-table/data-table.svelte.ts",
-					"type": "registry:ui",
-					"target": "data-table/data-table.svelte.ts"
+					"path": "src/lib/format.ts",
+					"type": "registry:lib",
+					"target": "format.ts"
 				},
 				{
 					"path": "src/lib/components/ui/data-table/flex-render.svelte",
@@ -239,14 +254,44 @@
 					"target": "data-table/render-helpers.ts"
 				},
 				{
-					"path": "src/lib/components/ui/data-table/index.ts",
+					"path": "src/lib/components/ui/action-bar/action-bar.svelte",
 					"type": "registry:ui",
-					"target": "data-table/index.ts"
+					"target": "action-bar/action-bar.svelte"
 				},
 				{
-					"path": "src/lib/table/index.ts",
-					"type": "registry:lib",
-					"target": "table/index.ts"
+					"path": "src/lib/components/ui/action-bar/action-bar-selection.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-selection.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-group.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-group.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-item.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-item.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-close.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-close.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-separator.svelte",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-separator.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/action-bar-context.ts",
+					"type": "registry:ui",
+					"target": "action-bar/action-bar-context.ts"
+				},
+				{
+					"path": "src/lib/components/ui/action-bar/index.ts",
+					"type": "registry:ui",
+					"target": "action-bar/index.ts"
 				}
 			],
 			"docs": "This is a Svelte 5 port of tablecn.com - a feature-rich data grid with cell editing, keyboard navigation, search, filtering, sorting, and more. Visit https://tablecn.com for the original React version.",
@@ -262,6 +307,7 @@
 			"description": "A reusable data table component with sorting, filtering, pagination, view options, and skeleton states for Svelte 5.",
 			"dependencies": [
 				"@tanstack/table-core",
+				"@internationalized/date",
 				"bits-ui",
 				"clsx",
 				"tailwind-merge",
@@ -270,14 +316,17 @@
 			"registryDependencies": [
 				"badge",
 				"button",
+				"calendar",
 				"command",
 				"dropdown-menu",
+				"faceted",
 				"input",
 				"popover",
 				"select",
 				"separator",
 				"slider",
 				"skeleton",
+				"sortable",
 				"table"
 			],
 			"files": [
@@ -332,6 +381,11 @@
 					"target": "data-table/data-table-date-filter.svelte"
 				},
 				{
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-range-calendar.svelte"
+				},
+				{
 					"path": "src/lib/components/data-table/data-table-range-filter.svelte",
 					"type": "registry:component",
 					"target": "data-table/data-table-range-filter.svelte"
@@ -377,6 +431,21 @@
 					"target": "data-table.ts"
 				},
 				{
+					"path": "src/lib/data-table-range-utils.ts",
+					"type": "registry:lib",
+					"target": "data-table-range-utils.ts"
+				},
+				{
+					"path": "src/lib/filter-rows.ts",
+					"type": "registry:lib",
+					"target": "filter-rows.ts"
+				},
+				{
+					"path": "src/lib/data-grid-filters.ts",
+					"type": "registry:lib",
+					"target": "data-grid-filters.ts"
+				},
+				{
 					"path": "src/lib/format.ts",
 					"type": "registry:lib",
 					"target": "format.ts"
@@ -395,6 +464,11 @@
 					"path": "src/lib/config/data-table.ts",
 					"type": "registry:lib",
 					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				},
 				{
 					"path": "src/lib/types/data-table.ts",
@@ -413,8 +487,8 @@
 			"type": "registry:component",
 			"title": "Data Table Sort List",
 			"description": "A sort list component for the data table.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "popover", "select"],
+			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"registryDependencies": ["badge", "button", "command", "popover", "select", "sortable"],
 			"files": [
 				{
 					"path": "src/lib/components/data-table/data-table-sort-list.svelte",
@@ -425,11 +499,6 @@
 					"path": "src/lib/config/data-table.ts",
 					"type": "registry:lib",
 					"target": "config/data-table.ts"
-				},
-				{
-					"path": "src/lib/types/data-table.ts",
-					"type": "registry:lib",
-					"target": "types/data-table.ts"
 				}
 			],
 			"meta": {
@@ -442,8 +511,24 @@
 			"type": "registry:component",
 			"title": "Data Table Filter List",
 			"description": "A filter list component for the data table.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "input", "popover", "select"],
+			"dependencies": [
+				"@tanstack/table-core",
+				"@internationalized/date",
+				"bits-ui",
+				"@lucide/svelte"
+			],
+			"registryDependencies": [
+				"badge",
+				"button",
+				"calendar",
+				"command",
+				"faceted",
+				"input",
+				"popover",
+				"select",
+				"slider",
+				"sortable"
+			],
 			"files": [
 				{
 					"path": "src/lib/components/data-table/data-table-filter-list.svelte",
@@ -456,14 +541,14 @@
 					"target": "data-table/data-table-range-filter.svelte"
 				},
 				{
-					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
 					"type": "registry:component",
-					"target": "data-table/data-table-advanced-toolbar.svelte"
+					"target": "data-grid/data-grid-range-calendar.svelte"
 				},
 				{
-					"path": "src/lib/hooks/use-debounced-callback.ts",
-					"type": "registry:hook",
-					"target": "use-debounced-callback.ts"
+					"path": "src/lib/data-table-range-utils.ts",
+					"type": "registry:lib",
+					"target": "data-table-range-utils.ts"
 				},
 				{
 					"path": "src/lib/format.ts",
@@ -476,14 +561,14 @@
 					"target": "id.ts"
 				},
 				{
-					"path": "src/lib/parsers.ts",
-					"type": "registry:lib",
-					"target": "parsers.ts"
-				},
-				{
 					"path": "src/lib/config/data-table.ts",
 					"type": "registry:lib",
 					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				},
 				{
 					"path": "src/lib/types/data-table.ts",
@@ -501,8 +586,22 @@
 			"type": "registry:component",
 			"title": "Data Table Filter Menu",
 			"description": "A filter menu component for the data table.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "input", "popover", "select"],
+			"dependencies": [
+				"@tanstack/table-core",
+				"@internationalized/date",
+				"bits-ui",
+				"@lucide/svelte"
+			],
+			"registryDependencies": [
+				"badge",
+				"button",
+				"calendar",
+				"command",
+				"input",
+				"popover",
+				"select",
+				"slider"
+			],
 			"files": [
 				{
 					"path": "src/lib/components/data-table/data-table-filter-menu.svelte",
@@ -510,24 +609,19 @@
 					"target": "data-table/data-table-filter-menu.svelte"
 				},
 				{
-					"path": "src/lib/components/data-table/data-table-filter-list.svelte",
-					"type": "registry:component",
-					"target": "data-table/data-table-filter-list.svelte"
-				},
-				{
 					"path": "src/lib/components/data-table/data-table-range-filter.svelte",
 					"type": "registry:component",
 					"target": "data-table/data-table-range-filter.svelte"
 				},
 				{
-					"path": "src/lib/components/data-table/data-table-advanced-toolbar.svelte",
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
 					"type": "registry:component",
-					"target": "data-table/data-table-advanced-toolbar.svelte"
+					"target": "data-grid/data-grid-range-calendar.svelte"
 				},
 				{
-					"path": "src/lib/hooks/use-debounced-callback.ts",
-					"type": "registry:hook",
-					"target": "use-debounced-callback.ts"
+					"path": "src/lib/data-table-range-utils.ts",
+					"type": "registry:lib",
+					"target": "data-table-range-utils.ts"
 				},
 				{
 					"path": "src/lib/format.ts",
@@ -540,14 +634,14 @@
 					"target": "id.ts"
 				},
 				{
-					"path": "src/lib/parsers.ts",
-					"type": "registry:lib",
-					"target": "parsers.ts"
-				},
-				{
 					"path": "src/lib/config/data-table.ts",
 					"type": "registry:lib",
 					"target": "config/data-table.ts"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				},
 				{
 					"path": "src/lib/types/data-table.ts",
@@ -589,29 +683,9 @@
 					"target": "types/data-grid.ts"
 				},
 				{
-					"path": "src/lib/components/ui/data-table/data-table.svelte.ts",
-					"type": "registry:ui",
-					"target": "data-table/data-table.svelte.ts"
-				},
-				{
-					"path": "src/lib/components/ui/data-table/flex-render.svelte",
-					"type": "registry:ui",
-					"target": "data-table/flex-render.svelte"
-				},
-				{
 					"path": "src/lib/components/ui/data-table/render-helpers.ts",
 					"type": "registry:ui",
 					"target": "data-table/render-helpers.ts"
-				},
-				{
-					"path": "src/lib/components/ui/data-table/index.ts",
-					"type": "registry:ui",
-					"target": "data-table/index.ts"
-				},
-				{
-					"path": "src/lib/table/index.ts",
-					"type": "registry:lib",
-					"target": "table/index.ts"
 				}
 			],
 			"meta": {
@@ -624,13 +698,18 @@
 			"type": "registry:component",
 			"title": "Data Grid Sort Menu",
 			"description": "A sort menu component for the data grid.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "svelte-dnd-action", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "popover", "select"],
+			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"registryDependencies": ["badge", "button", "command", "popover", "select", "sortable"],
 			"files": [
 				{
 					"path": "src/lib/components/data-grid/data-grid-sort-menu.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-sort-menu.svelte"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				}
 			],
 			"meta": {
@@ -643,13 +722,18 @@
 			"type": "registry:component",
 			"title": "Data Grid Row Height Menu",
 			"description": "A row height menu component for the data grid.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"dependencies": ["@tanstack/table-core", "@lucide/svelte"],
 			"registryDependencies": ["select"],
 			"files": [
 				{
 					"path": "src/lib/components/data-grid/data-grid-row-height-menu.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-row-height-menu.svelte"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				}
 			],
 			"meta": {
@@ -662,13 +746,18 @@
 			"type": "registry:component",
 			"title": "Data Grid View Menu",
 			"description": "A view menu component for the data grid.",
-			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
+			"dependencies": ["@tanstack/table-core", "@lucide/svelte"],
 			"registryDependencies": ["button", "command", "popover"],
 			"files": [
 				{
 					"path": "src/lib/components/data-grid/data-grid-view-menu.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-view-menu.svelte"
+				},
+				{
+					"path": "src/lib/types/data-grid.ts",
+					"type": "registry:lib",
+					"target": "types/data-grid.ts"
 				}
 			],
 			"meta": {
@@ -681,7 +770,7 @@
 			"type": "registry:component",
 			"title": "Data Grid Keyboard Shortcuts",
 			"description": "A keyboard shortcuts dialog component for the data grid.",
-			"dependencies": ["bits-ui", "@lucide/svelte"],
+			"dependencies": ["@lucide/svelte"],
 			"registryDependencies": ["button", "dialog", "input", "kbd", "separator"],
 			"files": [
 				{
@@ -703,7 +792,6 @@
 			"dependencies": [
 				"@tanstack/table-core",
 				"bits-ui",
-				"svelte-dnd-action",
 				"@internationalized/date",
 				"@lucide/svelte"
 			],
@@ -714,7 +802,8 @@
 				"command",
 				"input",
 				"popover",
-				"select"
+				"select",
+				"sortable"
 			],
 			"files": [
 				{
@@ -723,9 +812,24 @@
 					"target": "data-grid/data-grid-filter-menu.svelte"
 				},
 				{
+					"path": "src/lib/components/data-grid/data-grid-range-calendar.svelte",
+					"type": "registry:component",
+					"target": "data-grid/data-grid-range-calendar.svelte"
+				},
+				{
+					"path": "src/lib/hooks/use-debounced-callback.ts",
+					"type": "registry:hook",
+					"target": "use-debounced-callback.ts"
+				},
+				{
 					"path": "src/lib/data-grid-filters.ts",
 					"type": "registry:lib",
 					"target": "data-grid-filters.ts"
+				},
+				{
+					"path": "src/lib/format.ts",
+					"type": "registry:lib",
+					"target": "format.ts"
 				},
 				{
 					"path": "src/lib/types/data-grid.ts",
@@ -743,7 +847,6 @@
 			"type": "registry:component",
 			"title": "Data Grid Skeleton",
 			"description": "A composable skeleton component for the data grid.",
-			"dependencies": [],
 			"registryDependencies": ["skeleton"],
 			"files": [
 				{
@@ -760,6 +863,188 @@
 					"path": "src/lib/components/data-grid/data-grid-skeleton-grid.svelte",
 					"type": "registry:component",
 					"target": "data-grid/data-grid-skeleton-grid.svelte"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "sortable",
+			"type": "registry:ui",
+			"title": "Sortable",
+			"description": "A composable sortable primitive for drag-reordering lists.",
+			"dependencies": ["svelte-dnd-action"],
+			"registryDependencies": [],
+			"files": [
+				{
+					"path": "src/lib/components/ui/sortable/sortable.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-content.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable-content.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-item.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable-item.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-item-handle.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable-item-handle.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-overlay.svelte",
+					"type": "registry:ui",
+					"target": "sortable/sortable-overlay.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/sortable-context.ts",
+					"type": "registry:ui",
+					"target": "sortable/sortable-context.ts"
+				},
+				{
+					"path": "src/lib/components/ui/sortable/index.ts",
+					"type": "registry:ui",
+					"target": "sortable/index.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "drawer",
+			"type": "registry:ui",
+			"title": "Drawer",
+			"description": "A drawer primitive with the upstream tablecn slot and direction contract.",
+			"dependencies": ["bits-ui"],
+			"registryDependencies": [],
+			"files": [
+				{
+					"path": "src/lib/components/ui/drawer/drawer.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-context.ts",
+					"type": "registry:ui",
+					"target": "drawer/drawer-context.ts"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-trigger.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-trigger.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-close.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-close.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-portal.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-portal.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-overlay.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-overlay.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-content.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-content.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-header.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-header.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-footer.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-footer.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-title.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-title.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/drawer-description.svelte",
+					"type": "registry:ui",
+					"target": "drawer/drawer-description.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/drawer/index.ts",
+					"type": "registry:ui",
+					"target": "drawer/index.ts"
+				}
+			],
+			"meta": {
+				"author": "itisyb",
+				"originalAuthor": "tablecn.com"
+			}
+		},
+		{
+			"name": "form",
+			"type": "registry:ui",
+			"title": "Form",
+			"description": "A Svelte form primitive that preserves the upstream tablecn slot and aria contract.",
+			"dependencies": ["bits-ui"],
+			"registryDependencies": ["label"],
+			"files": [
+				{
+					"path": "src/lib/components/ui/form/form.svelte",
+					"type": "registry:ui",
+					"target": "form/form.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-context.ts",
+					"type": "registry:ui",
+					"target": "form/form-context.ts"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-field.svelte",
+					"type": "registry:ui",
+					"target": "form/form-field.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-item.svelte",
+					"type": "registry:ui",
+					"target": "form/form-item.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-label.svelte",
+					"type": "registry:ui",
+					"target": "form/form-label.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-control.svelte",
+					"type": "registry:ui",
+					"target": "form/form-control.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-description.svelte",
+					"type": "registry:ui",
+					"target": "form/form-description.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/form-message.svelte",
+					"type": "registry:ui",
+					"target": "form/form-message.svelte"
+				},
+				{
+					"path": "src/lib/components/ui/form/index.ts",
+					"type": "registry:ui",
+					"target": "form/index.ts"
 				}
 			],
 			"meta": {

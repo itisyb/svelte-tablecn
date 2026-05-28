@@ -4,6 +4,9 @@ import ActionBarGroup from './action-bar-group.svelte';
 import ActionBarItem from './action-bar-item.svelte';
 import ActionBarClose from './action-bar-close.svelte';
 import ActionBarSeparator from './action-bar-separator.svelte';
+import type { ComponentProps } from 'svelte';
+
+export type ActionBarProps = ComponentProps<typeof ActionBar>;
 
 export {
 	ActionBar,

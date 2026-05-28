@@ -2,11 +2,13 @@
 	import type { Cell, Table } from '@tanstack/table-core';
 	import type { Snippet } from 'svelte';
 	import { getContext } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import { getCellKey, type Direction, type RowHeightValue } from '$lib/types/data-grid.js';
-	import { cn } from '$lib/utils.js';
+	import { cn, type WithElementRef } from '$lib/utils.js';
+	import { DEFAULT_ROW_HEIGHT } from '$lib/config/data-grid.js';
 	import { GRID_DIR_CONTEXT_KEY, type GridDirGetter } from './grid-dir-context.js';
 
-	interface Props {
+	interface Props extends WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement> {
 		cell: Cell<TData, unknown>;
 		table: Table<TData>;
 		rowIndex: number;
@@ -14,14 +16,7 @@
 		isEditing: boolean;
 		isFocused: boolean;
 		isSelected: boolean;
-		class?: string;
 		wrapperRef?: HTMLDivElement | null;
-		onclick?: (event: MouseEvent) => void;
-		onkeydown?: (event: KeyboardEvent) => void;
-		ondragenter?: (event: DragEvent) => void;
-		ondragleave?: (event: DragEvent) => void;
-		ondragover?: (event: DragEvent) => void;
-		ondrop?: (event: DragEvent) => void;
 		children?: Snippet;
 	}
 
@@ -35,13 +30,11 @@
 		isSelected,
 		class: className,
 		wrapperRef = $bindable(null),
+		ref = $bindable(null),
 		onclick: onClickProp,
 		onkeydown: onKeyDownProp,
-		ondragenter: onDragEnterProp,
-		ondragleave: onDragLeaveProp,
-		ondragover: onDragOverProp,
-		ondrop: onDropProp,
-		children
+		children,
+		...restProps
 	}: Props = $props();
 
 	// Track if cell was focused BEFORE mousedown (to prevent single-click opening edit)
@@ -60,9 +53,18 @@
 		}
 	});
 
+	function getWrapperElement() {
+		return wrapperRef;
+	}
+
+	function setWrapperElement(element: HTMLDivElement | null) {
+		wrapperRef = element;
+		ref = element;
+	}
+
 	// Compute cellKey reactively for virtualization
 	const cellKey = $derived(getCellKey(rowIndex, columnId));
-	const showSelectionHighlight = $derived(isSelected && !isFocused && !isEditing);
+	const showSelectionHighlight = $derived(isSelected && !isEditing);
 
 	const isSearchMatch = $derived.by(() => {
 		const meta = table.options.meta;
@@ -76,8 +78,9 @@
 	});
 	const rowHeight = $derived.by<RowHeightValue>(() => {
 		const meta = table.options.meta;
-		return meta?.rowHeight ?? 'short';
+		return meta?.rowHeight ?? DEFAULT_ROW_HEIGHT;
 	});
+	const readOnly = $derived(table.options.meta?.readOnly ?? false);
 
 	const getGridDir = getContext<GridDirGetter>(GRID_DIR_CONTEXT_KEY);
 	const dir = $derived(getGridDir?.() ?? 'ltr');
@@ -85,8 +88,7 @@
 	// Compute cell classes declaratively from reactive table state.
 	const cellClasses = $derived(
 		cn(
-			'size-full px-2 py-1.5 text-sm outline-none has-data-[slot=checkbox]:pt-2.5',
-			dir === 'rtl' ? 'text-right' : 'text-left',
+			'size-full px-2 py-1.5 text-start text-sm outline-none has-data-[slot=checkbox]:pt-2.5',
 			{
 				'ring-1 ring-ring ring-inset': isFocused,
 				'bg-yellow-100 dark:bg-yellow-900/30': isSearchMatch && !isActiveSearchMatch,
@@ -102,14 +104,14 @@
 		)
 	);
 
-	function handleClick(event: MouseEvent) {
+	function handleClick(event: Parameters<NonNullable<Props['onclick']>>[0]) {
 		if (!isEditing) {
 			event.preventDefault();
 			onClickProp?.(event);
 			const meta = table.options.meta;
 			// Only start editing if cell was ALREADY focused before this mousedown/click
 			// Selection is handled by mousedown, so we only handle editing here
-			if (wasFocusedOnMouseDown) {
+			if (wasFocusedOnMouseDown && !readOnly) {
 				meta?.onCellEditingStart?.(rowIndex, columnId);
 			}
 		}
@@ -142,13 +144,13 @@
 	}
 
 	function handleDoubleClick(event: MouseEvent) {
-		if (!isEditing) {
-			event.preventDefault();
-			table.options.meta?.onCellDoubleClick?.(rowIndex, columnId);
-		}
+		if (isEditing || event.defaultPrevented) return;
+
+		table.options.meta?.onCellDoubleClick?.(rowIndex, columnId, event);
+		event.preventDefault();
 	}
 
-	function handleKeyDown(event: KeyboardEvent) {
+	function handleKeyDown(event: Parameters<NonNullable<Props['onkeydown']>>[0]) {
 		onKeyDownProp?.(event);
 
 		if (event.defaultPrevented) return;
@@ -176,7 +178,7 @@
 		}
 
 		// Handle editing keys when focused
-		if (isFocused && !isEditing) {
+		if (isFocused && !isEditing && !readOnly) {
 			const meta = table.options.meta;
 			if (event.key === 'F2' || event.key === 'Enter') {
 				event.preventDefault();
@@ -203,14 +205,15 @@
 </script>
 
 <div
-	bind:this={wrapperRef}
 	role="button"
 	data-slot="grid-cell-wrapper"
 	data-editing={isEditing ? '' : undefined}
 	data-focused={isFocused ? '' : undefined}
-	data-selected={showSelectionHighlight ? '' : undefined}
+	data-selected={isSelected ? '' : undefined}
 	{dir}
 	tabindex={isFocused && !isEditing ? 0 : -1}
+	{...restProps}
+	bind:this={getWrapperElement, setWrapperElement}
 	class={cellClasses}
 	onclick={handleClick}
 	oncontextmenu={handleContextMenu}
@@ -219,10 +222,6 @@
 	onmouseenter={handleMouseEnter}
 	onmouseup={handleMouseUp}
 	onkeydown={handleKeyDown}
-	ondragenter={onDragEnterProp}
-	ondragleave={onDragLeaveProp}
-	ondragover={onDragOverProp}
-	ondrop={onDropProp}
 >
 	{@render children?.()}
 </div>

@@ -24,6 +24,14 @@
 
 	// Track local edits separately - this only matters during editing
 	let localEditValue = $state<string | null>(null);
+	let previousInitialValue = $state<number | undefined>(undefined);
+
+	$effect(() => {
+		if (initialValue === previousInitialValue) return;
+
+		previousInitialValue = initialValue;
+		localEditValue = null;
+	});
 
 	// Display value directly from initialValue (no effect delay)
 	const displayValue = $derived(String(initialValue ?? ''));
@@ -35,7 +43,6 @@
 	$effect(() => {
 		if (isEditing && inputRef) {
 			inputRef.focus();
-			inputRef.select();
 		}
 	});
 
@@ -59,6 +66,7 @@
 		if (isEditing) {
 			if (event.key === 'Enter') {
 				event.preventDefault();
+				event.stopPropagation();
 				const numValue = value === '' ? null : Number(value);
 				if (numValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: numValue });
@@ -67,6 +75,7 @@
 				meta?.onCellEditingStop?.({ moveToNextRow: true });
 			} else if (event.key === 'Tab') {
 				event.preventDefault();
+				event.stopPropagation();
 				const numValue = value === '' ? null : Number(value);
 				if (numValue !== initialValue) {
 					meta?.onDataUpdate?.({ rowIndex, columnId, value: numValue });
@@ -77,6 +86,7 @@
 				});
 			} else if (event.key === 'Escape') {
 				event.preventDefault();
+				event.stopPropagation();
 				localEditValue = null;
 				inputRef?.blur();
 			}
@@ -112,7 +122,7 @@
 			{step}
 			onblur={handleBlur}
 			oninput={handleInput}
-			class="w-full border-none bg-transparent p-0 text-start outline-none"
+			class="w-full border-none bg-transparent p-0 text-start outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 		/>
 	{:else}
 		<span data-slot="grid-cell-content">{displayValue}</span>

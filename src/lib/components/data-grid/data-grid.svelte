@@ -7,26 +7,29 @@
 		SearchState,
 		Direction
 	} from '$lib/types/data-grid.js';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import {
 		getColumnBorderVisibility,
 		getColumnPinningStyle,
 		toPinningStyleString
 	} from '$lib/data-grid.js';
-	import { cn } from '$lib/utils.js';
-	import { FlexRender } from '$lib/table';
+	import { cn, type WithElementRef } from '$lib/utils.js';
+	import FlexRender from '$lib/components/ui/data-table/flex-render.svelte';
 	import DataGridRow from './data-grid-row.svelte';
 	import DataGridColumnHeader from './data-grid-column-header.svelte';
 	import DataGridSearch from './data-grid-search.svelte';
 	import DataGridContextMenu from './data-grid-context-menu.svelte';
 	import DataGridPasteDialog from './data-grid-paste-dialog.svelte';
 	import { TooltipProvider } from '$lib/components/ui/tooltip/index.js';
+	import { DEFAULT_ROW_HEIGHT } from '$lib/config/data-grid.js';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { setContext } from 'svelte';
 	import { GRID_DIR_CONTEXT_KEY, type GridDirGetter } from './grid-dir-context.js';
 
-	interface Props extends Omit<UseDataGridReturn<TData>, 'dir'> {
+	interface Props
+		extends Omit<UseDataGridReturn<TData>, 'dir'>,
+			WithElementRef<Omit<HTMLAttributes<HTMLDivElement>, 'dir'>, HTMLDivElement> {
 		height?: number;
-		class?: string;
 		dir?: Direction;
 		stretchColumns?: boolean;
 	}
@@ -49,9 +52,12 @@
 		setDataGridRef,
 		setHeaderRef,
 		setFooterRef,
+		adjustLayout,
 		dir = 'ltr',
 		stretchColumns = false,
-		class: className
+		class: className,
+		ref = $bindable(null),
+		...restProps
 	}: Props = $props();
 
 	// Provide row selection getter via context for header checkbox reactivity
@@ -120,7 +126,7 @@
 
 	const meta = $derived(table.options.meta);
 	const readOnly = $derived(meta?.readOnly ?? false);
-	const rowHeight = $derived<RowHeightValue>(meta?.rowHeight ?? 'short');
+	const rowHeight = $derived<RowHeightValue>(meta?.rowHeight ?? DEFAULT_ROW_HEIGHT);
 	const focusedCell = $derived<CellPosition | null>(meta?.focusedCell ?? null);
 	// selectedCellsSet and selectionVersion are now received as props from hook return
 
@@ -229,9 +235,11 @@
 
 <TooltipProvider>
 	<div
+		bind:this={ref}
 		data-slot="grid-wrapper"
 		{dir}
 		class={cn('relative flex w-full min-w-0 max-w-full flex-col', className)}
+		{...restProps}
 	>
 		{#if searchState}
 			<DataGridSearch
@@ -355,7 +363,9 @@
 					role="rowgroup"
 					data-slot="grid-body"
 					class="relative grid"
-					style="height: {totalSize}px; min-width: {totalVisibleWidth}px;"
+					style="height: {totalSize}px; min-width: {totalVisibleWidth}px; contain: {adjustLayout
+						? 'layout paint'
+						: 'strict'};"
 				>
 					{#key visibilityKey}
 						{#each virtualItems as virtualItem (virtualItem.key)}
@@ -376,6 +386,7 @@
 									{rowHeight}
 									{focusedCell}
 									{dir}
+									{adjustLayout}
 									{stretchColumns}
 									virtualStart={virtualItem.start}
 								/>
@@ -402,7 +413,7 @@
 							<div
 								role="gridcell"
 								tabindex={0}
-								class="relative flex h-9 w-full cursor-pointer items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
+								class="relative flex h-9 grow items-center bg-muted/30 transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
 								style="width: {addRowWidth}px; min-width: {addRowWidth}px;"
 								onclick={(event) => void onRowAdd?.(event)}
 								onkeydown={onAddRowKeyDown}

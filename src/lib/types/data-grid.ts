@@ -1,6 +1,15 @@
 // Data Grid Types for TableCN-Svelte
 
-import type { ColumnDef, Table, Row, Cell, Column, RowData } from '@tanstack/table-core';
+import type {
+	ColumnDef,
+	Table,
+	Row,
+	Cell,
+	Column,
+	RowData,
+	TableMeta,
+	Updater
+} from '@tanstack/table-core';
 import type { SvelteSet, SvelteMap } from 'svelte/reactivity';
 import type { Snippet, Component } from 'svelte';
 
@@ -59,6 +68,8 @@ export interface UpdateCell {
 	columnId: string;
 	value: unknown;
 }
+
+export type CellUpdate = UpdateCell;
 
 // ============================================
 // Position & Selection Types
@@ -150,6 +161,20 @@ export interface SearchState extends SearchStateData {
 // Cell Variant Props
 // ============================================
 
+export interface DataGridCellProps<TData extends RowData = RowData> {
+	cell: Cell<TData, unknown>;
+	tableMeta: TableMeta<TData>;
+	rowIndex: number;
+	columnId: string;
+	rowHeight: RowHeightValue;
+	isEditing: boolean;
+	isFocused: boolean;
+	isSelected: boolean;
+	isSearchMatch: boolean;
+	isActiveSearchMatch: boolean;
+	readOnly: boolean;
+}
+
 export interface CellVariantProps<TData> {
 	cell: Cell<TData, unknown>;
 	table: Table<TData>;
@@ -196,7 +221,7 @@ export type NumberFilterOperator =
 	| 'lessThanOrEqual'
 	| 'greaterThan'
 	| 'greaterThanOrEqual'
-	| 'between'
+	| 'isBetween'
 	| 'isEmpty'
 	| 'isNotEmpty';
 
@@ -207,7 +232,8 @@ export type DateFilterOperator =
 	| 'after'
 	| 'onOrBefore'
 	| 'onOrAfter'
-	| 'between'
+	| 'isBetween'
+	| 'isRelativeToToday'
 	| 'isEmpty'
 	| 'isNotEmpty';
 
@@ -231,7 +257,7 @@ export type FilterOperator =
 export interface FilterValue {
 	operator: FilterOperator;
 	value?: string | number | string[];
-	value2?: string | number;
+	endValue?: string | number;
 }
 
 // ============================================
@@ -266,14 +292,14 @@ declare module '@tanstack/table-core' {
 		searchMatchSet?: SvelteSet<string>;
 		activeSearchMatch?: CellPosition | null;
 		rowHeight?: RowHeightValue;
-		onRowHeightChange?: (value: RowHeightValue) => void;
+		onRowHeightChange?: (updater: Updater<RowHeightValue>) => void;
 		getVisualRowIndex?: (rowId: string) => number | undefined;
 		onRowSelect?: (rowId: string, checked: boolean, shiftKey: boolean) => void;
-		onDataUpdate?: (params: UpdateCell | UpdateCell[]) => void;
+		onDataUpdate?: (params: CellUpdate | CellUpdate[]) => void;
 		onRowsDelete?: (rowIndices: number[]) => void | Promise<void>;
 		onColumnClick?: (columnId: string) => void;
 		onCellClick?: (rowIndex: number, columnId: string, event?: MouseEvent) => void;
-		onCellDoubleClick?: (rowIndex: number, columnId: string) => void;
+			onCellDoubleClick?: (rowIndex: number, columnId: string, event?: MouseEvent) => void;
 		onCellMouseDown?: (rowIndex: number, columnId: string, event: MouseEvent) => void;
 		onCellMouseEnter?: (rowIndex: number, columnId: string, event: MouseEvent) => void;
 		onCellMouseUp?: () => void;
@@ -283,25 +309,26 @@ declare module '@tanstack/table-core' {
 			direction?: NavigationDirection;
 			moveToNextRow?: boolean;
 		}) => void;
-		onCellsCopy?: () => void;
-		onCellsCut?: () => void;
+		onCellsCopy?: () => void | Promise<void>;
+		onCellsCut?: () => void | Promise<void>;
+		onCellsPaste?: (expand?: boolean) => void | Promise<void>;
 		onFilesUpload?: (params: {
 			files: File[];
 			rowIndex: number;
 			columnId: string;
-			row: TData;
 		}) => Promise<FileCellData[]>;
 		onFilesDelete?: (params: {
 			fileIds: string[];
 			rowIndex: number;
 			columnId: string;
-			row: TData;
 		}) => void | Promise<void>;
 		contextMenu?: ContextMenuState;
 		onContextMenuOpenChange?: (open: boolean) => void;
 		pasteDialog?: PasteDialogState;
 		onPasteDialogOpenChange?: (open: boolean) => void;
+		/** @deprecated Use onCellsPaste(true) instead. */
 		onPasteWithExpansion?: () => void;
+		/** @deprecated Use onCellsPaste(false) instead. */
 		onPasteWithoutExpansion?: () => void;
 		onSelectionClear?: () => void;
 	}
@@ -355,13 +382,11 @@ export interface DataGridProps<TData> {
 		files: File[];
 		rowIndex: number;
 		columnId: string;
-		row: TData;
 	}) => Promise<FileCellData[]>;
 	onFilesDelete?: (params: {
 		fileIds: string[];
 		rowIndex: number;
 		columnId: string;
-		row: TData;
 	}) => void | Promise<void>;
 
 	// Snippets for customization
