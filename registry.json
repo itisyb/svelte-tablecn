@@ -32,7 +32,7 @@
 				"select",
 				"separator",
 				"skeleton",
-				"sortable",
+				"local:sortable",
 				"table",
 				"textarea",
 				"tooltip"
@@ -326,7 +326,7 @@
 				"separator",
 				"slider",
 				"skeleton",
-				"sortable",
+				"local:sortable",
 				"table"
 			],
 			"files": [
@@ -488,7 +488,7 @@
 			"title": "Data Table Sort List",
 			"description": "A sort list component for the data table.",
 			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "popover", "select", "sortable"],
+			"registryDependencies": ["badge", "button", "command", "popover", "select", "local:sortable"],
 			"files": [
 				{
 					"path": "src/lib/components/data-table/data-table-sort-list.svelte",
@@ -527,7 +527,7 @@
 				"popover",
 				"select",
 				"slider",
-				"sortable"
+				"local:sortable"
 			],
 			"files": [
 				{
@@ -699,7 +699,7 @@
 			"title": "Data Grid Sort Menu",
 			"description": "A sort menu component for the data grid.",
 			"dependencies": ["@tanstack/table-core", "bits-ui", "@lucide/svelte"],
-			"registryDependencies": ["badge", "button", "command", "popover", "select", "sortable"],
+			"registryDependencies": ["badge", "button", "command", "popover", "select", "local:sortable"],
 			"files": [
 				{
 					"path": "src/lib/components/data-grid/data-grid-sort-menu.svelte",
@@ -803,7 +803,7 @@
 				"input",
 				"popover",
 				"select",
-				"sortable"
+				"local:sortable"
 			],
 			"files": [
 				{

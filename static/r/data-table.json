@@ -30,7 +30,7 @@
 		"separator",
 		"slider",
 		"skeleton",
-		"sortable",
+		"./sortable.json",
 		"table"
 	],
 	"meta": {

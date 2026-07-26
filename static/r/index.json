@@ -28,7 +28,7 @@
 			"select",
 			"separator",
 			"skeleton",
-			"sortable",
+			"local:sortable",
 			"table",
 			"textarea",
 			"tooltip"
@@ -65,7 +65,7 @@
 			"separator",
 			"slider",
 			"skeleton",
-			"sortable",
+			"local:sortable",
 			"table"
 		],
 		"meta": {
@@ -90,7 +90,7 @@
 			"command",
 			"popover",
 			"select",
-			"sortable"
+			"local:sortable"
 		],
 		"meta": {
 			"author": "itisyb",
@@ -119,7 +119,7 @@
 			"popover",
 			"select",
 			"slider",
-			"sortable"
+			"local:sortable"
 		],
 		"meta": {
 			"author": "itisyb",
@@ -188,7 +188,7 @@
 			"command",
 			"popover",
 			"select",
-			"sortable"
+			"local:sortable"
 		],
 		"meta": {
 			"author": "itisyb",
@@ -274,7 +274,7 @@
 			"input",
 			"popover",
 			"select",
-			"sortable"
+			"local:sortable"
 		],
 		"meta": {
 			"author": "itisyb",
