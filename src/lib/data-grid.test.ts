@@ -920,7 +920,7 @@ describe('data-grid registry item', () => {
 		expect(
 			registry.items.find((registryItem) => registryItem.name === 'data-table-filter-list')
 				?.registryDependencies
-		).toContain('sortable');
+		).toContain('local:sortable');
 		expect(
 			registry.items.find((registryItem) => registryItem.name === 'data-table-sort-list')
 				?.dependencies
@@ -928,7 +928,7 @@ describe('data-grid registry item', () => {
 		expect(
 			registry.items.find((registryItem) => registryItem.name === 'data-table-sort-list')
 				?.registryDependencies
-		).toContain('sortable');
+		).toContain('local:sortable');
 	});
 
 	it('keeps standalone grid utility registry dependencies scoped to direct imports', () => {
@@ -961,9 +961,9 @@ describe('data-grid registry item', () => {
 		expect(rowHeight?.dependencies).toEqual(['@tanstack/table-core', '@lucide/svelte']);
 		expect(view?.dependencies).toEqual(['@tanstack/table-core', '@lucide/svelte']);
 		expect(sortMenu?.dependencies).not.toContain('svelte-dnd-action');
-		expect(sortMenu?.registryDependencies).toContain('sortable');
+		expect(sortMenu?.registryDependencies).toContain('local:sortable');
 		expect(filterMenu?.dependencies).not.toContain('svelte-dnd-action');
-		expect(filterMenu?.registryDependencies).toContain('sortable');
+		expect(filterMenu?.registryDependencies).toContain('local:sortable');
 	});
 
 	it('keeps the standalone select-column registry slice scoped to row selection rendering', () => {
@@ -1044,6 +1044,27 @@ describe('data-grid registry item', () => {
 			'sortable/sortable-context.ts'
 		]) {
 			expect(targets.has(target)).toBe(true);
+		}
+	});
+
+	it('emits relative sortable registry dependencies for CLI installs', () => {
+		const dependents = [
+			'data-grid',
+			'data-table',
+			'data-grid-sort-menu',
+			'data-grid-filter-menu',
+			'data-table-sort-list',
+			'data-table-filter-list'
+		];
+
+		for (const name of dependents) {
+			const emitted = JSON.parse(readFileSync(`static/r/${name}.json`, 'utf8')) as {
+				registryDependencies?: string[];
+			};
+			const dependencies = emitted.registryDependencies ?? [];
+
+			expect(dependencies).toContain('./sortable.json');
+			expect(dependencies).not.toContain('sortable');
 		}
 	});
 
@@ -1565,8 +1586,16 @@ describe('data-table registry items', () => {
 			for (const field of metadataFields) {
 				const expectedValue = item[field] ?? (field === 'registryDependencies' ? [] : undefined);
 				const emittedValue = emitted[field] ?? (field === 'registryDependencies' ? [] : undefined);
+				const normalizedExpected =
+					field === 'registryDependencies' && Array.isArray(expectedValue)
+						? expectedValue.map((dependency) =>
+								dependency.startsWith('local:')
+									? `./${dependency.slice('local:'.length)}.json`
+									: dependency
+							)
+						: expectedValue;
 
-				if (JSON.stringify(emittedValue) !== JSON.stringify(expectedValue)) {
+				if (JSON.stringify(emittedValue) !== JSON.stringify(normalizedExpected)) {
 					mismatchedMetadata.push(`${item.name}: ${field} differs from registry.json`);
 				}
 			}
@@ -1703,7 +1732,11 @@ describe('data-table registry items', () => {
 		const missing: string[] = [];
 
 		for (const item of registry.items) {
-			const dependencies = new Set(item.registryDependencies ?? []);
+			const dependencies = new Set(
+				(item.registryDependencies ?? []).map((dependency) =>
+					dependency.startsWith('local:') ? dependency.slice('local:'.length) : dependency
+				)
+			);
 			const bundledUiFolders = new Set(
 				item.files
 					?.map((file) => file.path.match(/^src\/lib\/components\/ui\/([^/]+)/)?.[1])

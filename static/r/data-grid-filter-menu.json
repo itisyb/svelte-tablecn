@@ -23,7 +23,7 @@
 		"input",
 		"popover",
 		"select",
-		"sortable"
+		"./sortable.json"
 	],
 	"meta": {
 		"author": "itisyb",

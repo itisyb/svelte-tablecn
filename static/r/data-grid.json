@@ -33,7 +33,7 @@
 		"select",
 		"separator",
 		"skeleton",
-		"sortable",
+		"./sortable.json",
 		"table",
 		"textarea",
 		"tooltip"

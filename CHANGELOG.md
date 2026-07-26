@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Registry items that depend on the local `sortable` primitive now use `local:sortable` so installs resolve `./sortable.json` instead of looking for a non-existent upstream `sortable` component.
+
 ### Added
 
 - `DataGridKeyboardShortcuts` is documented with the shipped option surface and `Ctrl/Cmd + /` trigger.
